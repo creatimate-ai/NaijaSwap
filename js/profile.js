@@ -19,7 +19,7 @@ export {
   removeMediaFromIndexedDb 
 };
 
-const PROFILE_KEY_PREFIX = 'nigerswap_profile_';
+const PROFILE_KEY_PREFIX = 'naijaswap_profile_';
 
 export function getStoredProfile(uid) {
   if (!uid) return {};
@@ -35,7 +35,7 @@ export function saveDocToIndexedDb(key, data) {
   if (typeof window === 'undefined' || !window.indexedDB) return Promise.resolve(false);
   return new Promise((resolve) => {
     try {
-      const request = indexedDB.open('nigerswap_docs_db', 1);
+      const request = indexedDB.open('naijaswap_docs_db', 1);
       request.onupgradeneeded = (e) => {
         const db = e.target.result;
         if (!db.objectStoreNames.contains('kyc_docs')) {
@@ -100,9 +100,9 @@ export function compressImageFile(file, maxWidth = 800, maxHeight = 800, quality
 
 function pruneNonEssentialStorage() {
   try {
-    sessionStorage.removeItem('nigerswap_session_logs');
-    localStorage.removeItem('nigerswap_session_logs');
-    localStorage.removeItem('nigerswap_auth_diagnostic');
+    sessionStorage.removeItem('naijaswap_session_logs');
+    localStorage.removeItem('naijaswap_session_logs');
+    localStorage.removeItem('naijaswap_auth_diagnostic');
   } catch (_) {}
 }
 
@@ -134,7 +134,7 @@ export function saveStoredProfile(uid, profile) {
   try {
     localStorage.setItem(PROFILE_KEY_PREFIX + uid, JSON.stringify(cleanProfile));
   } catch (err) {
-    console.warn('[NigerSwap] localStorage save warning:', err.message);
+    console.warn('[NaijaSwap] localStorage save warning:', err.message);
     
     // Check if QuotaExceededError
     const isQuota = err && (err.name === 'QuotaExceededError' || err.code === 22 || err.code === 1014);
@@ -142,9 +142,9 @@ export function saveStoredProfile(uid, profile) {
       pruneNonEssentialStorage();
       try {
         localStorage.setItem(PROFILE_KEY_PREFIX + uid, JSON.stringify(cleanProfile));
-        console.info('[NigerSwap] Successfully stored lightweight profile after storage prune.');
+        console.info('[NaijaSwap] Successfully stored lightweight profile after storage prune.');
       } catch (secondErr) {
-        console.error('[NigerSwap] Still exceeded quota after storage prune:', secondErr);
+        console.error('[NaijaSwap] Still exceeded quota after storage prune:', secondErr);
         // Save only essential text fields as last resort
         const essentialOnly = {
           nin: cleanProfile.nin,
@@ -169,9 +169,9 @@ export function saveStoredProfile(uid, profile) {
 
 export function getDealerVerificationStatus(uid) {
   if (!uid) return 'unverified';
-  const status = localStorage.getItem('nigerswap_dealer_status_' + uid);
+  const status = localStorage.getItem('naijaswap_dealer_status_' + uid);
   if (status) return status;
-  if (localStorage.getItem('nigerswap_dealer_verified_' + uid) === 'true') return 'approved';
+  if (localStorage.getItem('naijaswap_dealer_verified_' + uid) === 'true') return 'approved';
   return 'unverified';
 }
 
@@ -182,14 +182,14 @@ export async function syncDealerVerificationStatus(uid) {
     const snapshot = await getDoc(doc(db, 'dealers', uid));
     if (snapshot.exists() && snapshot.data().status) {
       status = snapshot.data().status;
-      localStorage.setItem('nigerswap_dealer_status_' + uid, status);
-      localStorage.setItem('nigerswap_dealer_verified_' + uid, status === 'approved' ? 'true' : status);
+      localStorage.setItem('naijaswap_dealer_status_' + uid, status);
+      localStorage.setItem('naijaswap_dealer_verified_' + uid, status === 'approved' ? 'true' : status);
       if (snapshot.data().rejectionReason) {
-        localStorage.setItem('nigerswap_dealer_reject_reason_' + uid, snapshot.data().rejectionReason);
+        localStorage.setItem('naijaswap_dealer_reject_reason_' + uid, snapshot.data().rejectionReason);
       }
     }
   } catch (error) {
-    console.warn('[NigerSwap] Could not sync dealer verification status:', error.message);
+    console.warn('[NaijaSwap] Could not sync dealer verification status:', error.message);
   }
   return status;
 }
@@ -198,8 +198,8 @@ export function isProfileComplete(user, role = 'customer') {
   let uid = user?.uid || (typeof user === 'string' ? user : null);
   if (!uid) {
     try {
-      uid = localStorage.getItem('nigerswap_last_uid')
-        || JSON.parse(localStorage.getItem('nigerswap_user') || '{}')?.uid
+      uid = localStorage.getItem('naijaswap_last_uid')
+        || JSON.parse(localStorage.getItem('naijaswap_user') || '{}')?.uid
         || JSON.parse(localStorage.getItem('naijaswap_user') || '{}')?.uid
         || '';
     } catch (_) {}
@@ -208,8 +208,8 @@ export function isProfileComplete(user, role = 'customer') {
   // Check if dealer verification is approved by admin
   if (role === 'dealer') {
     if (uid) {
-      const status = localStorage.getItem('nigerswap_dealer_status_' + uid);
-      if (status === 'approved' || localStorage.getItem('nigerswap_dealer_verified_' + uid) === 'true') {
+      const status = localStorage.getItem('naijaswap_dealer_status_' + uid);
+      if (status === 'approved' || localStorage.getItem('naijaswap_dealer_verified_' + uid) === 'true') {
         return true;
       }
       if (status === 'pending' || status === 'rejected') {
@@ -217,11 +217,11 @@ export function isProfileComplete(user, role = 'customer') {
       }
     }
 
-    const lastRole = localStorage.getItem('nigerswap_last_role');
+    const lastRole = localStorage.getItem('naijaswap_last_role');
     if (lastRole === 'dealer') {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('nigerswap_dealer_verified_') && localStorage.getItem(key) === 'true') {
+        if (key && key.startsWith('naijaswap_dealer_verified_') && localStorage.getItem(key) === 'true') {
           return true;
         }
       }
@@ -236,7 +236,7 @@ export function isProfileComplete(user, role = 'customer') {
 
 export function requireCompleteProfile(user, role, action, options = {}) {
   if (isProfileComplete(user, role)) return true;
-  sessionStorage.setItem('nigerswap_profile_required_action', action || 'continue');
+  sessionStorage.setItem('naijaswap_profile_required_action', action || 'continue');
 
   if (typeof options === 'function') {
     options();
@@ -261,7 +261,7 @@ export function requireCompleteProfile(user, role, action, options = {}) {
 }
 
 export function showDealerVerificationPrompt(action = 'create a listing') {
-  sessionStorage.setItem('nigerswap_profile_required_action', action);
+  sessionStorage.setItem('naijaswap_profile_required_action', action);
   const modal = document.getElementById('dealerVerificationModal') || document.getElementById('verificationPromptModal');
   if (modal) {
     modal.classList.add('active');
@@ -273,11 +273,11 @@ export function showDealerVerificationPrompt(action = 'create a listing') {
 
 export function getStoredRole(uid) {
   if (uid) {
-    const directRole = localStorage.getItem('nigerswap_role_' + uid);
+    const directRole = localStorage.getItem('naijaswap_role_' + uid);
     if (directRole) return directRole.toLowerCase();
-    if (localStorage.getItem('nigerswap_shop_' + uid)) return 'dealer';
+    if (localStorage.getItem('naijaswap_shop_' + uid)) return 'dealer';
   }
-  const lastRole = localStorage.getItem('nigerswap_last_role');
+  const lastRole = localStorage.getItem('naijaswap_last_role');
   if (lastRole) return lastRole.toLowerCase();
 
   return 'customer';

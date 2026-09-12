@@ -1,5 +1,5 @@
 /**
- * NigerSwap - Cloudinary Configuration & Uploader
+ * NaijaSwap - Cloudinary Configuration & Uploader
  * Direct unsigned browser upload to Cloudinary.
  */
 

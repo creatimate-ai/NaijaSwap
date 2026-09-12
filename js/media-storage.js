@@ -1,15 +1,15 @@
 /**
- * NigerSwap - Cloudinary & IndexedDB Media Storage Controller
+ * NaijaSwap - Cloudinary & IndexedDB Media Storage Controller
  * Prevents QuotaExceededError by ensuring images & documents NEVER store raw base64 in localStorage.
  * Cloud Provider: Cloudinary (unsigned direct browser upload).
  * IndexedDB is only a local offline fallback; Firebase Storage is not used.
- * Resilient-fallback: Stores in IndexedDB (nigerswap_media_db) with lightweight 'idb:<key>' references
+ * Resilient-fallback: Stores in IndexedDB (naijaswap_media_db) with lightweight 'idb:<key>' references
  */
 
 export { CLOUDINARY_CONFIG, uploadToCloudinary } from './cloudinary-config.js';
 import { uploadToCloudinary, CLOUDINARY_CONFIG } from './cloudinary-config.js';
 
-const DB_NAME = 'nigerswap_media_db';
+const DB_NAME = 'naijaswap_media_db';
 const STORE_NAME = 'media_store';
 const DB_VERSION = 1;
 
@@ -208,11 +208,11 @@ export async function purgeLocalStorageImages() {
       const key = localStorage.key(i);
       if (!key) continue;
 
-      // 1. Check nigerswap_photo_<uid>
-      if (key.startsWith('nigerswap_photo_')) {
+      // 1. Check naijaswap_photo_<uid>
+      if (key.startsWith('naijaswap_photo_')) {
         const val = localStorage.getItem(key);
         if (val && val.startsWith('data:image/')) {
-          const uid = key.replace('nigerswap_photo_', '');
+          const uid = key.replace('naijaswap_photo_', '');
           const idbKey = `avatar_${uid}`;
           await saveMediaToIndexedDb(idbKey, val);
           localStorage.setItem(key, `idb:${idbKey}`);
@@ -221,12 +221,12 @@ export async function purgeLocalStorageImages() {
         }
       }
 
-      // 2. Check nigerswap_profile_<uid>
-      if (key.startsWith('nigerswap_profile_')) {
+      // 2. Check naijaswap_profile_<uid>
+      if (key.startsWith('naijaswap_profile_')) {
         try {
           const prof = JSON.parse(localStorage.getItem(key) || '{}');
           let modified = false;
-          const uid = key.replace('nigerswap_profile_', '');
+          const uid = key.replace('naijaswap_profile_', '');
 
           if (prof.avatar && prof.avatar.startsWith('data:image/')) {
             const idbKey = `profile_avatar_${uid}`;
@@ -255,8 +255,8 @@ export async function purgeLocalStorageImages() {
         } catch (_) {}
       }
 
-      // 3. Check nigerswap_user or naijaswap_user
-      if (key === 'nigerswap_user' || key === 'naijaswap_user') {
+      // 3. Check naijaswap_user or naijaswap_user
+      if (key === 'naijaswap_user' || key === 'naijaswap_user') {
         try {
           const u = JSON.parse(localStorage.getItem(key) || '{}');
           if (u.photoURL && u.photoURL.startsWith('data:image/')) {

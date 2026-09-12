@@ -767,30 +767,30 @@
 
     // Cache pre-fill
     try {
-      const stored = localStorage.getItem('nigerswap_user');
+      const stored = localStorage.getItem('naijaswap_user');
       if (stored) {
         dealerAuthUser = JSON.parse(stored);
         if (dealerAuthUser?.uid) {
           currentStoreId = dealerAuthUser.uid;
-          const storedShop = localStorage.getItem('nigerswap_shop_' + dealerAuthUser.uid);
+          const storedShop = localStorage.getItem('naijaswap_shop_' + dealerAuthUser.uid);
           if (storedShop) currentStoreName = storedShop;
         }
       }
     } catch (_) {}
 
     // Auth hook
-    window.onNigerSwapUserReady = (user, role) => {
+    window.onNaijaSwapUserReady = (user, role) => {
       if (user) {
         dealerAuthUser = user;
         currentStoreId = user.uid;
-        const storedShop = localStorage.getItem('nigerswap_shop_' + user.uid);
+        const storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
         currentStoreName = storedShop || (user.displayName ? `${user.displayName}'s Gadgets` : 'My Gadget Store');
 
         const topName = document.getElementById('topStoreName');
         const avatarEl = document.getElementById('storeAvatarFallback');
         if (topName) topName.textContent = currentStoreName;
 
-        const storedPhoto = localStorage.getItem('nigerswap_photo_' + user.uid);
+        const storedPhoto = localStorage.getItem('naijaswap_photo_' + user.uid);
         if (avatarEl) {
           if (storedPhoto) {
             resolveMedia(storedPhoto).then(src => {
@@ -1257,7 +1257,7 @@
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
-        link.setAttribute('download', `NigerSwap_Store_Activity_${new Date().toISOString().slice(0, 10)}.csv`);
+        link.setAttribute('download', `NaijaSwap_Store_Activity_${new Date().toISOString().slice(0, 10)}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

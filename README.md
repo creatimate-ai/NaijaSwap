@@ -1,6 +1,6 @@
-# NigerSwap
+# NaijaSwap
 
-NigerSwap is a Nigerian phone-swap marketplace platform that helps users discover dealers and swap offers for mobile devices.
+NaijaSwap is a Nigerian phone-swap marketplace platform that helps users discover dealers and swap offers for mobile devices.
 
 ## Features
 

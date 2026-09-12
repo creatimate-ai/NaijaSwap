@@ -750,7 +750,7 @@
 
     // Render Dealer Account Profile
     function renderDealerProfile(user) {
-      const uid = user?.uid || localStorage.getItem('nigerswap_last_uid') || '';
+      const uid = user?.uid || localStorage.getItem('naijaswap_last_uid') || '';
       const profile = uid ? getStoredProfile(uid) : {};
       const metrics = getStoreMetrics();
 
@@ -776,11 +776,11 @@
       swapperProfileContainer.style.display = 'none';
 
       // Store Details
-      const shopName = profile.businessName || (uid ? localStorage.getItem('nigerswap_shop_' + uid) : '') || user?.displayName || 'My Gadget Hub';
+      const shopName = profile.businessName || (uid ? localStorage.getItem('naijaswap_shop_' + uid) : '') || user?.displayName || 'My Gadget Hub';
       dealerStoreNameHeading.textContent = shopName;
       dealerStoreNameVal.textContent = shopName;
 
-      const dealerPhoto = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
+      const dealerPhoto = (uid ? localStorage.getItem('naijaswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
       if (dealerPhoto && dealerLogoImg) {
         displayMedia(dealerLogoImg, dealerPhoto, dealerLogoPlaceholder);
       } else if (dealerLogoPlaceholder) {
@@ -792,7 +792,7 @@
       dealerContactVal.textContent = user?.displayName || profile.contactPerson || 'Not Set';
       dealerEmailVal.textContent = user?.email || profile.businessEmail || 'Not Provided';
 
-      const phone = user?.phoneNumber || profile.phone || (uid ? localStorage.getItem('nigerswap_phone_' + uid) : '') || '';
+      const phone = user?.phoneNumber || profile.phone || (uid ? localStorage.getItem('naijaswap_phone_' + uid) : '') || '';
       dealerPhoneVal.textContent = phone || 'Not Set';
 
       dealerCacVal.textContent = profile.cacNumber || 'Sole Proprietorship / Unregistered';
@@ -869,7 +869,7 @@
 
     // Render Swapper Account Profile
     function renderSwapperProfile(user) {
-      const uid = user?.uid || localStorage.getItem('nigerswap_last_uid') || '';
+      const uid = user?.uid || localStorage.getItem('naijaswap_last_uid') || '';
       const profile = uid ? getStoredProfile(uid) : {};
 
       accountBackBtn.href = 'more.html';
@@ -894,13 +894,13 @@
         passwordTargetEmailDisplay.textContent = user?.email || 'No email associated with account';
       }
 
-      const phone = user?.phoneNumber || (uid ? localStorage.getItem('nigerswap_phone_' + uid) : '') || '';
+      const phone = user?.phoneNumber || (uid ? localStorage.getItem('naijaswap_phone_' + uid) : '') || '';
       detailPhone.textContent = phone || 'Not linked';
 
       detailPreferredHub.textContent = profile.preferredHub || 'Computer Village, Ikeja, Lagos';
 
       // Photo
-      const photo = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || user?.photoURL;
+      const photo = (uid ? localStorage.getItem('naijaswap_photo_' + uid) : null) || user?.photoURL;
       if (photo && userPhotoImg) {
         displayMedia(userPhotoImg, photo, userPhotoPlaceholder);
       } else {
@@ -974,7 +974,7 @@
     }
 
     // Initial sync render
-    const initialRole = resolveRole(localStorage.getItem('nigerswap_last_uid'));
+    const initialRole = resolveRole(localStorage.getItem('naijaswap_last_uid'));
     if (initialRole === 'dealer') {
       renderDealerProfile(null);
     } else {
@@ -1008,11 +1008,11 @@
     const openSwapperEdit = () => {
       clearAuthAlert('editProfileAlert');
       inputEditName.value = currentUser?.displayName || '';
-      inputEditPhone.value = currentUser?.phoneNumber || (currentUser?.uid ? localStorage.getItem('nigerswap_phone_' + currentUser.uid) : '') || '';
+      inputEditPhone.value = currentUser?.phoneNumber || (currentUser?.uid ? localStorage.getItem('naijaswap_phone_' + currentUser.uid) : '') || '';
       const profile = currentUser?.uid ? getStoredProfile(currentUser.uid) : {};
       if (profile.preferredHub) inputEditHub.value = profile.preferredHub;
 
-      const currentPhoto = (currentUser?.uid ? localStorage.getItem('nigerswap_photo_' + currentUser.uid) : null) || currentUser?.photoURL;
+      const currentPhoto = (currentUser?.uid ? localStorage.getItem('naijaswap_photo_' + currentUser.uid) : null) || currentUser?.photoURL;
       if (currentPhoto && editAvatarPreviewImg && editAvatarPreviewPlaceholder) {
         displayMedia(editAvatarPreviewImg, currentPhoto, editAvatarPreviewPlaceholder);
         if (btnRemovePhoto) btnRemovePhoto.style.display = 'inline-flex';
@@ -1096,26 +1096,26 @@
           await updateProfile(currentUser, { displayName: newName });
         }
         if (newPhone) {
-          localStorage.setItem('nigerswap_phone_' + currentUser.uid, newPhone);
+          localStorage.setItem('naijaswap_phone_' + currentUser.uid, newPhone);
         }
 
         if (pendingPhotoFile) {
           const mediaToken = await storeMedia(`avatar_${currentUser.uid}`, pendingPhotoFile, { folder: 'user_avatars' });
-          localStorage.setItem('nigerswap_photo_' + currentUser.uid, mediaToken);
+          localStorage.setItem('naijaswap_photo_' + currentUser.uid, mediaToken);
           try {
-            const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+            const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
             u.photoURL = mediaToken;
-            localStorage.setItem('nigerswap_user', JSON.stringify(u));
+            localStorage.setItem('naijaswap_user', JSON.stringify(u));
           } catch (_) {}
           if (mediaToken.startsWith('https://')) {
             try { await updateProfile(currentUser, { photoURL: mediaToken }); } catch (_) {}
           }
         } else if (removePhotoFlag) {
-          localStorage.removeItem('nigerswap_photo_' + currentUser.uid);
+          localStorage.removeItem('naijaswap_photo_' + currentUser.uid);
           try {
-            const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+            const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
             delete u.photoURL;
-            localStorage.setItem('nigerswap_user', JSON.stringify(u));
+            localStorage.setItem('naijaswap_user', JSON.stringify(u));
           } catch (_) {}
           try { await updateProfile(currentUser, { photoURL: '' }); } catch (_) {}
         }
@@ -1140,17 +1140,17 @@
     // ========================================================================
     const openDealerEdit = () => {
       clearAuthAlert('editDealerAlert');
-      const uid = currentUser?.uid || localStorage.getItem('nigerswap_last_uid') || '';
+      const uid = currentUser?.uid || localStorage.getItem('naijaswap_last_uid') || '';
       const profile = uid ? getStoredProfile(uid) : {};
 
-      inputDealerStoreName.value = profile.businessName || (uid ? localStorage.getItem('nigerswap_shop_' + uid) : '') || currentUser?.displayName || '';
+      inputDealerStoreName.value = profile.businessName || (uid ? localStorage.getItem('naijaswap_shop_' + uid) : '') || currentUser?.displayName || '';
       inputDealerContactPerson.value = currentUser?.displayName || profile.contactPerson || '';
-      inputDealerPhone.value = currentUser?.phoneNumber || profile.phone || (uid ? localStorage.getItem('nigerswap_phone_' + uid) : '') || '';
+      inputDealerPhone.value = currentUser?.phoneNumber || profile.phone || (uid ? localStorage.getItem('naijaswap_phone_' + uid) : '') || '';
       inputDealerShopAddress.value = profile.shopAddress || '';
       inputDealerBankName.value = profile.bankName || '';
       inputDealerBankAccount.value = profile.bankAccountNumber || '';
 
-      const currentDealerPhoto = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || currentUser?.photoURL;
+      const currentDealerPhoto = (uid ? localStorage.getItem('naijaswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || currentUser?.photoURL;
       if (currentDealerPhoto && editDealerLogoPreviewImg && editDealerLogoPreviewPlaceholder) {
         displayMedia(editDealerLogoPreviewImg, currentDealerPhoto, editDealerLogoPreviewPlaceholder);
         if (btnRemoveDealerPhoto) btnRemoveDealerPhoto.style.display = 'inline-flex';
@@ -1223,7 +1223,7 @@
     document.getElementById('editDealerForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearAuthAlert('editDealerAlert');
-      const uid = currentUser?.uid || localStorage.getItem('nigerswap_last_uid');
+      const uid = currentUser?.uid || localStorage.getItem('naijaswap_last_uid');
       if (!uid) {
         showAuthAlert('editDealerAlert', 'Please log in before modifying store profile.');
         return;
@@ -1249,25 +1249,25 @@
 
         if (pendingDealerPhoto) {
           const mediaToken = await storeMedia(`dealer_logo_${uid}`, pendingDealerPhoto, { folder: 'store_logos' });
-          localStorage.setItem('nigerswap_photo_' + uid, mediaToken);
+          localStorage.setItem('naijaswap_photo_' + uid, mediaToken);
           profile.avatar = mediaToken;
           profile.photoURL = mediaToken;
           try {
-            const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+            const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
             u.photoURL = mediaToken;
-            localStorage.setItem('nigerswap_user', JSON.stringify(u));
+            localStorage.setItem('naijaswap_user', JSON.stringify(u));
           } catch (_) {}
           if (currentUser && mediaToken.startsWith('https://')) {
             try { await updateProfile(currentUser, { photoURL: mediaToken }); } catch (_) {}
           }
         } else if (removeDealerPhotoFlag) {
-          localStorage.removeItem('nigerswap_photo_' + uid);
+          localStorage.removeItem('naijaswap_photo_' + uid);
           delete profile.avatar;
           delete profile.photoURL;
           try {
-            const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+            const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
             delete u.photoURL;
-            localStorage.setItem('nigerswap_user', JSON.stringify(u));
+            localStorage.setItem('naijaswap_user', JSON.stringify(u));
           } catch (_) {}
           if (currentUser) {
             try { await updateProfile(currentUser, { photoURL: '' }); } catch (_) {}
@@ -1276,9 +1276,9 @@
 
         saveStoredProfile(uid, profile);
 
-        localStorage.setItem('nigerswap_shop_' + uid, storeName);
-        localStorage.setItem('nigerswap_phone_' + uid, phone);
-        localStorage.setItem('nigerswap_role_' + uid, 'dealer');
+        localStorage.setItem('naijaswap_shop_' + uid, storeName);
+        localStorage.setItem('naijaswap_phone_' + uid, phone);
+        localStorage.setItem('naijaswap_role_' + uid, 'dealer');
 
         if (currentUser) {
           if (contactPerson) {
@@ -1347,9 +1347,9 @@
       try {
         const uid = currentUser.uid;
         await deleteUser(currentUser);
-        localStorage.removeItem('nigerswap_role_' + uid);
-        localStorage.removeItem('nigerswap_shop_' + uid);
-        localStorage.removeItem('nigerswap_profile_' + uid);
+        localStorage.removeItem('naijaswap_role_' + uid);
+        localStorage.removeItem('naijaswap_shop_' + uid);
+        localStorage.removeItem('naijaswap_profile_' + uid);
         alert('Account deleted successfully.');
         window.location.href = 'index.html';
       } catch (err) {

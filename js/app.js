@@ -1,5 +1,5 @@
 /**
- * NigerSwap - Modern Interactive Landing Page Logic
+ * NaijaSwap - Modern Interactive Landing Page Logic
  * Features:
  * - Interactive Device Swap Simulator with preset switching & dynamic animations
  * - Live Top-up and Dealer Match Calculators
@@ -380,7 +380,7 @@ function initModals() {
   if (openDealerCheckBtn) {
     openDealerCheckBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      showToast('✅ All NigerSwap dealers hold physical verification and CAC registration.');
+      showToast('✅ All NaijaSwap dealers hold physical verification and CAC registration.');
     });
   }
 
@@ -480,7 +480,7 @@ function initMobileSliders() {
     }, { passive: true });
   }
 
-  // Why NigerSwap Slider Dots
+  // Why NaijaSwap Slider Dots
   const whyGrid = document.querySelector('.why-grid');
   const whyDots = document.querySelectorAll('#whySliderDots .dot');
 

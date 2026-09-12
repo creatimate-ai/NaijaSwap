@@ -542,7 +542,7 @@
     submitBtn.addEventListener('click', async () => {
       if (!consentCheck.checked) return;
       clearAuthAlert('verificationAlert');
-      const uid = currentUser?.uid || localStorage.getItem('nigerswap_last_uid') || (()=>{try{return JSON.parse(localStorage.getItem('nigerswap_user')||'{}')?.uid;}catch(_){return null;}})();
+      const uid = currentUser?.uid || localStorage.getItem('naijaswap_last_uid') || (()=>{try{return JSON.parse(localStorage.getItem('naijaswap_user')||'{}')?.uid;}catch(_){return null;}})();
       if (!uid) { showAuthAlert('verificationAlert','Session expired. Please log in again.'); return; }
       
       try {
@@ -578,7 +578,7 @@
         // Record in Admin Verification Queue
         let queue = [];
         try {
-          queue = JSON.parse(localStorage.getItem('nigerswap_verifications') || '[]');
+          queue = JSON.parse(localStorage.getItem('naijaswap_verifications') || '[]');
           if (!Array.isArray(queue)) queue = [];
         } catch (_) { queue = []; }
 
@@ -605,21 +605,21 @@
         } else {
           queue.unshift(verifRecord);
         }
-        localStorage.setItem('nigerswap_verifications', JSON.stringify(queue));
+        localStorage.setItem('naijaswap_verifications', JSON.stringify(queue));
 
         // Mark status as pending review
-        localStorage.setItem('nigerswap_dealer_status_' + uid, 'pending');
-        localStorage.setItem('nigerswap_dealer_verified_' + uid, 'pending');
-        localStorage.setItem('nigerswap_role_' + uid, 'dealer');
-        localStorage.setItem('nigerswap_last_role', 'dealer');
-        localStorage.setItem('nigerswap_last_uid', uid);
-        if (data.businessName) localStorage.setItem('nigerswap_shop_' + uid, data.businessName);
+        localStorage.setItem('naijaswap_dealer_status_' + uid, 'pending');
+        localStorage.setItem('naijaswap_dealer_verified_' + uid, 'pending');
+        localStorage.setItem('naijaswap_role_' + uid, 'dealer');
+        localStorage.setItem('naijaswap_last_role', 'dealer');
+        localStorage.setItem('naijaswap_last_uid', uid);
+        if (data.businessName) localStorage.setItem('naijaswap_shop_' + uid, data.businessName);
 
         try {
-          const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+          const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
           u.uid = uid;
           if (data.businessName) u.displayName = data.businessName;
-          localStorage.setItem('nigerswap_user', JSON.stringify(u));
+          localStorage.setItem('naijaswap_user', JSON.stringify(u));
         } catch (_) {}
 
         // Sync application to Firestore
@@ -748,7 +748,7 @@
         actionBtn.textContent = 'Manage Phone Inventory \u2192';
         actionBtn.onclick = () => { window.location.href = 'dealer-listings.html'; };
       } else if (status === 'rejected') {
-        const reason = localStorage.getItem('nigerswap_dealer_reject_reason_' + uid) || 'Some uploaded documents could not be verified.';
+        const reason = localStorage.getItem('naijaswap_dealer_reject_reason_' + uid) || 'Some uploaded documents could not be verified.';
         iconWrap.innerHTML = '⚠️';
         iconWrap.style.background = 'linear-gradient(135deg, rgba(244,63,94,0.25), rgba(245,158,11,0.15))';
         iconWrap.style.border = '1.5px solid rgba(244,63,94,0.45)';
@@ -789,16 +789,16 @@
       buildProgressBar();
       prefillFromProfile(uid);
 
-      let status = localStorage.getItem('nigerswap_dealer_status_' + uid)
-        || (localStorage.getItem('nigerswap_dealer_verified_' + uid) === 'true' ? 'approved' : 'unverified');
+      let status = localStorage.getItem('naijaswap_dealer_status_' + uid)
+        || (localStorage.getItem('naijaswap_dealer_verified_' + uid) === 'true' ? 'approved' : 'unverified');
       try {
         const remote = await getDoc(doc(db, 'dealerVerification', uid));
         if (remote.exists() && remote.data().status) {
           status = remote.data().status;
-          localStorage.setItem('nigerswap_dealer_status_' + uid, status);
+          localStorage.setItem('naijaswap_dealer_status_' + uid, status);
         }
       } catch (error) {
-        console.warn('[NigerSwap Verification] Could not load remote status:', error.message);
+        console.warn('[NaijaSwap Verification] Could not load remote status:', error.message);
       }
 
       document.getElementById('skeletonLoader').style.display = 'none';
@@ -816,15 +816,15 @@
       }
     }
 
-    const cachedUid = (()=>{try{return localStorage.getItem('nigerswap_last_uid')||JSON.parse(localStorage.getItem('nigerswap_user')||'{}')?.uid;}catch(_){return null;}})();
-    const cachedRole = cachedUid?(localStorage.getItem('nigerswap_role_'+cachedUid)||localStorage.getItem('nigerswap_last_role')||'customer'):'customer';
+    const cachedUid = (()=>{try{return localStorage.getItem('naijaswap_last_uid')||JSON.parse(localStorage.getItem('naijaswap_user')||'{}')?.uid;}catch(_){return null;}})();
+    const cachedRole = cachedUid?(localStorage.getItem('naijaswap_role_'+cachedUid)||localStorage.getItem('naijaswap_last_role')||'customer'):'customer';
     renderBottomNav(cachedRole);
     if (cachedUid) initWizard(cachedUid);
 
     onAuthStateChanged(auth, user => {
       currentUser = user;
       if (!user) { window.location.href='login.html'; return; }
-      localStorage.setItem('nigerswap_last_uid', user.uid);
+      localStorage.setItem('naijaswap_last_uid', user.uid);
       const role = getStoredRole(user.uid);
       renderBottomNav(role);
       if (!cachedUid) initWizard(user.uid);

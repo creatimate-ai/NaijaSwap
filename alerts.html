@@ -424,7 +424,7 @@
 
     // Initialize session user from synchronous local cache
     try {
-      const stored = localStorage.getItem('nigerswap_user') || localStorage.getItem('naijaswap_user');
+      const stored = localStorage.getItem('naijaswap_user') || localStorage.getItem('naijaswap_user');
       if (stored) {
         const u = JSON.parse(stored);
         currentUserId = u.uid || 'user_guest';
@@ -438,7 +438,7 @@
       const headerAvatarFallback = document.getElementById('headerAvatarFallback');
       if (headerUserName) headerUserName.textContent = name;
       if (headerAvatarFallback) {
-        const storedPhoto = uid ? localStorage.getItem('nigerswap_photo_' + uid) : null;
+        const storedPhoto = uid ? localStorage.getItem('naijaswap_photo_' + uid) : null;
         const photo = storedPhoto || (photoURL && photoURL.startsWith('http') ? photoURL : null);
         if (photo) {
           headerAvatarFallback.innerHTML = `<img src="${photo}" alt="${escapeHtml(name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
@@ -451,7 +451,7 @@
     updateHeaderUserUI(currentUserName, currentUserId);
 
     // Hook from auth.js when Firebase user is confirmed/ready
-    window.onNigerSwapUserReady = (user, role) => {
+    window.onNaijaSwapUserReady = (user, role) => {
       if (user) {
         userReady = true;
         currentUserId = user.uid;
@@ -474,7 +474,7 @@
         const local = NaijaSwapData.getUserNotifications(currentUserId);
         const merged = [...remote, ...local.filter(item => !remote.some(remoteItem => remoteItem.id === item.id))];
         merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        window.nigerswapRemoteNotifications = merged;
+        window.naijaswapRemoteNotifications = merged;
       } catch (error) {
         console.warn('[Alerts] Could not load remote notifications:', error.message);
       }
@@ -483,7 +483,7 @@
     async function renderAlerts() {
       if (!userReady) return;
       await loadRemoteNotifications();
-      const allNotifs = window.nigerswapRemoteNotifications || NaijaSwapData.getUserNotifications(currentUserId);
+      const allNotifs = window.naijaswapRemoteNotifications || NaijaSwapData.getUserNotifications(currentUserId);
       const unreadCount = allNotifs.filter(n => !n.isRead).length;
       const swapCount = allNotifs.filter(n => (n.type || '').includes('swap')).length;
 

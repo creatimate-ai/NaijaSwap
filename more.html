@@ -110,13 +110,13 @@
         return paramRole;
       }
       try {
-        const lastUid = localStorage.getItem('nigerswap_last_uid');
+        const lastUid = localStorage.getItem('naijaswap_last_uid');
         if (lastUid) {
-          const direct = localStorage.getItem('nigerswap_role_' + lastUid);
+          const direct = localStorage.getItem('naijaswap_role_' + lastUid);
           if (direct) return direct.toLowerCase();
-          if (localStorage.getItem('nigerswap_shop_' + lastUid)) return 'dealer';
+          if (localStorage.getItem('naijaswap_shop_' + lastUid)) return 'dealer';
         }
-        const lastRole = localStorage.getItem('nigerswap_last_role');
+        const lastRole = localStorage.getItem('naijaswap_last_role');
         if (lastRole) return lastRole.toLowerCase();
       } catch (_) {}
       return 'customer';
@@ -127,7 +127,7 @@
     function renderMorePage(role, user = null) {
       currentRole = role;
       const isDealer = role === 'dealer';
-      const uid = user?.uid || localStorage.getItem('nigerswap_last_uid') || '';
+      const uid = user?.uid || localStorage.getItem('naijaswap_last_uid') || '';
       const profile = uid ? getStoredProfile(uid) : {};
 
       // 1. Back button & Headers
@@ -143,7 +143,7 @@
         moreMainSubtitle.textContent = 'Manage phone inventory, incoming swap requests, business verification, and settlement.';
         
         // User Banner
-        const shopName = profile.businessName || (uid ? localStorage.getItem('nigerswap_shop_' + uid) : '') || user?.displayName || 'My Gadget Hub';
+        const shopName = profile.businessName || (uid ? localStorage.getItem('naijaswap_shop_' + uid) : '') || user?.displayName || 'My Gadget Hub';
         moreUserName.textContent = shopName;
         moreUserEmail.textContent = user?.email || profile.businessEmail || 'Store Partner Account';
         
@@ -151,7 +151,7 @@
         moreStatusBadge.className = isVerified ? 'more-badge-pill badge-cyan' : 'more-badge-pill badge-amber';
         moreStatusBadge.textContent = isVerified ? 'KYC Verified' : 'KYC Pending';
 
-        const photo = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
+        const photo = (uid ? localStorage.getItem('naijaswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
         if (photo) {
           resolveMedia(photo).then(src => {
             if (src && moreAvatarNode) {
@@ -189,7 +189,7 @@
         moreStatusBadge.className = 'more-badge-pill badge-emerald';
         moreStatusBadge.textContent = 'Active Swapper';
 
-        const swapperPhoto = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
+        const swapperPhoto = (uid ? localStorage.getItem('naijaswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
         if (swapperPhoto) {
           resolveMedia(swapperPhoto).then(src => {
             if (src && moreAvatarNode) {

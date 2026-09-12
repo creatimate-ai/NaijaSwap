@@ -363,7 +363,7 @@
       </h2>
 
       <p style="color: var(--text-dim, #cbd5e1); font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px;">
-        You cannot list phones for swap or sale on NigerSwap yet because you are <strong style="color: #FFF; font-weight: 700;">yet to complete your business verification</strong>.
+        You cannot list phones for swap or sale on NaijaSwap yet because you are <strong style="color: #FFF; font-weight: 700;">yet to complete your business verification</strong>.
       </p>
 
       <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 24px; text-align: left; font-size: 0.82rem; color: var(--text-muted); display: flex; gap: 12px; align-items: flex-start; line-height: 1.5;">
@@ -387,7 +387,7 @@
   <script type="module">
     import { requireCompleteProfile, isProfileComplete, resolveMedia } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { logNigerSwap } from './js/auth.js';
+    import { logNaijaSwap } from './js/auth.js';
     import { db, doc, getDoc } from './js/firebase-config.js';
 
     let currentStoreId = '';
@@ -398,33 +398,33 @@
 
     // Immediate synchronous cache pre-fill
     try {
-      const stored = localStorage.getItem('nigerswap_user');
+      const stored = localStorage.getItem('naijaswap_user');
       if (stored) {
         dealerAuthUser = JSON.parse(stored);
         if (dealerAuthUser?.uid) {
           currentStoreId = dealerAuthUser.uid;
-          const storedShop = localStorage.getItem('nigerswap_shop_' + dealerAuthUser.uid);
+          const storedShop = localStorage.getItem('naijaswap_shop_' + dealerAuthUser.uid);
           if (storedShop) currentStoreName = storedShop;
         }
       }
     } catch (_) {}
 
     // Define user hook immediately before any auth event fires
-    window.onNigerSwapUserReady = (user, role) => {
-      console.info('[NigerSwap Dealer] Dealer profile ready:', { uid: user?.uid, email: user?.email, role });
+    window.onNaijaSwapUserReady = (user, role) => {
+      console.info('[NaijaSwap Dealer] Dealer profile ready:', { uid: user?.uid, email: user?.email, role });
       if (user) {
         dealerAuthUser = user;
         dealerReady = true;
         currentStoreId = user.uid;
         
-        const storedShop = localStorage.getItem('nigerswap_shop_' + user.uid);
+        const storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
         currentStoreName = storedShop || (user.displayName ? `${user.displayName}'s Gadgets` : 'My Gadget Store');
 
         const topName = document.getElementById('topStoreName');
         const avatarEl = document.getElementById('storeAvatarFallback');
         if (topName) topName.textContent = currentStoreName;
 
-        const storedPhoto = localStorage.getItem('nigerswap_photo_' + user.uid);
+        const storedPhoto = localStorage.getItem('naijaswap_photo_' + user.uid);
         if (avatarEl) {
           if (storedPhoto) {
             resolveMedia(storedPhoto).then(src => {
@@ -505,7 +505,7 @@
       try {
         requests = await NaijaSwapData.getStoreSwapRequestsRemote(dealerAuthUser?.uid || currentStoreId);
       } catch (error) {
-        console.warn('[NigerSwap] Remote dealer requests unavailable; using cached requests.', error);
+        console.warn('[NaijaSwap] Remote dealer requests unavailable; using cached requests.', error);
         requests = NaijaSwapData.getStoreSwapRequests(currentStoreId);
       }
       if (!swapRequestsContainer) return;
@@ -735,25 +735,25 @@
 
     async function refreshDashboard() {
       try {
-        console.info('[NigerSwap Dealer] Refreshing dashboard components with store ID:', currentStoreId);
+        console.info('[NaijaSwap Dealer] Refreshing dashboard components with store ID:', currentStoreId);
         updateGreeting();
         refreshStats();
         renderSwapRequests();
         renderStoreListings();
         renderActivityTimeline();
-        const uid = dealerAuthUser?.uid || currentStoreId || localStorage.getItem('nigerswap_last_uid');
+        const uid = dealerAuthUser?.uid || currentStoreId || localStorage.getItem('naijaswap_last_uid');
         if (uid) await renderVerificationBanner(uid);
       } catch (error) {
-        console.error('[NigerSwap Dealer] Failed to refresh dashboard:', error);
+        console.error('[NaijaSwap Dealer] Failed to refresh dashboard:', error);
       }
     }
 
     async function renderVerificationBanner(uid) {
       const banner = document.getElementById('dealerVerificationBanner');
       if (!banner) return;
-      let status = localStorage.getItem('nigerswap_dealer_status_' + uid)
-        || (localStorage.getItem('nigerswap_dealer_verified_' + uid) === 'true' ? 'approved' : 'unverified');
-      let rejectionReason = localStorage.getItem('nigerswap_dealer_reject_reason_' + uid) || '';
+      let status = localStorage.getItem('naijaswap_dealer_status_' + uid)
+        || (localStorage.getItem('naijaswap_dealer_verified_' + uid) === 'true' ? 'approved' : 'unverified');
+      let rejectionReason = localStorage.getItem('naijaswap_dealer_reject_reason_' + uid) || '';
 
       try {
         const remote = await getDoc(doc(db, 'dealerVerification', uid));
@@ -761,11 +761,11 @@
           const remoteData = remote.data();
           status = remoteData.status || status;
           rejectionReason = remoteData.rejectionReason || rejectionReason;
-          localStorage.setItem('nigerswap_dealer_status_' + uid, status);
-          if (rejectionReason) localStorage.setItem('nigerswap_dealer_reject_reason_' + uid, rejectionReason);
+          localStorage.setItem('naijaswap_dealer_status_' + uid, status);
+          if (rejectionReason) localStorage.setItem('naijaswap_dealer_reject_reason_' + uid, rejectionReason);
         }
       } catch (error) {
-        console.warn('[NigerSwap Dealer] Could not load remote verification status:', error.message);
+        console.warn('[NaijaSwap Dealer] Could not load remote verification status:', error.message);
       }
 
       const icon = document.getElementById('bannerStatusIcon');
@@ -817,15 +817,15 @@
     const dismissVerificationModalBtn = document.getElementById('dismissVerificationModalBtn');
     async function updateVerificationModalContent(uid) {
       if (!uid) return;
-      let status = localStorage.getItem('nigerswap_dealer_status_' + uid);
+      let status = localStorage.getItem('naijaswap_dealer_status_' + uid);
       try {
         const remote = await getDoc(doc(db, 'dealerVerification', uid));
         if (remote.exists() && remote.data().status) {
           status = remote.data().status;
-          localStorage.setItem('nigerswap_dealer_status_' + uid, status);
+          localStorage.setItem('naijaswap_dealer_status_' + uid, status);
         }
       } catch (error) {
-        console.warn('[NigerSwap Dealer] Could not load modal verification status:', error.message);
+        console.warn('[NaijaSwap Dealer] Could not load modal verification status:', error.message);
       }
       const titleEl = document.getElementById('dealerVerificationTitle');
       const descEl = titleEl ? titleEl.nextElementSibling : null;
@@ -835,7 +835,7 @@
         if (descEl) descEl.innerHTML = 'Your store documents have been submitted and are currently <strong style="color:var(--amber-400);">pending review by our admin team</strong>. Approvals typically take 2–4 hours.';
         if (btnEl) btnEl.innerHTML = '<span>View / Edit Submitted Details &rarr;</span>';
       } else if (status === 'rejected') {
-        const reason = localStorage.getItem('nigerswap_dealer_reject_reason_' + uid) || 'Some details did not meet our verification guidelines.';
+        const reason = localStorage.getItem('naijaswap_dealer_reject_reason_' + uid) || 'Some details did not meet our verification guidelines.';
         if (titleEl) titleEl.textContent = 'Verification Needs Correction';
         if (descEl) descEl.innerHTML = `Your application was not approved: <strong style="color:var(--rose-400);">${reason}</strong>. Please update your details and re-submit.`;
         if (btnEl) btnEl.innerHTML = '<span>Update Documents &amp; Re-submit &rarr;</span>';
@@ -844,10 +844,10 @@
 
     if (emptyAddPhoneBtn) {
       emptyAddPhoneBtn.addEventListener('click', (e) => {
-        const activeUser = dealerAuthUser || { uid: localStorage.getItem('nigerswap_last_uid') };
+        const activeUser = dealerAuthUser || { uid: localStorage.getItem('naijaswap_last_uid') };
         if (!isProfileComplete(activeUser, 'dealer')) {
           e.preventDefault();
-          sessionStorage.setItem('nigerswap_profile_required_action', 'create a listing');
+          sessionStorage.setItem('naijaswap_profile_required_action', 'create a listing');
           updateVerificationModalContent(activeUser?.uid);
           if (dealerVerificationModal) {
             dealerVerificationModal.classList.add('active');

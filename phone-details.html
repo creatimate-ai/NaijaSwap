@@ -965,7 +965,7 @@
 
     // Synchronous initial cache read from localStorage
     try {
-      const stored = localStorage.getItem('nigerswap_user') || localStorage.getItem('naijaswap_user');
+      const stored = localStorage.getItem('naijaswap_user') || localStorage.getItem('naijaswap_user');
       if (stored) {
         const u = JSON.parse(stored);
         currentUserId = u.uid || 'user_guest';
@@ -979,7 +979,7 @@
       const headerAvatarFallback = document.getElementById('headerAvatarFallback');
       if (headerUserName) headerUserName.textContent = name;
       if (headerAvatarFallback) {
-        const storedPhoto = uid ? localStorage.getItem('nigerswap_photo_' + uid) : null;
+        const storedPhoto = uid ? localStorage.getItem('naijaswap_photo_' + uid) : null;
         const photo = storedPhoto || (photoURL && photoURL.startsWith('http') ? photoURL : null);
         if (photo) {
           headerAvatarFallback.innerHTML = `<img src="${photo}" alt="${escapeHtml(name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
@@ -1335,7 +1335,7 @@
           });
           NaijaSwapData.attachFirestoreRequestId(newReq.id, backendResult.data.requestId);
         } catch (error) {
-          console.error('[NigerSwap] Swap request backend sync failed:', error);
+          console.error('[NaijaSwap] Swap request backend sync failed:', error);
           alert('Your swap request could not reach the dealer. Please try again.');
           return;
         }
@@ -1489,7 +1489,7 @@
     }
 
     // Hook from auth.js when Firebase user is ready
-    window.onNigerSwapUserReady = (user, role) => {
+    window.onNaijaSwapUserReady = (user, role) => {
       if (user) {
         currentUserId = user.uid;
         currentUserName = user.displayName || (user.email ? user.email.split('@')[0] : 'Swapper');
@@ -1499,7 +1499,7 @@
         const avatarEl = document.getElementById('headerAvatarFallback');
         if (nameEl) nameEl.textContent = currentUserName;
 
-        const storedPhoto = localStorage.getItem('nigerswap_photo_' + user.uid);
+        const storedPhoto = localStorage.getItem('naijaswap_photo_' + user.uid);
         const photo = storedPhoto || (user.photoURL && user.photoURL.startsWith('http') ? user.photoURL : null);
         if (photo && avatarEl) {
           avatarEl.innerHTML = `<img src="${photo}" alt="${escapeHtml(currentUserName)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;

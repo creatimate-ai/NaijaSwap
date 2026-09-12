@@ -767,12 +767,12 @@
 
     // Synchronous initial cache read from localStorage
     try {
-      const stored = localStorage.getItem('nigerswap_user');
+      const stored = localStorage.getItem('naijaswap_user');
       if (stored) {
         const u = JSON.parse(stored);
         dealerAuthUser = u;
         if (u.uid) currentStoreId = u.uid;
-        const storedShop = localStorage.getItem('nigerswap_shop_' + u.uid);
+        const storedShop = localStorage.getItem('naijaswap_shop_' + u.uid);
         if (storedShop) currentStoreName = storedShop;
         else if (u.displayName) currentStoreName = `${u.displayName}'s Gadget Store`;
       }
@@ -785,7 +785,7 @@
     function updateHeaderAvatar(uid, storeName) {
       if (topStoreName) topStoreName.textContent = storeName;
       if (storeAvatarFallback) {
-        const storedPhoto = localStorage.getItem('nigerswap_photo_' + uid);
+        const storedPhoto = localStorage.getItem('naijaswap_photo_' + uid);
         if (storedPhoto) {
           resolveMedia(storedPhoto).then(src => {
             if (src && storeAvatarFallback) {
@@ -878,7 +878,7 @@
       try {
         allRequests = await NaijaSwapData.getStoreSwapRequestsRemote(dealerAuthUser?.uid || currentStoreId);
       } catch (error) {
-        console.warn('[NigerSwap] Remote dealer requests unavailable; using cached requests.', error);
+        console.warn('[NaijaSwap] Remote dealer requests unavailable; using cached requests.', error);
         allRequests = NaijaSwapData.getStoreSwapRequests(currentStoreId);
       }
       const query = (requestSearchInput?.value || '').trim().toLowerCase();
@@ -1093,7 +1093,7 @@
       const cleanPhone = (req.customerPhone || '').replace(/\D/g, '');
       if (cleanPhone) {
         whatsAppBtn.style.display = 'inline-flex';
-        whatsAppBtn.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${req.customerName || ''}, I am contacting you from ${currentStoreName} regarding your swap request on NigerSwap for ${req.targetPhone || req.targetPhoneModel}.`)}`;
+        whatsAppBtn.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${req.customerName || ''}, I am contacting you from ${currentStoreName} regarding your swap request on NaijaSwap for ${req.targetPhone || req.targetPhoneModel}.`)}`;
       } else {
         whatsAppBtn.style.display = 'none';
       }
@@ -1297,11 +1297,11 @@
     }
 
     // Hook from auth.js when Firebase user is confirmed/ready
-    window.onNigerSwapUserReady = (user, role) => {
+    window.onNaijaSwapUserReady = (user, role) => {
       if (user) {
         dealerAuthUser = user;
         currentStoreId = user.uid;
-        const storedShop = localStorage.getItem('nigerswap_shop_' + user.uid);
+        const storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
         if (storedShop) currentStoreName = storedShop;
         else if (user.displayName) currentStoreName = `${user.displayName}'s Gadget Store`;
 

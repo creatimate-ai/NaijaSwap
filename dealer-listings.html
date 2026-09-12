@@ -520,7 +520,7 @@
       </h2>
 
       <p style="color: var(--text-dim, #cbd5e1); font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px;">
-        You cannot list phones for swap or sale on NigerSwap yet because you are <strong style="color: #FFF; font-weight: 700;">yet to complete your business verification</strong>.
+        You cannot list phones for swap or sale on NaijaSwap yet because you are <strong style="color: #FFF; font-weight: 700;">yet to complete your business verification</strong>.
       </p>
 
       <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 24px; text-align: left; font-size: 0.82rem; color: var(--text-muted); display: flex; gap: 12px; align-items: flex-start; line-height: 1.5;">
@@ -552,12 +552,12 @@
 
     // Synchronous initial cache read from localStorage
     try {
-      const stored = localStorage.getItem('nigerswap_user');
+      const stored = localStorage.getItem('naijaswap_user');
       if (stored) {
         const u = JSON.parse(stored);
         dealerAuthUser = u;
         if (u.uid) currentStoreId = u.uid;
-        const storedShop = localStorage.getItem('nigerswap_shop_' + u.uid);
+        const storedShop = localStorage.getItem('naijaswap_shop_' + u.uid);
         if (storedShop) currentStoreName = storedShop;
         else if (u.displayName) currentStoreName = `${u.displayName}'s Gadget Store`;
       }
@@ -597,7 +597,7 @@
       try {
         allListings = await NaijaSwapData.getListingsRemote();
       } catch (error) {
-        console.warn('[NigerSwap] Remote listings unavailable; using cached listings.', error);
+        console.warn('[NaijaSwap] Remote listings unavailable; using cached listings.', error);
         allListings = NaijaSwapData.getListings();
       }
       
@@ -1077,15 +1077,15 @@
 
     async function updateVerificationModalContent(uid) {
       if (!uid) return;
-      let status = localStorage.getItem('nigerswap_dealer_status_' + uid);
+      let status = localStorage.getItem('naijaswap_dealer_status_' + uid);
       try {
         const remote = await getDoc(doc(db, 'dealerVerification', uid));
         if (remote.exists() && remote.data().status) {
           status = remote.data().status;
-          localStorage.setItem('nigerswap_dealer_status_' + uid, status);
+          localStorage.setItem('naijaswap_dealer_status_' + uid, status);
         }
       } catch (error) {
-        console.warn('[NigerSwap Dealer] Could not load modal verification status:', error.message);
+        console.warn('[NaijaSwap Dealer] Could not load modal verification status:', error.message);
       }
       const titleEl = document.getElementById('dealerVerificationTitle');
       const descEl = titleEl ? titleEl.nextElementSibling : null;
@@ -1095,7 +1095,7 @@
         if (descEl) descEl.innerHTML = 'Your store documents have been submitted and are currently <strong style="color:var(--amber-400);">pending review by our admin team</strong>. Approvals typically take 2–4 hours.';
         if (btnEl) btnEl.innerHTML = '<span>View / Edit Submitted Details &rarr;</span>';
       } else if (status === 'rejected') {
-        const reason = localStorage.getItem('nigerswap_dealer_reject_reason_' + uid) || 'Some details did not meet our verification guidelines.';
+        const reason = localStorage.getItem('naijaswap_dealer_reject_reason_' + uid) || 'Some details did not meet our verification guidelines.';
         if (titleEl) titleEl.textContent = 'Verification Needs Correction';
         if (descEl) descEl.innerHTML = `Your application was not approved: <strong style="color:var(--rose-400);">${reason}</strong>. Please update your details and re-submit.`;
         if (btnEl) btnEl.innerHTML = '<span>Update Documents &amp; Re-submit &rarr;</span>';
@@ -1105,10 +1105,10 @@
     // Trigger to open Add Phone form or show verification prompt
     async function handleAddPhoneClick() {
       // Check if dealer business verification is completed
-      const activeUser = dealerAuthUser || (typeof auth !== 'undefined' && auth?.currentUser) || { uid: localStorage.getItem('nigerswap_last_uid') };
+      const activeUser = dealerAuthUser || (typeof auth !== 'undefined' && auth?.currentUser) || { uid: localStorage.getItem('naijaswap_last_uid') };
       await syncDealerVerificationStatus(activeUser?.uid);
       if (!isProfileComplete(activeUser, 'dealer')) {
-        sessionStorage.setItem('nigerswap_profile_required_action', 'create a listing');
+        sessionStorage.setItem('naijaswap_profile_required_action', 'create a listing');
         await updateVerificationModalContent(activeUser?.uid);
         if (dealerVerificationModal) {
           dealerVerificationModal.classList.add('active');
@@ -1147,17 +1147,17 @@
     }
 
     // Hook from auth.js when Firebase user is confirmed/ready
-    window.onNigerSwapUserReady = (user, role) => {
+    window.onNaijaSwapUserReady = (user, role) => {
       if (user) {
         dealerAuthUser = user;
         currentStoreId = user.uid;
-        const storedShop = localStorage.getItem('nigerswap_shop_' + user.uid);
+        const storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
         if (storedShop) currentStoreName = storedShop;
         else if (user.displayName) currentStoreName = `${user.displayName}'s Gadget Store`;
 
         if (topStoreName) topStoreName.textContent = currentStoreName;
 
-        const storedPhoto = localStorage.getItem('nigerswap_photo_' + user.uid);
+        const storedPhoto = localStorage.getItem('naijaswap_photo_' + user.uid);
         if (storeAvatarFallback) {
           if (storedPhoto) {
             resolveMedia(storedPhoto).then(src => {

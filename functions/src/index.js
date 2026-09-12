@@ -68,7 +68,7 @@ function isAllowedDocumentUrl(value) {
   try {
     const url = new URL(value);
     const isFirebaseKycObject = url.hostname === 'firebasestorage.googleapis.com'
-      && url.pathname.startsWith('/v0/b/nigerswap.firebasestorage.app/o/kyc%2F');
+      && url.pathname.startsWith('/v0/b/naijaswap.firebasestorage.app/o/kyc%2F');
     return url.protocol === 'https:' && isFirebaseKycObject;
   } catch (_) {
     return false;
@@ -570,7 +570,7 @@ exports.updateSwapRequestStatus = functions.https.onCall(async (data, context) =
         body: JSON.stringify({
           email,
           amount: amountKobo,
-          reference: `nigerswap_${requestId}_${Date.now()}`,
+          reference: `naijaswap_${requestId}_${Date.now()}`,
           metadata: { uid, requestId }
         })
       });
@@ -685,7 +685,7 @@ exports.initializePaystackPayment = functions.https.onCall({ secrets: [paystackS
     body: JSON.stringify({
       email,
       amount: amountKobo,
-      reference: `nigerswap_${requestId}_${Date.now()}`,
+      reference: `naijaswap_${requestId}_${Date.now()}`,
       metadata: { uid, requestId }
     })
   });

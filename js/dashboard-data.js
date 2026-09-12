@@ -782,7 +782,7 @@ export const NaijaSwapData = {
           const idbKey = `listing_${newId}_m_${idx}`;
           if (typeof window !== 'undefined' && window.indexedDB) {
             try {
-              const req = indexedDB.open('nigerswap_media_db', 1);
+              const req = indexedDB.open('naijaswap_media_db', 1);
               req.onsuccess = (e) => {
                 const tx = e.target.result.transaction('media_store', 'readwrite');
                 tx.objectStore('media_store').put(m.dataUrl, idbKey);
@@ -798,7 +798,7 @@ export const NaijaSwapData = {
       const heroKey = `listing_${newId}_hero`;
       if (typeof window !== 'undefined' && window.indexedDB) {
         try {
-          const req = indexedDB.open('nigerswap_media_db', 1);
+          const req = indexedDB.open('naijaswap_media_db', 1);
           req.onsuccess = (e) => {
             const tx = e.target.result.transaction('media_store', 'readwrite');
             tx.objectStore('media_store').put(newListing.image, heroKey);

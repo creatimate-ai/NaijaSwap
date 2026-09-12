@@ -1,5 +1,5 @@
 /**
- * NigerSwap - Firebase Configuration & Authentication Initialization
+ * NaijaSwap - Firebase Configuration & Authentication Initialization
  * Uses Firebase Web SDK v12.19.0 (Modular)
  */
 
@@ -38,12 +38,12 @@ import {
   ReCaptchaV3Provider
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
 
-// NigerSwap Firebase Project Configuration
+// NaijaSwap Firebase Project Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA_-8YhICPUqxOx8O3tJqgNnKdNlLmeeRI",
-  authDomain: "nigerswap.firebaseapp.com",
-  projectId: "nigerswap",
-  storageBucket: "nigerswap.firebasestorage.app",
+  authDomain: "naijaswap.firebaseapp.com",
+  projectId: "naijaswap",
+  storageBucket: "naijaswap.firebasestorage.app",
   messagingSenderId: "898687380339",
   appId: "1:898687380339:web:0ad6a846df002d6c3ef306",
   measurementId: "G-449HYBSTHM"

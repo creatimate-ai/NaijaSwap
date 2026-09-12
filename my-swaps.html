@@ -816,7 +816,7 @@
 
     // Initialize session user from synchronous local cache
     try {
-      const stored = localStorage.getItem('nigerswap_user') || localStorage.getItem('naijaswap_user');
+      const stored = localStorage.getItem('naijaswap_user') || localStorage.getItem('naijaswap_user');
       if (stored) {
         const u = JSON.parse(stored);
         currentUserId = u.uid || 'user_guest';
@@ -831,7 +831,7 @@
       const headerAvatarFallback = document.getElementById('headerAvatarFallback');
       if (headerUserName) headerUserName.textContent = name;
       if (headerAvatarFallback) {
-        const storedPhoto = uid ? localStorage.getItem('nigerswap_photo_' + uid) : null;
+        const storedPhoto = uid ? localStorage.getItem('naijaswap_photo_' + uid) : null;
         const photo = storedPhoto || (photoURL && photoURL.startsWith('http') ? photoURL : null);
         if (photo) {
           headerAvatarFallback.innerHTML = `<img src="${photo}" alt="${escapeHtml(name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
@@ -844,7 +844,7 @@
     updateHeaderUserUI(currentUserName, currentUserId);
 
     // Hook from auth.js when Firebase user is confirmed/ready
-    window.onNigerSwapUserReady = (user, role) => {
+    window.onNaijaSwapUserReady = (user, role) => {
       if (user) {
         userReady = true;
         currentUserId = user.uid;
@@ -872,7 +872,7 @@
       try {
         allRequests = await NaijaSwapData.getUserSwapRequestsRemote(currentUserId);
       } catch (error) {
-        console.warn('[NigerSwap] Remote swap requests unavailable; using cached requests.', error);
+        console.warn('[NaijaSwap] Remote swap requests unavailable; using cached requests.', error);
         allRequests = NaijaSwapData.getUserSwapRequests(currentUserId);
       }
 

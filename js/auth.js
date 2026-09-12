@@ -1,5 +1,5 @@
 /**
- * NigerSwap - Client-Side Authentication Controller
+ * NaijaSwap - Client-Side Authentication Controller
  * Connects directly to Firebase Authentication modular SDK v12.18.0
  */
 
@@ -26,7 +26,7 @@ const MAX_SESSION_LOGS = 60;
 /* ==========================================================================
    PERSISTENT CONSOLE & DIAGNOSTIC LOGGER
    ========================================================================== */
-export function logNigerSwap(level, category, message, data = null) {
+export function logNaijaSwap(level, category, message, data = null) {
   const timestamp = new Date().toLocaleTimeString();
   const fullTimestamp = new Date().toISOString();
   const entry = {
@@ -40,7 +40,7 @@ export function logNigerSwap(level, category, message, data = null) {
   };
 
   // Console styles based on category/level
-  const categoryBadge = `[NigerSwap ${category}]`;
+  const categoryBadge = `[NaijaSwap ${category}]`;
   const isError = level === "error";
   const isWarn = level === "warn";
   const color = isError ? "#ef4444" : isWarn ? "#f59e0b" : category === "Dealer" ? "#06b6d4" : "#10b981";
@@ -53,18 +53,18 @@ export function logNigerSwap(level, category, message, data = null) {
 
   // Persist to session storage so logs survive page redirects and reloads
   try {
-    const raw = sessionStorage.getItem("nigerswap_session_logs");
+    const raw = sessionStorage.getItem("naijaswap_session_logs");
     const logs = raw ? JSON.parse(raw) : [];
     logs.push(entry);
     if (logs.length > MAX_SESSION_LOGS) logs.shift();
-    sessionStorage.setItem("nigerswap_session_logs", JSON.stringify(logs));
+    sessionStorage.setItem("naijaswap_session_logs", JSON.stringify(logs));
   } catch (_) {}
 }
 
 // Print prior session logs across redirects
 export function printPriorSessionLogs() {
   try {
-    const raw = sessionStorage.getItem("nigerswap_session_logs");
+    const raw = sessionStorage.getItem("naijaswap_session_logs");
     if (!raw) return;
     const logs = JSON.parse(raw);
     if (logs.length === 0) return;
@@ -73,7 +73,7 @@ export function printPriorSessionLogs() {
     const currentPath = window.location.pathname;
     const previousLogs = logs.filter(l => l.path !== currentPath);
     if (previousLogs.length > 0) {
-      console.groupCollapsed(`%c📜 [NigerSwap] Recent Cross-Page Navigation Logs (${previousLogs.length} events)`, "color: #06b6d4; font-weight: bold;");
+      console.groupCollapsed(`%c📜 [NaijaSwap] Recent Cross-Page Navigation Logs (${previousLogs.length} events)`, "color: #06b6d4; font-weight: bold;");
       previousLogs.forEach(l => {
         const color = l.level === "error" ? "#ef4444" : l.level === "warn" ? "#f59e0b" : "#94a3b8";
         console.log(`%c[${l.time}] [${l.category}] (${l.path}) ${l.message}`, `color: ${color};`, l.data || "");
@@ -85,30 +85,30 @@ export function printPriorSessionLogs() {
 
 // Expose helpful debugging methods in browser console
 if (typeof window !== "undefined") {
-  window.__nigerswap_logs = () => {
+  window.__naijaswap_logs = () => {
     try {
-      return JSON.parse(sessionStorage.getItem("nigerswap_session_logs") || "[]");
+      return JSON.parse(sessionStorage.getItem("naijaswap_session_logs") || "[]");
     } catch (_) {
       return [];
     }
   };
-  window.__nigerswap_setDealerRole = async (targetUid = null) => {
+  window.__naijaswap_setDealerRole = async (targetUid = null) => {
     const user = auth.currentUser;
-    const uid = targetUid || (user ? user.uid : localStorage.getItem("nigerswap_last_uid"));
+    const uid = targetUid || (user ? user.uid : localStorage.getItem("naijaswap_last_uid"));
     if (!uid) {
-      console.warn("[NigerSwap] No active user UID found. Please log in first.");
+      console.warn("[NaijaSwap] No active user UID found. Please log in first.");
       return;
     }
-    localStorage.setItem("nigerswap_role_" + uid, "dealer");
-    localStorage.setItem("nigerswap_shop_" + uid, "Verified Gadget Hub");
+    localStorage.setItem("naijaswap_role_" + uid, "dealer");
+    localStorage.setItem("naijaswap_shop_" + uid, "Verified Gadget Hub");
     if (user && user.uid === uid) {
       try {
         await saveUserRole(user, "dealer", "Verified Gadget Hub");
       } catch (e) {
-        console.warn("[NigerSwap] Firestore role update note:", e.message);
+        console.warn("[NaijaSwap] Firestore role update note:", e.message);
       }
     }
-    logNigerSwap("info", "Auth", `Role for ${uid} updated to "dealer". Reloading...`);
+    logNaijaSwap("info", "Auth", `Role for ${uid} updated to "dealer". Reloading...`);
     window.location.reload();
   };
 }
@@ -120,11 +120,11 @@ function recordAuthDiagnostic(event, details = {}) {
     timestamp: new Date().toISOString(),
     ...details
   };
-  logNigerSwap("warn", "Auth", `Auth Event: ${event}`, details);
+  logNaijaSwap("warn", "Auth", `Auth Event: ${event}`, details);
   try {
-    localStorage.setItem("nigerswap_auth_diagnostic", JSON.stringify(diagnostic));
+    localStorage.setItem("naijaswap_auth_diagnostic", JSON.stringify(diagnostic));
   } catch (storageError) {
-    logNigerSwap("error", "Auth", "Could not persist diagnostic.", storageError);
+    logNaijaSwap("error", "Auth", "Could not persist diagnostic.", storageError);
   }
 }
 
@@ -151,13 +151,13 @@ function normalizeRole(role) {
 export async function saveUserRole(user, role, shopName = "") {
   if (!user || !user.uid) return;
   const normalizedRole = normalizeRole(role);
-  localStorage.setItem("nigerswap_role_" + user.uid, normalizedRole);
-  localStorage.setItem("nigerswap_last_role", normalizedRole);
+  localStorage.setItem("naijaswap_role_" + user.uid, normalizedRole);
+  localStorage.setItem("naijaswap_last_role", normalizedRole);
   if (normalizedRole === "dealer" && shopName) {
-    localStorage.setItem("nigerswap_shop_" + user.uid, shopName);
+    localStorage.setItem("naijaswap_shop_" + user.uid, shopName);
   }
 
-  logNigerSwap("info", "Auth", `Saved role "${normalizedRole}" locally for ${user.uid} (${shopName || "no shop name"}).`);
+  logNaijaSwap("info", "Auth", `Saved role "${normalizedRole}" locally for ${user.uid} (${shopName || "no shop name"}).`);
 
   // Persist to Firestore asynchronously without blocking application flow
   try {
@@ -175,7 +175,7 @@ export async function saveUserRole(user, role, shopName = "") {
     // The deployed Auth onCreate trigger owns server-side profile creation.
     // Do not call an optional HTTP function during profile or image updates.
   } catch (err) {
-    logNigerSwap("warn", "Auth", `Firestore role sync failed (local cache active): ${err.message}`);
+    logNaijaSwap("warn", "Auth", `Firestore role sync failed (local cache active): ${err.message}`);
   }
 }
 
@@ -183,19 +183,19 @@ export async function getUserRole(user) {
   if (!user || !user.uid) return DEFAULT_ROLE;
 
   // 1. Check direct local role for this user UID
-  const cachedRole = localStorage.getItem("nigerswap_role_" + user.uid);
+  const cachedRole = localStorage.getItem("naijaswap_role_" + user.uid);
   if (cachedRole && normalizeRole(cachedRole) === "dealer") {
-    logNigerSwap("info", "Auth", `Resolved role from local storage: "dealer"`);
+    logNaijaSwap("info", "Auth", `Resolved role from local storage: "dealer"`);
     return "dealer";
   }
 
   // 2. Check pending role from signup
-  const pendingRole = localStorage.getItem("nigerswap_role_pending") || sessionStorage.getItem("pending_signup_role");
+  const pendingRole = localStorage.getItem("naijaswap_role_pending") || sessionStorage.getItem("pending_signup_role");
   if (pendingRole && normalizeRole(pendingRole) === "dealer") {
-    localStorage.setItem("nigerswap_role_" + user.uid, "dealer");
-    localStorage.removeItem("nigerswap_role_pending");
+    localStorage.setItem("naijaswap_role_" + user.uid, "dealer");
+    localStorage.removeItem("naijaswap_role_pending");
     sessionStorage.removeItem("pending_signup_role");
-    logNigerSwap("info", "Auth", `Resolved role from pending signup: "dealer"`);
+    logNaijaSwap("info", "Auth", `Resolved role from pending signup: "dealer"`);
     return "dealer";
   }
 
@@ -209,8 +209,8 @@ export async function getUserRole(user) {
     currentPath.endsWith("dealer-requests.html") ||
     currentPath.endsWith("dealer-request.html")
   ) {
-    localStorage.setItem("nigerswap_role_" + user.uid, "dealer");
-    logNigerSwap("info", "Auth", `User authenticated on dealer portal. Setting role to "dealer".`);
+    localStorage.setItem("naijaswap_role_" + user.uid, "dealer");
+    logNaijaSwap("info", "Auth", `User authenticated on dealer portal. Setting role to "dealer".`);
     saveUserRole(user, "dealer");
     return "dealer";
   }
@@ -225,13 +225,13 @@ export async function getUserRole(user) {
     if (snapshot && snapshot.exists()) {
       const data = snapshot.data();
       const storedRole = normalizeRole(data.accountType || data.role);
-      if (data.shopName) localStorage.setItem("nigerswap_shop_" + user.uid, data.shopName);
-      localStorage.setItem("nigerswap_role_" + user.uid, storedRole);
-      logNigerSwap("info", "Auth", `Resolved role from Firestore: "${storedRole}"`);
+      if (data.shopName) localStorage.setItem("naijaswap_shop_" + user.uid, data.shopName);
+      localStorage.setItem("naijaswap_role_" + user.uid, storedRole);
+      logNaijaSwap("info", "Auth", `Resolved role from Firestore: "${storedRole}"`);
       return storedRole;
     }
   } catch (err) {
-    logNigerSwap("info", "Auth", `Firestore role lookup note: ${err.message}`);
+    logNaijaSwap("info", "Auth", `Firestore role lookup note: ${err.message}`);
   }
 
   // 5. Fallback
@@ -581,13 +581,13 @@ export function initSignupForm() {
       try {
         setButtonLoading(submitBtn, true, "Creating account...");
         // Set this before Firebase emits auth state so the observer cannot default a dealer to customer.
-        localStorage.setItem("nigerswap_role_pending", selectedRole);
+        localStorage.setItem("naijaswap_role_pending", selectedRole);
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCred.user;
 
         // Persist user role
         await saveUserRole(user, selectedRole, shopName);
-        localStorage.removeItem("nigerswap_role_pending");
+        localStorage.removeItem("naijaswap_role_pending");
 
         // Redirect based on role
         if (selectedRole === "dealer") {
@@ -614,13 +614,13 @@ export function initSignupForm() {
       try {
         setButtonLoading(googleBtn, true, "Connecting to Google...");
         // Set this before Firebase emits auth state so the observer cannot default a dealer to customer.
-        localStorage.setItem("nigerswap_role_pending", selectedRole);
+        localStorage.setItem("naijaswap_role_pending", selectedRole);
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
 
         // Persist role
         await saveUserRole(user, selectedRole, shopName);
-        localStorage.removeItem("nigerswap_role_pending");
+        localStorage.removeItem("naijaswap_role_pending");
 
         // Redirect based on role
         if (selectedRole === "dealer") {
@@ -874,21 +874,21 @@ export function initRouteProtection() {
   const isCustomerProtectedPage = currentPath.endsWith("my-swaps.html") || currentPath.endsWith("alerts.html");
   const isAnyDash = isCustomerDash || isDealerDash || isAccountPage || isCustomerProtectedPage;
 
-  logNigerSwap("info", "Auth", `Route initialized: ${window.location.pathname}`);
+  logNaijaSwap("info", "Auth", `Route initialized: ${window.location.pathname}`);
 
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      localStorage.setItem("nigerswap_last_uid", user.uid);
+      localStorage.setItem("naijaswap_last_uid", user.uid);
       const userRole = await getUserRole(user);
-      logNigerSwap("info", "Auth", `Authenticated route state: UID=${user.uid}, Role="${userRole}", Path=${window.location.pathname}`);
+      logNaijaSwap("info", "Auth", `Authenticated route state: UID=${user.uid}, Role="${userRole}", Path=${window.location.pathname}`);
 
       // Cache user profile for instant synchronous rendering across all pages
       const displayName = user.displayName || (user.email ? user.email.split("@")[0] : "User");
-      const storedPhoto = localStorage.getItem("nigerswap_photo_" + user.uid);
+      const storedPhoto = localStorage.getItem("naijaswap_photo_" + user.uid);
       const photo = storedPhoto || (user.photoURL && user.photoURL.startsWith("http") ? user.photoURL : null);
 
       try {
-        localStorage.setItem("nigerswap_user", JSON.stringify({
+        localStorage.setItem("naijaswap_user", JSON.stringify({
           uid: user.uid,
           displayName: displayName,
           email: user.email || "",
@@ -918,15 +918,15 @@ export function initRouteProtection() {
         const redirect = sessionStorage.getItem("post_login_redirect");
         sessionStorage.removeItem("post_login_redirect");
         if (redirect && !redirect.toLowerCase().endsWith("login.html") && !redirect.toLowerCase().endsWith("signup.html")) {
-          logNigerSwap("info", "Auth", `Redirecting authenticated user to saved destination: ${redirect}`);
+          logNaijaSwap("info", "Auth", `Redirecting authenticated user to saved destination: ${redirect}`);
           window.location.href = redirect;
           return;
         }
         if (userRole === "dealer") {
-          logNigerSwap("info", "Auth", "Redirecting authenticated dealer to dealer dashboard.");
+          logNaijaSwap("info", "Auth", "Redirecting authenticated dealer to dealer dashboard.");
           window.location.href = "dealer-dashboard.html";
         } else {
-          logNigerSwap("info", "Auth", "Redirecting authenticated customer to customer dashboard.");
+          logNaijaSwap("info", "Auth", "Redirecting authenticated customer to customer dashboard.");
           window.location.href = "dashboard.html";
         }
         return;
@@ -938,16 +938,16 @@ export function initRouteProtection() {
         populateDashboardUser(user, "dealer");
       }
 
-      // ALWAYS invoke window.onNigerSwapUserReady on ANY page that defines it
-      if (typeof window.onNigerSwapUserReady === "function") {
-        window.onNigerSwapUserReady(user, userRole);
+      // ALWAYS invoke window.onNaijaSwapUserReady on ANY page that defines it
+      if (typeof window.onNaijaSwapUserReady === "function") {
+        window.onNaijaSwapUserReady(user, userRole);
       }
 
       updateLandingNavbar(user);
     } else {
       // Unauthenticated
       try {
-        localStorage.removeItem("nigerswap_user");
+        localStorage.removeItem("naijaswap_user");
         localStorage.removeItem("naijaswap_user");
       } catch (e) {}
 
@@ -955,7 +955,7 @@ export function initRouteProtection() {
         recordAuthDiagnostic("protected-page-without-user", {
           path: window.location.pathname
         });
-        logNigerSwap("warn", "Auth", `Protected page access without authentication (${window.location.pathname}). Redirecting to login.html`);
+        logNaijaSwap("warn", "Auth", `Protected page access without authentication (${window.location.pathname}). Redirecting to login.html`);
         sessionStorage.setItem("post_login_redirect", window.location.href);
         window.location.href = "login.html";
         return;
@@ -968,7 +968,7 @@ export function initRouteProtection() {
       code: error?.code || "unknown",
       message: error?.message || String(error)
     });
-    logNigerSwap("error", "Auth", "Firebase auth state listener failed:", error);
+    logNaijaSwap("error", "Auth", "Firebase auth state listener failed:", error);
   });
 }
 
@@ -982,7 +982,7 @@ function populateDashboardUser(user, role = "customer") {
   const avatarFallback = document.getElementById("dashAvatarFallback");
   const shopNameEl = document.getElementById("dashShopName");
 
-  const storedShop = localStorage.getItem("nigerswap_shop_" + user.uid);
+  const storedShop = localStorage.getItem("naijaswap_shop_" + user.uid);
   const displayName = user.displayName || (user.email ? user.email.split("@")[0] : "Verified User");
 
   if (nameEl) nameEl.textContent = displayName;
@@ -1014,8 +1014,8 @@ function populateDashboardUser(user, role = "customer") {
   }
 
   // Trigger page-specific data loader if present
-  if (typeof window.onNigerSwapUserReady === "function") {
-    window.onNigerSwapUserReady(user, role);
+  if (typeof window.onNaijaSwapUserReady === "function") {
+    window.onNaijaSwapUserReady(user, role);
   }
 }
 
