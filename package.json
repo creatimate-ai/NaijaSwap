@@ -1,0 +1,17 @@
+{
+  "name": "naijaswap",
+  "private": true,
+  "version": "1.0.0",
+  "description": "NaijaSwap static web application",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "cloudinary": "^2.11.0",
+    "express": "^5.2.1",
+    "firebase-admin": "^14.4.0"
+  }
+}

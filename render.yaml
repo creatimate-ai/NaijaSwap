@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: naijaswap
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
