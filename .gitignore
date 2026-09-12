@@ -1,0 +1,10 @@
+# Firebase / server
+.firebase/
+firebaserc.local
+functions/node_modules/
+functions/.runtimeconfig.json
+
+# general
+node_modules/
+*.log
+.DS_Store

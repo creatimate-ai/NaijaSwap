@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Dealer Verification - NaijaSwap</title>
+  <meta name="description" content="Complete your dealer business verification to publish listings on NaijaSwap.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .verif-skeleton { animation: skelPulse 1.6s ease-in-out infinite; }
+    @keyframes skelPulse { 0%,100%{opacity:1;}50%{opacity:.45;} }
+    .wizard-progress-bar-wrap { position:relative; margin-bottom:28px; }
+    .wizard-dots-row { display:flex; justify-content:space-between; position:relative; }
+    .wizard-dots-row::before { content:''; position:absolute; top:15px; left:28px; right:28px; height:2px; background:rgba(255,255,255,0.08); z-index:1; }
+    .wizard-dots-row::after { content:''; position:absolute; top:15px; left:28px; height:2px; background:linear-gradient(90deg,var(--emerald-400),var(--cyan-400)); z-index:1; transition:width 0.4s cubic-bezier(0.16,1,0.3,1); }
+    .wizard-step-label-row { display:flex; justify-content:space-between; margin-top:7px; }
+    .wizard-step-dot { display:flex; flex-direction:column; align-items:center; gap:5px; flex:1; }
+    .wizard-dot-circle { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:800; border:2px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:var(--text-muted); transition:all 0.35s cubic-bezier(0.16,1,0.3,1); position:relative; z-index:2; }
+    .wizard-dot-label { font-size:0.62rem; font-weight:600; color:var(--text-faint); text-align:center; letter-spacing:.02em; transition:color 0.3s; max-width:52px; line-height:1.2; }
+    .wizard-step-dot.done .wizard-dot-circle { background:var(--emerald-400); border-color:var(--emerald-400); color:#03140B; box-shadow:0 0 14px rgba(0,210,106,.5); }
+    .wizard-step-dot.active .wizard-dot-circle { background:linear-gradient(135deg,var(--emerald-400),var(--cyan-400)); border-color:var(--emerald-400); color:#03140B; box-shadow:0 0 18px rgba(0,210,106,.45); transform:scale(1.12); }
+    .wizard-step-dot.active .wizard-dot-label, .wizard-step-dot.done .wizard-dot-label { color:var(--emerald-400); }
+    .wizard-step-panel { display:none; animation:stepSlideIn .35s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .wizard-step-panel.active { display:flex; flex-direction:column; gap:16px; }
+    @keyframes stepSlideIn { from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);} }
+    @keyframes stepSlideInLeft { from{opacity:0;transform:translateX(-18px);}to{opacity:1;transform:translateX(0);} }
+    .wizard-step-panel.slide-left { animation:stepSlideInLeft .35s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .step-panel-header { display:flex; align-items:center; gap:12px; margin-bottom:4px; }
+    .step-panel-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,rgba(0,210,106,.18),rgba(6,182,212,.1)); border:1px solid rgba(0,210,106,.25); box-shadow:0 0 14px rgba(0,210,106,.12); flex-shrink:0; color:var(--emerald-400); }
+    .step-panel-icon svg { width:20px; height:20px; stroke-width:2.2; }
+    .step-panel-title { font-size:1.05rem; font-weight:800; color:var(--text-white); }
+    .step-panel-sub { font-size:0.8rem; color:var(--text-muted); line-height:1.4; }
+    .form-input.field-valid,.form-select.field-valid,.form-textarea.field-valid { border-color:rgba(0,210,106,.5); background:rgba(0,210,106,.04); }
+    .form-input.field-error,.form-select.field-error,.form-textarea.field-error { border-color:rgba(244,63,94,.55); background:rgba(244,63,94,.05); }
+    .field-hint { font-size:.75rem; color:var(--text-faint); margin-top:2px; min-height:16px; transition:color .2s; }
+    .field-hint.hint-error { color:#FCA5A5; }
+    .field-hint.hint-success { color:var(--emerald-400); }
+    .input-eye-wrap { position:relative; }
+    .input-eye-wrap .form-input { padding-right:46px; }
+    .input-eye-btn { position:absolute; right:13px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-faint); cursor:pointer; padding:4px; display:flex; align-items:center; transition:color .2s; }
+    .input-eye-btn:hover { color:var(--text-muted); }
+    .upload-zone { border:1.5px dashed rgba(255,255,255,.15); border-radius:var(--radius-lg); padding:18px 16px; display:flex; flex-direction:column; align-items:center; gap:10px; cursor:pointer; transition:all var(--spring-fast); background:rgba(255,255,255,.02); position:relative; }
+    .upload-zone:hover,.upload-zone.drag-over { border-color:rgba(0,210,106,.4); background:rgba(0,210,106,.04); }
+    .upload-zone input[type="file"] { position:absolute; inset:0; opacity:0; width:100%; height:100%; cursor:pointer; }
+    .upload-zone-icon { width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; color:var(--text-muted); }
+    .upload-zone-icon svg { width:20px; height:20px; stroke-width:2; }
+    .upload-zone-title { font-size:.85rem; font-weight:700; color:var(--text-dim); text-align:center; }
+    .upload-zone-sub { font-size:.74rem; color:var(--text-faint); text-align:center; line-height:1.35; }
+    .file-preview-wrap { display:none; flex-direction:column; align-items:center; gap:10px; margin-top:10px; }
+    .file-preview-wrap.show { display:flex; }
+    .file-preview-img { width:100%; max-height:160px; object-fit:cover; border-radius:var(--radius-md); border:1px solid rgba(0,210,106,.3); box-shadow:0 4px 16px rgba(0,0,0,.4); }
+    .file-preview-name { font-size:.78rem; color:var(--emerald-400); font-weight:600; text-align:center; word-break:break-all; }
+    .file-preview-remove { background:rgba(244,63,94,.12); border:1px solid rgba(244,63,94,.3); color:var(--rose-400); font-size:.75rem; font-weight:700; padding:5px 14px; border-radius:var(--radius-full); cursor:pointer; font-family:inherit; transition:all var(--spring-fast); }
+    .file-preview-remove:hover { background:rgba(244,63,94,.2); }
+    .geo-map-frame-wrap { margin-top:8px; border-radius:var(--radius-md); overflow:hidden; border:1px solid rgba(0,210,106,.2); display:none; }
+    .geo-map-frame-wrap.show { display:block; }
+    .geo-map-open-link { display:inline-flex; align-items:center; gap:6px; font-size:.78rem; font-weight:600; color:var(--cyan-400); text-decoration:none; margin-top:6px; }
+    .geo-map-open-link svg { width:13px; height:13px; }
+    .consent-row { display:flex; gap:12px; align-items:flex-start; padding:16px; background:rgba(0,210,106,.05); border:1px solid rgba(0,210,106,.18); border-radius:var(--radius-md); cursor:pointer; }
+    .consent-checkbox { width:20px; height:20px; border-radius:6px; cursor:pointer; flex-shrink:0; margin-top:1px; accent-color:var(--emerald-400); }
+    .consent-text { font-size:.82rem; color:var(--text-dim); line-height:1.5; }
+    .consent-text a { color:var(--emerald-400); text-decoration:underline; }
+    .review-field-row { display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.05); gap:12px; }
+    .review-field-row:last-child { border-bottom:none; }
+    .review-field-label { font-size:.76rem; font-weight:600; color:var(--text-muted); flex-shrink:0; }
+    .review-field-value { font-size:.82rem; font-weight:600; color:var(--text-dim); text-align:right; word-break:break-word; }
+    .review-field-value.val-ok { color:var(--emerald-400); }
+    .review-section-head { font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--text-faint); margin-top:16px; margin-bottom:2px; }
+    .wizard-nav-row { display:flex; gap:10px; margin-top:8px; }
+    .wizard-nav-row .btn-cancel { flex-shrink:0; }
+    .wizard-nav-row .btn-primary-action { flex:1; }
+    .skel-line { height:14px; border-radius:7px; background:rgba(255,255,255,.07); }
+    .account-page-container { padding-bottom:110px; }
+    .form-select { -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.4'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:42px; }
+  </style>
+</head>
+<body>
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+  <main class="account-page-container">
+    <header class="more-header">
+      <a href="account.html" class="more-back-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        <span>Account</span>
+      </a>
+      <div class="more-brand-pill">
+        <div class="logo-mark-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+        </div>
+        <span>NaijaSwap</span>
+      </div>
+    </header>
+    <section class="more-title-section">
+      <span class="tag-badge tag-verified">Dealer Verification</span>
+      <h1 class="more-title" style="margin-top:10px;">Verify your business</h1>
+      <p class="more-subtitle" id="verifySubtitle">Complete 5 short sections to unlock your store. All details are private and used only for safety &amp; settlement.</p>
+    </section>
+    <div id="skeletonLoader" class="settings-group-card dash-form verif-skeleton" style="padding:22px 20px;gap:14px;">
+      <div class="skel-line" style="width:55%;"></div>
+      <div class="skel-line" style="width:100%;height:44px;border-radius:12px;"></div>
+      <div class="skel-line" style="width:100%;height:44px;border-radius:12px;"></div>
+      <div class="skel-line" style="width:40%;"></div>
+    </div>
+
+    <!-- VERIFICATION STATUS STATE CARD (Pending Review, Approved, or Rejected) -->
+    <div id="statusStateCard" class="settings-group-card dash-form" style="display:none;padding:28px 24px;text-align:center;">
+      <div id="statusIconWrap" style="width:72px;height:72px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:0 10px 28px rgba(0,0,0,0.3);">
+        ⏳
+      </div>
+      <div style="margin-bottom:10px;">
+        <span class="tag-badge" id="statusStateBadge" style="font-size:0.75rem;font-weight:800;padding:5px 14px;text-transform:uppercase;letter-spacing:0.5px;">
+          Application Under Review
+        </span>
+      </div>
+      <h2 id="statusStateTitle" style="font-size:1.45rem;font-weight:800;color:var(--text-white);margin-bottom:8px;line-height:1.3;">
+        Your Store Verification Is Under Review
+      </h2>
+      <p id="statusStateDesc" style="color:var(--text-dim);font-size:0.92rem;line-height:1.6;margin-bottom:20px;max-width:540px;margin-left:auto;margin-right:auto;">
+        We have received your business information and uploaded documents. Our compliance team is verifying your submission.
+      </p>
+
+      <!-- Rejection Feedback Box (shown if rejected) -->
+      <div id="statusRejectionBox" style="display:none;background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.35);padding:14px 18px;border-radius:var(--radius-md);color:#FCA5A5;text-align:left;font-size:0.86rem;line-height:1.5;margin-bottom:20px;">
+        <strong style="display:block;color:#FFF;margin-bottom:4px;">Action Required from Compliance Team:</strong>
+        <span id="statusRejectionText">Some details need to be corrected.</span>
+      </div>
+
+      <!-- Pending Timeline Notice (shown if pending) -->
+      <div id="statusPendingBox" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:20px;text-align:left;font-size:0.84rem;color:var(--text-muted);display:flex;gap:12px;align-items:flex-start;line-height:1.5;">
+        <span style="font-size:1.3rem;flex-shrink:0;">⚡</span>
+        <div>
+          <strong style="color:var(--amber-400);display:block;margin-bottom:2px;">Fast-Track Review in Progress</strong>
+          <span>Verifications are typically completed within <strong>2–4 hours</strong> during business days. You will be able to list phones immediately once approved.</span>
+        </div>
+      </div>
+
+      <!-- Summary of Submitted Data -->
+      <div id="statusSummaryWrap" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:var(--radius-md);padding:12px 18px;text-align:left;margin-bottom:24px;">
+        <!-- Filled dynamically -->
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="dealer-dashboard.html" class="btn-cancel" id="statusDashboardBtn" style="text-decoration:none;padding:12px 20px;">
+          &larr; Store Dashboard
+        </a>
+        <button type="button" class="btn-primary-action" id="statusActionBtn" style="padding:12px 24px;">
+          Edit / Update Details &rarr;
+        </button>
+      </div>
+    </div>
+
+    <div id="wizardWrap" style="display:none;">
+      <div class="wizard-progress-bar-wrap" id="progressBarWrap">
+        <div class="wizard-dots-row" id="dotsRow"></div>
+        <div class="wizard-step-label-row" id="labelsRow"></div>
+      </div>
+      <div id="verificationAlert" class="auth-alert" role="alert"></div>      <!-- STEP 1: Identity -->
+      <div class="wizard-step-panel settings-group-card dash-form" id="step1" style="padding:22px 20px;">
+        <div class="step-panel-header">
+          <div class="step-panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="12" y2="13"/></svg></div>
+          <div><div class="step-panel-title">Personal Identity</div><div class="step-panel-sub">Your NIN &amp; BVN &mdash; used only for identity verification</div></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputNin">National ID Number (NIN) *</label>
+          <div class="input-eye-wrap">
+            <input id="inputNin" class="form-input" type="password" inputmode="numeric" maxlength="11" placeholder="11-digit NIN" autocomplete="off">
+            <button type="button" class="input-eye-btn" data-target="inputNin" aria-label="Toggle NIN visibility"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+          </div>
+          <div class="field-hint" id="hintNin">Must be exactly 11 digits</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputBvn">Bank Verification Number (BVN) *</label>
+          <div class="input-eye-wrap">
+            <input id="inputBvn" class="form-input" type="password" inputmode="numeric" maxlength="11" placeholder="11-digit BVN" autocomplete="off">
+            <button type="button" class="input-eye-btn" data-target="inputBvn" aria-label="Toggle BVN visibility"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+          </div>
+          <div class="field-hint" id="hintBvn">Must be exactly 11 digits</div>
+        </div>
+        <div class="wizard-nav-row">
+          <button type="button" class="btn-primary-action" id="step1Next">Continue &#8594;</button>
+        </div>
+      </div>
+      <!-- STEP 2: Business -->
+      <div class="wizard-step-panel settings-group-card dash-form" id="step2" style="padding:22px 20px;">
+        <div class="step-panel-header">
+          <div class="step-panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+          <div><div class="step-panel-title">Business Details</div><div class="step-panel-sub">Your registered store name, email, and CAC number</div></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputBusinessName">Registered Business Name *</label>
+          <input id="inputBusinessName" class="form-input" placeholder="e.g. TechHub Gadgets Ltd">
+          <div class="field-hint" id="hintBusinessName"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputBusinessEmail">Official Business Email *</label>
+          <input id="inputBusinessEmail" type="email" class="form-input" placeholder="store@yourbusiness.com">
+          <div class="field-hint" id="hintBusinessEmail"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputCacNumber">CAC Registration Number <span style="color:var(--text-faint);font-weight:500;">(optional)</span></label>
+          <input id="inputCacNumber" class="form-input" placeholder="e.g. RC-1234567">
+          <div class="field-hint">Leave blank if not yet registered with CAC</div>
+        </div>
+        <div class="wizard-nav-row">
+          <button type="button" class="btn-cancel" id="step2Back">&#8592; Back</button>
+          <button type="button" class="btn-primary-action" id="step2Next">Continue &#8594;</button>
+        </div>
+      </div>
+      <!-- STEP 3: Documents -->
+      <div class="wizard-step-panel settings-group-card dash-form" id="step3" style="padding:22px 20px;">
+        <div class="step-panel-header">
+          <div class="step-panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div><div class="step-panel-title">Document Uploads</div><div class="step-panel-sub">Secure, encrypted &mdash; never shared with third parties</div></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Government-Issued ID *</label>
+          <div class="upload-zone" id="govIdZone">
+            <input type="file" id="inputGovernmentId" accept="image/*,.pdf">
+            <div class="upload-zone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="upload-zone-title">Tap or drag to upload Government ID</div>
+            <div class="upload-zone-sub">NIN Slip, Voter's Card, or International Passport &middot; JPG, PNG, or PDF &middot; Max 10MB</div>
+          </div>
+          <div class="file-preview-wrap" id="govIdPreviewWrap">
+            <img class="file-preview-img" id="govIdPreviewImg" src="" alt="Government ID preview">
+            <div class="file-preview-name" id="govIdPreviewName"></div>
+            <button type="button" class="file-preview-remove" id="govIdRemoveBtn">Remove &amp; re-upload</button>
+          </div>
+          <div class="field-hint" id="hintGovId"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Proof of Address *</label>
+          <div class="upload-zone" id="poaZone">
+            <input type="file" id="inputProofOfAddress" accept="image/*,.pdf">
+            <div class="upload-zone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+            <div class="upload-zone-title">Tap or drag to upload Proof of Address</div>
+            <div class="upload-zone-sub">Recent utility bill, waste bill, or rent receipt &middot; JPG, PNG, or PDF &middot; Max 10MB</div>
+          </div>
+          <div class="file-preview-wrap" id="poaPreviewWrap">
+            <img class="file-preview-img" id="poaPreviewImg" src="" alt="Proof of address preview">
+            <div class="file-preview-name" id="poaPreviewName"></div>
+            <button type="button" class="file-preview-remove" id="poaRemoveBtn">Remove &amp; re-upload</button>
+          </div>
+          <div class="field-hint" id="hintPoa"></div>
+        </div>
+        <div class="wizard-nav-row">
+          <button type="button" class="btn-cancel" id="step3Back">&#8592; Back</button>
+          <button type="button" class="btn-primary-action" id="step3Next">Continue &#8594;</button>
+        </div>
+      </div>
+      <!-- STEP 4: Location -->
+      <div class="wizard-step-panel settings-group-card dash-form" id="step4" style="padding:22px 20px;">
+        <div class="step-panel-header">
+          <div class="step-panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div><div class="step-panel-title">Shop Location</div><div class="step-panel-sub">Your physical store address for buyer pickups &amp; visits</div></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputShopAddress">Physical Shop Address *</label>
+          <textarea id="inputShopAddress" class="form-textarea" rows="3" placeholder="e.g. Shop 14, Computer Village, Ikeja, Lagos"></textarea>
+          <div class="field-hint" id="hintShopAddress"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputGeoTag">Map Geo-tag / Location Pin *</label>
+          <div style="display:flex;gap:8px;">
+            <input id="inputGeoTag" class="form-input" placeholder="e.g. Computer Village, Ikeja or GPS coordinates" style="flex:1;">
+            <button type="button" class="btn-cancel" id="pinLocationBtn" style="white-space:nowrap;flex-shrink:0;">&#128205; Pin GPS</button>
+          </div>
+          <div class="field-hint" id="hintGeoTag">Type your area or tap &#8220;Pin GPS&#8221; to auto-detect</div>
+          <div class="geo-map-frame-wrap" id="geoMapFrameWrap">
+            <iframe id="geoMapIframe" width="100%" height="200" style="border:0;display:block;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="" title="Shop location map"></iframe>
+          </div>
+          <a id="geoMapLink" href="#" target="_blank" rel="noopener" class="geo-map-open-link" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open on Google Maps
+          </a>
+        </div>
+        <div class="wizard-nav-row">
+          <button type="button" class="btn-cancel" id="step4Back">&#8592; Back</button>
+          <button type="button" class="btn-primary-action" id="step4Next">Continue &#8594;</button>
+        </div>
+      </div>
+      <!-- STEP 5: Banking -->
+      <div class="wizard-step-panel settings-group-card dash-form" id="step5" style="padding:22px 20px;">
+        <div class="step-panel-header">
+          <div class="step-panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+          <div><div class="step-panel-title">Settlement Banking</div><div class="step-panel-sub">Where NaijaSwap pays out your completed swap settlements</div></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputBankName">Bank Name *</label>
+          <select id="inputBankName" class="form-input form-select">
+            <option value="">&mdash; Select your bank &mdash;</option>
+            <optgroup label="Commercial Banks">
+              <option value="Access Bank">Access Bank</option>
+              <option value="Citibank Nigeria">Citibank Nigeria</option>
+              <option value="Ecobank Nigeria">Ecobank Nigeria</option>
+              <option value="Fidelity Bank">Fidelity Bank</option>
+              <option value="First Bank of Nigeria">First Bank of Nigeria</option>
+              <option value="First City Monument Bank (FCMB)">First City Monument Bank (FCMB)</option>
+              <option value="Globus Bank">Globus Bank</option>
+              <option value="Guaranty Trust Bank (GTBank)">Guaranty Trust Bank (GTBank)</option>
+              <option value="Heritage Bank">Heritage Bank</option>
+              <option value="Jaiz Bank">Jaiz Bank</option>
+              <option value="Keystone Bank">Keystone Bank</option>
+              <option value="Parallex Bank">Parallex Bank</option>
+              <option value="Polaris Bank">Polaris Bank</option>
+              <option value="Providus Bank">Providus Bank</option>
+              <option value="Stanbic IBTC Bank">Stanbic IBTC Bank</option>
+              <option value="Standard Chartered Bank">Standard Chartered Bank</option>
+              <option value="Sterling Bank">Sterling Bank</option>
+              <option value="SunTrust Bank">SunTrust Bank</option>
+              <option value="Titan Trust Bank">Titan Trust Bank</option>
+              <option value="Union Bank of Nigeria">Union Bank of Nigeria</option>
+              <option value="United Bank for Africa (UBA)">United Bank for Africa (UBA)</option>
+              <option value="Unity Bank">Unity Bank</option>
+              <option value="Wema Bank">Wema Bank</option>
+              <option value="Zenith Bank">Zenith Bank</option>
+            </optgroup>
+            <optgroup label="Digital &amp; Microfinance Banks">
+              <option value="9mobile 9PSB">9mobile 9PSB</option>
+              <option value="Carbon (One Finance)">Carbon (One Finance)</option>
+              <option value="Fairmoney Microfinance Bank">Fairmoney Microfinance Bank</option>
+              <option value="Kuda Bank">Kuda Bank</option>
+              <option value="Moniepoint Microfinance Bank">Moniepoint Microfinance Bank</option>
+              <option value="MTN Momo PSB">MTN Momo PSB</option>
+              <option value="OPay Digital Services">OPay Digital Services</option>
+              <option value="PalmPay">PalmPay</option>
+              <option value="PiggyVest">PiggyVest</option>
+              <option value="Rubies Microfinance Bank">Rubies Microfinance Bank</option>
+              <option value="TAJBank">TAJBank</option>
+              <option value="VFD Microfinance Bank">VFD Microfinance Bank</option>
+            </optgroup>
+          </select>
+          <div class="field-hint" id="hintBankName"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputBankAccount">Account Number *</label>
+          <input id="inputBankAccount" class="form-input" inputmode="numeric" maxlength="10" placeholder="10-digit NUBAN account number" autocomplete="off">
+          <div class="field-hint" id="hintBankAccount">Must be exactly 10 digits (NUBAN format)</div>
+        </div>
+        <div class="wizard-nav-row">
+          <button type="button" class="btn-cancel" id="step5Back">&#8592; Back</button>
+          <button type="button" class="btn-primary-action" id="step5Next">Review &amp; Submit &#8594;</button>
+        </div>
+      </div>
+      <!-- STEP 6: Review & Consent -->
+      <div class="wizard-step-panel settings-group-card dash-form" id="step6" style="padding:22px 20px;">
+        <div class="step-panel-header">
+          <div class="step-panel-icon" style="background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(0,210,106,.1));border-color:rgba(245,158,11,.28);color:var(--amber-400);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <div><div class="step-panel-title">Review &amp; Submit</div><div class="step-panel-sub">Confirm your details before submitting for verification</div></div>
+        </div>
+        <div id="reviewSummary" style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:var(--radius-md);padding:4px 16px 12px;"></div>
+        <label class="consent-row" for="consentCheck">
+          <input type="checkbox" id="consentCheck" class="consent-checkbox">
+          <div class="consent-text">I confirm that all information provided is accurate and genuine. I authorise NaijaSwap to use this data exclusively for identity verification, fraud prevention, and payment settlement in accordance with our <a href="privacy-policy.html" target="_blank">Privacy Policy</a> and <a href="terms.html" target="_blank">Terms &amp; Conditions</a>.</div>
+        </label>
+        <div class="wizard-nav-row">
+          <button type="button" class="btn-cancel" id="step6Back">&#8592; Back</button>
+          <button type="button" class="btn-primary-action" id="submitBtn" disabled style="opacity:.5;">Submit Verification</button>
+        </div>
+      </div>
+    </div><!-- /wizardWrap -->
+  </main>
+  <div id="bottomNavContainer"></div>
+  <script type="module">
+    import { auth, onAuthStateChanged, db, doc, getDoc } from './js/firebase-config.js';
+    import { getStoredProfile, saveStoredProfile, compressImageFile, getStoredRole } from './js/profile.js';
+    import { showAuthAlert, clearAuthAlert, setButtonLoading } from './js/auth.js';
+    import { uploadPrivateKycDocument } from './js/private-storage.js';
+    import { submitDealerVerificationBackend } from './js/backend-api.js';
+
+    let currentUser = null, currentStep = 1, isEditMode = false;
+    const TOTAL_STEPS = 6;
+    const data = { nin:'',bvn:'',businessName:'',businessEmail:'',cacNumber:'',governmentIdData:null,proofOfAddressData:null,govIdFileName:'',poaFileName:'',shopAddress:'',geoTag:'',bankName:'',bankAccountNumber:'' };
+    const STEP_LABELS = ['Identity','Business','Documents','Location','Banking','Review'];
+    const CHECK_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    const STEP_ICONS = [
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="3" y="4" width="18" height="16" rx="2"/></svg>',
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>',
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>',
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>',
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><rect x="1" y="4" width="22" height="16" rx="2"/></svg>',
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/></svg>'
+    ];
+
+    function buildProgressBar() {
+      const dr = document.getElementById('dotsRow'), lr = document.getElementById('labelsRow');
+      dr.innerHTML = ''; lr.innerHTML = '';
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const dot = document.createElement('div'); dot.className='wizard-step-dot'; dot.id=`dot${i}`;
+        const circle = document.createElement('div'); circle.className='wizard-dot-circle'; circle.id=`dotCircle${i}`; circle.innerHTML=String(i);
+        dot.appendChild(circle); dr.appendChild(dot);
+        const lbl = document.createElement('div'); lbl.className='wizard-dot-label'; lbl.textContent=STEP_LABELS[i-1];
+        lr.appendChild(lbl);
+      }
+    }
+
+    function updateProgressBar(step) {
+      let s = document.getElementById('progressBarStyle');
+      if (!s) { s = document.createElement('style'); s.id='progressBarStyle'; document.head.appendChild(s); }
+      s.textContent = `#dotsRow::after { width: calc((100% - 56px) * ${Math.max(0,(step-1)/(TOTAL_STEPS-1)).toFixed(4)}); }`;
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const dot=document.getElementById(`dot${i}`), circle=document.getElementById(`dotCircle${i}`);
+        dot.classList.remove('done','active');
+        if (i < step) { dot.classList.add('done'); circle.innerHTML=CHECK_SVG; }
+        else if (i === step) { dot.classList.add('active'); circle.innerHTML=STEP_ICONS[i-1]; }
+        else { circle.innerHTML=String(i); }
+      }
+    }
+
+    function goToStep(newStep, dir='forward') {
+      document.querySelectorAll('.wizard-step-panel').forEach(p=>p.classList.remove('active','slide-left'));
+      currentStep = newStep;
+      const panel = document.getElementById(`step${newStep}`);
+      panel.classList.add('active');
+      if (dir === 'back') panel.classList.add('slide-left');
+      updateProgressBar(newStep);
+      document.getElementById('wizardWrap').scrollIntoView({behavior:'smooth',block:'start'});
+      clearAuthAlert('verificationAlert');
+    }
+
+    document.querySelectorAll('.input-eye-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inp = document.getElementById(btn.dataset.target); const isPass = inp.type === 'password';
+        inp.type = isPass ? 'text' : 'password';
+        btn.innerHTML = isPass
+          ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+          : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+      });
+    });
+
+    function setFieldState(inp, hintEl, state, msg) {
+      inp.classList.remove('field-valid','field-error'); hintEl.classList.remove('hint-success','hint-error');
+      if (state==='valid') { inp.classList.add('field-valid'); hintEl.classList.add('hint-success'); hintEl.textContent=msg||'\u2713 Looks good'; }
+      else if (state==='error') { inp.classList.add('field-error'); hintEl.classList.add('hint-error'); hintEl.textContent=msg||'Invalid'; }
+      else { hintEl.textContent=msg||''; }
+    }
+    const validDigits = (v,n) => /^\d+$/.test(v) && v.length===n;
+    const validEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+
+    const ninInput=document.getElementById('inputNin'), hintNin=document.getElementById('hintNin');
+    ninInput.addEventListener('input',()=>{const v=ninInput.value.replace(/\D/g,'').slice(0,11);ninInput.value=v;if(!v)return setFieldState(ninInput,hintNin,'neutral','Must be exactly 11 digits');if(v.length<11)return setFieldState(ninInput,hintNin,'error',`${v.length}/11 digits entered`);setFieldState(ninInput,hintNin,'valid','\u2713 Valid NIN length');});
+    const bvnInput=document.getElementById('inputBvn'), hintBvn=document.getElementById('hintBvn');
+    bvnInput.addEventListener('input',()=>{const v=bvnInput.value.replace(/\D/g,'').slice(0,11);bvnInput.value=v;if(!v)return setFieldState(bvnInput,hintBvn,'neutral','Must be exactly 11 digits');if(v.length<11)return setFieldState(bvnInput,hintBvn,'error',`${v.length}/11 digits entered`);setFieldState(bvnInput,hintBvn,'valid','\u2713 Valid BVN length');});
+    const bizNameInput=document.getElementById('inputBusinessName'), hintBizName=document.getElementById('hintBusinessName');
+    bizNameInput.addEventListener('input',()=>{const v=bizNameInput.value.trim();if(!v)return setFieldState(bizNameInput,hintBizName,'neutral','');if(v.length<3)return setFieldState(bizNameInput,hintBizName,'error','Business name too short');setFieldState(bizNameInput,hintBizName,'valid');});
+    const bizEmailInput=document.getElementById('inputBusinessEmail'), hintBizEmail=document.getElementById('hintBusinessEmail');
+    bizEmailInput.addEventListener('input',()=>{const v=bizEmailInput.value.trim();if(!v)return setFieldState(bizEmailInput,hintBizEmail,'neutral','');if(!validEmail(v))return setFieldState(bizEmailInput,hintBizEmail,'error','Enter a valid email address');setFieldState(bizEmailInput,hintBizEmail,'valid');});
+    const shopAddrInput=document.getElementById('inputShopAddress'), hintShopAddr=document.getElementById('hintShopAddress');
+    shopAddrInput.addEventListener('input',()=>{const v=shopAddrInput.value.trim();if(!v)return setFieldState(shopAddrInput,hintShopAddr,'neutral','');if(v.length<10)return setFieldState(shopAddrInput,hintShopAddr,'error','Please enter your full address');setFieldState(shopAddrInput,hintShopAddr,'valid');});
+    const bankAccInput=document.getElementById('inputBankAccount'), hintBankAcc=document.getElementById('hintBankAccount');
+    bankAccInput.addEventListener('input',()=>{const v=bankAccInput.value.replace(/\D/g,'').slice(0,10);bankAccInput.value=v;if(!v)return setFieldState(bankAccInput,hintBankAcc,'neutral','Must be exactly 10 digits (NUBAN format)');if(v.length<10)return setFieldState(bankAccInput,hintBankAcc,'error',`${v.length}/10 digits entered`);setFieldState(bankAccInput,hintBankAcc,'valid','\u2713 Valid NUBAN format');});
+    const bankNameSel=document.getElementById('inputBankName'), hintBankName=document.getElementById('hintBankName');
+    bankNameSel.addEventListener('change',()=>{if(!bankNameSel.value)return setFieldState(bankNameSel,hintBankName,'neutral','');setFieldState(bankNameSel,hintBankName,'valid');});
+
+    function setupUploadZone(inputId,zoneId,wrapId,imgId,nameId,removeId,hintId,dataKey,fileKey){
+      const inp=document.getElementById(inputId),zone=document.getElementById(zoneId),wrap=document.getElementById(wrapId);
+      const img=document.getElementById(imgId),nameEl=document.getElementById(nameId),removeBtn=document.getElementById(removeId),hintEl=document.getElementById(hintId);
+      zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+      zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+      zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+      inp.addEventListener('change',()=>{if(inp.files[0])handleFile(inp.files[0]);});
+      async function handleFile(file){
+        if(file.size>10*1024*1024){setFieldState(inp,hintEl,'error','File too large (max 10MB)');return;}
+        setFieldState(inp,hintEl,'neutral','Processing\u2026');
+        const compressed=await compressImageFile(file,800,800,0.72);
+        data[dataKey]=compressed; data[fileKey]=file.name;
+        if(file.type&&file.type.startsWith('image/')){img.src=compressed;img.style.display='block';}else{img.style.display='none';}
+        nameEl.textContent=`\u2713 ${file.name}`;
+        wrap.classList.add('show'); zone.style.display='none';
+        setFieldState(inp,hintEl,'valid','\u2713 Document ready');
+      }
+      removeBtn.addEventListener('click',()=>{data[dataKey]=null;data[fileKey]='';inp.value='';wrap.classList.remove('show');zone.style.display='';setFieldState(inp,hintEl,'neutral','');});
+    }
+    setupUploadZone('inputGovernmentId','govIdZone','govIdPreviewWrap','govIdPreviewImg','govIdPreviewName','govIdRemoveBtn','hintGovId','governmentIdData','govIdFileName');
+    setupUploadZone('inputProofOfAddress','poaZone','poaPreviewWrap','poaPreviewImg','poaPreviewName','poaRemoveBtn','hintPoa','proofOfAddressData','poaFileName');
+
+    const geoInput=document.getElementById('inputGeoTag'), geoLink=document.getElementById('geoMapLink');
+    const geoMapFrameWrap=document.getElementById('geoMapFrameWrap'), geoMapIframe=document.getElementById('geoMapIframe'), hintGeoTag=document.getElementById('hintGeoTag');
+    function updateGeoMap(value){
+      if(!value){geoMapFrameWrap.classList.remove('show');geoLink.style.display='none';return;}
+      const enc=encodeURIComponent(value);
+      geoLink.href=`https://www.google.com/maps/search/?api=1&query=${enc}`;geoLink.style.display='inline-flex';
+      geoMapIframe.src=`https://maps.google.com/maps?q=${enc}&output=embed&z=15`;geoMapFrameWrap.classList.add('show');
+    }
+    geoInput.addEventListener('input',()=>{const v=geoInput.value.trim();if(v.length>3){updateGeoMap(v);setFieldState(geoInput,hintGeoTag,'valid');}else{updateGeoMap('');setFieldState(geoInput,hintGeoTag,'neutral','Type your area or tap Pin GPS to auto-detect');}});
+    document.getElementById('pinLocationBtn').addEventListener('click',()=>{
+      if(!navigator.geolocation){showAuthAlert('verificationAlert','Geolocation not supported. Please type your location.');return;}
+      const btn=document.getElementById('pinLocationBtn');btn.textContent='Detecting\u2026';btn.disabled=true;
+      navigator.geolocation.getCurrentPosition(
+        pos=>{const c=`${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;geoInput.value=c;updateGeoMap(c);setFieldState(geoInput,hintGeoTag,'valid','\u2713 GPS coordinates pinned');btn.textContent='\uD83D\uDCCD Pin GPS';btn.disabled=false;},
+        ()=>{showAuthAlert('verificationAlert','Unable to detect GPS. Please type your location or area name.');btn.textContent='\uD83D\uDCCD Pin GPS';btn.disabled=false;}
+      );
+    });
+
+    const consentCheck=document.getElementById('consentCheck'), submitBtn=document.getElementById('submitBtn');
+    consentCheck.addEventListener('change',()=>{submitBtn.disabled=!consentCheck.checked;submitBtn.style.opacity=consentCheck.checked?'1':'.5';});
+
+    function buildReviewSummary(){
+      const el=document.getElementById('reviewSummary');
+      const mask=(s,n=4)=>{if(!s)return '<em style="color:var(--text-faint)">Not provided</em>';const str=String(s);return str.length<=n?str:'*'.repeat(Math.max(3,str.length-n))+str.slice(-n);};
+      const val=(v,isFile=false)=>{
+        if(!v) return '<span style="color:var(--rose-400)">Missing</span>';
+        if(isFile){
+          if(typeof v==='string' && v.startsWith('http')) {
+            return `<a href="${v}" target="_blank" rel="noopener" style="color:var(--emerald-400);text-decoration:underline;">&#x2713; Cloud Verified (View)</a>`;
+          }
+          return '<span style="color:var(--emerald-400)">&#x2713; Ready to upload</span>';
+        }
+        return `<span class="review-field-value val-ok">${v}</span>`;
+      };
+      const row=(label,v)=>`<div class="review-field-row"><span class="review-field-label">${label}</span>${v}</div>`;
+      el.innerHTML=`<div class="review-section-head">\uD83C\uDFAB Personal Identity</div>${row('NIN',val(data.nin?mask(data.nin):null))}${row('BVN',val(data.bvn?mask(data.bvn):null))}<div class="review-section-head">\uD83C\uDFE2 Business Details</div>${row('Business Name',val(data.businessName))}${row('Business Email',val(data.businessEmail))}${row('CAC Number',data.cacNumber?val(data.cacNumber):'<span style="color:var(--text-faint)">Optional</span>')}<div class="review-section-head">\uD83D\uDCC4 Documents</div>${row('Government ID',val(data.governmentIdData,true))}${row('Proof of Address',val(data.proofOfAddressData,true))}<div class="review-section-head">\uD83D\uDCCD Location</div>${row('Shop Address',val(data.shopAddress))}${row('Geo-tag',val(data.geoTag))}<div class="review-section-head">\uD83C\uDFE6 Banking</div>${row('Bank',val(data.bankName))}${row('Account No.',val(data.bankAccountNumber?mask(data.bankAccountNumber):null))}`;
+    }
+
+    const collect = {
+      step1(){data.nin=ninInput.value.trim();data.bvn=bvnInput.value.trim();},
+      step2(){data.businessName=bizNameInput.value.trim();data.businessEmail=bizEmailInput.value.trim();data.cacNumber=document.getElementById('inputCacNumber').value.trim();},
+      step4(){data.shopAddress=shopAddrInput.value.trim();data.geoTag=geoInput.value.trim();},
+      step5(){data.bankName=bankNameSel.value;data.bankAccountNumber=bankAccInput.value.trim();}
+    };
+
+    function validateStep1(){const nin=ninInput.value.replace(/\D/g,''),bvn=bvnInput.value.replace(/\D/g,'');if(!validDigits(nin,11)){showAuthAlert('verificationAlert','NIN must be exactly 11 digits.');setFieldState(ninInput,hintNin,'error','Must be exactly 11 digits');return false;}if(!validDigits(bvn,11)){showAuthAlert('verificationAlert','BVN must be exactly 11 digits.');setFieldState(bvnInput,hintBvn,'error','Must be exactly 11 digits');return false;}return true;}
+    function validateStep2(){const name=bizNameInput.value.trim(),email=bizEmailInput.value.trim();if(!name||name.length<3){showAuthAlert('verificationAlert','Please enter your registered business name.');setFieldState(bizNameInput,hintBizName,'error','Business name too short');return false;}if(!validEmail(email)){showAuthAlert('verificationAlert','Please enter a valid business email.');setFieldState(bizEmailInput,hintBizEmail,'error','Enter a valid email address');return false;}return true;}
+    function validateStep3(){if(!data.governmentIdData){showAuthAlert('verificationAlert','Please upload your Government-Issued ID.');document.getElementById('govIdZone').style.borderColor='rgba(244,63,94,.55)';return false;}if(!data.proofOfAddressData){showAuthAlert('verificationAlert','Please upload a Proof of Address document.');document.getElementById('poaZone').style.borderColor='rgba(244,63,94,.55)';return false;}return true;}
+    function validateStep4(){const addr=shopAddrInput.value.trim(),geo=geoInput.value.trim();if(!addr||addr.length<10){showAuthAlert('verificationAlert','Please enter your full physical shop address.');setFieldState(shopAddrInput,hintShopAddr,'error','Please enter your full address');return false;}if(!geo){showAuthAlert('verificationAlert','Please enter a geo-tag or pin your GPS location.');setFieldState(geoInput,hintGeoTag,'error','Geo-tag is required');return false;}return true;}
+    function validateStep5(){const bank=bankNameSel.value,acct=bankAccInput.value.replace(/\D/g,'');if(!bank){showAuthAlert('verificationAlert','Please select your bank from the list.');setFieldState(bankNameSel,hintBankName,'error','Select a bank');return false;}if(!validDigits(acct,10)){showAuthAlert('verificationAlert','Account number must be exactly 10 digits (NUBAN).');setFieldState(bankAccInput,hintBankAcc,'error','Must be exactly 10 digits');return false;}return true;}
+
+    document.getElementById('step1Next').addEventListener('click',()=>{clearAuthAlert('verificationAlert');collect.step1();if(validateStep1())goToStep(2);});
+    document.getElementById('step2Back').addEventListener('click',()=>goToStep(1,'back'));
+    document.getElementById('step2Next').addEventListener('click',()=>{clearAuthAlert('verificationAlert');collect.step2();if(validateStep2())goToStep(3);});
+    document.getElementById('step3Back').addEventListener('click',()=>goToStep(2,'back'));
+    document.getElementById('step3Next').addEventListener('click',()=>{clearAuthAlert('verificationAlert');if(validateStep3())goToStep(4);});
+    document.getElementById('step4Back').addEventListener('click',()=>goToStep(3,'back'));
+    document.getElementById('step4Next').addEventListener('click',()=>{clearAuthAlert('verificationAlert');collect.step4();if(validateStep4())goToStep(5);});
+    document.getElementById('step5Back').addEventListener('click',()=>goToStep(4,'back'));
+    document.getElementById('step5Next').addEventListener('click',()=>{clearAuthAlert('verificationAlert');collect.step5();if(validateStep5()){buildReviewSummary();consentCheck.checked=false;submitBtn.disabled=true;submitBtn.style.opacity='.5';goToStep(6);}});
+    document.getElementById('step6Back').addEventListener('click',()=>goToStep(5,'back'));
+
+    submitBtn.addEventListener('click', async () => {
+      if (!consentCheck.checked) return;
+      clearAuthAlert('verificationAlert');
+      const uid = currentUser?.uid || localStorage.getItem('nigerswap_last_uid') || (()=>{try{return JSON.parse(localStorage.getItem('nigerswap_user')||'{}')?.uid;}catch(_){return null;}})();
+      if (!uid) { showAuthAlert('verificationAlert','Session expired. Please log in again.'); return; }
+      
+      try {
+        // Upload Government ID to Cloudinary if it's new base64 data
+        if (data.governmentIdData && data.governmentIdData.startsWith('data:')) {
+          setButtonLoading(submitBtn, true, 'Uploading Government ID to secure cloud\u2026');
+          try {
+            const cloudUrl = await uploadPrivateKycDocument(data.governmentIdData, uid, 'government_id');
+            if (cloudUrl) data.governmentIdData = cloudUrl;
+          } catch (cErr) {
+            console.warn('[DealerVerification] Cloudinary upload for ID failed, keeping local copy:', cErr);
+          }
+        }
+
+        // Upload Proof of Address to Cloudinary if it's new base64 data
+        if (data.proofOfAddressData && data.proofOfAddressData.startsWith('data:')) {
+          setButtonLoading(submitBtn, true, 'Uploading Proof of Address to secure cloud\u2026');
+          try {
+            const cloudUrl = await uploadPrivateKycDocument(data.proofOfAddressData, uid, 'proof_of_address');
+            if (cloudUrl) data.proofOfAddressData = cloudUrl;
+          } catch (cErr) {
+            console.warn('[DealerVerification] Cloudinary upload for Address failed, keeping local copy:', cErr);
+          }
+        }
+
+        setButtonLoading(submitBtn, true, 'Saving your details\u2026');
+        const profile = getStoredProfile(uid);
+        Object.assign(profile, { nin:data.nin, bvn:data.bvn, businessName:data.businessName, businessEmail:data.businessEmail, cacNumber:data.cacNumber, shopAddress:data.shopAddress, geoTag:data.geoTag, bankName:data.bankName, bankAccountNumber:data.bankAccountNumber });
+        if (data.governmentIdData) profile.governmentIdData = data.governmentIdData;
+        if (data.proofOfAddressData) profile.proofOfAddressData = data.proofOfAddressData;
+        saveStoredProfile(uid, profile);
+
+        // Record in Admin Verification Queue
+        let queue = [];
+        try {
+          queue = JSON.parse(localStorage.getItem('nigerswap_verifications') || '[]');
+          if (!Array.isArray(queue)) queue = [];
+        } catch (_) { queue = []; }
+
+        const verifRecord = {
+          uid: uid,
+          businessName: data.businessName,
+          businessEmail: data.businessEmail,
+          cacNumber: data.cacNumber,
+          nin: data.nin,
+          bvn: data.bvn,
+          shopAddress: data.shopAddress,
+          geoTag: data.geoTag,
+          bankName: data.bankName,
+          bankAccountNumber: data.bankAccountNumber,
+          governmentIdData: data.governmentIdData ? 'submitted' : '',
+          proofOfAddressData: data.proofOfAddressData ? 'submitted' : '',
+          status: 'pending',
+          submittedAt: new Date().toISOString()
+        };
+
+        const existingIdx = queue.findIndex(item => item.uid === uid);
+        if (existingIdx >= 0) {
+          queue[existingIdx] = verifRecord;
+        } else {
+          queue.unshift(verifRecord);
+        }
+        localStorage.setItem('nigerswap_verifications', JSON.stringify(queue));
+
+        // Mark status as pending review
+        localStorage.setItem('nigerswap_dealer_status_' + uid, 'pending');
+        localStorage.setItem('nigerswap_dealer_verified_' + uid, 'pending');
+        localStorage.setItem('nigerswap_role_' + uid, 'dealer');
+        localStorage.setItem('nigerswap_last_role', 'dealer');
+        localStorage.setItem('nigerswap_last_uid', uid);
+        if (data.businessName) localStorage.setItem('nigerswap_shop_' + uid, data.businessName);
+
+        try {
+          const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+          u.uid = uid;
+          if (data.businessName) u.displayName = data.businessName;
+          localStorage.setItem('nigerswap_user', JSON.stringify(u));
+        } catch (_) {}
+
+        // Sync application to Firestore
+        try {
+          const governmentIdUrl = data.governmentIdData;
+          const proofOfAddressUrl = data.proofOfAddressData;
+          if (!governmentIdUrl || !proofOfAddressUrl) {
+            throw new Error('Both verification documents must be uploaded successfully.');
+          }
+          await submitDealerVerificationBackend({
+            storeName: data.businessName,
+            businessEmail: data.businessEmail,
+            phoneNumber: data.phoneNumber || '',
+            cacNumber: data.cacNumber,
+            governmentIdData: governmentIdUrl,
+            proofOfAddressData: proofOfAddressUrl
+          });
+        } catch (syncErr) {
+          throw new Error('Verification could not be submitted to the admin queue. Please try again after the Firebase rules are published.');
+        }
+
+        setButtonLoading(submitBtn, false, 'Submit Verification');
+        showAuthAlert('verificationAlert', '🎉 Verification submitted! Your store application is now under review by the NaijaSwap admin team. Directing you to your store...', 'success');
+        setTimeout(() => {
+          window.location.href = 'dealer-dashboard.html';
+        }, 1600);
+      } catch(err) { setButtonLoading(submitBtn, false, 'Submit Verification'); showAuthAlert('verificationAlert', err.message || 'Error saving details. Please try again.'); }
+    });
+
+    function prefillFromProfile(uid) {
+      const p = getStoredProfile(uid); if(!p||!Object.keys(p).length) return;
+      isEditMode = !!(p.nin||p.businessName);
+      if(p.nin){data.nin=p.nin;ninInput.value=p.nin;setFieldState(ninInput,hintNin,'valid','\u2713 Saved \u2014 tap eye to view');}
+      if(p.bvn){data.bvn=p.bvn;bvnInput.value=p.bvn;setFieldState(bvnInput,hintBvn,'valid','\u2713 Saved \u2014 tap eye to view');}
+      if(p.businessName){data.businessName=p.businessName;bizNameInput.value=p.businessName;setFieldState(bizNameInput,hintBizName,'valid');}
+      if(p.businessEmail){data.businessEmail=p.businessEmail;bizEmailInput.value=p.businessEmail;setFieldState(bizEmailInput,hintBizEmail,'valid');}
+      if(p.cacNumber){data.cacNumber=p.cacNumber;document.getElementById('inputCacNumber').value=p.cacNumber;}
+      if(p.governmentIdData){
+        data.governmentIdData=p.governmentIdData;
+        document.getElementById('govIdZone').style.display='none';
+        if(p.governmentIdData.startsWith('http')){
+          document.getElementById('govIdPreviewImg').src=p.governmentIdData;
+          document.getElementById('govIdPreviewImg').style.display='block';
+          document.getElementById('govIdPreviewName').innerHTML=`<a href="${p.governmentIdData}" target="_blank" rel="noopener" style="color:var(--emerald-400);text-decoration:underline;">&#x2713; Government ID on Cloudinary (View)</a>`;
+        } else {
+          document.getElementById('govIdPreviewImg').style.display='none';
+          document.getElementById('govIdPreviewName').textContent='\u2713 Government ID already on file';
+        }
+        document.getElementById('govIdPreviewWrap').classList.add('show');
+        setFieldState(document.getElementById('inputGovernmentId'),document.getElementById('hintGovId'),'valid','\u2713 On file \u2014 re-upload only to replace');
+      }
+      if(p.proofOfAddressData){
+        data.proofOfAddressData=p.proofOfAddressData;
+        document.getElementById('poaZone').style.display='none';
+        if(p.proofOfAddressData.startsWith('http')){
+          document.getElementById('poaPreviewImg').src=p.proofOfAddressData;
+          document.getElementById('poaPreviewImg').style.display='block';
+          document.getElementById('poaPreviewName').innerHTML=`<a href="${p.proofOfAddressData}" target="_blank" rel="noopener" style="color:var(--emerald-400);text-decoration:underline;">&#x2713; Proof of Address on Cloudinary (View)</a>`;
+        } else {
+          document.getElementById('poaPreviewImg').style.display='none';
+          document.getElementById('poaPreviewName').textContent='\u2713 Proof of Address already on file';
+        }
+        document.getElementById('poaPreviewWrap').classList.add('show');
+        setFieldState(document.getElementById('inputProofOfAddress'),document.getElementById('hintPoa'),'valid','\u2713 On file \u2014 re-upload only to replace');
+      }
+      if(p.shopAddress){data.shopAddress=p.shopAddress;shopAddrInput.value=p.shopAddress;setFieldState(shopAddrInput,hintShopAddr,'valid');}
+      if(p.geoTag){data.geoTag=p.geoTag;geoInput.value=p.geoTag;updateGeoMap(p.geoTag);setFieldState(geoInput,hintGeoTag,'valid');}
+      if(p.bankName){data.bankName=p.bankName;for(let o of bankNameSel.options){if(o.value===p.bankName){o.selected=true;break;}}setFieldState(bankNameSel,hintBankName,'valid');}
+      if(p.bankAccountNumber){data.bankAccountNumber=p.bankAccountNumber;bankAccInput.value=p.bankAccountNumber;setFieldState(bankAccInput,hintBankAcc,'valid','\u2713 Account number saved');}
+      if(isEditMode){document.getElementById('verifySubtitle').textContent='Update your verification details below. Only changed fields will be overwritten.';submitBtn.textContent='Update Verification';}
+    }
+
+    function renderBottomNav(role) {
+      const c = document.getElementById('bottomNavContainer');
+      const navAcc = '<a href="account.html" class="bottom-nav-item active" title="Account" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Account</span></a>';
+      const navMore = '<a href="more.html" class="bottom-nav-item" title="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg><span>More</span></a>';
+      if (role === 'dealer') {
+        c.innerHTML = '<nav class="mobile-bottom-nav" aria-label="Store Navigation"><a href="dealer-dashboard.html" class="bottom-nav-item" title="Dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>Dashboard</span></a><a href="dealer-listings.html" class="bottom-nav-item" title="Listings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg><span>Listings</span></a><a href="dealer-requests.html" class="bottom-nav-item" title="Requests"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Requests</span></a>' + navAcc + navMore + '</nav>';
+      } else {
+        c.innerHTML = '<nav class="mobile-bottom-nav" aria-label="Mobile Navigation"><a href="dashboard.html" class="bottom-nav-item" title="Browse"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Browse</span></a><a href="my-swaps.html" class="bottom-nav-item" title="My Swaps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg><span>My Swaps</span></a><a href="alerts.html" class="bottom-nav-item" title="Alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Alerts</span></a>' + navAcc + navMore + '</nav>';
+      }
+    }
+
+    function renderStatusState(uid, status) {
+      const iconWrap = document.getElementById('statusIconWrap');
+      const badge = document.getElementById('statusStateBadge');
+      const title = document.getElementById('statusStateTitle');
+      const desc = document.getElementById('statusStateDesc');
+      const pendingBox = document.getElementById('statusPendingBox');
+      const rejectBox = document.getElementById('statusRejectionBox');
+      const actionBtn = document.getElementById('statusActionBtn');
+      const summaryWrap = document.getElementById('statusSummaryWrap');
+
+      if (status === 'pending') {
+        iconWrap.innerHTML = '⏳';
+        iconWrap.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.22), rgba(6,182,212,0.12))';
+        iconWrap.style.border = '1.5px solid rgba(245,158,11,0.45)';
+        badge.className = 'tag-badge';
+        badge.style.background = 'rgba(245,158,11,0.15)';
+        badge.style.color = 'var(--amber-400)';
+        badge.style.border = '1px solid rgba(245,158,11,0.35)';
+        badge.textContent = 'Application Under Review';
+        title.textContent = 'Your Store Verification Is Under Review';
+        desc.textContent = 'We have received your business details and uploaded identity documents. Our compliance team is currently verifying your submission.';
+        pendingBox.style.display = 'flex';
+        rejectBox.style.display = 'none';
+        actionBtn.textContent = 'Edit / Update Details \u2192';
+        actionBtn.onclick = () => {
+          document.getElementById('statusStateCard').style.display = 'none';
+          document.getElementById('wizardWrap').style.display = 'block';
+          goToStep(1);
+        };
+      } else if (status === 'approved') {
+        iconWrap.innerHTML = '🛡️';
+        iconWrap.style.background = 'linear-gradient(135deg, rgba(0,210,106,0.25), rgba(6,182,212,0.15))';
+        iconWrap.style.border = '1.5px solid rgba(0,210,106,0.45)';
+        badge.className = 'tag-badge tag-verified';
+        badge.style.background = 'rgba(0,210,106,0.15)';
+        badge.style.color = 'var(--emerald-400)';
+        badge.style.border = '1px solid rgba(0,210,106,0.35)';
+        badge.textContent = '\u2713 Verified Partner Store';
+        title.textContent = 'Your Store Is Officially Verified!';
+        desc.textContent = 'Congratulations! Your business verification has been approved. Your store has full publishing privileges on the marketplace.';
+        pendingBox.style.display = 'none';
+        rejectBox.style.display = 'none';
+        actionBtn.textContent = 'Manage Phone Inventory \u2192';
+        actionBtn.onclick = () => { window.location.href = 'dealer-listings.html'; };
+      } else if (status === 'rejected') {
+        const reason = localStorage.getItem('nigerswap_dealer_reject_reason_' + uid) || 'Some uploaded documents could not be verified.';
+        iconWrap.innerHTML = '⚠️';
+        iconWrap.style.background = 'linear-gradient(135deg, rgba(244,63,94,0.25), rgba(245,158,11,0.15))';
+        iconWrap.style.border = '1.5px solid rgba(244,63,94,0.45)';
+        badge.className = 'tag-badge';
+        badge.style.background = 'rgba(244,63,94,0.15)';
+        badge.style.color = 'var(--rose-400)';
+        badge.style.border = '1px solid rgba(244,63,94,0.35)';
+        badge.textContent = 'Verification Needs Correction';
+        title.textContent = 'Application Needs Correction';
+        desc.textContent = 'Your verification submission was reviewed and requires updates before approval.';
+        pendingBox.style.display = 'none';
+        rejectBox.style.display = 'block';
+        document.getElementById('statusRejectionText').textContent = reason;
+        actionBtn.textContent = 'Correct Documents & Re-submit \u2192';
+        actionBtn.onclick = () => {
+          document.getElementById('statusStateCard').style.display = 'none';
+          document.getElementById('wizardWrap').style.display = 'block';
+          goToStep(3);
+        };
+      }
+
+      const mask = (s, n=4) => { if (!s) return '---'; const str=String(s); return str.length<=n?str:'*'.repeat(Math.max(3,str.length-n))+str.slice(-n); };
+      const row = (label, val) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.84rem;"><span style="color:var(--text-faint);">${label}</span><strong style="color:var(--text-white);">${val}</strong></div>`;
+      summaryWrap.innerHTML = `
+        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px;letter-spacing:0.5px;">Submitted Information</div>
+        ${row('Store Name', data.businessName || '---')}
+        ${row('Business Email', data.businessEmail || '---')}
+        ${row('NIN', data.nin ? mask(data.nin) : '---')}
+        ${row('BVN', data.bvn ? mask(data.bvn) : '---')}
+        ${row('Shop Address', data.shopAddress || '---')}
+        ${row('Bank Settlement', data.bankName ? data.bankName + ' (' + mask(data.bankAccountNumber) + ')' : '---')}
+        ${row('Government ID', data.governmentIdData ? '<span style="color:var(--emerald-400)">\u2713 Stored on Secure Cloud</span>' : '---')}
+        ${row('Proof of Address', data.proofOfAddressData ? '<span style="color:var(--emerald-400)">\u2713 Stored on Secure Cloud</span>' : '---')}
+      `;
+    }
+
+    async function initWizard(uid) {
+      buildProgressBar();
+      prefillFromProfile(uid);
+
+      let status = localStorage.getItem('nigerswap_dealer_status_' + uid)
+        || (localStorage.getItem('nigerswap_dealer_verified_' + uid) === 'true' ? 'approved' : 'unverified');
+      try {
+        const remote = await getDoc(doc(db, 'dealerVerification', uid));
+        if (remote.exists() && remote.data().status) {
+          status = remote.data().status;
+          localStorage.setItem('nigerswap_dealer_status_' + uid, status);
+        }
+      } catch (error) {
+        console.warn('[NigerSwap Verification] Could not load remote status:', error.message);
+      }
+
+      document.getElementById('skeletonLoader').style.display = 'none';
+
+      const forceEdit = new URLSearchParams(window.location.search).get('edit') === 'true';
+
+      if (!forceEdit && (status === 'pending' || status === 'approved' || status === 'rejected')) {
+        renderStatusState(uid, status);
+        document.getElementById('statusStateCard').style.display = 'block';
+        document.getElementById('wizardWrap').style.display = 'none';
+      } else {
+        document.getElementById('statusStateCard').style.display = 'none';
+        document.getElementById('wizardWrap').style.display = 'block';
+        goToStep(1);
+      }
+    }
+
+    const cachedUid = (()=>{try{return localStorage.getItem('nigerswap_last_uid')||JSON.parse(localStorage.getItem('nigerswap_user')||'{}')?.uid;}catch(_){return null;}})();
+    const cachedRole = cachedUid?(localStorage.getItem('nigerswap_role_'+cachedUid)||localStorage.getItem('nigerswap_last_role')||'customer'):'customer';
+    renderBottomNav(cachedRole);
+    if (cachedUid) initWizard(cachedUid);
+
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      if (!user) { window.location.href='login.html'; return; }
+      localStorage.setItem('nigerswap_last_uid', user.uid);
+      const role = getStoredRole(user.uid);
+      renderBottomNav(role);
+      if (!cachedUid) initWizard(user.uid);
+    });
+  </script>
+</body>
+</html>

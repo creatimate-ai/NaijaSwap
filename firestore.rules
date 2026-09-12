@@ -1,0 +1,160 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.admin == true
+        || (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && (
+            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountType == 'admin'
+          )
+        )
+      );
+    }
+
+    function validSwapStatus(status) {
+      return status in ['pending', 'reviewed', 'accepted', 'countered',
+                        'under_inspection', 'inspection_passed',
+                        'completed', 'rejected', 'cancelled'];
+    }
+
+    function validSwapTransition(from, to) {
+      return (from == 'pending' && to in ['reviewed', 'rejected', 'cancelled'])
+        || (from == 'reviewed' && to in ['accepted', 'countered', 'rejected', 'cancelled'])
+        || (from == 'countered' && to in ['accepted', 'countered', 'rejected', 'cancelled'])
+        || (from == 'accepted' && to in ['under_inspection', 'cancelled'])
+        || (from == 'under_inspection' && to in ['inspection_passed', 'cancelled'])
+        || (from == 'inspection_passed' && to in ['completed', 'cancelled'])
+        || (from == 'completed' && to == 'completed')
+        || (from == 'rejected' && to == 'rejected')
+        || (from == 'cancelled' && to == 'cancelled');
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow create: if isOwner(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.email
+        && (!('role' in request.resource.data) || request.resource.data.role == 'customer')
+        && (!('accountType' in request.resource.data) || request.resource.data.accountType == 'customer')
+        && (!('verificationStatus' in request.resource.data) || request.resource.data.verificationStatus == 'none')
+        && !('admin' in request.resource.data)
+        && !('isAdmin' in request.resource.data);
+      allow read: if isOwner(uid) || isAdmin();
+      allow update: if isAdmin()
+        || (isOwner(uid)
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+            ['displayName', 'phoneNumber', 'businessName', 'shopName', 'photoURL'])
+          && !('role' in request.resource.data.diff(resource.data).affectedKeys())
+          && !('accountType' in request.resource.data.diff(resource.data).affectedKeys())
+          && !('verificationStatus' in request.resource.data.diff(resource.data).affectedKeys())
+          && !('admin' in request.resource.data.diff(resource.data).affectedKeys())
+          && !('isAdmin' in request.resource.data.diff(resource.data).affectedKeys()));
+      allow delete: if false;
+    }
+
+    match /dealerProfiles/{uid} {
+      allow create: if isOwner(uid)
+        && request.resource.data.storeOwnerUid == uid
+        && !('role' in request.resource.data)
+        && !('accountType' in request.resource.data)
+        && !('verificationStatus' in request.resource.data);
+      allow read: if isSignedIn() && (
+        uid == request.auth.uid ||
+        resource.data.storeOwnerUid == request.auth.uid ||
+        isAdmin()
+      );
+      allow update: if isOwner(uid)
+        && request.resource.data.storeOwnerUid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+          ['storeName', 'contactPerson', 'businessEmail', 'phoneNumber',
+           'address', 'description', 'logoUrl']);
+      allow delete: if false;
+    }
+
+    // Legacy/admin dashboard collection. Keep this admin-readable only.
+    match /dealers/{dealerId} {
+      allow read: if isAdmin() || isOwner(dealerId);
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /dealerVerification/{uid} {
+      allow create: if isOwner(uid)
+        && request.resource.data.uid == uid
+        && !('role' in request.resource.data)
+        && !('verificationStatus' in request.resource.data)
+        && !('status' in request.resource.data);
+      allow read: if isSignedIn() && (
+        uid == request.auth.uid ||
+        isAdmin()
+      );
+      allow update: if isOwner(uid)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+          ['storeName', 'businessEmail', 'phoneNumber', 'cacNumber',
+           'governmentIdData', 'proofOfAddressData']);
+      allow delete: if false;
+    }
+
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.storeOwnerUid == request.auth.uid
+        && exists(/databases/$(database)/documents/dealerVerification/$(request.auth.uid))
+        && get(/databases/$(database)/documents/dealerVerification/$(request.auth.uid)).data.status == 'approved'
+        && request.resource.data.status == 'active';
+      allow update: if isSignedIn()
+        && resource.data.storeOwnerUid == request.auth.uid
+        && request.resource.data.storeOwnerUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
+          ['model', 'storage', 'condition', 'conditionGrade', 'color', 'battery',
+           'marketValue', 'quantityInStock', 'isSwapAllowed', 'image', 'mediaFiles',
+           'description', 'location', 'updatedAt', 'status'])
+        && request.resource.data.status in ['active', 'out_of_stock', 'archived'];
+      allow delete: if isSignedIn() && resource.data.storeOwnerUid == request.auth.uid;
+    }
+
+    // Legacy collection used by older admin dashboard builds.
+    match /marketplace_listings/{listingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /swapRequests/{requestId} {
+      // Swap writes must go through callable functions, which validate ownership,
+      // IMEI uniqueness, payment, inspection, and handover confirmations.
+      allow create: if false;
+      allow read: if isSignedIn() && (
+        request.auth.uid == resource.data.customerUid ||
+        request.auth.uid == resource.data.dealerUid ||
+        isAdmin()
+      );
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    match /auditLogs/{logId} {
+      // Audit entries are written by Admin SDK triggers/callables, not clients.
+      allow create: if false;
+      allow read: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow update, delete: if false;
+    }
+
+    match /users/{uid}/notifications/{notificationId} {
+      allow read, update: if isSignedIn() && request.auth.uid == uid;
+      allow create: if isAdmin();
+      allow delete: if isSignedIn() && request.auth.uid == uid;
+    }
+  }
+}

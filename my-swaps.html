@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>My Swaps — NaijaSwap</title>
+  <meta name="description" content="Track your Nigerian verified phone swap proposals, inspection status, and store approvals.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    /* Custom Styling for My Swaps Cards and Visual Exchange */
+    .swap-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 24px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .swap-filter-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .swap-filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-full);
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--spring-fast);
+      box-shadow: var(--glass-specular-soft);
+    }
+    .swap-filter-pill:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-white);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .swap-filter-pill.active {
+      background: linear-gradient(135deg, rgba(0, 210, 106, 0.18), rgba(0, 210, 106, 0.06));
+      border-color: var(--emerald-border);
+      color: #FFF;
+      box-shadow: 0 4px 14px rgba(0, 210, 106, 0.15), var(--glass-specular);
+    }
+    .swap-filter-pill .count-badge {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1px 7px;
+      border-radius: 10px;
+      font-size: 0.74rem;
+    }
+    .swap-filter-pill.active .count-badge {
+      background: var(--emerald-500);
+      color: #05080B;
+      font-weight: 800;
+    }
+
+    /* Swaps Grid */
+    .swaps-cards-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .swap-tracker-card {
+      background: linear-gradient(135deg, rgba(16, 26, 37, 0.72), rgba(10, 16, 23, 0.65));
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--glass-shadow), var(--glass-specular);
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--spring-medium), border-color var(--spring-medium);
+    }
+    .swap-tracker-card:hover {
+      border-color: var(--glass-border-hover);
+      transform: translateY(-2px);
+    }
+
+    .swap-card-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 18px;
+    }
+
+    .swap-id-tag {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-faint);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .swap-date-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-left: 8px;
+    }
+
+    /* Visual Trade-In Flow */
+    .swap-exchange-layout {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+
+    @media (max-width: 720px) {
+      .swap-exchange-layout {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 14px;
+      }
+    }
+
+    .device-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .device-box-role {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-faint);
+    }
+    .device-box-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #FFF;
+      line-height: 1.3;
+    }
+    .device-box-specs {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .swap-arrow-divider {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+    }
+    .swap-arrow-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(0, 210, 106, 0.1);
+      border: 1px solid var(--emerald-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--emerald-400);
+      box-shadow: 0 0 16px rgba(0, 210, 106, 0.18), var(--glass-specular-soft);
+    }
+
+    /* Financials and Valuation Info */
+    .swap-financials-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 18px;
+    }
+    .swap-financial-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .financial-label {
+      font-size: 0.74rem;
+      color: var(--text-faint);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .financial-value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #FFF;
+    }
+    .financial-value.highlight {
+      color: var(--emerald-400);
+    }
+
+    /* Hub & Inspection Info */
+    .swap-hub-info-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: rgba(255, 255, 255, 0.015);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .hub-meta-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .hub-name-badge {
+      font-weight: 700;
+      color: #FFF;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Thumbnails */
+    .swap-thumbnails-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .swap-thumb-item {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--glass-border);
+      overflow: hidden;
+      background: rgba(0,0,0,0.4);
+      position: relative;
+    }
+    .swap-thumb-item img, .swap-thumb-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .swap-thumb-video-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: rgba(0,0,0,0.7);
+      color: #FFF;
+      font-size: 0.6rem;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    /* Action buttons footer */
+    .swap-actions-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  </style>
+</head>
+<body>
+
+
+
+  <!-- Ambient Glows (Depth for Frosted Glass) -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Top Navigation Header (Consistent with Dashboard) -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <a href="dashboard.html" class="brand-logo" aria-label="NaijaSwap Home">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span class="brand-name">Naija<span>Swap</span></span>
+      </a>
+      <span class="role-tag role-tag-swapper">
+        <span>🔄</span>
+        <span>Swapper</span>
+      </span>
+    </div>
+
+    <div class="dash-header-right">
+      <!-- User Menu -->
+      <div class="user-menu-wrapper">
+        <button type="button" class="user-profile-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
+          <div class="user-avatar" id="headerAvatarFallback">S</div>
+          <span class="user-name-text" id="headerUserName">Swapper</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+          <a href="account.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profile</span>
+          </a>
+          <a href="dashboard.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Browse Phones</span>
+          </a>
+          <a href="my-swaps.html" class="dropdown-item" style="color: var(--emerald-400); font-weight: 700;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+            <span>My Swap Requests</span>
+          </a>
+          <a href="alerts.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Alerts & Notifications</span>
+          </a>
+          <a href="index.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span>Marketplace Home</span>
+          </a>
+          <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Swapper Dashboard Content -->
+  <main class="dash-main" style="max-width: 1080px; margin: 0 auto; padding: 24px 20px 120px;">
+
+    <!-- Breadcrumbs -->
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-faint); margin-bottom: 16px;">
+      <a href="dashboard.html" style="color: var(--text-muted); text-decoration: none;">Dashboard</a>
+      <span>/</span>
+      <span style="color: var(--emerald-400); font-weight: 700;">My Swaps</span>
+    </div>
+
+    <!-- Swapper Welcome & Action Banner -->
+    <div class="store-welcome-card" style="margin-bottom: 24px;">
+      <div class="store-welcome-text">
+        <span class="welcome-badge">🔄 Verified Nigerian Phone Exchange</span>
+        <h1>My Swap Requests</h1>
+        <p>Track your trade-in proposals, store acceptances, and technician inspection slots across Computer Village and Banex hubs.</p>
+      </div>
+      <div class="store-header-actions">
+        <button type="button" class="btn-primary-action" id="openSwapModalBtn">
+          <span>+ Propose a Swap</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Pills (Active when requests exist) -->
+    <div class="swap-filter-bar" id="swapFilterBar" role="tablist">
+      <button type="button" class="swap-filter-pill active" data-status="all">
+        <span>All Swaps</span>
+        <span class="count-badge" id="countAll">0</span>
+      </button>
+      <button type="button" class="swap-filter-pill" data-status="Pending">
+        <span>Pending Review</span>
+        <span class="count-badge" id="countPending">0</span>
+      </button>
+      <button type="button" class="swap-filter-pill" data-status="Accepted">
+        <span>Accepted</span>
+        <span class="count-badge" id="countAccepted">0</span>
+      </button>
+      <button type="button" class="swap-filter-pill" data-status="Completed">
+        <span>Completed</span>
+        <span class="count-badge" id="countCompleted">0</span>
+      </button>
+    </div>
+
+    <!-- Swaps Container -->
+    <div id="swapsListContainer" aria-live="polite">
+      <!-- Default Frosted Shimmer Skeleton Cards -->
+      <div class="skeleton-swap-tracker" aria-hidden="true">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+          <div class="skeleton-box skeleton-shimmer" style="width: 140px; height: 16px;"></div>
+          <div class="skeleton-box skeleton-shimmer skeleton-pill" style="width: 90px; height: 22px;"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin-bottom: 16px;">
+          <div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
+          </div>
+          <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 40px; height: 40px;"></div>
+          <div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-box skeleton-shimmer" style="width: 100%; height: 44px; border-radius: var(--radius-md);"></div>
+      </div>
+      <div class="skeleton-swap-tracker" aria-hidden="true">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+          <div class="skeleton-box skeleton-shimmer" style="width: 140px; height: 16px;"></div>
+          <div class="skeleton-box skeleton-shimmer skeleton-pill" style="width: 90px; height: 22px;"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin-bottom: 16px;">
+          <div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
+          </div>
+          <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 40px; height: 40px;"></div>
+          <div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
+          </div>
+        </div>
+        <div class="skeleton-box skeleton-shimmer" style="width: 100%; height: 44px; border-radius: var(--radius-md);"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       SWAPPER MOBILE BOTTOM NAVIGATION (MATCHING DASHBOARD PARITY)
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span>Home</span>
+    </a>
+    <a href="my-swaps.html" class="bottom-nav-item active" id="navMySwapsBtn" title="My Swaps" aria-current="page">
+      <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
+      <span>My Swaps</span>
+    </a>
+    <a href="alerts.html" class="bottom-nav-item" id="navNotifBtn" title="Alerts">
+      <span class="bottom-nav-badge" id="mobileAlertsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+    </a>
+    <a href="more.html" class="bottom-nav-item" id="navMoreBtn" title="More">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>More</span>
+    </a>
+  </nav>
+
+  <!-- ==========================================================================
+       MODAL: CONSUMER FORM (SWAP REQUEST)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="consumerSwapModal" role="dialog" aria-modal="true" aria-labelledby="consumerModalTitle">
+    <div class="modal-card modal-card-xl">
+      <div class="modal-header">
+        <div>
+          <span class="tag-badge tag-verified">Trade-In Application</span>
+          <h2 class="modal-title" id="consumerModalTitle" style="margin-top: 4px;">Propose a Swap Request</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeConsumerModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="consumerSwapForm" class="dash-form">
+        <div class="form-sections-wrapper">
+
+          <!-- SECTION 1: DEVICE BASICS -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">1</span>
+              <div>
+                <h3>Device Basics</h3>
+                <p>Information about the phone you currently own and want to trade in</p>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="consumerBrand">Brand</label>
+                <select id="consumerBrand" class="form-select" required>
+                  <option value="" disabled selected>-- Select Brand --</option>
+                </select>
+                <div id="consumerCustomBrandGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerCustomBrand" class="form-input" placeholder="Type your phone brand (e.g. OnePlus, Motorola)...">
+                  <span class="form-helper-text">Specify brand name if not in list</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerModel">Model</label>
+                <select id="consumerModel" class="form-select" required disabled>
+                  <option value="" disabled selected>-- Select Brand First --</option>
+                </select>
+                <div id="consumerCustomModelGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerCustomModel" class="form-input" placeholder="Type your phone model...">
+                  <span class="form-helper-text">Specify model if not in list</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="consumerStorage">Storage Capacity</label>
+                <select id="consumerStorage" class="form-select" required>
+                  <option value="64GB">64GB</option>
+                  <option value="128GB" selected>128GB</option>
+                  <option value="256GB">256GB</option>
+                  <option value="512GB">512GB</option>
+                  <option value="1TB">1TB</option>
+                  <option value="Other">Other (Type custom)</option>
+                </select>
+                <div id="consumerCustomStorageGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerCustomStorage" class="form-input" placeholder="e.g. 32GB, 2TB...">
+                </div>
+              </div>
+              <div class="form-group" id="consumerRamGroup" style="display: none;">
+                <label class="form-label" for="consumerRam">RAM</label>
+                <select id="consumerRam" class="form-select">
+                  <option value="4GB">4GB RAM</option>
+                  <option value="6GB">6GB RAM</option>
+                  <option value="8GB" selected>8GB RAM</option>
+                  <option value="12GB">12GB RAM</option>
+                  <option value="16GB">16GB RAM</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="form-label" for="consumerImei">IMEI Number (Optional)</label>
+              <input type="text" id="consumerImei" class="form-input" placeholder="Enter 15-digit IMEI number">
+              <span class="form-helper-text">Dial *#06# on your phone to find this</span>
+            </div>
+          </div>
+
+          <!-- SECTION 2: CONDITION TRIAGE -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">2</span>
+              <div>
+                <h3>Condition Triage</h3>
+                <p>Transparent triage guarantees fair valuation at physical hub inspection</p>
+              </div>
+            </div>
+
+            <div class="triage-questions-list">
+              <div class="triage-item">
+                <div class="triage-info">
+                  <strong>Power & Touchscreen</strong>
+                  <span>Does the phone power on, and is the touchscreen fully responsive without dead spots?</span>
+                </div>
+                <div class="segmented-switch" id="triagePowerSwitch">
+                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">Yes</button>
+                  <button type="button" class="segmented-option-btn" data-val="no">No</button>
+                </div>
+              </div>
+
+              <div class="triage-item">
+                <div class="triage-info">
+                  <strong>Screen Glass & Display</strong>
+                  <span>Are there any cracks, deep scratches, or LCD ink bleeds/lines on the display?</span>
+                </div>
+                <div class="segmented-switch" id="triageScreenSwitch">
+                  <button type="button" class="segmented-option-btn data-val="yes">Yes</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No</button>
+                </div>
+              </div>
+
+              <div class="triage-item">
+                <div class="triage-info">
+                  <strong>Body & Housing</strong>
+                  <span>Are there any chips, dents, or bends on the frame or back glass?</span>
+                </div>
+                <div class="segmented-switch" id="triageBodySwitch">
+                  <button type="button" class="segmented-option-btn data-val="yes">Yes</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No</button>
+                </div>
+              </div>
+
+              <div class="triage-item">
+                <div class="triage-info">
+                  <strong>Hardware Functionality</strong>
+                  <span>Do the cameras, microphone, speakers, and FaceID/TouchID all work perfectly?</span>
+                </div>
+                <div class="segmented-switch" id="triageHardwareSwitch">
+                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">Yes</button>
+                  <button type="button" class="segmented-option-btn" data-val="no">No</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 14px;">
+              <div class="form-group">
+                <label class="form-label" for="consumerBatteryHealth">Battery Health (%)</label>
+                <input type="number" id="consumerBatteryHealth" class="form-input" placeholder="e.g. 88 (Max capacity % for iOS)" min="1" max="100">
+                <span class="form-helper-text">For iPhones: Check Settings > Battery > Battery Health</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerCarrierLock">Carrier Lock Status</label>
+                <select id="consumerCarrierLock" class="form-select">
+                  <option value="Factory Unlocked" selected>Factory Unlocked (All Networks)</option>
+                  <option value="Chip Unlocked">Chip / Gevey Unlocked</option>
+                  <option value="Network Locked">Network Locked</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: UNIFIED MEDIA UPLOAD DROPZONE -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">3</span>
+              <div>
+                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                  <h3>Device Media (Photos & Videos)</h3>
+                  <span class="tag-badge tag-verified" id="consumerMediaCounter" style="font-size: 0.72rem; padding: 2px 8px;">0 / 5 files</span>
+                </div>
+                <p>Upload photos and short videos showing screen, back, and frame condition (up to 5 items max)</p>
+              </div>
+            </div>
+
+            <div class="media-upload-dropzone" id="consumerDropzone">
+              <input type="file" id="consumerMediaInput" multiple accept="image/*,video/*" style="display: none;">
+              <div class="dropzone-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </div>
+              <p class="dropzone-prompt"><strong>Click to browse</strong> or drag & drop photos and videos here</p>
+              <span class="dropzone-helper">Supports JPG, PNG, WEBP, MP4, MOV (Max 5 items total)</span>
+            </div>
+
+            <div id="consumerUploadProgress" style="display: none; margin-top: 10px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">
+                <span>Attaching media...</span>
+                <span id="consumerProgressPct">100%</span>
+              </div>
+              <div style="height: 4px; width: 100%; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                <div id="consumerProgressBar" style="height: 100%; width: 100%; background: var(--emerald-400); transition: width 0.2s;"></div>
+              </div>
+            </div>
+
+            <div class="previews-grid-container" id="consumerPreviewsGrid" style="margin-top: 14px;"></div>
+          </div>
+
+          <!-- SECTION 4: THE TARGET SWAP -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">4</span>
+              <div>
+                <h3>The Target Swap</h3>
+                <p>Select the phone model and storage capacity you wish to swap for</p>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="consumerTargetBrand">Target Brand</label>
+                <select id="consumerTargetBrand" class="form-select" required>
+                  <option value="" disabled selected>-- Select Target Brand --</option>
+                </select>
+                <div id="consumerTargetCustomBrandGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerTargetCustomBrand" class="form-input" placeholder="Type target brand...">
+                  <span class="form-helper-text">Specify brand if not in list</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerTargetModel">Target Model</label>
+                <select id="consumerTargetModel" class="form-select" required disabled>
+                  <option value="" disabled selected>-- Select Brand First --</option>
+                </select>
+                <div id="consumerTargetCustomModelGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerTargetCustomModel" class="form-input" placeholder="Type target phone model...">
+                  <span class="form-helper-text">Specify model if not in list</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="consumerTargetStorage">Target Storage</label>
+                <select id="consumerTargetStorage" class="form-select" required>
+                  <option value="128GB" selected>128GB</option>
+                  <option value="256GB">256GB</option>
+                  <option value="512GB">512GB</option>
+                  <option value="1TB">1TB</option>
+                  <option value="Other">Other (Type custom)</option>
+                </select>
+                <div id="consumerTargetCustomStorageGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerTargetCustomStorage" class="form-input" placeholder="e.g. 32GB, 2TB...">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerPreferredColor">Preferred Color (Optional)</label>
+                <input type="text" id="consumerPreferredColor" class="form-input" placeholder="e.g. Natural Titanium or Blue">
+              </div>
+            </div>
+
+            <!-- Contact input -->
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="form-label" for="consumerPhoneInput">Your WhatsApp / Phone Number</label>
+              <input type="tel" id="consumerPhoneInput" class="form-input" placeholder="e.g. 08012345678" required>
+              <span class="form-helper-text">Store hub technicians will contact you with their physical inspection slot.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <button type="submit" class="btn-primary-action" id="submitConsumerSwapBtn" style="justify-content: center; padding: 16px; font-size: 1.02rem; margin-top: 10px;">
+          <span>Submit Swap Request</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: NOTIFICATIONS POPUP
+       ========================================================================== -->
+  <div class="modal-backdrop" id="notifModal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Notifications</h2>
+        <button type="button" class="modal-close-btn" id="closeNotifModal" aria-label="Close modal">&times;</button>
+      </div>
+      <div id="notifListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem;">
+          No unread notifications right now.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module">
+    import { NaijaSwapData } from './js/dashboard-data.js';
+    import { updateSwapRequestStatusBackend, confirmSwapHandoverBackend, openSwapDisputeBackend } from './js/backend-api.js';
+
+    let currentUserId = 'user_guest';
+    let currentUserName = 'Swapper';
+    let currentUserEmail = '';
+    let currentFilterStatus = 'all';
+    let userReady = false;
+
+    // DOM Elements
+    const swapsListContainer = document.getElementById('swapsListContainer');
+    const swapFilterBar = document.getElementById('swapFilterBar');
+    const countAll = document.getElementById('countAll');
+    const countPending = document.getElementById('countPending');
+    const countAccepted = document.getElementById('countAccepted');
+    const countCompleted = document.getElementById('countCompleted');
+    const mobileSwapsBadge = document.getElementById('mobileSwapsBadge');
+
+    // Modals
+    const consumerSwapModal = document.getElementById('consumerSwapModal');
+    const openSwapModalBtn = document.getElementById('openSwapModalBtn');
+    const closeConsumerModal = document.getElementById('closeConsumerModal');
+    const notifModal = document.getElementById('notifModal');
+    const notifBtn = document.getElementById('notifBtn');
+    const navNotifBtn = document.getElementById('navNotifBtn');
+    const closeNotifModal = document.getElementById('closeNotifModal');
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+
+    // Consumer Form elements
+    const consumerSwapForm = document.getElementById('consumerSwapForm');
+    const consumerBrand = document.getElementById('consumerBrand');
+    const consumerModel = document.getElementById('consumerModel');
+    const consumerStorage = document.getElementById('consumerStorage');
+    const consumerRam = document.getElementById('consumerRam');
+    const consumerRamGroup = document.getElementById('consumerRamGroup');
+    const consumerImei = document.getElementById('consumerImei');
+    const consumerBatteryHealth = document.getElementById('consumerBatteryHealth');
+    const consumerCarrierLock = document.getElementById('consumerCarrierLock');
+    const consumerTargetBrand = document.getElementById('consumerTargetBrand');
+    const consumerTargetModel = document.getElementById('consumerTargetModel');
+    const consumerTargetStorage = document.getElementById('consumerTargetStorage');
+    const consumerPreferredColor = document.getElementById('consumerPreferredColor');
+    const consumerPhoneInput = document.getElementById('consumerPhoneInput');
+
+    // Custom Type-In Elements
+    const consumerCustomBrandGroup = document.getElementById('consumerCustomBrandGroup');
+    const consumerCustomBrand = document.getElementById('consumerCustomBrand');
+    const consumerCustomModelGroup = document.getElementById('consumerCustomModelGroup');
+    const consumerCustomModel = document.getElementById('consumerCustomModel');
+    const consumerCustomStorageGroup = document.getElementById('consumerCustomStorageGroup');
+    const consumerCustomStorage = document.getElementById('consumerCustomStorage');
+
+    const consumerTargetCustomBrandGroup = document.getElementById('consumerTargetCustomBrandGroup');
+    const consumerTargetCustomBrand = document.getElementById('consumerTargetCustomBrand');
+    const consumerTargetCustomModelGroup = document.getElementById('consumerTargetCustomModelGroup');
+    const consumerTargetCustomModel = document.getElementById('consumerTargetCustomModel');
+    const consumerTargetCustomStorageGroup = document.getElementById('consumerTargetCustomStorageGroup');
+    const consumerTargetCustomStorage = document.getElementById('consumerTargetCustomStorage');
+
+    // Unified Media Uploads
+    const consumerDropzone = document.getElementById('consumerDropzone');
+    const consumerMediaInput = document.getElementById('consumerMediaInput');
+    const consumerPreviewsGrid = document.getElementById('consumerPreviewsGrid');
+    const consumerMediaCounter = document.getElementById('consumerMediaCounter');
+
+    let consumerUploadedFiles = [];
+    const consumerTriage = {
+      powerAndScreen: true,
+      screenGlass: false,
+      bodyAndHousing: false,
+      hardwareFunctionality: true
+    };
+
+    // Initialize session user from synchronous local cache
+    try {
+      const stored = localStorage.getItem('nigerswap_user') || localStorage.getItem('naijaswap_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        currentUserId = u.uid || 'user_guest';
+        currentUserName = u.displayName || (u.email ? u.email.split('@')[0] : 'Swapper');
+        currentUserEmail = u.email || '';
+      }
+    } catch (e) {}
+
+    // Update Header User UI
+    function updateHeaderUserUI(name, uid, photoURL) {
+      const headerUserName = document.getElementById('headerUserName');
+      const headerAvatarFallback = document.getElementById('headerAvatarFallback');
+      if (headerUserName) headerUserName.textContent = name;
+      if (headerAvatarFallback) {
+        const storedPhoto = uid ? localStorage.getItem('nigerswap_photo_' + uid) : null;
+        const photo = storedPhoto || (photoURL && photoURL.startsWith('http') ? photoURL : null);
+        if (photo) {
+          headerAvatarFallback.innerHTML = `<img src="${photo}" alt="${escapeHtml(name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        } else {
+          headerAvatarFallback.textContent = name.charAt(0).toUpperCase();
+        }
+      }
+    }
+
+    updateHeaderUserUI(currentUserName, currentUserId);
+
+    // Hook from auth.js when Firebase user is confirmed/ready
+    window.onNigerSwapUserReady = (user, role) => {
+      if (user) {
+        userReady = true;
+        currentUserId = user.uid;
+        currentUserName = user.displayName || (user.email ? user.email.split('@')[0] : 'Swapper');
+        currentUserEmail = user.email || '';
+
+        updateHeaderUserUI(currentUserName, user.uid, user.photoURL);
+
+        // Re-render user swap requests with the authenticated user ID
+        renderSwaps();
+      }
+    };
+
+    // Check URL parameters for toast or auto-modal
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new') {
+      setTimeout(() => {
+        if (consumerSwapModal) consumerSwapModal.classList.add('active');
+      }, 200);
+    }
+
+    // Render Swaps
+    async function renderSwaps() {
+      let allRequests;
+      try {
+        allRequests = await NaijaSwapData.getUserSwapRequestsRemote(currentUserId);
+      } catch (error) {
+        console.warn('[NigerSwap] Remote swap requests unavailable; using cached requests.', error);
+        allRequests = NaijaSwapData.getUserSwapRequests(currentUserId);
+      }
+
+      // Update counters
+      const pendingCount = allRequests.filter(r => r.status === 'pending').length;
+      const acceptedCount = allRequests.filter(r => r.status === 'accepted').length;
+      const completedCount = allRequests.filter(r => r.status === 'completed').length;
+
+      if (countAll) countAll.textContent = allRequests.length;
+      if (countPending) countPending.textContent = pendingCount;
+      if (countAccepted) countAccepted.textContent = acceptedCount;
+      if (countCompleted) countCompleted.textContent = completedCount;
+
+      if (mobileSwapsBadge) {
+        if (allRequests.length > 0) {
+          mobileSwapsBadge.textContent = allRequests.length;
+          mobileSwapsBadge.style.display = 'inline-block';
+        } else {
+          mobileSwapsBadge.style.display = 'none';
+        }
+      }
+
+      // Filter
+      let filtered = allRequests;
+      if (currentFilterStatus !== 'all') {
+        filtered = allRequests.filter(r => r.status.toLowerCase() === currentFilterStatus.toLowerCase());
+      }
+
+      // If empty
+      if (allRequests.length === 0) {
+        if (swapFilterBar) swapFilterBar.style.display = 'none';
+        swapsListContainer.innerHTML = `
+          <div class="empty-state-box" id="emptySwapsState">
+            <div class="empty-state-icon">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2">
+                <path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path>
+                <path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path>
+              </svg>
+            </div>
+            <h3 class="empty-state-title">No swap yet</h3>
+            <p class="empty-state-desc">
+              You haven't initiated any phone swap requests yet. Select an upgrade from verified Computer Village or Banex stores, or propose a custom swap using your current phone.
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+              <button type="button" class="btn-primary-action" id="emptyStartSwapBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Swap a Phone</span>
+              </button>
+              <a href="dashboard.html" class="btn-reset-filters" style="text-decoration: none; padding: 12px 22px; font-weight: 700; color: #FFF; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <span>Browse Phones</span>
+              </a>
+            </div>
+          </div>
+        `;
+
+        const emptyBtn = document.getElementById('emptyStartSwapBtn');
+        if (emptyBtn) {
+          emptyBtn.addEventListener('click', () => {
+            consumerSwapModal.classList.add('active');
+          });
+        }
+        return;
+      }
+
+      // If filtered list is empty
+      if (swapFilterBar) swapFilterBar.style.display = 'flex';
+      if (filtered.length === 0) {
+        swapsListContainer.innerHTML = `
+          <div class="empty-state-box">
+            <h3 class="empty-state-title" style="font-size: 1.1rem;">No ${currentFilterStatus} swaps</h3>
+            <p class="empty-state-desc">You do not have any swap requests in this category right now.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Render cards
+      let html = '<div class="swaps-cards-stack fade-in-content">';
+      filtered.forEach(req => {
+        let badgeClass = 'status-pending';
+        let statusLabel = req.status || 'Pending';
+        if (req.status === 'accepted') badgeClass = 'status-accepted';
+        else if (req.status === 'rejected') badgeClass = 'status-declined';
+        else if (req.status === 'completed') badgeClass = 'status-completed';
+
+        const createdDate = req.createdAt ? new Date(req.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently';
+
+        const waMsg = encodeURIComponent(`Hello ${req.storeName}, I am following up on my swap request (${req.id}) on NaijaSwap. I want to swap my ${req.swapperPhoneModel} for your ${req.targetPhoneModel}. Please let me know when to come in for inspection.`);
+
+        html += `
+          <div class="swap-tracker-card" data-req-id="${escapeHtml(req.id)}">
+            <!-- Top Bar -->
+            <div class="swap-card-topbar">
+              <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                <span class="swap-id-tag">${escapeHtml(req.id)}</span>
+                <span class="swap-date-text">• Submitted ${createdDate}</span>
+              </div>
+              <span class="status-badge ${badgeClass}">${statusLabel}</span>
+            </div>
+
+            <!-- Device Exchange Layout -->
+            <div class="swap-exchange-layout">
+              <!-- Left: Swapper Device -->
+              <div class="device-box">
+                <span class="device-box-role">Your Current Device</span>
+                <div class="device-box-title">${escapeHtml(req.swapperPhoneModel || req.model || 'Smartphone')}</div>
+                <div class="device-box-specs">
+                  <span>Battery: ${escapeHtml(req.swapperBattery || 'Standard')}</span> • 
+                  <span>Condition: ${escapeHtml(req.swapperPhoneCondition || 'Inspected')}</span>
+                  ${req.imeiNumber ? ` • <span style="font-family: monospace; font-size: 0.76rem;">IMEI: ${escapeHtml(req.imeiNumber.substring(0, 8))}...</span>` : ''}
+                </div>
+              </div>
+
+              <!-- Center: Swap Arrow -->
+              <div class="swap-arrow-divider">
+                <div class="swap-arrow-circle" title="Exchange proposal">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path>
+                    <path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Right: Target Phone -->
+              <div class="device-box">
+                <span class="device-box-role" style="color: var(--emerald-400);">Target Upgrade</span>
+                <div class="device-box-title">${escapeHtml(req.targetPhoneModel || 'Target Phone')}</div>
+                <div class="device-box-specs">
+                  ${req.preferredColor ? `<span>Color: ${escapeHtml(req.preferredColor)}</span> • ` : ''}
+                  <span>Store: ${escapeHtml(req.storeName || 'Computer Village Hub')}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Financials Summary -->
+            <div class="swap-financials-bar">
+              <div class="swap-financial-item">
+                <span class="financial-label">Your Trade-In Valuation</span>
+                <span class="financial-value">${escapeHtml(req.tradeInCredit || 'Calculated at Hub')}</span>
+              </div>
+              <div class="swap-financial-item">
+                <span class="financial-label">Estimated Top-Up Required</span>
+                <span class="financial-value highlight">${escapeHtml(req.topupOffered || '₦0')}</span>
+              </div>
+            </div>
+
+            <!-- Hub & Location Details -->
+            <div class="swap-hub-info-box">
+              <div class="hub-meta-text">
+                <span class="hub-name-badge">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  ${escapeHtml(req.storeName || 'Computer Village Hub')}
+                </span>
+                <span style="display: block; margin-top: 3px; font-size: 0.78rem; color: var(--text-faint);">
+                  Computer Village, Otigba Street, Ikeja, Lagos (Walk-in physical inspection open Mon-Sat)
+                </span>
+              </div>
+            </div>
+
+            <!-- Attached Media Previews -->
+            ${req.deviceMedia && req.deviceMedia.length > 0 ? `
+              <div style="margin-bottom: 16px;">
+                <span style="font-size: 0.74rem; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">
+                  Attached Inspection Media (${req.deviceMedia.length} / 5 files)
+                </span>
+                <div class="swap-thumbnails-row">
+                  ${req.deviceMedia.map((media, idx) => `
+                    <div class="swap-thumb-item">
+                      ${media.isVideo ? `
+                        <video src="${escapeHtml(media.dataUrl)}"></video>
+                        <span class="swap-thumb-video-badge">▶ Video</span>
+                      ` : `
+                        <img src="${escapeHtml(media.dataUrl)}" alt="Inspection photo ${idx + 1}">
+                      `}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            ${req.status === 'countered' ? `
+              <div style="width:100%;margin-bottom:12px;padding:12px 14px;border:1px solid rgba(6,182,212,0.3);border-radius:var(--radius-md);background:rgba(6,182,212,0.08);">
+                <strong style="display:block;color:var(--cyan-400);font-size:0.8rem;">Dealer counter-offer</strong>
+                <span style="font-size:0.86rem;color:#FFF;">${escapeHtml(req.counterOffer || 'Revised terms available')}</span>
+                ${req.counterMessage ? `<p style="margin:5px 0 0;color:var(--text-muted);font-size:0.8rem;">${escapeHtml(req.counterMessage)}</p>` : ''}
+              </div>
+            ` : ''}
+            ${req.status === 'inspection_passed' ? `
+              <button type="button" class="btn-action-sm btn-confirm-handover" data-id="${escapeHtml(req.id)}">Confirm Handover</button>
+            ` : ''}
+            ${['accepted', 'under_inspection', 'inspection_passed'].includes(req.status) ? `
+              <button type="button" class="btn-action-sm btn-open-dispute" data-id="${escapeHtml(req.id)}">Report Problem</button>
+            ` : ''}
+
+            <!-- Card Actions Footer -->
+            <div class="swap-actions-footer">
+              ${req.status === 'pending' ? `
+                <button type="button" class="btn-action-sm btn-decline btn-cancel-request" data-id="${escapeHtml(req.id)}" style="background: rgba(244,63,94,0.1); border: 1px solid var(--rose-border); color: var(--rose-400); padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer;">
+                  Cancel Proposal
+                </button>
+              ` : ''}
+              ${req.status === 'countered' ? `
+                <button type="button" class="btn-action-sm btn-accept btn-accept-counter" data-id="${escapeHtml(req.id)}">Accept Counter-offer</button>
+                <button type="button" class="btn-action-sm btn-decline btn-reject-counter" data-id="${escapeHtml(req.id)}">Reject</button>
+                <button type="button" class="btn-action-sm btn-counter-again" data-id="${escapeHtml(req.id)}">Send Counter-offer</button>
+              ` : ''}
+
+              <a href="https://wa.me/?text=${waMsg}" target="_blank" rel="noopener" class="btn-action-sm btn-accept" style="text-decoration: none; padding: 8px 18px; border-radius: var(--radius-md); font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <span>Chat Hub Store</span>
+              </a>
+
+              ${req.targetListingId || req.targetPhoneId ? `
+                <a href="phone-details.html?id=${encodeURIComponent(req.targetListingId || req.targetPhoneId)}" class="btn-action-sm" style="text-decoration: none; padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); color: #FFF;">
+                  View Target Phone
+                </a>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+
+      swapsListContainer.innerHTML = html;
+
+      // Bind Cancel Request buttons
+      document.querySelectorAll('.btn-cancel-request').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const reqId = e.currentTarget.dataset.id;
+          if (confirm('Are you sure you want to cancel this swap request?')) {
+            const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === reqId);
+            try {
+              if (!request?.firestoreId) {
+                throw new Error('This swap is not connected to the live backend yet. Please refresh and try again.');
+              }
+              await updateSwapRequestStatusBackend({
+                requestId: request.firestoreId,
+                status: 'cancelled'
+              });
+              NaijaSwapData.updateSwapRequestStatus(reqId, 'cancelled', request.storeId);
+              renderSwaps();
+            } catch (error) {
+              alert(error.message || 'Unable to cancel this swap request.');
+            }
+          }
+        });
+      });
+
+      document.querySelectorAll('.btn-accept-counter').forEach(btn => {
+        btn.addEventListener('click', () => respondToCounter(btn.dataset.id, 'Accepted'));
+      });
+      document.querySelectorAll('.btn-reject-counter').forEach(btn => {
+        btn.addEventListener('click', () => respondToCounter(btn.dataset.id, 'Declined'));
+      });
+      document.querySelectorAll('.btn-counter-again').forEach(btn => {
+        btn.addEventListener('click', () => sendCustomerCounter(btn.dataset.id));
+      });
+      document.querySelectorAll('.btn-confirm-handover').forEach(btn => {
+        btn.addEventListener('click', () => confirmHandover(btn.dataset.id));
+      });
+      document.querySelectorAll('.btn-open-dispute').forEach(btn => {
+        btn.addEventListener('click', () => openDispute(btn.dataset.id));
+      });
+
+    }
+
+    async function persistSwapResponse(request, status, extra = {}) {
+      if (!request?.firestoreId) {
+        throw new Error('This swap is not connected to the live backend yet. Please refresh and try again.');
+      }
+      await updateSwapRequestStatusBackend({
+        requestId: request.firestoreId,
+        status: status.toLowerCase(),
+        ...extra
+      });
+      NaijaSwapData.updateSwapRequestStatus(request.id, status, request.storeId);
+      renderSwaps();
+    }
+
+    async function respondToCounter(requestId, status) {
+      const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === requestId);
+      if (!request) return;
+      try {
+        await persistSwapResponse(request, status);
+      } catch (error) {
+        alert(error.message || 'Unable to update this swap response.');
+      }
+    }
+
+    async function sendCustomerCounter(requestId) {
+      const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === requestId);
+      if (!request) return;
+      const amount = prompt('Enter your proposed top-up amount:', request.counterOffer || request.topupOffered || '');
+      if (amount === null) return;
+      const message = prompt('Add a message for the dealer (optional):', '') || '';
+      try {
+        await persistSwapResponse(request, 'Countered', {
+          counterOffer: amount.trim(),
+          counterMessage: message
+        });
+      } catch (error) {
+        alert(error.message || 'Unable to send your counter-offer.');
+      }
+
+      async function confirmHandover(requestId) {
+        const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === requestId);
+        if (!request?.firestoreId || !confirm('Confirm that you received the inspected device and completed the handover at the authorized hub?')) return;
+        try {
+          await confirmSwapHandoverBackend({ requestId: request.firestoreId, confirmed: true });
+          alert('Your confirmation was recorded. The dealer must also confirm before the swap can complete.');
+          renderSwaps();
+        } catch (error) {
+          alert(error.message || 'Unable to record handover confirmation.');
+        }
+      }
+
+      async function openDispute(requestId) {
+        const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === requestId);
+        const reason = prompt('Describe the problem with this swap:');
+        if (!reason || !request?.firestoreId) return;
+        try {
+          await openSwapDisputeBackend({ requestId: request.firestoreId, reason });
+          alert('Your dispute was opened and the swap has been flagged for review.');
+        } catch (error) {
+          alert(error.message || 'Unable to open the dispute.');
+        }
+      }
+    }
+
+    // Filter bar tab listeners
+    if (swapFilterBar) {
+      swapFilterBar.querySelectorAll('.swap-filter-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          swapFilterBar.querySelectorAll('.swap-filter-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          currentFilterStatus = pill.dataset.status;
+          renderSwaps();
+        });
+      });
+    }
+
+    // Auth readiness triggers the first data render.
+
+    // Setup Form Brand & Models
+    function populateBrands() {
+      const brands = NaijaSwapData.getBrands();
+      [consumerBrand, consumerTargetBrand].forEach(select => {
+        if (!select) return;
+        select.innerHTML = '<option value="" disabled selected>-- Select Brand --</option>';
+        brands.forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b;
+          opt.textContent = b;
+          select.appendChild(opt);
+        });
+      });
+    }
+
+    function setupBrandModelLinks() {
+      if (consumerBrand && consumerModel) {
+        consumerBrand.addEventListener('change', () => {
+          const brand = consumerBrand.value;
+          if (brand === 'Other') {
+            consumerCustomBrandGroup.style.display = 'block';
+            consumerCustomBrand.required = true;
+            consumerModel.innerHTML = '<option value="Other" selected>Other Model (Type custom)</option>';
+            consumerModel.disabled = false;
+            consumerCustomModelGroup.style.display = 'block';
+            consumerCustomModel.required = true;
+            if (consumerRamGroup) consumerRamGroup.style.display = 'block';
+            return;
+          }
+
+          consumerCustomBrandGroup.style.display = 'none';
+          consumerCustomBrand.required = false;
+
+          const models = NaijaSwapData.getModelsForBrand(brand);
+          consumerModel.innerHTML = '<option value="" disabled selected>-- Select Model --</option>';
+          models.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            consumerModel.appendChild(opt);
+          });
+          const otherModelOpt = document.createElement('option');
+          otherModelOpt.value = 'Other';
+          otherModelOpt.textContent = 'Other Model (Type custom)';
+          consumerModel.appendChild(otherModelOpt);
+
+          consumerModel.disabled = false;
+          consumerCustomModelGroup.style.display = 'none';
+          consumerCustomModel.required = false;
+
+          if (consumerRamGroup) {
+            consumerRamGroup.style.display = NaijaSwapData.isAndroid(brand) ? 'block' : 'none';
+          }
+        });
+
+        consumerModel.addEventListener('change', () => {
+          if (consumerModel.value === 'Other') {
+            consumerCustomModelGroup.style.display = 'block';
+            consumerCustomModel.required = true;
+          } else {
+            consumerCustomModelGroup.style.display = 'none';
+            consumerCustomModel.required = false;
+          }
+        });
+      }
+
+      if (consumerStorage) {
+        consumerStorage.addEventListener('change', () => {
+          if (consumerStorage.value === 'Other') {
+            consumerCustomStorageGroup.style.display = 'block';
+            consumerCustomStorage.required = true;
+          } else {
+            consumerCustomStorageGroup.style.display = 'none';
+            consumerCustomStorage.required = false;
+          }
+        });
+      }
+
+      // Target Device
+      if (consumerTargetBrand && consumerTargetModel) {
+        consumerTargetBrand.addEventListener('change', () => {
+          const brand = consumerTargetBrand.value;
+          if (brand === 'Other') {
+            consumerTargetCustomBrandGroup.style.display = 'block';
+            consumerTargetCustomBrand.required = true;
+            consumerTargetModel.innerHTML = '<option value="Other" selected>Other Model (Type custom)</option>';
+            consumerTargetModel.disabled = false;
+            consumerTargetCustomModelGroup.style.display = 'block';
+            consumerTargetCustomModel.required = true;
+            return;
+          }
+
+          consumerTargetCustomBrandGroup.style.display = 'none';
+          consumerTargetCustomBrand.required = false;
+
+          const models = NaijaSwapData.getModelsForBrand(brand);
+          consumerTargetModel.innerHTML = '<option value="" disabled selected>-- Select Target Model --</option>';
+          models.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.textContent = m;
+            consumerTargetModel.appendChild(opt);
+          });
+          const otherOpt = document.createElement('option');
+          otherOpt.value = 'Other';
+          otherOpt.textContent = 'Other Model (Type custom)';
+          consumerTargetModel.appendChild(otherOpt);
+
+          consumerTargetModel.disabled = false;
+          consumerTargetCustomModelGroup.style.display = 'none';
+          consumerTargetCustomModel.required = false;
+        });
+
+        consumerTargetModel.addEventListener('change', () => {
+          if (consumerTargetModel.value === 'Other') {
+            consumerTargetCustomModelGroup.style.display = 'block';
+            consumerTargetCustomModel.required = true;
+          } else {
+            consumerTargetCustomModelGroup.style.display = 'none';
+            consumerTargetCustomModel.required = false;
+          }
+        });
+      }
+
+      if (consumerTargetStorage) {
+        consumerTargetStorage.addEventListener('change', () => {
+          if (consumerTargetStorage.value === 'Other') {
+            consumerTargetCustomStorageGroup.style.display = 'block';
+            consumerTargetCustomStorage.required = true;
+          } else {
+            consumerTargetCustomStorageGroup.style.display = 'none';
+            consumerTargetCustomStorage.required = false;
+          }
+        });
+      }
+    }
+
+    // Segmented Switch Triage
+    function setupSegmentedSwitch(switchId, triageKey, positiveIsYes) {
+      const container = document.getElementById(switchId);
+      if (!container) return;
+      const btns = container.querySelectorAll('.segmented-option-btn');
+
+      btns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          btns.forEach(b => b.classList.remove('active-yes', 'active-no'));
+          const val = btn.dataset.val === 'yes';
+          consumerTriage[triageKey] = val;
+
+          if (positiveIsYes) {
+            btn.classList.add(val ? 'active-yes' : 'active-no');
+          } else {
+            btn.classList.add(val ? 'active-no' : 'active-yes');
+          }
+        });
+      });
+    }
+
+    // Unified Media Uploads Handling (Max 5 files)
+    function setupConsumerDropzone() {
+      if (!consumerDropzone || !consumerMediaInput) return;
+      consumerDropzone.addEventListener('click', () => consumerMediaInput.click());
+
+      consumerMediaInput.addEventListener('change', (e) => {
+        handleMediaFiles(e.target.files);
+      });
+
+      consumerDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        consumerDropzone.classList.add('dragover');
+      });
+      consumerDropzone.addEventListener('dragleave', () => {
+        consumerDropzone.classList.remove('dragover');
+      });
+      consumerDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        consumerDropzone.classList.remove('dragover');
+        handleMediaFiles(e.dataTransfer.files);
+      });
+    }
+
+    function handleMediaFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+
+      const remainingSlots = 5 - consumerUploadedFiles.length;
+      if (remainingSlots <= 0) {
+        alert('You have already attached the maximum limit of 5 media files.');
+        return;
+      }
+
+      const filesToProcess = Array.from(fileList).slice(0, remainingSlots);
+      if (fileList.length > remainingSlots) {
+        alert(`You can only add ${remainingSlots} more file(s). (Max 5 files total)`);
+      }
+
+      const uploadProgress = document.getElementById('consumerUploadProgress');
+      const progressBar = document.getElementById('consumerProgressBar');
+      const progressPct = document.getElementById('consumerProgressPct');
+
+      if (uploadProgress) {
+        uploadProgress.style.display = 'block';
+        if (progressBar) progressBar.style.width = '30%';
+        if (progressPct) progressPct.textContent = '30%';
+      }
+
+      let processedCount = 0;
+      filesToProcess.forEach(file => {
+        const reader = new FileReader();
+        const isVideo = file.type.startsWith('video');
+
+        reader.onload = (event) => {
+          consumerUploadedFiles.push({
+            name: file.name,
+            size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
+            isVideo,
+            dataUrl: event.target.result
+          });
+
+          processedCount++;
+          const pct = Math.round((processedCount / filesToProcess.length) * 100);
+          if (progressBar) progressBar.style.width = pct + '%';
+          if (progressPct) progressPct.textContent = pct + '%';
+
+          if (processedCount === filesToProcess.length) {
+            setTimeout(() => {
+              if (uploadProgress) uploadProgress.style.display = 'none';
+            }, 300);
+            renderConsumerPreviews();
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderConsumerPreviews() {
+      if (!consumerPreviewsGrid) return;
+      consumerPreviewsGrid.innerHTML = '';
+      updateConsumerMediaCounter();
+
+      consumerUploadedFiles.forEach((file, index) => {
+        const card = document.createElement('div');
+        card.className = 'media-preview-card';
+        card.innerHTML = `
+          <button type="button" class="preview-remove-btn" aria-label="Remove media" data-index="${index}">&times;</button>
+          ${file.isVideo ? `
+            <div class="video-placeholder">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </div>
+            <div class="preview-meta">
+              <span class="preview-name">${escapeHtml(file.name)}</span>
+              <span class="preview-badge badge-video">${escapeHtml(file.size)}</span>
+            </div>
+          ` : `
+            <img src="${escapeHtml(file.dataUrl)}" alt="Preview ${index + 1}" class="preview-img">
+            <div class="preview-meta">
+              <span class="preview-name">${escapeHtml(file.name)}</span>
+              <span class="preview-badge badge-photo">${escapeHtml(file.size)}</span>
+            </div>
+          `}
+        `;
+        consumerPreviewsGrid.appendChild(card);
+      });
+
+      consumerPreviewsGrid.querySelectorAll('.preview-remove-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.index, 10);
+          consumerUploadedFiles.splice(idx, 1);
+          renderConsumerPreviews();
+        });
+      });
+    }
+
+    function updateConsumerMediaCounter() {
+      if (!consumerMediaCounter) return;
+      consumerMediaCounter.textContent = `${consumerUploadedFiles.length} / 5 files`;
+      if (consumerUploadedFiles.length >= 5) {
+        consumerMediaCounter.style.background = 'rgba(0, 210, 106, 0.2)';
+        consumerMediaCounter.style.color = 'var(--emerald-400)';
+      } else {
+        consumerMediaCounter.style.background = 'rgba(255, 255, 255, 0.08)';
+        consumerMediaCounter.style.color = '#FFF';
+      }
+    }
+
+    // Modal Events
+    if (openSwapModalBtn) {
+      openSwapModalBtn.addEventListener('click', () => {
+        consumerSwapModal.classList.add('active');
+      });
+    }
+    if (closeConsumerModal) {
+      closeConsumerModal.addEventListener('click', () => {
+        consumerSwapModal.classList.remove('active');
+      });
+    }
+    if (consumerSwapModal) {
+      consumerSwapModal.addEventListener('click', (e) => {
+        if (e.target === consumerSwapModal) consumerSwapModal.classList.remove('active');
+      });
+    }
+
+    // Form Submission
+    if (consumerSwapForm) {
+      consumerSwapForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const effectiveBrand = consumerBrand.value === 'Other' ? consumerCustomBrand.value.trim() : consumerBrand.value;
+        const effectiveModel = consumerModel.value === 'Other' ? consumerCustomModel.value.trim() : consumerModel.value;
+        const effectiveStorage = consumerStorage.value === 'Other' ? consumerCustomStorage.value.trim() : consumerStorage.value;
+
+        const effectiveTargetBrand = consumerTargetBrand.value === 'Other' ? consumerTargetCustomBrand.value.trim() : consumerTargetBrand.value;
+        const effectiveTargetModel = consumerTargetModel.value === 'Other' ? consumerTargetCustomModel.value.trim() : consumerTargetModel.value;
+        const effectiveTargetStorage = consumerTargetStorage.value === 'Other' ? consumerTargetCustomStorage.value.trim() : consumerTargetStorage.value;
+
+        const targetIdParam = urlParams.get('targetId');
+        const targetPhonePreset = targetIdParam ? NaijaSwapData.getListingById(targetIdParam) : null;
+
+        const requestData = {
+          targetListingId: targetIdParam || '',
+          targetBrand: effectiveTargetBrand,
+          targetModel: effectiveTargetModel,
+          targetStorage: effectiveTargetStorage,
+          preferredColor: consumerPreferredColor.value.trim(),
+          targetPhoneImage: targetPhonePreset ? targetPhonePreset.image : '',
+          storeId: targetPhonePreset ? targetPhonePreset.storeId : '',
+          storeName: targetPhonePreset ? targetPhonePreset.storeName : '',
+          customerPhone: consumerPhoneInput.value.trim(),
+          customerUid: currentUserId,
+          customerName: currentUserName,
+          customerEmail: currentUserEmail,
+          brand: effectiveBrand,
+          model: effectiveModel,
+          storageCapacity: effectiveStorage,
+          ram: consumerRamGroup && consumerRamGroup.style.display !== 'none' ? consumerRam.value : '',
+          imeiNumber: consumerImei.value.trim(),
+          conditionTriage: {
+            ...consumerTriage,
+            batteryHealth: consumerBatteryHealth.value ? parseInt(consumerBatteryHealth.value, 10) : 90,
+            carrierLock: consumerCarrierLock.value
+          },
+          deviceMedia: consumerUploadedFiles.slice(0, 5)
+        };
+
+        NaijaSwapData.createSwapRequest(requestData);
+
+        // Reset
+        consumerSwapForm.reset();
+        consumerUploadedFiles = [];
+        if (consumerPreviewsGrid) consumerPreviewsGrid.innerHTML = '';
+        if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'none';
+        if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
+        if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'none';
+        if (consumerTargetCustomBrandGroup) consumerTargetCustomBrandGroup.style.display = 'none';
+        if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'none';
+        if (consumerTargetCustomStorageGroup) consumerTargetCustomStorageGroup.style.display = 'none';
+        updateConsumerMediaCounter();
+        consumerSwapModal.classList.remove('active');
+
+        // Re-render
+        renderSwaps();
+        if (targetPhonePreset) {
+          alert(`Success! Your ${effectiveModel} (${effectiveStorage}) has been listed, and your swap request for ${effectiveTargetModel} has been sent to ${targetPhonePreset.storeName}!`);
+        } else {
+          alert('Your swap request has been submitted to the hub technicians! You can track its status below.');
+        }
+      });
+    }
+
+    // Apply target phone preset if coming from phone-details.html
+    function applyTargetPreset(targetId) {
+      if (!targetId) return;
+      const targetPhone = NaijaSwapData.getListingById(targetId);
+      if (!targetPhone) return;
+
+      const modalTitleEl = document.getElementById('consumerModalTitle');
+      if (modalTitleEl) {
+        modalTitleEl.innerHTML = `Swap for ${escapeHtml(targetPhone.title || targetPhone.model)}`;
+      }
+
+      // Add a clean target info banner in Section 4
+      const sec4Header = document.querySelector('#consumerSwapModal .form-section-card:nth-of-type(4) .form-section-header');
+      if (sec4Header) {
+        let existingPreset = document.getElementById('targetPresetBanner');
+        if (!existingPreset) {
+          existingPreset = document.createElement('div');
+          existingPreset.id = 'targetPresetBanner';
+          existingPreset.style.cssText = 'background: rgba(0, 210, 106, 0.08); border: 1px solid var(--emerald-border); border-radius: var(--radius-md); padding: 10px 14px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; font-size: 0.84rem;';
+          sec4Header.parentNode.insertBefore(existingPreset, sec4Header.nextSibling);
+        }
+        existingPreset.innerHTML = `
+          <div>
+            <span style="color: var(--emerald-400); font-weight: 700;">Target Upgrade:</span>
+            <strong style="color: #FFF; margin-left: 4px;">${escapeHtml(targetPhone.title || targetPhone.model)}</strong>
+            <span style="color: var(--text-faint); margin-left: 6px;">(${escapeHtml(targetPhone.storeName || 'Verified Hub')})</span>
+          </div>
+          <span class="tag-badge tag-verified">Auto-Selected</span>
+        `;
+      }
+
+      if (consumerTargetBrand && targetPhone.brand) {
+        consumerTargetBrand.value = targetPhone.brand;
+        // Trigger model list population
+        const models = NaijaSwapData.getModelsForBrand(targetPhone.brand);
+        consumerTargetModel.innerHTML = '<option value="" disabled>-- Select Target Model --</option>';
+        models.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m;
+          opt.textContent = m;
+          consumerTargetModel.appendChild(opt);
+        });
+        const otherOpt = document.createElement('option');
+        otherOpt.value = 'Other';
+        otherOpt.textContent = 'Other Model (Type custom)';
+        consumerTargetModel.appendChild(otherOpt);
+        consumerTargetModel.disabled = false;
+
+        if (targetPhone.model) {
+          consumerTargetModel.value = targetPhone.model;
+        }
+      }
+
+      if (consumerTargetStorage && targetPhone.storage) {
+        const match = Array.from(consumerTargetStorage.options).find(o => o.value.toLowerCase() === targetPhone.storage.toLowerCase());
+        if (match) {
+          consumerTargetStorage.value = match.value;
+        }
+      }
+
+      if (consumerPreferredColor && targetPhone.color) {
+        consumerPreferredColor.value = targetPhone.color;
+      }
+    }
+
+    // Setup helper items
+    populateBrands();
+    setupBrandModelLinks();
+    setupSegmentedSwitch('triagePowerSwitch', 'powerAndScreen', true);
+    setupSegmentedSwitch('triageScreenSwitch', 'screenGlass', false);
+    setupSegmentedSwitch('triageBodySwitch', 'bodyAndHousing', false);
+    setupSegmentedSwitch('triageHardwareSwitch', 'hardwareFunctionality', true);
+    setupConsumerDropzone();
+
+    // Check if target preset is needed on load
+    if (urlParams.get('targetId')) {
+      applyTargetPreset(urlParams.get('targetId'));
+    }
+
+    // User Dropdown & Notifications
+    if (userMenuBtn && userDropdown) {
+      userMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('active');
+      });
+      document.addEventListener('click', () => userDropdown.classList.remove('active'));
+    }
+
+    // Notification modal fallback
+    if (notifBtn && notifModal) {
+      notifBtn.addEventListener('click', () => notifModal.classList.add('active'));
+    }
+    if (closeNotifModal && notifModal) {
+      closeNotifModal.addEventListener('click', () => notifModal.classList.remove('active'));
+      notifModal.addEventListener('click', (e) => {
+        if (e.target === notifModal) notifModal.classList.remove('active');
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Initial load
+    renderSwaps();
+  </script>
+</body>
+</html>

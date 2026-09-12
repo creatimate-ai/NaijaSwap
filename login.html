@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In — NigerSwap</title>
+  <meta name="description" content="Log in to your NigerSwap account to swap your phone with verified dealers across Nigeria.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+  <!-- Ambient Glows -->
+  <div class="auth-bg-glow auth-glow-1"></div>
+  <div class="auth-bg-glow auth-glow-2"></div>
+
+  <!-- Header -->
+  <header class="auth-header">
+    <a href="index.html" class="brand-logo">
+      <div class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+          <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+        </svg>
+      </div>
+      <span class="brand-name">Niger<span>Swap</span></span>
+    </a>
+    <a href="index.html" class="header-back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>Back to Home</span>
+    </a>
+  </header>
+
+  <!-- Main Content -->
+  <main class="auth-main-container">
+    <div class="auth-card">
+      <div class="auth-card-glow"></div>
+
+      <div class="auth-title-row">
+        <div class="auth-badge">Welcome Back</div>
+        <h1 class="auth-title">Log in to NigerSwap</h1>
+        <p class="auth-subtitle">Access verified dealer swaps and manage your requests</p>
+      </div>
+
+      <!-- Alert Notification Banner -->
+      <div class="auth-alert" id="loginAlert" role="alert"></div>
+
+      <!-- Google Sign In Button -->
+      <button type="button" class="btn-google" id="googleSignInBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.36 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <!-- Divider -->
+      <div class="auth-divider">
+        <span class="divider-text">or log in with email</span>
+      </div>
+
+      <!-- Email / Password Form -->
+      <form class="auth-form" id="loginForm" novalidate>
+        <div class="form-field">
+          <label class="form-label" for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" class="auth-input" placeholder="name@example.com" required autocomplete="email">
+        </div>
+
+        <div class="form-field">
+          <div class="field-label-row">
+            <label class="form-label" for="loginPassword">Password</label>
+            <a href="#" class="forgot-pw-link" id="forgotPasswordLink">Forgot password?</a>
+          </div>
+          <div class="input-wrapper">
+            <input type="password" id="loginPassword" class="auth-input" placeholder="••••••••" required autocomplete="current-password">
+            <button type="button" class="password-toggle-btn" aria-label="Show password">
+              <svg class="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-off-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth-primary" id="loginSubmitBtn">
+          <span>Log in</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </form>
+
+      <!-- Create Account Footer Switch -->
+      <div class="auth-footer-switch">
+        <span>Don't have an account?</span>
+        <a href="signup.html" class="switch-link">Create an account</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-backdrop" id="forgotPasswordModal" aria-hidden="true" role="dialog" aria-labelledby="modalForgotTitle">
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <h3 class="modal-head-title" id="modalForgotTitle">Reset Your Password</h3>
+        <button type="button" class="modal-close-btn" id="closeForgotModalBtn" aria-label="Close dialog">&times;</button>
+      </div>
+      <p class="modal-desc">Enter your account email address and we'll send you an official Firebase link to reset your password.</p>
+      
+      <div class="auth-alert" id="forgotPasswordAlert" role="alert"></div>
+
+      <form id="forgotPasswordForm" class="auth-form">
+        <div class="form-field">
+          <label class="form-label" for="forgotPasswordEmail">Email Address</label>
+          <input type="email" id="forgotPasswordEmail" class="auth-input" placeholder="name@example.com" required>
+        </div>
+        <button type="submit" class="btn-auth-primary" id="sendResetLinkBtn">
+          <span>Send Reset Link</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Authentication Controller Script -->
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>

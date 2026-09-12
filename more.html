@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>More — NaijaSwap</title>
+  <meta name="description" content="NaijaSwap preferences, account options, store hub, legal policies, support, and help center.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Ambient Glows (Depth for Frosted Glass) -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Main Container -->
+  <main class="more-page-container">
+
+    <!-- Top Navigation / Header -->
+    <header class="more-header">
+      <a href="dashboard.html" class="more-back-btn" id="moreBackBtn" aria-label="Back">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span id="moreBackBtnText">Back</span>
+      </a>
+
+      <div class="more-brand-pill" id="moreBrandPill">
+        <div class="logo-mark-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span id="brandPillTitle">NaijaSwap</span>
+      </div>
+    </header>
+
+    <!-- Page Title Section -->
+    <section class="more-title-section">
+      <div id="roleTagHeaderWrap" style="margin-bottom: 8px;">
+        <span class="role-tag role-tag-swapper" id="topRoleTag">🔄 Swapper Account</span>
+      </div>
+      <h1 class="more-title" id="moreMainTitle">More</h1>
+      <p class="more-subtitle" id="moreMainSubtitle">App settings, support channels, and legal information</p>
+    </section>
+
+    <!-- User & Account Quick Summary Card -->
+    <section class="more-user-card" id="moreUserCard" aria-label="Account Overview">
+      <div class="more-user-info">
+        <div class="more-user-avatar-placeholder" id="moreAvatarNode" style="background: linear-gradient(135deg, var(--emerald-400), var(--cyan-400));">
+          U
+        </div>
+        <div class="more-user-details">
+          <div class="more-user-name" id="moreUserName">Loading user...</div>
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+            <span class="more-item-sub" id="moreUserEmail">Checking credentials</span>
+            <span class="more-badge-pill badge-emerald" id="moreStatusBadge">Active</span>
+          </div>
+        </div>
+      </div>
+      <a href="account.html" class="more-user-cta-btn more-user-cta-swapper" id="moreUserCtaBtn">
+        <span>View Profile</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </a>
+    </section>
+
+    <!-- Navigation Menu Options (Dynamically Adapted) -->
+    <nav class="more-menu-list" id="moreMenuList" aria-label="Menu Options">
+      <!-- Injected by JavaScript based on Swapper vs Dealer role -->
+    </nav>
+
+  </main>
+
+  <!-- Dynamic Mobile Bottom Navigation Container -->
+  <div id="bottomNavContainer">
+    <!-- Injected dynamically with Swapper or Dealer tabs -->
+  </div>
+
+  <script type="module">
+    import { auth, onAuthStateChanged } from './js/firebase-config.js';
+    import { getStoredProfile, getStoredRole, isProfileComplete, getStoreMetrics, resolveMedia } from './js/profile.js';
+
+    // Elements
+    const moreBackBtn = document.getElementById('moreBackBtn');
+    const moreBackBtnText = document.getElementById('moreBackBtnText');
+    const brandPillTitle = document.getElementById('brandPillTitle');
+    const topRoleTag = document.getElementById('topRoleTag');
+    const moreMainTitle = document.getElementById('moreMainTitle');
+    const moreMainSubtitle = document.getElementById('moreMainSubtitle');
+    const moreUserName = document.getElementById('moreUserName');
+    const moreUserEmail = document.getElementById('moreUserEmail');
+    const moreAvatarNode = document.getElementById('moreAvatarNode');
+    const moreStatusBadge = document.getElementById('moreStatusBadge');
+    const moreUserCtaBtn = document.getElementById('moreUserCtaBtn');
+    const moreMenuList = document.getElementById('moreMenuList');
+    const bottomNavContainer = document.getElementById('bottomNavContainer');
+
+    // Determine initial role immediately to avoid any UI flash
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramRole = urlParams.get('role');
+    
+    function resolveInitialRole() {
+      if (paramRole && (paramRole === 'dealer' || paramRole === 'customer')) {
+        return paramRole;
+      }
+      try {
+        const lastUid = localStorage.getItem('nigerswap_last_uid');
+        if (lastUid) {
+          const direct = localStorage.getItem('nigerswap_role_' + lastUid);
+          if (direct) return direct.toLowerCase();
+          if (localStorage.getItem('nigerswap_shop_' + lastUid)) return 'dealer';
+        }
+        const lastRole = localStorage.getItem('nigerswap_last_role');
+        if (lastRole) return lastRole.toLowerCase();
+      } catch (_) {}
+      return 'customer';
+    }
+
+    let currentRole = resolveInitialRole();
+
+    function renderMorePage(role, user = null) {
+      currentRole = role;
+      const isDealer = role === 'dealer';
+      const uid = user?.uid || localStorage.getItem('nigerswap_last_uid') || '';
+      const profile = uid ? getStoredProfile(uid) : {};
+
+      // 1. Back button & Headers
+      if (isDealer) {
+        moreBackBtn.href = 'dealer-dashboard.html';
+        moreBackBtnText.textContent = 'Store Hub';
+        brandPillTitle.innerHTML = 'NaijaSwap <strong>Store</strong>';
+        
+        topRoleTag.className = 'role-tag role-tag-dealer';
+        topRoleTag.innerHTML = '<span>🏬</span><span>Verified Store Dealer</span>';
+        
+        moreMainTitle.textContent = 'Store Hub & Settings';
+        moreMainSubtitle.textContent = 'Manage phone inventory, incoming swap requests, business verification, and settlement.';
+        
+        // User Banner
+        const shopName = profile.businessName || (uid ? localStorage.getItem('nigerswap_shop_' + uid) : '') || user?.displayName || 'My Gadget Hub';
+        moreUserName.textContent = shopName;
+        moreUserEmail.textContent = user?.email || profile.businessEmail || 'Store Partner Account';
+        
+        const isVerified = isProfileComplete(user, 'dealer');
+        moreStatusBadge.className = isVerified ? 'more-badge-pill badge-cyan' : 'more-badge-pill badge-amber';
+        moreStatusBadge.textContent = isVerified ? 'KYC Verified' : 'KYC Pending';
+
+        const photo = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
+        if (photo) {
+          resolveMedia(photo).then(src => {
+            if (src && moreAvatarNode) {
+              moreAvatarNode.innerHTML = `<img src="${src}" alt="${shopName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            }
+          });
+        } else {
+          moreAvatarNode.style.background = 'linear-gradient(135deg, var(--cyan-400), var(--emerald-400))';
+          moreAvatarNode.textContent = shopName.charAt(0).toUpperCase() || 'S';
+        }
+
+        moreUserCtaBtn.className = 'more-user-cta-btn more-user-cta-dealer';
+        moreUserCtaBtn.href = 'account.html';
+        moreUserCtaBtn.innerHTML = '<span>Store Profile</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+
+        renderDealerMenu(profile);
+        renderDealerBottomNav();
+
+      } else {
+        // Swapper Mode
+        moreBackBtn.href = 'dashboard.html';
+        moreBackBtnText.textContent = 'Back';
+        brandPillTitle.textContent = 'NaijaSwap';
+
+        topRoleTag.className = 'role-tag role-tag-swapper';
+        topRoleTag.innerHTML = '<span>🔄</span><span>Swapper Account</span>';
+
+        moreMainTitle.textContent = 'More';
+        moreMainSubtitle.textContent = 'App preferences, swap history, support channels, and legal policies.';
+
+        const name = user?.displayName || (user?.email ? user.email.split('@')[0] : 'Swapper');
+        moreUserName.textContent = name;
+        moreUserEmail.textContent = user?.email || 'Verified Consumer';
+
+        moreStatusBadge.className = 'more-badge-pill badge-emerald';
+        moreStatusBadge.textContent = 'Active Swapper';
+
+        const swapperPhoto = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
+        if (swapperPhoto) {
+          resolveMedia(swapperPhoto).then(src => {
+            if (src && moreAvatarNode) {
+              moreAvatarNode.innerHTML = `<img src="${src}" alt="${name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            }
+          });
+        } else {
+          moreAvatarNode.style.background = 'linear-gradient(135deg, var(--emerald-400), var(--cyan-400))';
+          moreAvatarNode.textContent = name.charAt(0).toUpperCase() || 'U';
+        }
+
+        moreUserCtaBtn.className = 'more-user-cta-btn more-user-cta-swapper';
+        moreUserCtaBtn.href = 'account.html';
+        moreUserCtaBtn.innerHTML = '<span>My Profile</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+
+        renderSwapperMenu();
+        renderSwapperBottomNav();
+      }
+    }
+
+    function renderDealerMenu(profile) {
+      const metrics = getStoreMetrics();
+
+      moreMenuList.innerHTML = `
+        <!-- Store Settings -->
+        <a href="settings.html" class="more-menu-item" id="menuSettings">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-neutral">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Settings & Notifications</span>
+              <span class="more-item-sub">Trade alert preferences and sound settings</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 7. Partner Support -->
+        <a href="support.html" class="more-menu-item" id="menuSupport">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Partner Support Desk</span>
+              <span class="more-item-sub">Direct WhatsApp & live ticket resolution</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 8. Dealer FAQ -->
+        <a href="faq.html" class="more-menu-item" id="menuFaq">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-neutral">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Dealer FAQ & Guidelines</span>
+              <span class="more-item-sub">Store policies, escrow timelines & rules</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 9. Privacy Policy -->
+        <a href="privacy-policy.html" class="more-menu-item" id="menuPrivacy">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Privacy Policy</span>
+              <span class="more-item-sub">NDPR compliance & business data security</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 10. Terms -->
+        <a href="terms.html" class="more-menu-item" id="menuTerms">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Terms & Merchant Agreement</span>
+              <span class="more-item-sub">Partner rights, commitments & warranties</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+      `;
+    }
+
+    function renderSwapperMenu() {
+      moreMenuList.innerHTML = `
+        <!-- Price Alerts -->
+        <a href="alerts.html" class="more-menu-item" id="menuAlerts">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Notifications & Price Alerts</span>
+              <span class="more-item-sub">Live price drop alerts and swap matches</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 4. Settings -->
+        <a href="settings.html" class="more-menu-item" id="menuSettings">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-neutral">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Settings</span>
+              <span class="more-item-sub">App preferences, hubs & security options</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 5. Become a Dealer -->
+        <a href="dealer-verification.html" class="more-menu-item" id="menuBecomeDealer">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            </div>
+            <div class="more-item-texts">
+              <div style="display: flex; align-items: center;">
+                <span class="more-item-title">Become a Partner Store</span>
+                <span class="more-badge-pill badge-cyan" style="margin-left: 8px;">Dealers</span>
+              </div>
+              <span class="more-item-sub">List your phones and accept swaps as a verified store</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 6. Support -->
+        <a href="support.html" class="more-menu-item" id="menuSupport">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Support & Helpdesk</span>
+              <span class="more-item-sub">Live chat, inspection hub inquiries & dispute desk</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 7. FAQ -->
+        <a href="faq.html" class="more-menu-item" id="menuFaq">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-neutral">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Help & FAQ</span>
+              <span class="more-item-sub">Learn how device swaps, valuation & delivery work</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 8. About -->
+        <a href="about.html" class="more-menu-item" id="menuAbout">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">About NaijaSwap</span>
+              <span class="more-item-sub">Nigeria's trusted smartphone exchange network</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 9. Privacy Policy -->
+        <a href="privacy-policy.html" class="more-menu-item" id="menuPrivacy">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Privacy Policy</span>
+              <span class="more-item-sub">User privacy, fraud prevention & data security</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- 10. Terms -->
+        <a href="terms.html" class="more-menu-item" id="menuTerms">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Terms &amp; Conditions</span>
+              <span class="more-item-sub">Standard terms, return policies &amp; buyer protection</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+      `;
+    }
+
+    function renderDealerBottomNav() {
+      const metrics = getStoreMetrics();
+      bottomNavContainer.innerHTML = `
+        <nav class="mobile-bottom-nav" aria-label="Store Navigation">
+          <a href="dealer-dashboard.html" class="bottom-nav-item" id="navDashBtn" title="Dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="dealer-listings.html" class="bottom-nav-item" id="navListingsBtn" title="My Listings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <span>Listings</span>
+          </a>
+          <a href="dealer-requests.html" class="bottom-nav-item" id="navRequestsBtn" title="Swap Requests">
+            ${metrics.requests > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${metrics.requests}</span>` : ''}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Requests</span>
+          </a>
+          <a href="dealer-activity.html" class="bottom-nav-item" id="navActivityBtn" title="Activity">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span>Activity</span>
+          </a>
+          <a href="more.html" class="bottom-nav-item active" id="navStoreMoreBtn" title="More" aria-current="page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+            <span>More</span>
+          </a>
+        </nav>
+      `;
+    }
+
+    function renderSwapperBottomNav() {
+      let swapCount = 0;
+      try {
+        const stored = JSON.parse(localStorage.getItem('naijaswap_swap_requests') || '[]');
+        if (Array.isArray(stored)) swapCount = stored.length;
+      } catch (_) {}
+
+      bottomNavContainer.innerHTML = `
+        <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+          <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Home</span>
+          </a>
+          <a href="my-swaps.html" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
+            ${swapCount > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${swapCount}</span>` : ''}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
+            <span>My Swaps</span>
+          </a>
+          <a href="alerts.html" class="bottom-nav-item" id="navNotifBtn" title="Alerts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Alerts</span>
+          </a>
+          <a href="more.html" class="bottom-nav-item active" id="navMoreBtn" title="More" aria-current="page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+            <span>More</span>
+          </a>
+        </nav>
+      `;
+    }
+
+    // Initial immediate render
+    renderMorePage(currentRole);
+
+    // Dynamic Auth listener to refine data
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const detectedRole = getStoredRole(user.uid);
+        renderMorePage(paramRole || detectedRole, user);
+      } else {
+        renderMorePage(paramRole || currentRole, null);
+      }
+    });
+
+    // Native iOS-style tactile feedback on menu click
+    document.addEventListener('click', (e) => {
+      const item = e.target.closest('.more-menu-item');
+      if (item && navigator.vibrate) {
+        try { navigator.vibrate(10); } catch (_) {}
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Phone Details & Swap | NaijaSwap</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="css/dashboard.css">
+
+  <style>
+    /* Details Page Specific Ultra-Premium Styling */
+    .details-page-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 20px 120px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .details-nav-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--glass-specular-soft);
+      transition: all var(--spring-fast);
+      margin-bottom: 24px;
+    }
+
+    .details-nav-back:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: var(--text-white);
+      border-color: var(--glass-border-hover);
+      transform: translateX(-3px);
+    }
+
+    .details-nav-back:active {
+      transform: scale(0.96);
+    }
+
+    .details-layout-grid {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* Left Showcase Media Column */
+    .details-media-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--glass-shadow-lg), var(--glass-specular);
+      position: sticky;
+      top: 90px;
+    }
+
+    .details-image-frame {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      background: radial-gradient(circle at center, #121C26 0%, #080D12 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .details-image-frame img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 28px rgba(0,0,0,0.6));
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .details-image-frame:hover img {
+      transform: scale(1.05);
+    }
+
+    .details-store-box {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .store-badge-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .store-name-link {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .store-hub-info {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Right Info & Calculator Column */
+    .details-info-column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .details-title-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 26px;
+      box-shadow: var(--glass-shadow), var(--glass-specular);
+    }
+
+    .details-model-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text-white);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .details-specs-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .spec-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      box-shadow: var(--glass-specular-soft);
+      backdrop-filter: blur(14px);
+    }
+
+    .spec-pill-highlight {
+      background: rgba(0, 210, 106, 0.1);
+      border-color: var(--emerald-border);
+      color: var(--emerald-400);
+    }
+
+    .details-description-text {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+
+    /* Technical Checklist Grid */
+    .tech-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .tech-spec-item {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      box-shadow: var(--glass-specular-soft);
+    }
+
+    .tech-spec-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .tech-spec-val {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-white);
+    }
+
+    /* Interactive Trade-in & Top-up Calculator */
+    .calculator-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(32px) saturate(210%);
+      -webkit-backdrop-filter: blur(32px) saturate(210%);
+      border: 1px solid rgba(0, 210, 106, 0.28);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), var(--glass-specular);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .calculator-panel::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      right: -80px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 210, 106, 0.16) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(50px);
+    }
+
+    .calc-header {
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .calc-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .calc-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Valuation Results Box */
+    .valuation-results-box {
+      background: rgba(9, 15, 22, 0.85);
+      border: 1px solid rgba(0, 210, 106, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin: 24px 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .valuation-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .valuation-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 10px 0;
+    }
+
+    .topup-final-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 8px;
+    }
+
+    .topup-final-label {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-white);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topup-final-amount {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--emerald-400);
+      letter-spacing: -0.02em;
+      text-shadow: 0 0 20px rgba(0, 210, 106, 0.4);
+    }
+
+    /* Proposal Submission Success Card */
+    .proposal-success-card {
+      background: rgba(10, 20, 16, 0.94);
+      border: 1px solid var(--emerald-border);
+      border-radius: var(--radius-xl);
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: var(--glass-shadow-lg), var(--glass-specular);
+      display: none;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .details-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .details-media-card {
+        position: static;
+      }
+      .details-image-frame {
+        height: 320px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .details-page-container {
+        padding: 16px 14px 110px 14px;
+      }
+      .details-model-title {
+        font-size: 1.5rem;
+      }
+      .tech-specs-grid {
+        grid-template-columns: 1fr;
+      }
+      .calculator-panel {
+        padding: 20px 16px;
+      }
+      .topup-final-amount {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+
+  <!-- Floating Depth Glow Orbs -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Top Glass Header -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <a href="dashboard.html" class="brand-logo" aria-label="NaijaSwap Home">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span class="brand-name">Naija<span>Swap</span></span>
+      </a>
+      <span class="role-tag role-tag-swapper">
+        <span>🔄</span>
+        <span>Swapper</span>
+      </span>
+    </div>
+
+    <div class="dash-header-right">
+      <!-- User Menu -->
+      <div class="user-menu-wrapper">
+        <button type="button" class="user-profile-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
+          <div class="user-avatar" id="headerAvatarFallback">S</div>
+          <span class="user-name-text" id="headerUserName">Swapper</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+          <a href="account.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profile</span>
+          </a>
+          <a href="dashboard.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span>Browse Phones</span>
+          </a>
+          <a href="my-swaps.html" class="dropdown-item" id="openMySwapsFromHeader">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+            <span>My Active Swaps</span>
+          </a>
+          <div class="dropdown-separator"></div>
+          <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="details-page-container">
+
+    <!-- Breadcrumb / Back Link -->
+    <a href="dashboard.html" class="details-nav-back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span>Back to Marketplace</span>
+    </a>
+
+    <!-- Not Found State -->
+    <div id="detailsLoadingState" class="data-loading-state" role="status" style="min-height: 360px;">
+      <span class="data-loading-spinner" aria-hidden="true"></span>
+      <span>Loading phone details...</span>
+    </div>
+    <div id="notFoundState" class="empty-state-box" style="display: none;">
+      <div class="empty-state-icon">📱</div>
+      <h2 class="empty-state-title">Phone Listing Not Found</h2>
+      <p class="empty-state-desc">This device may have already been swapped or removed by the store.</p>
+      <a href="dashboard.html" class="btn-primary-action" style="margin-top: 10px;">Browse Available Phones</a>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="details-layout-grid fade-in-content" id="phoneContentGrid" style="display: none;">
+
+      <!-- LEFT: Media & Verified Store Information -->
+      <div class="details-media-column">
+        <div class="details-media-card">
+          <!-- Interactive Media Gallery Slider (Pictures + Video) -->
+          <div class="media-gallery-wrapper">
+            <div class="details-media-viewport">
+              <div class="phone-tags-floating" id="detailsTagsContainer">
+                <span class="tag-badge tag-verified">Verified Store Listing</span>
+              </div>
+
+              <!-- Slide 0: Front View (Main Phone Photo) -->
+              <div class="gallery-slide active" data-slide="0">
+                <img src="" alt="Front Display" id="phoneHeroImg">
+              </div>
+
+              <!-- Slide 1: Back View & Camera Lenses Inspection -->
+              <div class="gallery-slide" data-slide="1">
+                <img src="" alt="Back & Camera Lenses Inspection" id="galleryImgBack">
+              </div>
+
+              <!-- Slide 2: 360° Physical Hub Inspection Video -->
+              <div class="gallery-slide" data-slide="2">
+                <div class="gallery-video-container">
+                  <span class="video-inspect-badge">🎥 360° Hub Inspection Video</span>
+                  <video class="gallery-video-player" id="galleryVideoPlayer" controls playsinline preload="metadata">
+                    Your browser does not support the video tag.
+                  </video>
+                  <span id="videoUnavailableMessage" style="display: none; padding: 24px; color: var(--text-muted); text-align: center;">
+                    No inspection video was provided for this listing.
+                  </span>
+                </div>
+              </div>
+
+              <!-- Slide 3: Box Packaging & Included Accessories -->
+              <div class="gallery-slide" data-slide="3">
+                <img src="" alt="Original Box & Accessories" id="galleryImgBox">
+              </div>
+
+              <!-- Navigation Arrows -->
+              <button type="button" class="gallery-nav-arrow gallery-nav-prev" id="galleryPrevBtn" aria-label="Previous slide">‹</button>
+              <button type="button" class="gallery-nav-arrow gallery-nav-next" id="galleryNextBtn" aria-label="Next slide">›</button>
+
+              <!-- Counter Pill -->
+              <div class="gallery-counter-pill" id="galleryCounterPill">1 / 4</div>
+            </div>
+          </div>
+
+          <!-- Store / Dealer Hub Info -->
+          <div class="details-store-box">
+            <div class="store-badge-header">
+              <div class="store-name-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-400)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                <span id="storeNameText">Computer Village Hub</span>
+                <span id="storeVerifiedMark" title="Verified dealer" aria-label="Verified dealer" style="display:none;color:var(--emerald-400);font-weight:800;">✓</span>
+              </div>
+              <span class="tag-badge tag-verified">Verified Hub</span>
+            </div>
+
+            <div class="store-hub-info" id="hubAddressText">
+              Shop B14, Digital Complex, Otigba Street, Computer Village, Ikeja, Lagos
+            </div>
+
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px; font-size: 0.82rem; color: var(--text-dim); display: flex; gap: 10px; align-items: center;">
+              <span style="font-size: 1.25rem;">🛡️</span>
+              <div>
+                <strong style="color: #FFF; display: block;">NaijaSwap Hub Guarantee</strong>
+                <span>Devices are physical-inspected and tested before swap finalization.</span>
+              </div>
+            </div>
+
+            <a href="#" target="_blank" rel="noopener" id="directWhatsAppBtn" class="btn-primary-action" style="background: rgba(37, 211, 102, 0.15); border: 1px solid rgba(37, 211, 102, 0.4); color: #25D366; justify-content: center; box-shadow: 0 4px 16px rgba(37, 211, 102, 0.15);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.77.813 2.796.814 3.181 0 5.768-2.587 5.768-5.767 0-3.181-2.587-5.769-5.768-5.769zm3.394 8.204c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.029-.479-1.636-.677-2.678-2.339-2.759-2.449-.081-.11-.663-.884-.663-1.684 0-.8.419-1.193.568-1.353.149-.16.326-.2.435-.2.109 0 .218.001.312.006.1.006.233-.038.365.279.135.324.462 1.127.502 1.209.041.082.068.178.014.287-.054.11-.082.179-.163.273-.081.096-.171.214-.244.287-.081.082-.167.172-.072.336.096.163.424.699.912 1.134.628.56 1.157.733 1.32.815.163.082.258.068.354-.041.095-.11.407-.474.516-.638.109-.163.218-.137.366-.082.149.055.945.446 1.108.528.163.082.272.123.312.191.041.069.041.397-.103.802z"/></svg>
+              <span>Chat with Hub on WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Specs, Dynamic Calculator & Proposal Form -->
+      <div class="details-info-column">
+
+        <!-- Title & Specs Card -->
+        <div class="details-title-card">
+          <span style="font-size: 0.8rem; font-weight: 700; color: var(--emerald-400); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 4px;" id="phoneBrandBadge">Apple</span>
+          <h1 class="details-model-title" id="phoneModelTitle">iPhone 15 Pro Max</h1>
+
+          <div class="details-specs-pills-row" id="specsPillsContainer">
+            <span class="spec-pill spec-pill-highlight" id="specStoragePill">256GB</span>
+            <span class="spec-pill" id="specConditionPill">Brand New Sealed</span>
+            <span class="spec-pill" id="specColorPill">Natural Titanium</span>
+            <span class="spec-pill" id="specBatteryPill">100% Battery</span>
+            <span class="spec-pill" id="specLocationPill">Ikeja, Lagos</span>
+          </div>
+
+          <p class="details-description-text" id="phoneDescriptionText">
+            Pristine, verified device tested by senior hub technicians. Unassigned iCloud and ready for immediate activation.
+          </p>
+
+          <h3 style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Technical Verification Checklist</h3>
+          <div class="tech-specs-grid">
+            <div class="tech-spec-item">
+              <span class="tech-spec-label">Display & Screen</span>
+              <span class="tech-spec-val" id="specScreen">OLED 120Hz ProMotion</span>
+            </div>
+            <div class="tech-spec-item">
+              <span class="tech-spec-label">Processor</span>
+              <span class="tech-spec-val" id="specChipset">Apple A17 Pro (3nm)</span>
+            </div>
+            <div class="tech-spec-item">
+              <span class="tech-spec-label">Camera System</span>
+              <span class="tech-spec-val" id="specCamera">48MP Triple Lens System</span>
+            </div>
+            <div class="tech-spec-item">
+              <span class="tech-spec-label">SIM Configuration</span>
+              <span class="tech-spec-val" id="specSim">Nano-SIM + eSIM</span>
+            </div>
+            <div class="tech-spec-item">
+              <span class="tech-spec-label">Box & Accessories</span>
+              <span class="tech-spec-val" id="specBoxIncludes">Original Box & Cable</span>
+            </div>
+            <div class="tech-spec-item">
+              <span class="tech-spec-label">Hub Warranty</span>
+              <span class="tech-spec-val" id="specWarranty">30-Day Hub Guarantee</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE TRADE-IN & TOP-UP CALCULATOR -->
+        <div class="calculator-panel" id="swapCalculatorPanel">
+          <div class="calc-header">
+            <div class="calc-title">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <span id="calcPanelHeading">Swap with Your Phone</span>
+            </div>
+            <p class="calc-subtitle" id="calcPanelSubheading">Select a phone you already listed to calculate your verified trade-in valuation and top-up.</p>
+          </div>
+
+          <!-- Dynamic Swap Container (Empty state redirect button or listed device selection) -->
+          <div id="swapSelectionContainer">
+            <!-- Dynamically populated by renderSwapSelection() -->
+          </div>
+
+          <!-- Success State After Submitting Proposal -->
+          <div class="proposal-success-card" id="proposalSuccessCard" style="display: none;">
+            <div style="font-size: 2.8rem; margin-bottom: 12px;">🎉</div>
+            <h3 style="font-size: 1.4rem; font-weight: 800; color: #FFF; margin-bottom: 8px;">Swap Proposal Sent!</h3>
+            <p style="font-size: 0.9rem; color: var(--text-dim); max-width: 460px; margin: 0 auto 20px auto; line-height: 1.55;" id="successCardMsg">
+              Your trade-in proposal has been sent to the store hub. You can now chat directly with their verification technician on WhatsApp or track it in My Swaps.
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+              <a href="#" target="_blank" rel="noopener" id="successWhatsAppLink" class="btn-primary-action" style="background: rgba(37, 211, 102, 0.2); border: 1px solid rgba(37, 211, 102, 0.4); color: #25D366;">
+                <span>Chat Hub on WhatsApp</span>
+              </a>
+              <button type="button" class="header-icon-btn" id="successTrackBtn" style="width: auto; padding: 0 20px; font-weight: 600; color: #FFF;">
+                <span>Track in My Swaps</span>
+              </button>
+              <a href="dashboard.html" class="header-icon-btn" style="width: auto; padding: 0 20px; font-weight: 600; color: var(--text-muted); text-decoration: none;">
+                <span>Browse More Phones</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ==========================================================================
+         MORE PHONES AVAILABLE FOR SWAP (SLIDER CAROUSEL)
+         ========================================================================== -->
+    <section class="more-phones-section" id="morePhonesSection">
+      <div class="more-phones-header">
+        <div class="more-phones-title-group">
+          <h2>More Phones Available for Swap</h2>
+          <p>Swipe or use the arrows to explore other verified devices in the marketplace.</p>
+        </div>
+        <div class="slider-controls-group">
+          <button type="button" class="slider-arrow-btn" id="sliderPrevBtn" aria-label="Previous phones">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <button type="button" class="slider-arrow-btn" id="sliderNextBtn" aria-label="Next phones">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Horizontal Sliding Track -->
+      <div class="more-phones-slider-track" id="morePhonesSliderTrack">
+        <!-- Dynamically populated from NaijaSwapData.getListings() -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       SWAPPER MOBILE BOTTOM NAVIGATION (GLASSMORPHISM EFFECT)
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span>Home</span>
+    </a>
+    <a href="my-swaps.html" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
+      <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
+      <span>My Swaps</span>
+    </a>
+    <a href="alerts.html" class="bottom-nav-item" id="navNotifBtn" title="Alerts">
+      <span class="bottom-nav-badge" id="mobileAlertsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+    </a>
+    <a href="more.html" class="bottom-nav-item" id="navMoreBtn" title="More">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>More</span>
+    </a>
+  </nav>
+
+  <!-- ==========================================================================
+       MODAL: CONSUMER FORM (SWAP REQUEST)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="consumerSwapModal" role="dialog" aria-modal="true" aria-labelledby="consumerModalTitle">
+    <div class="modal-card modal-card-xl">
+      <div class="modal-header">
+        <div>
+          <span class="tag-badge tag-verified">Trade-In Application</span>
+          <h2 class="modal-title" id="consumerModalTitle" style="margin-top: 4px;">Propose a Swap Request</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeConsumerModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="consumerSwapForm" class="dash-form">
+        <div class="form-sections-wrapper">
+
+          <!-- SECTION 1: DEVICE BASICS -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">1</span>
+              <div>
+                <h3>Device Basics</h3>
+                <p>Information about the phone you currently own and want to trade in</p>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="consumerBrand">Brand</label>
+                <select id="consumerBrand" class="form-select" required>
+                  <option value="" disabled selected>-- Select Brand --</option>
+                </select>
+                <div id="consumerCustomBrandGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerCustomBrand" class="form-input" placeholder="Type your phone brand (e.g. OnePlus, Motorola)...">
+                  <span class="form-helper-text">Specify brand name if not in list</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerModel">Model</label>
+                <select id="consumerModel" class="form-select" required disabled>
+                  <option value="" disabled selected>-- Select Brand First --</option>
+                </select>
+                <div id="consumerCustomModelGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerCustomModel" class="form-input" placeholder="Type exact phone model name...">
+                  <span class="form-helper-text">Specify model if not in list</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="consumerStorage">Storage Capacity</label>
+                <select id="consumerStorage" class="form-select" required>
+                  <option value="64GB">64GB</option>
+                  <option value="128GB" selected>128GB</option>
+                  <option value="256GB">256GB</option>
+                  <option value="512GB">512GB</option>
+                  <option value="1TB">1TB</option>
+                  <option value="Other">Other (Type custom)</option>
+                </select>
+                <div id="consumerCustomStorageGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerCustomStorage" class="form-input" placeholder="e.g. 32GB, 2TB...">
+                  <span class="form-helper-text">Specify storage capacity</span>
+                </div>
+              </div>
+              <div class="form-group" id="consumerRamGroup" style="display: none;">
+                <label class="form-label" for="consumerRam">RAM (Android)</label>
+                <select id="consumerRam" class="form-select">
+                  <option value="4GB">4GB</option>
+                  <option value="6GB">6GB</option>
+                  <option value="8GB" selected>8GB</option>
+                  <option value="12GB">12GB</option>
+                  <option value="16GB">16GB</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="form-label" for="consumerImei">IMEI Number (15 Digits)</label>
+              <input type="text" id="consumerImei" class="form-input" placeholder="e.g. 354892091234567" maxlength="18" required>
+              <span class="form-helper-text">ℹ️ *Dial *#06# on your phone to find this*</span>
+            </div>
+          </div>
+
+          <!-- SECTION 2: CONDITION TRIAGE (BOOLEAN YES/NO TOGGLES) -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">2</span>
+              <div>
+                <h3>Condition Triage</h3>
+                <p>Answer truthfully to receive an accurate valuation from verified hub technicians</p>
+              </div>
+            </div>
+
+            <div class="triage-list">
+              <!-- Q1: Power & Screen -->
+              <div class="triage-row">
+                <div class="triage-info">
+                  <span class="triage-q-title">Power & Touch Responsiveness</span>
+                  <span class="triage-q-desc">Does the phone power on, and is the touchscreen fully responsive without dead spots?</span>
+                </div>
+                <div class="segmented-switch" id="switchPowerScreen" data-name="powerAndScreen">
+                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes</button>
+                  <button type="button" class="segmented-option-btn" data-val="no">✕ No</button>
+                </div>
+              </div>
+
+              <!-- Q2: Screen Glass -->
+              <div class="triage-row">
+                <div class="triage-info">
+                  <span class="triage-q-title">Screen Glass & Display Condition</span>
+                  <span class="triage-q-desc">Are there any cracks, deep scratches, or LCD ink bleeds/lines on the display?</span>
+                </div>
+                <div class="segmented-switch" id="switchScreenGlass" data-name="screenGlass">
+                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Cracked)</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean)</button>
+                </div>
+              </div>
+
+              <!-- Q3: Body & Housing -->
+              <div class="triage-row">
+                <div class="triage-info">
+                  <span class="triage-q-title">Body & Housing Condition</span>
+                  <span class="triage-q-desc">Are there any chips, dents, or bends on the frame or back glass?</span>
+                </div>
+                <div class="segmented-switch" id="switchBodyHousing" data-name="bodyAndHousing">
+                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Dented)</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean)</button>
+                </div>
+              </div>
+
+              <!-- Q4: Hardware Functionality -->
+              <div class="triage-row">
+                <div class="triage-info">
+                  <span class="triage-q-title">Hardware & Sensors Functionality</span>
+                  <span class="triage-q-desc">Do the cameras, microphone, speakers, and FaceID/TouchID all work perfectly?</span>
+                </div>
+                <div class="segmented-switch" id="switchHardware" data-name="hardwareFunctionality">
+                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes</button>
+                  <button type="button" class="segmented-option-btn" data-val="no">✕ No</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Battery Health & Carrier Lock -->
+            <div class="form-row-2" style="margin-top: 14px;">
+              <div class="form-group" id="consumerBatteryGroup">
+                <label class="form-label" for="consumerBatteryHealth">Battery Health % (For iOS)</label>
+                <input type="number" id="consumerBatteryHealth" class="form-input" min="40" max="100" placeholder="e.g. 87" value="88" required>
+                <span class="form-helper-text" id="consumerBatteryHint">Settings > Battery > Battery Health (Maximum Capacity %)</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerCarrierLock">Carrier Lock Status</label>
+                <select id="consumerCarrierLock" class="form-select" required>
+                  <option value="Factory Unlocked" selected>Factory Unlocked (All SIMs)</option>
+                  <option value="Network Locked">Network Locked</option>
+                  <option value="CHIP Unlocked">CHIP Unlocked (RSIM / Gevey)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION 3: MEDIA UPLOADS (IMAGES & VIDEOS UP TO 5) -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">3</span>
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <h3 style="margin: 0;">Media Uploads (Up to 5)</h3>
+                  <span class="tag-badge" id="consumerMediaCounter" style="font-size: 0.72rem; padding: 3px 9px; background: rgba(16, 185, 129, 0.15); color: var(--emerald-400); border: 1px solid rgba(16, 185, 129, 0.3);">0 / 5 files</span>
+                </div>
+                <p style="margin-top: 4px;">Upload photos and short video clips of your phone (front, back, and powering on)</p>
+              </div>
+            </div>
+
+            <!-- Drag & Drop Zone -->
+            <div class="media-dropzone" id="consumerDropzone">
+              <span class="dropzone-icon">📸</span>
+              <div class="dropzone-title">Click to browse or drag & drop files here</div>
+              <div class="dropzone-desc">Accepts photos (JPG, PNG, WEBP) and video clips (MP4, MOV). Add up to 5 items.</div>
+              <input type="file" id="consumerMediaInput" class="dropzone-file-input" multiple accept="image/*,video/*">
+            </div>
+
+            <!-- Upload Progress Bar (Simulated UI) -->
+            <div class="upload-progress-container" id="consumerUploadProgress">
+              <div class="upload-progress-fill" id="consumerProgressFill"></div>
+            </div>
+
+            <!-- Media Previews Grid -->
+            <div class="dropzone-previews-grid" id="consumerPreviewsGrid"></div>
+          </div>
+
+          <!-- SECTION 4: THE TARGET SWAP -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">4</span>
+              <div>
+                <h3>The Target Swap</h3>
+                <p>Confirm the phone model and storage capacity you are trading for</p>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="consumerTargetBrand">Target Brand</label>
+                <select id="consumerTargetBrand" class="form-select" required>
+                  <option value="" disabled selected>-- Select Target Brand --</option>
+                </select>
+                <div id="consumerTargetCustomBrandGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerTargetCustomBrand" class="form-input" placeholder="Type target brand...">
+                  <span class="form-helper-text">Specify brand if not in list</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerTargetModel">Target Model</label>
+                <select id="consumerTargetModel" class="form-select" required>
+                  <option value="" disabled selected>-- Select Target Model --</option>
+                </select>
+                <div id="consumerTargetCustomModelGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerTargetCustomModel" class="form-input" placeholder="Type target phone model...">
+                  <span class="form-helper-text">Specify model if not in list</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="consumerTargetStorage">Target Storage</label>
+                <select id="consumerTargetStorage" class="form-select" required>
+                  <option value="128GB">128GB</option>
+                  <option value="256GB" selected>256GB</option>
+                  <option value="512GB">512GB</option>
+                  <option value="1TB">1TB</option>
+                  <option value="Other">Other (Type custom)</option>
+                </select>
+                <div id="consumerTargetCustomStorageGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="consumerTargetCustomStorage" class="form-input" placeholder="e.g. 32GB, 2TB...">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerPreferredColor">Preferred Color (Optional)</label>
+                <input type="text" id="consumerPreferredColor" class="form-input" placeholder="e.g. Natural Titanium">
+              </div>
+            </div>
+
+            <!-- Contact input -->
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="form-label" for="consumerPhoneInput">Your WhatsApp / Phone Number</label>
+              <input type="tel" id="consumerPhoneInput" class="form-input" placeholder="e.g. 08012345678" required>
+              <span class="form-helper-text">Store hub technicians will contact you with their physical inspection slot.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <button type="submit" class="btn-primary-action" id="submitConsumerSwapBtn" style="justify-content: center; padding: 16px; font-size: 1.02rem; margin-top: 10px;">
+          <span>Submit Verified Swap Request</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: MY SWAPS TRACKER
+       ========================================================================== -->
+  <div class="modal-backdrop" id="mySwapsModal" role="dialog" aria-modal="true" aria-labelledby="mySwapsTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="mySwapsTitle">My Swap Requests</h2>
+        <button type="button" class="modal-close-btn" id="closeMySwapsModal" aria-label="Close modal">&times;</button>
+      </div>
+      <div id="mySwapsListContainer" style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;"></div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: NOTIFICATIONS POPUP
+       ========================================================================== -->
+  <div class="modal-backdrop" id="notifModal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Notifications</h2>
+        <button type="button" class="modal-close-btn" id="closeNotifModal" aria-label="Close modal">&times;</button>
+      </div>
+      <div id="notifListContainer" style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem;">
+          No unread notifications right now.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module">
+    import { NaijaSwapData } from './js/dashboard-data.js';
+    import { createSwapRequestBackend } from './js/backend-api.js';
+
+    let currentUserId = 'user_guest';
+    let currentUserName = 'Swapper';
+    let currentUserEmail = '';
+    let targetPhone = null;
+
+    // Synchronous initial cache read from localStorage
+    try {
+      const stored = localStorage.getItem('nigerswap_user') || localStorage.getItem('naijaswap_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        currentUserId = u.uid || 'user_guest';
+        currentUserName = u.displayName || (u.email ? u.email.split('@')[0] : 'Swapper');
+        currentUserEmail = u.email || '';
+      }
+    } catch (e) {}
+
+    function updateHeaderUserUI(name, uid, photoURL) {
+      const headerUserName = document.getElementById('headerUserName');
+      const headerAvatarFallback = document.getElementById('headerAvatarFallback');
+      if (headerUserName) headerUserName.textContent = name;
+      if (headerAvatarFallback) {
+        const storedPhoto = uid ? localStorage.getItem('nigerswap_photo_' + uid) : null;
+        const photo = storedPhoto || (photoURL && photoURL.startsWith('http') ? photoURL : null);
+        if (photo) {
+          headerAvatarFallback.innerHTML = `<img src="${photo}" alt="${escapeHtml(name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        } else {
+          headerAvatarFallback.textContent = name.charAt(0).toUpperCase();
+        }
+      }
+    }
+
+    updateHeaderUserUI(currentUserName, currentUserId);
+
+    // Parse phone ID from URL query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const phoneId = urlParams.get('id') || 'phone_101';
+
+    // Elements
+    const notFoundState = document.getElementById('notFoundState');
+    const detailsLoadingState = document.getElementById('detailsLoadingState');
+    const phoneContentGrid = document.getElementById('phoneContentGrid');
+    const phoneHeroImg = document.getElementById('phoneHeroImg');
+    const phoneModelTitle = document.getElementById('phoneModelTitle');
+    const phoneBrandBadge = document.getElementById('phoneBrandBadge');
+    const phoneDescriptionText = document.getElementById('phoneDescriptionText');
+    const storeNameText = document.getElementById('storeNameText');
+    const storeVerifiedMark = document.getElementById('storeVerifiedMark');
+    const hubAddressText = document.getElementById('hubAddressText');
+    const directWhatsAppBtn = document.getElementById('directWhatsAppBtn');
+
+    // Specs
+    const specStoragePill = document.getElementById('specStoragePill');
+    const specConditionPill = document.getElementById('specConditionPill');
+    const specColorPill = document.getElementById('specColorPill');
+    const specBatteryPill = document.getElementById('specBatteryPill');
+    const specLocationPill = document.getElementById('specLocationPill');
+    const specScreen = document.getElementById('specScreen');
+    const specChipset = document.getElementById('specChipset');
+    const specCamera = document.getElementById('specCamera');
+    const specSim = document.getElementById('specSim');
+    const specBoxIncludes = document.getElementById('specBoxIncludes');
+    const specWarranty = document.getElementById('specWarranty');
+
+    // Swap Panel & Selection Elements
+    const swapSelectionContainer = document.getElementById('swapSelectionContainer');
+    const proposalSuccessCard = document.getElementById('proposalSuccessCard');
+    const successCardMsg = document.getElementById('successCardMsg');
+    const successWhatsAppLink = document.getElementById('successWhatsAppLink');
+    const successTrackBtn = document.getElementById('successTrackBtn');
+
+    // Modal & Nav Elements
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const mySwapsModal = document.getElementById('mySwapsModal');
+    const closeMySwapsModal = document.getElementById('closeMySwapsModal');
+    const navMySwapsBtn = document.getElementById('navMySwapsBtn');
+    const openMySwapsFromHeader = document.getElementById('openMySwapsFromHeader');
+    const navSwapBadge = document.getElementById('navSwapBadge');
+    const navMoreBtn = document.getElementById('navMoreBtn');
+
+    // Initialize Page
+    function init() {
+      targetPhone = NaijaSwapData.getListingById(phoneId);
+
+      if (!targetPhone) {
+        detailsLoadingState.style.display = 'none';
+        notFoundState.style.display = 'block';
+        phoneContentGrid.style.display = 'none';
+        return;
+      }
+
+      detailsLoadingState.style.display = 'none';
+      phoneContentGrid.style.display = 'grid';
+
+      document.title = `${targetPhone.model} (${targetPhone.storage}) - Swap on NaijaSwap`;
+
+      // Populate Phone Details
+      phoneHeroImg.src = targetPhone.image;
+      phoneHeroImg.alt = `${targetPhone.brand} ${targetPhone.model}`;
+      
+      const galleryImgBack = document.getElementById('galleryImgBack');
+      if (galleryImgBack) {
+        galleryImgBack.src = targetPhone.backImage || targetPhone.image;
+        galleryImgBack.alt = `${targetPhone.model} Back & Casing`;
+      }
+
+      const galleryVideoPlayer = document.getElementById('galleryVideoPlayer');
+      if (galleryVideoPlayer) {
+        galleryVideoPlayer.poster = targetPhone.image;
+        const videoMedia = Array.isArray(targetPhone.mediaFiles)
+          ? targetPhone.mediaFiles.find(media => media && media.isVideo && media.dataUrl)
+          : null;
+        const videoUnavailableMessage = document.getElementById('videoUnavailableMessage');
+        if (videoMedia) {
+          galleryVideoPlayer.src = videoMedia.dataUrl;
+          galleryVideoPlayer.controls = true;
+          if (videoUnavailableMessage) videoUnavailableMessage.style.display = 'none';
+        } else {
+          galleryVideoPlayer.removeAttribute('src');
+          galleryVideoPlayer.controls = false;
+          if (videoUnavailableMessage) videoUnavailableMessage.style.display = 'block';
+        }
+      }
+
+      const galleryImgBox = document.getElementById('galleryImgBox');
+      if (galleryImgBox) {
+        galleryImgBox.src = targetPhone.accessoriesImage || targetPhone.image;
+        galleryImgBox.alt = `${targetPhone.model} Inclusions & Packaging`;
+      }
+
+      phoneModelTitle.textContent = targetPhone.model;
+      phoneBrandBadge.textContent = targetPhone.brand;
+      phoneDescriptionText.textContent = targetPhone.description || `Clean, certified ${targetPhone.model} (${targetPhone.storage}) in ${targetPhone.condition} condition. Verified by hub technicians.`;
+      
+      storeNameText.textContent = targetPhone.storeName || 'Computer Village Hub';
+      if (storeVerifiedMark) {
+        storeVerifiedMark.style.display = targetPhone.storeVerified ? 'inline' : 'none';
+      }
+      hubAddressText.textContent = targetPhone.hubAddress || `${targetPhone.location} Inspection Center`;
+
+      // Specs
+      specStoragePill.textContent = targetPhone.storage;
+      specConditionPill.textContent = targetPhone.condition;
+      specColorPill.textContent = targetPhone.color || 'Standard';
+      specBatteryPill.textContent = targetPhone.battery || '100% Battery';
+      specLocationPill.textContent = targetPhone.location;
+
+      specScreen.textContent = targetPhone.screen || 'Retina OLED Display';
+      specChipset.textContent = targetPhone.chipset || 'Octa-Core Processor';
+      specCamera.textContent = targetPhone.camera || 'High-Resolution Cameras';
+      specSim.textContent = targetPhone.sim || 'Nano-SIM + eSIM';
+      specBoxIncludes.textContent = targetPhone.boxIncludes || 'Device & Charging Cable';
+      specWarranty.textContent = targetPhone.warranty || '30-Day Hub Warranty';
+
+      // WhatsApp link
+      const waNumber = targetPhone.whatsappNumber || '2348023456789';
+      const waMsg = encodeURIComponent(`Hello ${targetPhone.storeName || 'NaijaSwap Hub'}, I am viewing the ${targetPhone.model} (${targetPhone.storage}) listed for swap on NaijaSwap. I would like to trade in my phone.`);
+      directWhatsAppBtn.href = `https://wa.me/${waNumber}?text=${waMsg}`;
+
+      // Update floating tags
+      const detailsTagsContainer = document.getElementById('detailsTagsContainer');
+      if (detailsTagsContainer && targetPhone.tags && targetPhone.tags.length > 0) {
+        detailsTagsContainer.innerHTML = targetPhone.tags.map(t => {
+          let cls = 'tag-badge';
+          if (t === 'Verified Hub' || t.includes('Verified')) cls += ' tag-verified';
+          else if (t.includes('Fast') || t.includes('Hot')) cls += ' tag-hot';
+          else if (t.includes('Deal') || t.includes('Promo')) cls += ' tag-deal';
+          return `<span class="${cls}">${escapeHtml(t)}</span>`;
+        }).join('');
+      }
+
+      // Render Listed Phone Swap Selection
+      renderSwapSelection();
+
+      // Update badge
+      updateMySwapsBadge();
+
+      // Initialize Multi-Media Showcase (Pictures + 360 Video)
+      initGallery();
+
+      // Render Horizontal Slider for More Phones
+      renderMorePhonesSlider();
+    }
+
+    // Render Swap Selection: uses the phone(s) the user already listed, or shows empty state with redirect button
+    function renderSwapSelection() {
+      const container = document.getElementById('swapSelectionContainer');
+      const calcPanelSubheading = document.getElementById('calcPanelSubheading');
+      if (!container || !targetPhone) return;
+
+      const userDevices = NaijaSwapData.getUserDevices(currentUserId);
+
+      // SCENARIO 1: User has NO listed phones yet
+      if (userDevices.length === 0) {
+        if (calcPanelSubheading) {
+          calcPanelSubheading.textContent = 'List the device you want to swap to get your verified trade-in valuation and propose an upgrade.';
+        }
+        container.innerHTML = `
+          <div class="no-device-state-card" style="text-align: center; padding: 28px 16px 14px 16px;">
+            <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(0, 210, 106, 0.1); border: 1px solid var(--emerald-border); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 1.5rem; box-shadow: 0 0 20px rgba(0, 210, 106, 0.15);">
+              📱
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin-bottom: 8px;">No Phone Listed to Swap</h3>
+            <p style="font-size: 0.88rem; color: var(--text-dim); max-width: 420px; margin: 0 auto 24px auto; line-height: 1.55;">
+              You haven't listed a phone to trade in yet. List your phone with its condition and photos to get an instant trade-in valuation and propose a swap for this <strong style="color: #FFF;">${escapeHtml(targetPhone.model)}</strong>.
+            </p>
+            <a href="my-swaps.html?action=new&targetId=${encodeURIComponent(targetPhone.id)}" class="btn-primary-action" id="btnRedirectToListPhone" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; font-size: 0.98rem; font-weight: 700; box-shadow: 0 6px 20px rgba(0, 210, 106, 0.25);">
+              <span>+ List a Phone to Swap</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      const existingRequests = NaijaSwapData.getUserSwapRequests(currentUserId);
+      const activeProposal = existingRequests.find(r => (r.targetListingId === targetPhone.id || r.targetPhoneId === targetPhone.id));
+
+      let activeProposalHtml = '';
+      if (activeProposal) {
+        let statusBadgeClass = 'status-pending';
+        if (activeProposal.status === 'accepted') statusBadgeClass = 'status-accepted';
+        else if (activeProposal.status === 'completed') statusBadgeClass = 'status-completed';
+
+        activeProposalHtml = `
+          <div style="background: rgba(0, 210, 106, 0.08); border: 1px solid var(--emerald-border); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div>
+              <span style="color: var(--emerald-400); font-weight: 700; font-size: 0.85rem;">Active Swap Proposal:</span>
+              <span class="status-badge ${statusBadgeClass}" style="margin-left: 6px; font-size: 0.75rem;">${escapeHtml(activeProposal.status)}</span>
+            </div>
+            <a href="my-swaps.html" style="color: var(--emerald-400); text-decoration: none; font-weight: 600; font-size: 0.82rem;">Track in My Swaps &rarr;</a>
+          </div>
+        `;
+      }
+
+      let deviceOptionsHtml = userDevices.map((d, index) => {
+        return `<option value="${escapeHtml(d.id)}" ${index === 0 ? 'selected' : ''}>${escapeHtml(d.model)} (${escapeHtml(d.storageCapacity)}) — ${escapeHtml(d.condition || 'Verified')}</option>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="user-devices-selection-block">
+          ${activeProposalHtml}
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label class="form-label" for="userListedPhoneSelect" style="font-size: 0.86rem; font-weight: 700; color: #FFF; margin-bottom: 8px; display: block;">
+              Select Your Listed Phone to Swap
+            </label>
+            <select id="userListedPhoneSelect" class="form-select" style="font-weight: 600; font-size: 0.94rem; padding: 12px 14px; cursor: pointer;">
+              ${deviceOptionsHtml}
+            </select>
+          </div>
+
+          <!-- Selected Device Summary Pill -->
+          <div class="selected-device-pill-card" id="selectedDevicePillCard" style="background: rgba(255, 255, 255, 0.035); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+              <div id="deviceIconBadge" style="width: 44px; height: 44px; border-radius: var(--radius-md); background: rgba(0, 210, 106, 0.12); border: 1px solid var(--emerald-border); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
+                📱
+              </div>
+              <div style="min-width: 0;">
+                <div style="font-weight: 700; color: #FFF; font-size: 0.96rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="deviceCardTitle">
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-muted);" id="deviceCardSubtitle">
+                </div>
+              </div>
+            </div>
+            <span class="tag-badge tag-verified" style="flex-shrink: 0;">Listed Phone</span>
+          </div>
+
+          <!-- Live Top-Up Valuation Results Box -->
+          <div class="valuation-results-box" id="valuationResultsBox" style="margin-bottom: 20px;">
+            <div class="valuation-row">
+              <span>Target Phone Market Value:</span>
+              <strong style="color: #FFF;" id="valTargetPrice">₦...</strong>
+            </div>
+            <div class="valuation-row">
+              <span>Your Phone Trade-In Credit:</span>
+              <strong style="color: var(--cyan-400);" id="valUserCredit">₦...</strong>
+            </div>
+            <div class="valuation-divider"></div>
+            <div class="topup-final-row">
+              <div class="topup-final-label">
+                <span>Estimated Top-Up</span>
+                <small style="font-size: 0.75rem; color: var(--text-faint); font-weight: 500;" id="valTopupRangeText">Range: ...</small>
+              </div>
+              <div class="topup-final-amount" id="valTopupAmount">₦...</div>
+            </div>
+          </div>
+
+          <!-- Propose Swap Button -->
+          <button type="button" class="btn-primary-action" id="btnSubmitSwapWithDevice" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.98rem; font-weight: 700; margin-bottom: 14px;">
+            <span>Propose Swap with this Phone</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+
+          <div style="text-align: center;">
+            <a href="my-swaps.html?action=new&targetId=${encodeURIComponent(targetPhone.id)}" style="color: var(--text-muted); font-size: 0.82rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: color 0.15s;">
+              <span>+ Want to swap another phone? List a new device</span>
+            </a>
+          </div>
+        </div>
+      `;
+
+      const selectEl = document.getElementById('userListedPhoneSelect');
+      const cardTitle = document.getElementById('deviceCardTitle');
+      const cardSubtitle = document.getElementById('deviceCardSubtitle');
+      const valTarget = document.getElementById('valTargetPrice');
+      const valCredit = document.getElementById('valUserCredit');
+      const valTopup = document.getElementById('valTopupAmount');
+      const valRange = document.getElementById('valTopupRangeText');
+      const submitBtn = document.getElementById('btnSubmitSwapWithDevice');
+
+      function updateDeviceCalculation() {
+        const devId = selectEl.value;
+        const currentDev = userDevices.find(d => d.id === devId) || userDevices[0];
+        if (!currentDev) return;
+
+        if (cardTitle) cardTitle.textContent = `${currentDev.model} (${currentDev.storageCapacity})`;
+        if (cardSubtitle) {
+          const battery = currentDev.batteryHealth ? ` • ${currentDev.batteryHealth} Battery` : '';
+          const cond = currentDev.condition || 'Verified Condition';
+          cardSubtitle.textContent = `${cond}${battery}`;
+        }
+
+        const calc = NaijaSwapData.calculateTopUpForDevice(targetPhone.id, currentDev);
+        if (calc.isValid) {
+          if (valTarget) valTarget.textContent = calc.targetValueFormatted;
+          if (valCredit) valCredit.textContent = calc.userTradeInCreditFormatted;
+          if (valTopup) valTopup.textContent = calc.estTopUpFormatted;
+          if (valRange) valRange.textContent = `Range: ${calc.estRangeFormatted}`;
+        }
+      }
+
+      selectEl.addEventListener('change', updateDeviceCalculation);
+      updateDeviceCalculation();
+
+      // Submit Swap Proposal with Selected Listed Device
+      submitBtn.addEventListener('click', async () => {
+        const devId = selectEl.value;
+        const currentDev = userDevices.find(d => d.id === devId) || userDevices[0];
+        if (!currentDev) return;
+
+        const calc = NaijaSwapData.calculateTopUpForDevice(targetPhone.id, currentDev);
+
+        const newReq = NaijaSwapData.createSwapRequest({
+          targetListingId: targetPhone.id,
+          targetBrand: targetPhone.brand,
+          targetModel: targetPhone.model,
+          targetStorage: targetPhone.storage,
+          preferredColor: targetPhone.color || 'Standard',
+          targetPhoneImage: targetPhone.image,
+          storeId: targetPhone.storeId,
+          storeName: targetPhone.storeName,
+          customerUid: currentUserId,
+          customerName: currentUserName,
+          customerEmail: currentUserEmail,
+          customerPhone: currentDev.contactPhone || '08012345678',
+          brand: currentDev.brand,
+          model: currentDev.model,
+          storageCapacity: currentDev.storageCapacity,
+          ram: currentDev.ram || '',
+          imeiNumber: currentDev.imeiNumber || '',
+          conditionTriage: currentDev.conditionTriage,
+          deviceMedia: currentDev.deviceMedia || [],
+          swapperBattery: currentDev.batteryHealth || '90%',
+          topupOffered: calc.estTopUpFormatted,
+          tradeInCredit: calc.userTradeInCreditFormatted,
+          notes: `Trade-in proposal offering my listed ${currentDev.model} (${currentDev.storageCapacity}) in exchange for ${targetPhone.model}.`
+        });
+        try {
+          const backendResult = await createSwapRequestBackend({
+            storeUid: newReq.storeId,
+            targetDevice: { model: newReq.targetModel, storage: newReq.targetStorage },
+            currentDevice: { model: newReq.model, storage: newReq.storageCapacity, condition: newReq.swapperPhoneCondition },
+            topupAmount: newReq.topupOffered,
+            message: newReq.notes
+          });
+          NaijaSwapData.attachFirestoreRequestId(newReq.id, backendResult.data.requestId);
+        } catch (error) {
+          console.error('[NigerSwap] Swap request backend sync failed:', error);
+          alert('Your swap request could not reach the dealer. Please try again.');
+          return;
+        }
+
+        // Show success state
+        container.style.display = 'none';
+        const successCard = document.getElementById('proposalSuccessCard');
+        const successMsg = document.getElementById('successCardMsg');
+        const waLink = document.getElementById('successWhatsAppLink');
+
+        if (successCard) successCard.style.display = 'block';
+        if (successMsg) {
+          successMsg.innerHTML = `Your swap proposal for <strong>${escapeHtml(targetPhone.model)}</strong> offering your listed <strong>${escapeHtml(currentDev.model)} (${escapeHtml(currentDev.storageCapacity)})</strong> with an estimated top-up of <strong style="color: var(--emerald-400);">${calc.estTopUpFormatted}</strong> has been logged with ${escapeHtml(targetPhone.storeName)}.`;
+        }
+
+        const waNumber = targetPhone.whatsappNumber || '2348023456789';
+        const proposalWaMsg = encodeURIComponent(
+          `Hello ${targetPhone.storeName}, I just submitted a swap proposal on NaijaSwap!\n\n` +
+          `• Target Phone: ${targetPhone.model} (${targetPhone.storage})\n` +
+          `• My Listed Phone: ${currentDev.model} (${currentDev.storageCapacity}, ${currentDev.condition || 'Verified'})\n` +
+          `• Est. Top-up: ${calc.estTopUpFormatted}\n\n` +
+          `When can I visit your hub for inspection?`
+        );
+        if (waLink) waLink.href = `https://wa.me/${waNumber}?text=${proposalWaMsg}`;
+
+        updateMySwapsBadge();
+      });
+    }
+
+    // Success Track Button
+    successTrackBtn.addEventListener('click', () => {
+      window.location.href = 'my-swaps.html';
+    });
+
+    // My Swaps Tracker
+    function renderMySwaps() {
+      const container = document.getElementById('mySwapsListContainer');
+      if (!container) return;
+
+      const myRequests = NaijaSwapData.getUserSwapRequests(currentUserId);
+      if (myRequests.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 36px 16px; color: var(--text-muted);">
+            <div style="font-size: 2rem; margin-bottom: 8px;">🔄</div>
+            <p style="font-weight: 700; color: #FFF; margin-bottom: 4px;">No Active Swap Requests</p>
+            <p style="font-size: 0.82rem;">Use the calculator above to propose a trade-in for this device.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      myRequests.forEach(req => {
+        const item = document.createElement('div');
+        item.style.cssText = 'background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px;';
+
+        let badgeClass = 'status-pending';
+        if (req.status === 'accepted') badgeClass = 'status-accepted';
+        else if (req.status === 'rejected') badgeClass = 'status-declined';
+        else if (req.status === 'completed') badgeClass = 'status-completed';
+
+        item.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong style="color: #FFF; font-size: 0.94rem;">${escapeHtml(req.targetPhoneModel)}</strong>
+            <span class="status-badge ${badgeClass}">${req.status}</span>
+          </div>
+          <p style="font-size: 0.84rem; color: var(--text-dim); margin-bottom: 6px;">
+            Your Phone: <span style="color: #FFF; font-weight: 600;">${escapeHtml(req.swapperPhoneModel)}</span> (${escapeHtml(req.swapperPhoneCondition)})
+          </p>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--text-muted);">
+            <span>Top-up Offered: <strong style="color: var(--emerald-400);">${escapeHtml(req.topupOffered)}</strong></span>
+            <span>Store: ${escapeHtml(req.storeName)}</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function updateMySwapsBadge() {
+      const myRequests = NaijaSwapData.getUserSwapRequests(currentUserId);
+      const badge = document.getElementById('mobileSwapsBadge');
+      if (badge) {
+        if (myRequests.length > 0) {
+          badge.textContent = myRequests.length;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
+    // Modal bindings
+    if (closeMySwapsModal && mySwapsModal) {
+      closeMySwapsModal.addEventListener('click', () => mySwapsModal.classList.remove('active'));
+      mySwapsModal.addEventListener('click', (e) => {
+        if (e.target === mySwapsModal) mySwapsModal.classList.remove('active');
+      });
+    }
+
+    // Notifications modal bindings (fallback if notifBtn exists)
+    const notifBtn = document.getElementById('notifBtn');
+    const notifModal = document.getElementById('notifModal');
+    const closeNotifModal = document.getElementById('closeNotifModal');
+
+    if (notifBtn && notifModal) {
+      notifBtn.addEventListener('click', () => notifModal.classList.add('active'));
+    }
+    if (closeNotifModal && notifModal) {
+      closeNotifModal.addEventListener('click', () => notifModal.classList.remove('active'));
+      notifModal.addEventListener('click', (e) => {
+        if (e.target === notifModal) notifModal.classList.remove('active');
+      });
+    }
+
+    // Footer nav bindings
+    const navHomeBtn = document.getElementById('navHomeBtn');
+    if (navHomeBtn) {
+      navHomeBtn.addEventListener('click', () => {
+        window.location.href = 'dashboard.html';
+      });
+    }
+
+    if (navMySwapsBtn) {
+      navMySwapsBtn.addEventListener('click', () => {
+        renderMySwaps();
+        mySwapsModal.classList.add('active');
+      });
+    }
+
+    if (openMySwapsFromHeader) {
+      openMySwapsFromHeader.addEventListener('click', () => {
+        userDropdown.classList.remove('active');
+        renderMySwaps();
+        mySwapsModal.classList.add('active');
+      });
+    }
+
+    // Dropdowns
+    if (userMenuBtn && userDropdown) {
+      userMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('active');
+      });
+      document.addEventListener('click', () => userDropdown.classList.remove('active'));
+    }
+
+    if (navMoreBtn) {
+      navMoreBtn.addEventListener('click', () => {
+        window.location.href = 'more.html';
+      });
+    }
+
+    // Hook from auth.js when Firebase user is ready
+    window.onNigerSwapUserReady = (user, role) => {
+      if (user) {
+        currentUserId = user.uid;
+        currentUserName = user.displayName || (user.email ? user.email.split('@')[0] : 'Swapper');
+        currentUserEmail = user.email || '';
+
+        const nameEl = document.getElementById('headerUserName');
+        const avatarEl = document.getElementById('headerAvatarFallback');
+        if (nameEl) nameEl.textContent = currentUserName;
+
+        const storedPhoto = localStorage.getItem('nigerswap_photo_' + user.uid);
+        const photo = storedPhoto || (user.photoURL && user.photoURL.startsWith('http') ? user.photoURL : null);
+        if (photo && avatarEl) {
+          avatarEl.innerHTML = `<img src="${photo}" alt="${escapeHtml(currentUserName)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        } else if (avatarEl) {
+          avatarEl.textContent = currentUserName.charAt(0).toUpperCase();
+        }
+
+        updateMySwapsBadge();
+        renderSwapSelection();
+      }
+    };
+
+    // =========================================================================
+    // INTERACTIVE MEDIA GALLERY (PICTURES & 360° VIDEO INSPECTION)
+    // =========================================================================
+    function initGallery() {
+      const slides = document.querySelectorAll('.gallery-slide');
+      const counterPill = document.getElementById('galleryCounterPill');
+      const videoPlayer = document.getElementById('galleryVideoPlayer');
+      const prevBtn = document.getElementById('galleryPrevBtn');
+      const nextBtn = document.getElementById('galleryNextBtn');
+      const viewport = document.querySelector('.details-media-viewport');
+      let currentSlide = 0;
+
+      function showSlide(idx) {
+        if (!slides.length) return;
+        currentSlide = (idx + slides.length) % slides.length;
+        slides.forEach((slide, i) => {
+          slide.classList.toggle('active', i === currentSlide);
+        });
+        if (counterPill) {
+          counterPill.textContent = currentSlide === 2 ? `${currentSlide + 1} / ${slides.length} • Video` : `${currentSlide + 1} / ${slides.length}`;
+        }
+        // If switching away from video slide (index 2), pause video
+        if (currentSlide !== 2 && videoPlayer && !videoPlayer.paused) {
+          videoPlayer.pause();
+        }
+      }
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          showSlide(currentSlide - 1);
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          showSlide(currentSlide + 1);
+        });
+      }
+
+      // Touch swipe support for mobile
+      if (viewport) {
+        let touchStartX = 0;
+        let touchEndX = 0;
+        viewport.addEventListener('touchstart', (e) => {
+          if (e.touches && e.touches.length > 0) {
+            touchStartX = e.touches[0].clientX;
+          }
+        }, { passive: true });
+
+        viewport.addEventListener('touchend', (e) => {
+          if (e.changedTouches && e.changedTouches.length > 0) {
+            touchEndX = e.changedTouches[0].clientX;
+            const diffX = touchEndX - touchStartX;
+            if (diffX < -40) {
+              showSlide(currentSlide + 1);
+            } else if (diffX > 40) {
+              showSlide(currentSlide - 1);
+            }
+          }
+        }, { passive: true });
+      }
+    }
+
+    // =========================================================================
+    // "MORE PHONES AVAILABLE FOR SWAP" SLIDER CAROUSEL
+    // =========================================================================
+    function renderMorePhonesSlider() {
+      const track = document.getElementById('morePhonesSliderTrack');
+      const prevBtn = document.getElementById('sliderPrevBtn');
+      const nextBtn = document.getElementById('sliderNextBtn');
+
+      if (!track) return;
+
+      const allListings = NaijaSwapData.getListings();
+      // Exclude current phone from "more phones"
+      const otherListings = allListings.filter(p => String(p.id) !== String(phoneId));
+
+      track.innerHTML = '';
+
+      otherListings.forEach(phone => {
+        const item = document.createElement('div');
+        item.className = 'more-phone-slide-item';
+
+        const tagsHtml = phone.tags.map(t => {
+          let cls = 'tag-badge';
+          if (t === 'Verified Hub' || t.includes('Verified')) cls += ' tag-verified';
+          else if (t.includes('Fast') || t.includes('Hot')) cls += ' tag-hot';
+          else if (t.includes('Deal') || t.includes('Promo')) cls += ' tag-deal';
+          return `<span class="${cls}">${escapeHtml(t)}</span>`;
+        }).join('');
+
+        item.innerHTML = `
+          <article class="phone-card" data-phone-id="${phone.id}" style="cursor: pointer; height: 100%; display: flex; flex-direction: column;">
+            <div class="phone-card-media" style="position: relative; height: 180px; overflow: hidden; background: radial-gradient(circle at center, #111A24 0%, #080D12 100%);">
+              <div class="phone-tags-floating">${tagsHtml}</div>
+              <img src="${phone.image}" alt="${escapeHtml(phone.brand)} ${escapeHtml(phone.model)}" class="phone-card-img" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div class="phone-card-body" style="padding: 16px; flex-grow: 1; display: flex; flex-direction: column; gap: 8px;">
+              <div class="phone-title-block">
+                <h3 style="font-size: 1.05rem; font-weight: 800; color: #FFF; margin: 0 0 4px 0;">${escapeHtml(phone.model)}</h3>
+                <div class="phone-specs-line" style="display: flex; gap: 6px; font-size: 0.8rem; color: var(--text-dim);">
+                  <span>${escapeHtml(phone.storage)}</span>
+                  <span>•</span>
+                  <span>${escapeHtml(phone.condition)}</span>
+                </div>
+              </div>
+              <div class="phone-location-line" style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-muted); margin-top: auto;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>${escapeHtml(phone.location)}</span>
+              </div>
+            </div>
+            <div class="phone-card-footer" style="padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.05);">
+              <button type="button" class="btn-view-details" style="width: 100%; justify-content: center;">
+                <span>View Details & Swap</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </button>
+            </div>
+          </article>
+        `;
+
+        item.querySelector('.phone-card').addEventListener('click', () => {
+          window.location.href = `phone-details.html?id=${encodeURIComponent(phone.id)}`;
+        });
+
+        track.appendChild(item);
+      });
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          track.scrollBy({ left: -320, behavior: 'smooth' });
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          track.scrollBy({ left: 320, behavior: 'smooth' });
+        });
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // =========================================================================
+    // CONSUMER SWAP REQUEST FORM CONTROLLER (PHONE DETAILS)
+    // =========================================================================
+    const consumerSwapModal = document.getElementById('consumerSwapModal');
+    const openDetailedSwapModalBtn = document.getElementById('openDetailedSwapModalBtn');
+    const closeConsumerModal = document.getElementById('closeConsumerModal');
+    const consumerSwapForm = document.getElementById('consumerSwapForm');
+
+    const consumerBrand = document.getElementById('consumerBrand');
+    const consumerModel = document.getElementById('consumerModel');
+    const consumerStorage = document.getElementById('consumerStorage');
+    const consumerRamGroup = document.getElementById('consumerRamGroup');
+    const consumerTargetBrand = document.getElementById('consumerTargetBrand');
+    const consumerTargetModel = document.getElementById('consumerTargetModel');
+    const consumerTargetStorage = document.getElementById('consumerTargetStorage');
+    const consumerDropzone = document.getElementById('consumerDropzone');
+    const consumerMediaInput = document.getElementById('consumerMediaInput');
+    const consumerUploadProgress = document.getElementById('consumerUploadProgress');
+    const consumerProgressFill = document.getElementById('consumerProgressFill');
+    const consumerPreviewsGrid = document.getElementById('consumerPreviewsGrid');
+    const consumerBatteryHint = document.getElementById('consumerBatteryHint');
+    const consumerMediaCounter = document.getElementById('consumerMediaCounter');
+
+    const consumerCustomBrandGroup = document.getElementById('consumerCustomBrandGroup');
+    const consumerCustomBrand = document.getElementById('consumerCustomBrand');
+    const consumerCustomModelGroup = document.getElementById('consumerCustomModelGroup');
+    const consumerCustomModel = document.getElementById('consumerCustomModel');
+    const consumerCustomStorageGroup = document.getElementById('consumerCustomStorageGroup');
+    const consumerCustomStorage = document.getElementById('consumerCustomStorage');
+
+    const consumerTargetCustomBrandGroup = document.getElementById('consumerTargetCustomBrandGroup');
+    const consumerTargetCustomBrand = document.getElementById('consumerTargetCustomBrand');
+    const consumerTargetCustomModelGroup = document.getElementById('consumerTargetCustomModelGroup');
+    const consumerTargetCustomModel = document.getElementById('consumerTargetCustomModel');
+    const consumerTargetCustomStorageGroup = document.getElementById('consumerTargetCustomStorageGroup');
+    const consumerTargetCustomStorage = document.getElementById('consumerTargetCustomStorage');
+
+    const consumerTriage = {
+      powerAndScreen: true,
+      screenGlass: false,
+      bodyAndHousing: false,
+      hardwareFunctionality: true
+    };
+
+    let consumerUploadedFiles = [];
+
+    function updateConsumerMediaCounter() {
+      if (consumerMediaCounter) {
+        consumerMediaCounter.textContent = `${consumerUploadedFiles.length} / 5 files`;
+      }
+    }
+
+    function initConsumerForm() {
+      if (!consumerBrand) return;
+
+      // Populate Brands for current phone & target phone
+      const brands = NaijaSwapData.getBrands();
+      const brandOptions = '<option value="" disabled selected>-- Select Brand --</option>' +
+        brands.map(b => `<option value="${b}">${b}</option>`).join('') +
+        '';
+
+      consumerBrand.innerHTML = brandOptions;
+      consumerTargetBrand.innerHTML = brandOptions;
+
+      // Current brand change -> populate model & handle Android RAM & custom input
+      consumerBrand.addEventListener('change', () => {
+        const brand = consumerBrand.value;
+        if (brand === 'Other') {
+          if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'block';
+          consumerModel.disabled = false;
+          consumerModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone (Type below)</option>';
+          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'block';
+        } else {
+          if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'none';
+          const models = NaijaSwapData.getModelsForBrand(brand);
+          consumerModel.disabled = false;
+
+          if (models.length > 0) {
+            consumerModel.innerHTML = '<option value="" disabled selected>-- Select Model --</option>' +
+              models.map(m => `<option value="${m}">${m}</option>`).join('') +
+              '<option value="Other Model">Other Model (Type custom)</option>';
+          } else {
+            consumerModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone</option>';
+          }
+          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
+        }
+
+        const isAndroid = NaijaSwapData.isAndroid(brand);
+        if (consumerRamGroup) {
+          consumerRamGroup.style.display = isAndroid ? 'block' : 'none';
+        }
+        if (consumerBatteryHint) {
+          consumerBatteryHint.textContent = isAndroid 
+            ? 'Estimate approximate battery life capacity %'
+            : 'Settings > Battery > Battery Health (Maximum Capacity %)';
+        }
+      });
+
+      // Model change -> toggle custom model input
+      consumerModel.addEventListener('change', () => {
+        const val = consumerModel.value;
+        if (val === 'Other Model' || val === 'Other Smartphone') {
+          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'block';
+        } else {
+          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
+        }
+      });
+
+      // Storage change -> toggle custom storage input
+      if (consumerStorage) {
+        consumerStorage.addEventListener('change', () => {
+          if (consumerStorage.value === 'Other') {
+            if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'block';
+          } else {
+            if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'none';
+          }
+        });
+      }
+
+      // Target brand change -> populate target models & custom inputs
+      consumerTargetBrand.addEventListener('change', () => {
+        const tBrand = consumerTargetBrand.value;
+        if (tBrand === 'Other') {
+          if (consumerTargetCustomBrandGroup) consumerTargetCustomBrandGroup.style.display = 'block';
+          consumerTargetModel.disabled = false;
+          consumerTargetModel.innerHTML = '<option value="Other Target Model" selected>Other Smartphone (Type below)</option>';
+          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'block';
+        } else {
+          if (consumerTargetCustomBrandGroup) consumerTargetCustomBrandGroup.style.display = 'none';
+          const tModels = NaijaSwapData.getModelsForBrand(tBrand);
+          consumerTargetModel.disabled = false;
+
+          if (tModels.length > 0) {
+            consumerTargetModel.innerHTML = '<option value="" disabled selected>-- Select Target Model --</option>' +
+              tModels.map(m => `<option value="${m}">${m}</option>`).join('') +
+              '<option value="Other Target Model">Other Model (Type custom)</option>';
+          } else {
+            consumerTargetModel.innerHTML = '<option value="Other Target Model" selected>Other Target Model</option>';
+          }
+          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'none';
+        }
+      });
+
+      // Target Model change
+      consumerTargetModel.addEventListener('change', () => {
+        const val = consumerTargetModel.value;
+        if (val === 'Other Target Model') {
+          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'block';
+        } else {
+          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'none';
+        }
+      });
+
+      // Target Storage change
+      if (consumerTargetStorage) {
+        consumerTargetStorage.addEventListener('change', () => {
+          if (consumerTargetStorage.value === 'Other') {
+            if (consumerTargetCustomStorageGroup) consumerTargetCustomStorageGroup.style.display = 'block';
+          } else {
+            if (consumerTargetCustomStorageGroup) consumerTargetCustomStorageGroup.style.display = 'none';
+          }
+        });
+      }
+
+      // Segmented Triage Switches
+      setupSegmentedSwitch('switchPowerScreen', 'powerAndScreen', true);
+      setupSegmentedSwitch('switchScreenGlass', 'screenGlass', false);
+      setupSegmentedSwitch('switchBodyHousing', 'bodyAndHousing', false);
+      setupSegmentedSwitch('switchHardware', 'hardwareFunctionality', true);
+
+      // Media Dropzone
+      setupConsumerDropzone();
+
+      // Open detailed swap modal button
+      if (openDetailedSwapModalBtn && consumerSwapModal) {
+        openDetailedSwapModalBtn.addEventListener('click', () => {
+          prefillConsumerFormWithTarget();
+          consumerSwapModal.classList.add('active');
+        });
+      }
+
+      if (closeConsumerModal && consumerSwapModal) {
+        closeConsumerModal.addEventListener('click', () => {
+          consumerSwapModal.classList.remove('active');
+        });
+      }
+
+      if (consumerSwapModal) {
+        consumerSwapModal.addEventListener('click', (e) => {
+          if (e.target === consumerSwapModal) consumerSwapModal.classList.remove('active');
+        });
+      }
+
+      // Form submission
+      if (consumerSwapForm) {
+        consumerSwapForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const brand = (consumerBrand.value === 'Other' && consumerCustomBrand?.value.trim()) 
+            ? consumerCustomBrand.value.trim() 
+            : consumerBrand.value;
+          const isCustomModel = consumerModel.value === 'Other Model' || consumerModel.value === 'Other Smartphone';
+          const model = (isCustomModel && consumerCustomModel?.value.trim()) 
+            ? consumerCustomModel.value.trim() 
+            : consumerModel.value;
+
+          if (!brand || !model || model.includes('--')) {
+            alert('Please select or specify your phone Brand and Model.');
+            return;
+          }
+
+          const targetBrandVal = (consumerTargetBrand.value === 'Other' && consumerTargetCustomBrand?.value.trim())
+            ? consumerTargetCustomBrand.value.trim()
+            : (consumerTargetBrand.value || (targetPhone ? targetPhone.brand : 'Apple'));
+          const isTargetCustomModel = consumerTargetModel.value === 'Other Target Model';
+          const targetModelVal = (isTargetCustomModel && consumerTargetCustomModel?.value.trim())
+            ? consumerTargetCustomModel.value.trim()
+            : (consumerTargetModel.value || (targetPhone ? targetPhone.model : 'Smartphone'));
+
+          const storageCapacity = (consumerStorage.value === 'Other' && consumerCustomStorage?.value.trim())
+            ? consumerCustomStorage.value.trim()
+            : consumerStorage.value;
+          const ram = (NaijaSwapData.isAndroid(brand) && document.getElementById('consumerRam')) 
+            ? document.getElementById('consumerRam').value 
+            : '';
+          const imeiNumber = document.getElementById('consumerImei').value.trim();
+          const batteryHealth = parseInt(document.getElementById('consumerBatteryHealth').value) || 90;
+          const carrierLock = document.getElementById('consumerCarrierLock').value;
+          const targetStorage = (consumerTargetStorage && consumerTargetStorage.value === 'Other' && consumerTargetCustomStorage?.value.trim())
+            ? consumerTargetCustomStorage.value.trim()
+            : (consumerTargetStorage ? consumerTargetStorage.value : (targetPhone ? targetPhone.storage : '128GB'));
+          const preferredColor = document.getElementById('consumerPreferredColor').value.trim();
+          const contactPhone = document.getElementById('consumerPhoneInput').value.trim();
+
+          const triagePayload = {
+            powerAndScreen: consumerTriage.powerAndScreen,
+            screenGlass: consumerTriage.screenGlass,
+            bodyAndHousing: consumerTriage.bodyAndHousing,
+            hardwareFunctionality: consumerTriage.hardwareFunctionality,
+            batteryHealth,
+            carrierLock
+          };
+
+          const newReq = NaijaSwapData.createSwapRequest({
+            targetPhoneId: targetPhone ? targetPhone.id : '',
+            brand,
+            model,
+            storageCapacity,
+            ram,
+            imeiNumber,
+            conditionTriage: triagePayload,
+            deviceMedia: consumerUploadedFiles,
+            targetBrand: targetBrandVal,
+            targetModel: targetModelVal,
+            targetStorage,
+            preferredColor,
+            customerUid: currentUserId,
+            customerName: currentUserName,
+            customerEmail: currentUserEmail,
+            customerPhone: contactPhone,
+            swapperBattery: `${batteryHealth}%`
+          });
+
+          // Reset & close
+          consumerSwapForm.reset();
+          consumerUploadedFiles = [];
+          if (consumerPreviewsGrid) consumerPreviewsGrid.innerHTML = '';
+          if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'none';
+          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
+          if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'none';
+          if (consumerTargetCustomBrandGroup) consumerTargetCustomBrandGroup.style.display = 'none';
+          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'none';
+          if (consumerTargetCustomStorageGroup) consumerTargetCustomStorageGroup.style.display = 'none';
+          updateConsumerMediaCounter();
+          consumerSwapModal.classList.remove('active');
+
+          updateMySwapsBadge();
+          window.location.href = 'my-swaps.html';
+        });
+      }
+    }
+
+    function prefillConsumerFormWithTarget() {
+      if (!targetPhone) return;
+
+      // Pre-fill target device in Section 4
+      if (consumerTargetBrand) {
+        consumerTargetBrand.value = targetPhone.brand;
+        const tModels = NaijaSwapData.getModelsForBrand(targetPhone.brand);
+        consumerTargetModel.disabled = false;
+        consumerTargetModel.innerHTML = tModels.map(m => `<option value="${m}" ${m === targetPhone.model ? 'selected' : ''}>${m}</option>`).join('');
+        if (!consumerTargetModel.value) {
+          consumerTargetModel.innerHTML = `<option value="${targetPhone.model}" selected>${targetPhone.model}</option>`;
+        }
+      }
+
+      if (consumerTargetStorage) {
+        consumerTargetStorage.value = targetPhone.storage;
+      }
+
+      // Pre-fill trade-in phone if user already chosen in calculator
+      const calcSelected = calcUserPhoneSelect ? calcUserPhoneSelect.value : '';
+      if (calcSelected && consumerBrand) {
+        const isIphone = calcSelected.toLowerCase().includes('iphone');
+        consumerBrand.value = 'Apple';
+        consumerBrand.dispatchEvent(new Event('change'));
+        setTimeout(() => {
+          if (consumerModel) {
+            Array.from(consumerModel.options).forEach(opt => {
+              if (opt.value.toLowerCase() === calcSelected.toLowerCase()) {
+                opt.selected = true;
+              }
+            });
+          }
+        }, 50);
+      }
+
+      // Pre-fill contact phone
+      const swapperPhone = document.getElementById('swapperContactPhone')?.value;
+      if (swapperPhone && document.getElementById('consumerPhoneInput')) {
+        document.getElementById('consumerPhoneInput').value = swapperPhone;
+      }
+    }
+
+    function setupSegmentedSwitch(switchId, triageKey, positiveIsYes) {
+      const container = document.getElementById(switchId);
+      if (!container) return;
+      const btns = container.querySelectorAll('.segmented-option-btn');
+
+      btns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          btns.forEach(b => {
+            b.classList.remove('active-yes', 'active-no');
+          });
+
+          const val = btn.dataset.val === 'yes';
+          consumerTriage[triageKey] = val;
+
+          if (positiveIsYes) {
+            btn.classList.add(val ? 'active-yes' : 'active-no');
+          } else {
+            // For defects (cracks/dents), "No" is good (active-yes), "Yes" is alert (active-no)
+            btn.classList.add(val ? 'active-no' : 'active-yes');
+          }
+        });
+      });
+    }
+
+    function setupConsumerDropzone() {
+      if (!consumerDropzone || !consumerMediaInput) return;
+
+      consumerDropzone.addEventListener('click', () => consumerMediaInput.click());
+
+      consumerMediaInput.addEventListener('change', (e) => {
+        handleMediaFiles(e.target.files);
+      });
+
+      consumerDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        consumerDropzone.classList.add('dragover');
+      });
+      consumerDropzone.addEventListener('dragleave', () => {
+        consumerDropzone.classList.remove('dragover');
+      });
+      consumerDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        consumerDropzone.classList.remove('dragover');
+        handleMediaFiles(e.dataTransfer.files);
+      });
+    }
+
+    function handleMediaFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+
+      const remainingSlots = 5 - consumerUploadedFiles.length;
+      if (remainingSlots <= 0) {
+        alert('You can only upload up to 5 photos and videos.');
+        return;
+      }
+
+      const filesToAdd = Array.from(fileList).slice(0, remainingSlots);
+      if (fileList.length > remainingSlots) {
+        alert(`You can only add up to 5 items. Adding the first ${remainingSlots} selected.`);
+      }
+
+      if (consumerUploadProgress && consumerProgressFill) {
+        consumerUploadProgress.style.display = 'block';
+        consumerProgressFill.style.width = '0%';
+        setTimeout(() => { consumerProgressFill.style.width = '60%'; }, 100);
+        setTimeout(() => { consumerProgressFill.style.width = '100%'; }, 250);
+        setTimeout(() => { consumerUploadProgress.style.display = 'none'; }, 400);
+      }
+
+      filesToAdd.forEach(file => {
+        const reader = new FileReader();
+        const isVideo = file.type.startsWith('video/');
+
+        reader.onload = (e) => {
+          const fileData = {
+            name: file.name,
+            size: formatFileSize(file.size),
+            type: file.type,
+            isVideo,
+            dataUrl: e.target.result
+          };
+          consumerUploadedFiles.push(fileData);
+          updateConsumerMediaCounter();
+          renderPreviewItem(fileData, consumerUploadedFiles.length - 1);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function renderPreviewItem(fileData, index) {
+      const card = document.createElement('div');
+      card.className = 'preview-item-card';
+
+      if (fileData.isVideo) {
+        card.innerHTML = `
+          <div class="preview-video-box">
+            <span style="font-size: 1.5rem;">🎥</span>
+            <span style="font-size: 0.68rem; color: #FFF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90px;">${escapeHtml(fileData.name)}</span>
+          </div>
+          <button type="button" class="preview-remove-btn" title="Remove">&times;</button>
+          <span class="preview-size-badge">${fileData.size}</span>
+        `;
+      } else {
+        card.innerHTML = `
+          <img src="${fileData.dataUrl}" alt="${escapeHtml(fileData.name)}" class="preview-thumb-img">
+          <button type="button" class="preview-remove-btn" title="Remove">&times;</button>
+          <span class="preview-size-badge">${fileData.size}</span>
+        `;
+      }
+
+      card.querySelector('.preview-remove-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        consumerUploadedFiles = consumerUploadedFiles.filter((_, i) => i !== index);
+        refreshConsumerPreviews();
+      });
+
+      if (consumerPreviewsGrid) consumerPreviewsGrid.appendChild(card);
+    }
+
+    function refreshConsumerPreviews() {
+      if (consumerPreviewsGrid) consumerPreviewsGrid.innerHTML = '';
+      consumerUploadedFiles.forEach((item, idx) => {
+        renderPreviewItem(item, idx);
+      });
+      updateConsumerMediaCounter();
+    }
+
+    // Boot
+    init();
+    initConsumerForm();
+  </script>
+</body>
+</html>

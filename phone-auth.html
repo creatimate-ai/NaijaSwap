@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phone Authentication — NigerSwap</title>
+  <meta name="description" content="Sign in or create an account on NigerSwap using your phone number and SMS verification.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+  <!-- Ambient Glows -->
+  <div class="auth-bg-glow auth-glow-1"></div>
+  <div class="auth-bg-glow auth-glow-2"></div>
+
+  <!-- Header -->
+  <header class="auth-header">
+    <a href="index.html" class="brand-logo">
+      <div class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+          <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+        </svg>
+      </div>
+      <span class="brand-name">Niger<span>Swap</span></span>
+    </a>
+    <a href="login.html" class="header-back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>Back to Login</span>
+    </a>
+  </header>
+
+  <!-- Main Content -->
+  <main class="auth-main-container">
+    <div class="auth-card">
+      <div class="auth-card-glow"></div>
+
+      <div class="auth-title-row">
+        <div class="auth-badge">SMS Verification</div>
+        <h1 class="auth-title">Phone Authentication</h1>
+        <p class="auth-subtitle">We will send a 6-digit verification code to your phone</p>
+      </div>
+
+      <!-- Alert Notification Banner -->
+      <div class="auth-alert" id="phoneAlert" role="alert"></div>
+
+      <!-- Invisible reCAPTCHA Container -->
+      <div id="recaptcha-container"></div>
+
+      <!-- PHASE 1: Enter Phone Number -->
+      <div id="phonePhase1">
+        <form class="auth-form" id="sendCodeForm" novalidate>
+          <div class="form-field">
+            <label class="form-label" for="phoneNumberInput">Phone Number</label>
+            <div class="phone-input-combo">
+              <select id="countryCodeSelect" class="country-select" aria-label="Country Code">
+                <option value="+234" selected>🇳🇬 +234 (Nigeria)</option>
+                <option value="+1">🇺🇸 +1 (USA / Canada)</option>
+                <option value="+44">🇬🇧 +44 (UK)</option>
+                <option value="+233">🇬🇭 +233 (Ghana)</option>
+                <option value="+254">🇰🇪 +254 (Kenya)</option>
+                <option value="+27">🇿🇦 +27 (South Africa)</option>
+              </select>
+              <input type="tel" id="phoneNumberInput" class="auth-input" placeholder="801 234 5678" required autocomplete="tel-national">
+            </div>
+            <span style="font-size: 0.76rem; color: var(--text-faint); margin-top: 2px;">
+              Enter your mobile number without leading zero (e.g. 803 123 4567)
+            </span>
+          </div>
+
+          <button type="submit" class="btn-auth-primary" id="sendCodeBtn">
+            <span>Send Verification Code</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
+        </form>
+
+        <div class="alt-auth-option">
+          <a href="login.html" class="alt-auth-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <span>Sign in with Email instead</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- PHASE 2: Enter Verification Code (Initially Hidden) -->
+      <div id="phonePhase2" style="display: none;">
+        <div class="phone-change-row">
+          <div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">Code sent to:</div>
+            <div class="target-phone-text" id="targetPhoneDisplay">+234 800 000 0000</div>
+          </div>
+          <button type="button" class="btn-change-number" id="changeNumberBtn">Change number</button>
+        </div>
+
+        <form class="auth-form" id="verifyCodeForm" novalidate>
+          <div class="form-field">
+            <label class="form-label" for="verificationCodeInput">6-Digit Verification Code</label>
+            <input type="text" id="verificationCodeInput" class="auth-input otp-input" placeholder="••••••" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required autocomplete="one-time-code">
+          </div>
+
+          <button type="submit" class="btn-auth-primary" id="verifyCodeBtn">
+            <span>Verify & Continue</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </button>
+        </form>
+
+        <div class="resend-row">
+          <button type="button" class="btn-resend-code" id="resendCodeBtn" disabled>
+            <span>Resend code in 60s</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer Links -->
+      <div class="auth-footer-switch">
+        <span>Already have an account?</span>
+        <a href="login.html" class="switch-link">Log in with Email</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Authentication Controller Script -->
+  <script type="module" src="js/auth.js"></script>
+</body>
+</html>

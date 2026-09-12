@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Account — NaijaSwap</title>
+  <meta name="description" content="Manage your personal or dealer store profile, settlement details, and account credentials on NaijaSwap.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+
+
+  <!-- Ambient Glows (Frosted Glass Depth) -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Main Container -->
+  <main class="account-page-container">
+
+    <!-- Top Navigation Header -->
+    <header class="more-header">
+      <a href="more.html" class="more-back-btn" id="accountBackBtn" aria-label="Back">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span id="accountBackBtnText">More</span>
+      </a>
+
+      <div class="more-brand-pill" id="accountBrandPill">
+        <div class="logo-mark-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span id="accountBrandText">NaijaSwap</span>
+      </div>
+    </header>
+
+    <!-- Page Title Section -->
+    <section class="more-title-section">
+      <div style="margin-bottom: 8px;">
+        <span class="role-tag role-tag-swapper" id="accountRoleTag">🔄 Swapper Account</span>
+      </div>
+      <h1 class="more-title" id="accountPageTitle">Account</h1>
+      <p class="more-subtitle" id="accountPageSubtitle">Personal information and security management</p>
+    </section>
+
+    <!-- ======================================================================
+         VIEW A: DEALER PROFILE CONTAINER (STORE PARTNER)
+         ====================================================================== -->
+    <div id="dealerProfileContainer" style="display: none;">
+
+      <!-- Dealer Store Card -->
+      <section class="account-profile-card" aria-label="Store Profile Details">
+        <div class="account-avatar-center">
+          <div class="account-avatar-wrapper">
+            <img src="" alt="Store Logo" class="account-avatar-img" id="dealerLogoImg" style="display: none;">
+            <div class="account-avatar-placeholder" id="dealerLogoPlaceholder" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));">
+              🏬
+            </div>
+          </div>
+          <h2 class="account-name-heading" id="dealerStoreNameHeading">
+            Verified Partner Store
+          </h2>
+          <span id="dealerVerifiedMark" style="display:none;align-items:center;gap:5px;margin-top:6px;color:var(--emerald-400);font-size:0.82rem;font-weight:800;" title="Verified dealer" aria-label="Verified dealer">
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--emerald-400);color:#04130b;font-size:0.75rem;">✓</span>
+            Verified Dealer
+          </span>
+          <span class="account-badge-pill" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border: 1px solid var(--cyan-border);">
+            🏬 Verified Partner Store
+          </span>
+        </div>
+
+        <!-- Store Details List -->
+        <div class="account-details-list">
+          <!-- Business Name -->
+          <div class="account-detail-row">
+            <span class="account-detail-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+              <span>Store Name</span>
+            </span>
+            <span class="account-detail-value" id="dealerStoreNameVal">Not Set</span>
+          </div>
+
+          <!-- Contact Person -->
+          <div class="account-detail-row">
+            <span class="account-detail-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Contact Person</span>
+            </span>
+            <span class="account-detail-value" id="dealerContactVal">Not Set</span>
+          </div>
+
+          <!-- Official Email -->
+          <div class="account-detail-row">
+            <span class="account-detail-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <span>Business Email</span>
+            </span>
+            <span class="account-detail-value" id="dealerEmailVal">Not Set</span>
+          </div>
+
+          <!-- Store Phone -->
+          <div class="account-detail-row">
+            <span class="account-detail-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span>Store Hotline</span>
+            </span>
+            <span class="account-detail-value" id="dealerPhoneVal">Not Set</span>
+          </div>
+
+          <!-- CAC Number (if provided) -->
+          <div class="account-detail-row">
+            <span class="account-detail-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              <span>CAC Reg. Number</span>
+            </span>
+            <span class="account-detail-value" id="dealerCacVal">Sole Proprietorship</span>
+          </div>
+        </div>
+
+        <button type="button" class="account-quick-edit-btn" id="btnEditDealerProfile">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          <span>Edit Store Profile</span>
+        </button>
+      </section>
+
+
+
+      <!-- Physical Shop Location Card -->
+      <section class="dealer-section-card" aria-label="Store Location">
+        <div class="dealer-section-head">
+          <div class="dealer-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-400)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>Physical Shop & Inspection Point</span>
+          </div>
+          <span class="more-badge-pill badge-cyan">Physical Store</span>
+        </div>
+        <p id="dealerShopAddressVal" style="font-size: 0.9rem; color: var(--text-white); line-height: 1.5; margin-bottom: 8px;">
+          Not provided yet. Pin your shop location to accept walk-in inspections.
+        </p>
+        <div id="dealerGeoWrap">
+          <a id="dealerMapLink" href="#" target="_blank" rel="noopener" class="dealer-map-btn" style="display: none;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+            <span>Open Pinned Location in Maps</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Business Verification (KYC) Card -->
+      <section class="dealer-section-card" aria-label="Business Verification">
+        <div class="dealer-section-head">
+          <div class="dealer-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>KYC Business Verification</span>
+          </div>
+          <span class="more-badge-pill badge-emerald" id="dealerKycBadge">Verified</span>
+        </div>
+        <div class="account-details-list" style="margin-bottom: 16px;">
+          <div class="account-detail-row">
+            <span class="account-detail-label"><span>National ID (NIN)</span></span>
+            <span class="account-detail-value"><span class="masked-code-pill" id="dealerNinVal">•••••••••••</span></span>
+          </div>
+          <div class="account-detail-row">
+            <span class="account-detail-label"><span>Bank Verification (BVN)</span></span>
+            <span class="account-detail-value"><span class="masked-code-pill" id="dealerBvnVal">•••••••••••</span></span>
+          </div>
+          <div class="account-detail-row">
+            <span class="account-detail-label"><span>Govt. ID Document</span></span>
+            <span class="account-detail-value" id="dealerGovIdStatus"><span style="color: var(--amber-400); font-weight: 600;">Not Uploaded ⚠️</span></span>
+          </div>
+          <div class="account-detail-row">
+            <span class="account-detail-label"><span>Proof of Address</span></span>
+            <span class="account-detail-value" id="dealerAddressProofStatus"><span style="color: var(--amber-400); font-weight: 600;">Not Uploaded ⚠️</span></span>
+          </div>
+        </div>
+        <a href="dealer-verification.html" class="btn-primary-action" style="text-decoration: none; width: 100%; justify-content: center;">
+          <span>Update Verification Documents</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+      </section>
+
+      <!-- Settlement & Bank Details Card -->
+      <section class="dealer-section-card" aria-label="Settlement Account">
+        <div class="dealer-section-head">
+          <div class="dealer-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber-400)" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            <span>Settlement & Payout Account</span>
+          </div>
+          <span class="more-badge-pill badge-amber">Escrow Payout</span>
+        </div>
+        <div class="account-details-list">
+          <div class="account-detail-row">
+            <span class="account-detail-label"><span>Bank Name</span></span>
+            <span class="account-detail-value" id="dealerBankNameVal">Not Set</span>
+          </div>
+          <div class="account-detail-row">
+            <span class="account-detail-label"><span>Account Number</span></span>
+            <span class="account-detail-value" id="dealerBankAccountVal">Not Set</span>
+          </div>
+          <div class="account-detail-row">
+            <span class="account-detail-label"><span>Beneficiary</span></span>
+            <span class="account-detail-value" id="dealerBankBeneficiaryVal">Matches Store Name</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="account-logout-wrap" style="margin-top: 24px;">
+        <button type="button" class="account-signout-btn btn-dash-logout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Sign Out of Store Portal</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ======================================================================
+         VIEW B: SWAPPER PROFILE CONTAINER (CONSUMER)
+         ====================================================================== -->
+    <div id="swapperProfileContainer">
+
+      <!-- Swapper Profile Card -->
+      <section class="account-profile-card" aria-label="User Profile Details">
+        <div class="account-avatar-center">
+          <div class="account-avatar-wrapper">
+            <img src="" alt="Profile Photo" class="account-avatar-img" id="userPhotoImg" style="display: none;">
+            <div class="account-avatar-placeholder" id="userPhotoPlaceholder" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+          </div>
+          <h2 class="account-name-heading" id="userFullNameHeading">
+            Loading...
+          </h2>
+          <span class="account-badge-pill" id="userRoleBadge" style="background: rgba(16, 185, 129, 0.15); color: var(--emerald-400); border: 1px solid var(--border-glass);">
+            🔄 Swapper Account
+          </span>
+        </div>
+
+        <!-- Account Info Data Rows -->
+        <div class="account-details-list">
+          <!-- Full Name -->
+          <div class="account-detail-row">
+            <span class="account-detail-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Full Name</span>
+            </span>
+            <span class="account-detail-value" id="detailFullName">Loading...</span>
+          </div>
+
+          <!-- Email Address -->
+          <div class="account-detail-row">
+            <span class="account-detail-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <span>Email Address</span>
+            </span>
+            <span class="account-detail-value" id="detailEmail">Loading...</span>
+          </div>
+
+          <!-- Phone Number -->
+          <div class="account-detail-row">
+            <span class="account-detail-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span>Phone Number</span>
+            </span>
+            <span class="account-detail-value" id="detailPhone">Loading...</span>
+          </div>
+
+          <!-- Preferred Inspection Hub -->
+          <div class="account-detail-row">
+            <span class="account-detail-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>Preferred Hub</span>
+            </span>
+            <span class="account-detail-value" id="detailPreferredHub">Computer Village, Lagos</span>
+          </div>
+        </div>
+
+        <!-- Quick Edit Profile Action -->
+        <button type="button" class="account-quick-edit-btn" id="btnQuickEditProfile">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          <span>Edit Profile</span>
+        </button>
+      </section>
+
+      <!-- Upgrade to Dealer Action Card -->
+      <section class="account-actions-section" aria-label="Become a Dealer">
+        <div class="account-section-title">Partner with NaijaSwap</div>
+        <a href="dealer-verification.html" class="account-action-card" style="text-decoration: none;">
+          <div class="account-action-left">
+            <div class="account-action-icon tint-cyan">🏬</div>
+            <div class="account-action-texts">
+              <span class="account-action-title">Upgrade to Verified Store Dealer</span>
+              <span class="account-action-sub">List phones in your shop and accept trade-in offers</span>
+            </div>
+          </div>
+          <div class="account-action-chevron">›</div>
+        </a>
+      </section>
+
+      <!-- Account Management Actions -->
+      <section class="account-actions-section" aria-label="Account Actions">
+        <div class="account-section-title">Account Management</div>
+        <div class="account-actions-list">
+
+          <!-- Action 1: Edit Profile -->
+          <button type="button" class="account-action-card" id="btnActionEditProfile">
+            <div class="account-action-left">
+              <div class="account-action-icon tint-emerald">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </div>
+              <div class="account-action-texts">
+                <span class="account-action-title">Edit Personal Profile</span>
+                <span class="account-action-sub">Update name, phone number, or photo</span>
+              </div>
+            </div>
+            <div class="account-action-chevron">›</div>
+          </button>
+
+          <!-- Action 2: Change Password -->
+          <button type="button" class="account-action-card" id="btnActionChangePassword">
+            <div class="account-action-left">
+              <div class="account-action-icon tint-amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <div class="account-action-texts">
+                <span class="account-action-title">Change Password</span>
+                <span class="account-action-sub">Request a password reset link</span>
+              </div>
+            </div>
+            <div class="account-action-chevron">›</div>
+          </button>
+
+          <!-- Action 3: Delete Account -->
+          <button type="button" class="account-action-card action-danger" id="btnActionDeleteAccount">
+            <div class="account-action-left">
+              <div class="account-action-icon tint-rose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              </div>
+              <div class="account-action-texts">
+                <span class="account-action-title">Delete Account</span>
+                <span class="account-action-sub">Permanently delete account and trade history</span>
+              </div>
+            </div>
+            <div class="account-action-chevron">›</div>
+          </button>
+
+        </div>
+
+        <div class="account-logout-wrap">
+          <button type="button" class="account-signout-btn" id="btnSignOut">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Dynamic Mobile Bottom Navigation Container -->
+  <div id="accountBottomNavContainer">
+    <!-- Injected dynamically with Swapper or Dealer tabs -->
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 1: EDIT SWAPPER PROFILE
+       ========================================================================== -->
+  <div class="modal-backdrop" id="editProfileModal" role="dialog" aria-modal="true" aria-labelledby="editProfileTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="tag-badge tag-verified">Personal Details</span>
+          <h2 class="modal-title" id="editProfileTitle" style="margin-top: 4px;">Edit Profile</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeEditProfileModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="editProfileForm" class="dash-form" style="padding-top: 10px;">
+        <div id="editProfileAlert" class="auth-alert" role="alert"></div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="inputEditName">Full Name</label>
+          <input type="text" id="inputEditName" class="dash-input" placeholder="Enter your full name" autocomplete="name">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="inputEditPhone">Phone Number</label>
+          <input type="tel" id="inputEditPhone" class="dash-input" placeholder="e.g. +234 801 234 5678" autocomplete="tel">
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button type="button" class="btn-cancel" id="sendProfileOtpBtn">Send OTP</button>
+            <input type="text" id="profileOtpInput" class="form-input" inputmode="numeric" maxlength="6" placeholder="6-digit OTP" style="display: none;">
+            <button type="button" class="btn-cancel" id="verifyProfileOtpBtn" style="display: none;">Verify</button>
+          </div>
+          <div id="profileRecaptcha" style="display: none;"></div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="inputEditHub">Preferred Trade Hub</label>
+          <select id="inputEditHub" class="dash-input">
+            <option value="Computer Village, Ikeja, Lagos">Computer Village, Ikeja, Lagos</option>
+            <option value="Banex Plaza, Wuse 2, Abuja">Banex Plaza, Wuse 2, Abuja</option>
+            <option value="Garrison / Aba Road, Port Harcourt">Garrison / Aba Road, Port Harcourt</option>
+            <option value="Dugbe Electronics District, Ibadan">Dugbe Electronics District, Ibadan</option>
+          </select>
+        </div>
+
+        <!-- Profile Picture Upload -->
+        <div class="form-group" style="margin-bottom: 22px;">
+          <div class="field-label-row" style="margin-bottom: 8px;">
+            <label class="form-label" style="margin: 0;">Profile Picture</label>
+          </div>
+
+          <div class="avatar-edit-uploader">
+            <div class="avatar-edit-preview-box">
+              <img id="editAvatarPreviewImg" src="" alt="Avatar Preview" class="avatar-edit-preview-img">
+              <div id="editAvatarPreviewPlaceholder" class="avatar-edit-preview-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </div>
+              <label for="inputProfilePicture" class="avatar-camera-badge" title="Choose Photo">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              </label>
+              <div class="avatar-upload-overlay" id="avatarUploadOverlay" style="display: none;">
+                <span class="btn-spinner"></span>
+              </div>
+            </div>
+
+            <div class="avatar-edit-controls">
+              <input type="file" id="inputProfilePicture" accept="image/png,image/jpeg,image/webp,image/jpg" style="display: none;">
+              <button type="button" class="btn-upload-photo" id="btnTriggerPhotoUpload">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span>Choose Picture</span>
+              </button>
+              <button type="button" class="btn-remove-photo" id="btnRemovePhoto" style="display: none;">Remove Picture</button>
+              <span class="avatar-hint-text">Choose a photo from your device (JPG, PNG, WebP)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-actions">
+          <button type="button" class="btn-cancel" id="cancelEditProfileBtn">Cancel</button>
+          <button type="submit" class="btn-primary-action" id="saveProfileBtn">
+            <span>Save Changes</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: EDIT DEALER / STORE PROFILE
+       ========================================================================== -->
+  <div class="modal-backdrop" id="editDealerModal" role="dialog" aria-modal="true" aria-labelledby="editDealerTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="tag-badge tag-verified" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border-color: var(--cyan-border);">Store Partner</span>
+          <h2 class="modal-title" id="editDealerTitle" style="margin-top: 4px;">Edit Store Profile</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeDealerEditModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="editDealerForm" class="dash-form" style="padding-top: 10px;">
+        <div id="editDealerAlert" class="auth-alert" role="alert"></div>
+
+        <!-- Store Profile Picture / Logo Upload -->
+        <div class="form-group" style="margin-bottom: 20px;">
+          <div class="field-label-row" style="margin-bottom: 8px;">
+            <label class="form-label" style="margin: 0;">Store Profile Picture / Logo</label>
+          </div>
+
+          <div class="avatar-edit-uploader">
+            <div class="avatar-edit-preview-box">
+              <img id="editDealerLogoPreviewImg" src="" alt="Store Logo Preview" class="avatar-edit-preview-img" style="display: none;">
+              <div id="editDealerLogoPreviewPlaceholder" class="avatar-edit-preview-placeholder" style="background: linear-gradient(135deg, var(--cyan-500), var(--emerald-400)); font-size: 1.6rem;">
+                🏬
+              </div>
+              <label for="inputDealerProfilePicture" class="avatar-camera-badge" title="Choose Photo">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              </label>
+            </div>
+
+            <div class="avatar-edit-controls">
+              <input type="file" id="inputDealerProfilePicture" accept="image/png,image/jpeg,image/webp,image/jpg" style="display: none;">
+              <button type="button" class="btn-upload-photo" id="btnTriggerDealerPhotoUpload">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span>Choose Picture</span>
+              </button>
+              <button type="button" class="btn-remove-photo" id="btnRemoveDealerPhoto" style="display: none;">Remove Picture</button>
+              <span class="avatar-hint-text">Choose a photo or logo for your store (JPG, PNG, WebP)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="inputDealerStoreName">Registered Store / Business Name *</label>
+          <input type="text" id="inputDealerStoreName" class="dash-input" placeholder="e.g. Banex Gadget Hub" required>
+        </div>
+
+        <div class="form-row-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="inputDealerContactPerson">Contact Person *</label>
+            <input type="text" id="inputDealerContactPerson" class="dash-input" placeholder="Full name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inputDealerPhone">Store Hotline *</label>
+            <input type="tel" id="inputDealerPhone" class="dash-input" placeholder="+234..." required>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="inputDealerShopAddress">Physical Shop Address *</label>
+          <textarea id="inputDealerShopAddress" class="form-textarea" rows="2" placeholder="Suite, Plaza, Street, City" required></textarea>
+        </div>
+
+        <div class="form-row-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;">
+          <div class="form-group">
+            <label class="form-label" for="inputDealerBankName">Settlement Bank Name *</label>
+            <input type="text" id="inputDealerBankName" class="dash-input" placeholder="e.g. GTBank, Zenith" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inputDealerBankAccount">Account Number *</label>
+            <input type="text" id="inputDealerBankAccount" class="dash-input" inputmode="numeric" placeholder="10-digit NUBAN" required>
+          </div>
+        </div>
+
+        <div class="modal-footer-actions">
+          <button type="button" class="btn-cancel" id="cancelDealerEditBtn">Cancel</button>
+          <button type="submit" class="btn-primary-action" id="saveDealerBtn">
+            <span>Save Store Details</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: CHANGE PASSWORD
+       ========================================================================== -->
+  <div class="modal-backdrop" id="changePasswordModal" role="dialog" aria-modal="true" aria-labelledby="changePasswordTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="tag-badge" style="background: rgba(245, 158, 11, 0.12); color: var(--amber-400); border: 1px solid rgba(245, 158, 11, 0.3);">Security</span>
+          <h2 class="modal-title" id="changePasswordTitle" style="margin-top: 4px;">Change Password</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closePasswordModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div style="padding: 10px 0;">
+        <div id="changePasswordAlert" class="auth-alert" role="alert"></div>
+
+        <div id="passwordEmailInfo" style="margin-bottom: 20px;">
+          <p style="font-size: 0.88rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px;">
+            We can dispatch a secure password reset link to your registered account email:
+          </p>
+          <div style="padding: 12px 16px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-weight: 700; color: var(--text-white);" id="passwordTargetEmailDisplay">
+            Loading...
+          </div>
+        </div>
+
+        <form id="passwordResetActionForm">
+          <div class="modal-footer-actions" style="margin-top: 20px;">
+            <button type="button" class="btn-cancel" id="cancelPasswordBtn">Cancel</button>
+            <button type="submit" class="btn-primary-action" id="sendResetBtn">
+              <span>Send Reset Link</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: DELETE ACCOUNT CONFIRMATION
+       ========================================================================== -->
+  <div class="modal-backdrop" id="deleteAccountModal" role="dialog" aria-modal="true" aria-labelledby="deleteAccountTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="tag-badge" style="background: rgba(244, 63, 94, 0.15); color: var(--rose-400); border: 1px solid rgba(244, 63, 94, 0.3);">Danger Zone</span>
+          <h2 class="modal-title" id="deleteAccountTitle" style="margin-top: 4px; color: var(--rose-400);">Delete Account</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeDeleteModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div style="padding: 10px 0;">
+        <div id="deleteAccountAlert" class="auth-alert" role="alert"></div>
+
+        <p style="font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 16px;">
+          This action is <strong style="color: #FFF;">permanent and cannot be undone</strong>. Your personal profile, active trade-in offers, and account data will be erased.
+        </p>
+
+        <div class="modal-footer-actions">
+          <button type="button" class="btn-cancel" id="cancelDeleteBtn">Cancel</button>
+          <button type="button" class="btn-primary-action" id="confirmDeleteBtn" style="background: linear-gradient(135deg, #E11D48, #BE123C); border-color: rgba(244, 63, 94, 0.5);">
+            <span>Yes, Delete Account</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       AUTHENTICATION & ACCOUNT CONTROLLER (FIREBASE MODULAR SDK)
+       ========================================================================== -->
+  <script type="module">
+    import {
+      auth,
+      onAuthStateChanged,
+      updateProfile,
+      signOut,
+      deleteUser,
+      sendPasswordResetEmail,
+      linkWithPhoneNumber,
+      RecaptchaVerifier
+    } from './js/firebase-config.js';
+
+    import {
+      mapAuthError,
+      showAuthAlert,
+      clearAuthAlert,
+      setButtonLoading,
+      saveUserRole
+    } from './js/auth.js';
+
+    import {
+      getStoredProfile,
+      saveStoredProfile,
+      getStoredRole,
+      maskSensitive,
+      getStoreMetrics,
+      isProfileComplete,
+      getDealerVerificationStatus,
+      syncDealerVerificationStatus,
+      compressImageFile,
+      storeMedia,
+      resolveMedia,
+      displayMedia,
+      purgeLocalStorageImages
+    } from './js/profile.js';
+
+    // Page Elements
+    const accountBackBtn = document.getElementById('accountBackBtn');
+    const accountBackBtnText = document.getElementById('accountBackBtnText');
+    const accountBrandText = document.getElementById('accountBrandText');
+    const accountRoleTag = document.getElementById('accountRoleTag');
+    const accountPageTitle = document.getElementById('accountPageTitle');
+    const accountPageSubtitle = document.getElementById('accountPageSubtitle');
+    const dealerProfileContainer = document.getElementById('dealerProfileContainer');
+    const swapperProfileContainer = document.getElementById('swapperProfileContainer');
+    const accountBottomNavContainer = document.getElementById('accountBottomNavContainer');
+
+    // Dealer Elements
+    const dealerStoreNameHeading = document.getElementById('dealerStoreNameHeading');
+    const dealerStoreNameVal = document.getElementById('dealerStoreNameVal');
+    const dealerContactVal = document.getElementById('dealerContactVal');
+    const dealerEmailVal = document.getElementById('dealerEmailVal');
+    const dealerPhoneVal = document.getElementById('dealerPhoneVal');
+    const dealerCacVal = document.getElementById('dealerCacVal');
+    const dealerStatListings = document.getElementById('dealerStatListings');
+    const dealerStatRequests = document.getElementById('dealerStatRequests');
+    const dealerStatCompleted = document.getElementById('dealerStatCompleted');
+    const dealerShopAddressVal = document.getElementById('dealerShopAddressVal');
+    const dealerMapLink = document.getElementById('dealerMapLink');
+    const dealerKycBadge = document.getElementById('dealerKycBadge');
+    const dealerNinVal = document.getElementById('dealerNinVal');
+    const dealerBvnVal = document.getElementById('dealerBvnVal');
+    const dealerGovIdStatus = document.getElementById('dealerGovIdStatus');
+    const dealerAddressProofStatus = document.getElementById('dealerAddressProofStatus');
+    const dealerBankNameVal = document.getElementById('dealerBankNameVal');
+    const dealerBankAccountVal = document.getElementById('dealerBankAccountVal');
+    const dealerBankBeneficiaryVal = document.getElementById('dealerBankBeneficiaryVal');
+    const dealerLogoPlaceholder = document.getElementById('dealerLogoPlaceholder');
+    const dealerVerifiedMark = document.getElementById('dealerVerifiedMark');
+
+    // Swapper Elements
+    const userPhotoImg = document.getElementById('userPhotoImg');
+    const userPhotoPlaceholder = document.getElementById('userPhotoPlaceholder');
+    const userFullNameHeading = document.getElementById('userFullNameHeading');
+    const detailFullName = document.getElementById('detailFullName');
+    const detailEmail = document.getElementById('detailEmail');
+    const detailPhone = document.getElementById('detailPhone');
+    const detailPreferredHub = document.getElementById('detailPreferredHub');
+    const passwordTargetEmailDisplay = document.getElementById('passwordTargetEmailDisplay');
+
+    // Modals
+    const editProfileModal = document.getElementById('editProfileModal');
+    const editDealerModal = document.getElementById('editDealerModal');
+    const changePasswordModal = document.getElementById('changePasswordModal');
+    const deleteAccountModal = document.getElementById('deleteAccountModal');
+
+    // Inputs
+    const inputEditName = document.getElementById('inputEditName');
+    const inputEditPhone = document.getElementById('inputEditPhone');
+    const inputEditHub = document.getElementById('inputEditHub');
+    const sendProfileOtpBtn = document.getElementById('sendProfileOtpBtn');
+    const verifyProfileOtpBtn = document.getElementById('verifyProfileOtpBtn');
+    const profileOtpInput = document.getElementById('profileOtpInput');
+    const inputProfilePicture = document.getElementById('inputProfilePicture');
+    const editAvatarPreviewImg = document.getElementById('editAvatarPreviewImg');
+    const editAvatarPreviewPlaceholder = document.getElementById('editAvatarPreviewPlaceholder');
+    const btnTriggerPhotoUpload = document.getElementById('btnTriggerPhotoUpload');
+    const btnRemovePhoto = document.getElementById('btnRemovePhoto');
+    const avatarUploadOverlay = document.getElementById('avatarUploadOverlay');
+
+    // Dealer Inputs
+    const inputDealerStoreName = document.getElementById('inputDealerStoreName');
+    const inputDealerContactPerson = document.getElementById('inputDealerContactPerson');
+    const inputDealerPhone = document.getElementById('inputDealerPhone');
+    const inputDealerShopAddress = document.getElementById('inputDealerShopAddress');
+    const inputDealerBankName = document.getElementById('inputDealerBankName');
+    const inputDealerBankAccount = document.getElementById('inputDealerBankAccount');
+    const dealerLogoImg = document.getElementById('dealerLogoImg');
+    const inputDealerProfilePicture = document.getElementById('inputDealerProfilePicture');
+    const editDealerLogoPreviewImg = document.getElementById('editDealerLogoPreviewImg');
+    const editDealerLogoPreviewPlaceholder = document.getElementById('editDealerLogoPreviewPlaceholder');
+    const btnTriggerDealerPhotoUpload = document.getElementById('btnTriggerDealerPhotoUpload');
+    const btnRemoveDealerPhoto = document.getElementById('btnRemoveDealerPhoto');
+
+    let currentUser = null;
+    let currentRole = 'customer';
+    let pendingPhotoFile = null;
+    let removePhotoFlag = false;
+    let pendingDealerPhoto = null;
+    let removeDealerPhotoFlag = false;
+    let profileOtpConfirmation = null;
+    let profileRecaptchaVerifier = null;
+
+    // Helper: Modal toggling
+    function openModal(modal) { if (modal) modal.classList.add('active'); }
+    function closeModal(modal) { if (modal) modal.classList.remove('active'); }
+
+    // Read initial role
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramRole = urlParams.get('role');
+
+    function resolveRole(uid) {
+      if (paramRole && (paramRole === 'dealer' || paramRole === 'customer')) return paramRole;
+      return getStoredRole(uid);
+    }
+
+    // Render Dealer Account Profile
+    function renderDealerProfile(user) {
+      const uid = user?.uid || localStorage.getItem('nigerswap_last_uid') || '';
+      const profile = uid ? getStoredProfile(uid) : {};
+      const metrics = getStoreMetrics();
+
+      accountBackBtn.href = 'more.html';
+      accountBackBtnText.textContent = 'Store Hub';
+      accountBrandText.innerHTML = 'NaijaSwap <strong>Store</strong>';
+
+      accountRoleTag.className = 'role-tag role-tag-dealer';
+      accountRoleTag.innerHTML = '<span>🏬</span><span>Verified Partner Store</span>';
+      if (dealerVerifiedMark) {
+        dealerVerifiedMark.style.display = getDealerVerificationStatus(uid) === 'approved' ? 'inline-flex' : 'none';
+      }
+      syncDealerVerificationStatus(uid).then(status => {
+        if (dealerVerifiedMark) {
+          dealerVerifiedMark.style.display = status === 'approved' ? 'inline-flex' : 'none';
+        }
+      });
+
+      accountPageTitle.textContent = 'Store Dealer Profile';
+      accountPageSubtitle.textContent = 'Manage store identity, business verification, physical shop address, and bank settlement.';
+
+      dealerProfileContainer.style.display = 'block';
+      swapperProfileContainer.style.display = 'none';
+
+      // Store Details
+      const shopName = profile.businessName || (uid ? localStorage.getItem('nigerswap_shop_' + uid) : '') || user?.displayName || 'My Gadget Hub';
+      dealerStoreNameHeading.textContent = shopName;
+      dealerStoreNameVal.textContent = shopName;
+
+      const dealerPhoto = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
+      if (dealerPhoto && dealerLogoImg) {
+        displayMedia(dealerLogoImg, dealerPhoto, dealerLogoPlaceholder);
+      } else if (dealerLogoPlaceholder) {
+        if (dealerLogoImg) dealerLogoImg.style.display = 'none';
+        dealerLogoPlaceholder.style.display = 'flex';
+        dealerLogoPlaceholder.textContent = shopName.charAt(0).toUpperCase() || '🏬';
+      }
+
+      dealerContactVal.textContent = user?.displayName || profile.contactPerson || 'Not Set';
+      dealerEmailVal.textContent = user?.email || profile.businessEmail || 'Not Provided';
+
+      const phone = user?.phoneNumber || profile.phone || (uid ? localStorage.getItem('nigerswap_phone_' + uid) : '') || '';
+      dealerPhoneVal.textContent = phone || 'Not Set';
+
+      dealerCacVal.textContent = profile.cacNumber || 'Sole Proprietorship / Unregistered';
+
+
+
+      // Shop Address & Geo
+      if (profile.shopAddress) {
+        dealerShopAddressVal.textContent = profile.shopAddress;
+      } else {
+        dealerShopAddressVal.textContent = 'No physical shop address configured yet. Tap "Edit Store Profile" below to add it.';
+      }
+
+      if (profile.geoTag) {
+        dealerMapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(profile.geoTag)}`;
+        dealerMapLink.style.display = 'inline-flex';
+      } else {
+        dealerMapLink.style.display = 'none';
+      }
+
+      // KYC Details - dynamic check of uploaded documents and IDs
+      const hasGovId = Boolean(profile.governmentIdData && String(profile.governmentIdData).trim().length > 0);
+      const hasAddressProof = Boolean(profile.proofOfAddressData && String(profile.proofOfAddressData).trim().length > 0);
+      const hasNin = Boolean(profile.nin && String(profile.nin).trim().length > 0);
+      const hasBvn = Boolean(profile.bvn && String(profile.bvn).trim().length > 0);
+
+      if (dealerGovIdStatus) {
+        if (hasGovId) {
+          dealerGovIdStatus.innerHTML = '<span style="color: var(--emerald-400); font-weight: 600;">Uploaded ✓</span>';
+        } else {
+          dealerGovIdStatus.innerHTML = '<span style="color: var(--amber-400); font-weight: 600;">Not Uploaded ⚠️</span>';
+        }
+      }
+
+      if (dealerAddressProofStatus) {
+        if (hasAddressProof) {
+          dealerAddressProofStatus.innerHTML = '<span style="color: var(--emerald-400); font-weight: 600;">Uploaded ✓</span>';
+        } else {
+          dealerAddressProofStatus.innerHTML = '<span style="color: var(--amber-400); font-weight: 600;">Not Uploaded ⚠️</span>';
+        }
+      }
+
+      if (dealerNinVal) {
+        dealerNinVal.textContent = hasNin ? maskSensitive(profile.nin, 4) : 'Not Provided';
+        dealerNinVal.style.color = hasNin ? '' : 'var(--amber-400)';
+      }
+
+      if (dealerBvnVal) {
+        dealerBvnVal.textContent = hasBvn ? maskSensitive(profile.bvn, 4) : 'Not Provided';
+        dealerBvnVal.style.color = hasBvn ? '' : 'var(--amber-400)';
+      }
+
+      const isFullyVerified = hasGovId && hasAddressProof && hasNin && hasBvn;
+      if (dealerKycBadge) {
+        if (isFullyVerified) {
+          dealerKycBadge.className = 'more-badge-pill badge-emerald';
+          dealerKycBadge.textContent = 'Fully Verified';
+        } else if (hasGovId || hasAddressProof || hasNin || hasBvn) {
+          dealerKycBadge.className = 'more-badge-pill badge-amber';
+          dealerKycBadge.textContent = 'Incomplete KYC';
+        } else {
+          dealerKycBadge.className = 'more-badge-pill badge-amber';
+          dealerKycBadge.textContent = 'Action Needed';
+        }
+      }
+
+      // Bank
+      dealerBankNameVal.textContent = profile.bankName || 'Not Set';
+      dealerBankAccountVal.textContent = profile.bankAccountNumber ? maskSensitive(profile.bankAccountNumber, 4) : 'Not Set';
+      dealerBankBeneficiaryVal.textContent = profile.businessName || shopName;
+
+      renderDealerBottomNav();
+    }
+
+    // Render Swapper Account Profile
+    function renderSwapperProfile(user) {
+      const uid = user?.uid || localStorage.getItem('nigerswap_last_uid') || '';
+      const profile = uid ? getStoredProfile(uid) : {};
+
+      accountBackBtn.href = 'more.html';
+      accountBackBtnText.textContent = 'More';
+      accountBrandText.textContent = 'NaijaSwap';
+
+      accountRoleTag.className = 'role-tag role-tag-swapper';
+      accountRoleTag.innerHTML = '<span>🔄</span><span>Swapper Account</span>';
+
+      accountPageTitle.textContent = 'My Swapper Profile';
+      accountPageSubtitle.textContent = 'Personal information, trade-in preferences, and security management.';
+
+      dealerProfileContainer.style.display = 'none';
+      swapperProfileContainer.style.display = 'block';
+
+      const displayName = user?.displayName ? user.displayName.trim() : '';
+      userFullNameHeading.textContent = displayName || 'Swapper Account';
+      detailFullName.textContent = displayName || 'Not provided';
+
+      detailEmail.textContent = user?.email || 'No email attached';
+      if (passwordTargetEmailDisplay) {
+        passwordTargetEmailDisplay.textContent = user?.email || 'No email associated with account';
+      }
+
+      const phone = user?.phoneNumber || (uid ? localStorage.getItem('nigerswap_phone_' + uid) : '') || '';
+      detailPhone.textContent = phone || 'Not linked';
+
+      detailPreferredHub.textContent = profile.preferredHub || 'Computer Village, Ikeja, Lagos';
+
+      // Photo
+      const photo = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || user?.photoURL;
+      if (photo && userPhotoImg) {
+        displayMedia(userPhotoImg, photo, userPhotoPlaceholder);
+      } else {
+        if (userPhotoImg) userPhotoImg.style.display = 'none';
+        if (userPhotoPlaceholder) {
+          userPhotoPlaceholder.style.display = 'flex';
+          userPhotoPlaceholder.innerHTML = `<span>${displayName.charAt(0).toUpperCase() || 'U'}</span>`;
+        }
+      }
+
+      renderSwapperBottomNav();
+    }
+
+    function renderDealerBottomNav() {
+      const metrics = getStoreMetrics();
+      accountBottomNavContainer.innerHTML = `
+        <nav class="mobile-bottom-nav" aria-label="Store Navigation">
+          <a href="dealer-dashboard.html" class="bottom-nav-item" id="navDashBtn" title="Dashboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Dashboard</span>
+          </a>
+          <a href="dealer-listings.html" class="bottom-nav-item" id="navListingsBtn" title="My Listings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <span>Listings</span>
+          </a>
+          <a href="dealer-dashboard.html#requestsSection" class="bottom-nav-item" id="navRequestsBtn" title="Swap Requests">
+            ${metrics.requests > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${metrics.requests}</span>` : ''}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Requests</span>
+          </a>
+          <a href="dealer-dashboard.html#activitySection" class="bottom-nav-item" id="navActivityBtn" title="Recent Activity">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span>Activity</span>
+          </a>
+          <a href="more.html" class="bottom-nav-item active" id="navStoreMoreBtn" title="More" aria-current="page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+            <span>More</span>
+          </a>
+        </nav>
+      `;
+    }
+
+    function renderSwapperBottomNav() {
+      let swapCount = 0;
+      try {
+        const stored = JSON.parse(localStorage.getItem('naijaswap_swap_requests') || '[]');
+        if (Array.isArray(stored)) swapCount = stored.length;
+      } catch (_) {}
+
+      accountBottomNavContainer.innerHTML = `
+        <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+          <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Home</span>
+          </a>
+          <a href="my-swaps.html" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
+            ${swapCount > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${swapCount}</span>` : ''}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
+            <span>My Swaps</span>
+          </a>
+          <a href="alerts.html" class="bottom-nav-item" id="navNotifBtn" title="Alerts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Alerts</span>
+          </a>
+          <a href="more.html" class="bottom-nav-item active" id="navMoreBtn" title="More" aria-current="page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+            <span>More</span>
+          </a>
+        </nav>
+      `;
+    }
+
+    // Initial sync render
+    const initialRole = resolveRole(localStorage.getItem('nigerswap_last_uid'));
+    if (initialRole === 'dealer') {
+      renderDealerProfile(null);
+    } else {
+      renderSwapperProfile(null);
+    }
+
+    // Auth state observer
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+
+      if (user) {
+        currentRole = resolveRole(user.uid);
+        if (currentRole === 'dealer') {
+          renderDealerProfile(user);
+        } else {
+          renderSwapperProfile(user);
+        }
+      } else {
+        currentRole = resolveRole(null);
+        if (currentRole === 'dealer') {
+          renderDealerProfile(null);
+        } else {
+          renderSwapperProfile(null);
+        }
+      }
+    });
+
+    // ========================================================================
+    // SWAPPER EDIT PROFILE MODAL & PHOTO UPLOAD
+    // ========================================================================
+    const openSwapperEdit = () => {
+      clearAuthAlert('editProfileAlert');
+      inputEditName.value = currentUser?.displayName || '';
+      inputEditPhone.value = currentUser?.phoneNumber || (currentUser?.uid ? localStorage.getItem('nigerswap_phone_' + currentUser.uid) : '') || '';
+      const profile = currentUser?.uid ? getStoredProfile(currentUser.uid) : {};
+      if (profile.preferredHub) inputEditHub.value = profile.preferredHub;
+
+      const currentPhoto = (currentUser?.uid ? localStorage.getItem('nigerswap_photo_' + currentUser.uid) : null) || currentUser?.photoURL;
+      if (currentPhoto && editAvatarPreviewImg && editAvatarPreviewPlaceholder) {
+        displayMedia(editAvatarPreviewImg, currentPhoto, editAvatarPreviewPlaceholder);
+        if (btnRemovePhoto) btnRemovePhoto.style.display = 'inline-flex';
+      } else if (editAvatarPreviewPlaceholder) {
+        if (editAvatarPreviewImg) editAvatarPreviewImg.style.display = 'none';
+        editAvatarPreviewPlaceholder.style.display = 'flex';
+        if (btnRemovePhoto) btnRemovePhoto.style.display = 'none';
+      }
+      pendingPhotoFile = null;
+      removePhotoFlag = false;
+      if (inputProfilePicture) inputProfilePicture.value = '';
+
+      openModal(editProfileModal);
+    };
+
+    btnTriggerPhotoUpload?.addEventListener('click', () => {
+      inputProfilePicture?.click();
+    });
+
+    inputProfilePicture?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const compressed = await compressImageFile(file, 400, 400, 0.82);
+        if (compressed) {
+          pendingPhotoFile = compressed;
+          removePhotoFlag = false;
+          if (editAvatarPreviewImg) {
+            editAvatarPreviewImg.src = compressed;
+            editAvatarPreviewImg.style.display = 'block';
+          }
+          if (editAvatarPreviewPlaceholder) {
+            editAvatarPreviewPlaceholder.style.display = 'none';
+          }
+          if (btnRemovePhoto) {
+            btnRemovePhoto.style.display = 'inline-flex';
+          }
+        }
+      } catch (err) {
+        console.error('Error attaching photo:', err);
+      }
+    });
+
+    btnRemovePhoto?.addEventListener('click', () => {
+      pendingPhotoFile = null;
+      removePhotoFlag = true;
+      if (editAvatarPreviewImg) {
+        editAvatarPreviewImg.src = '';
+        editAvatarPreviewImg.style.display = 'none';
+      }
+      if (editAvatarPreviewPlaceholder) {
+        editAvatarPreviewPlaceholder.style.display = 'flex';
+      }
+      if (btnRemovePhoto) {
+        btnRemovePhoto.style.display = 'none';
+      }
+      if (inputProfilePicture) inputProfilePicture.value = '';
+    });
+
+    document.getElementById('btnQuickEditProfile')?.addEventListener('click', openSwapperEdit);
+    document.getElementById('btnActionEditProfile')?.addEventListener('click', openSwapperEdit);
+    document.getElementById('closeEditProfileModal')?.addEventListener('click', () => closeModal(editProfileModal));
+    document.getElementById('cancelEditProfileBtn')?.addEventListener('click', () => closeModal(editProfileModal));
+
+    document.getElementById('editProfileForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearAuthAlert('editProfileAlert');
+      if (!currentUser) {
+        showAuthAlert('editProfileAlert', 'Please log in before modifying your profile.');
+        return;
+      }
+      const saveBtn = document.getElementById('saveProfileBtn');
+      setButtonLoading(saveBtn, true, 'Saving...');
+
+      try {
+        const newName = inputEditName.value.trim();
+        const newPhone = inputEditPhone.value.trim();
+        const newHub = inputEditHub.value;
+
+        if (newName) {
+          await updateProfile(currentUser, { displayName: newName });
+        }
+        if (newPhone) {
+          localStorage.setItem('nigerswap_phone_' + currentUser.uid, newPhone);
+        }
+
+        if (pendingPhotoFile) {
+          const mediaToken = await storeMedia(`avatar_${currentUser.uid}`, pendingPhotoFile, { folder: 'user_avatars' });
+          localStorage.setItem('nigerswap_photo_' + currentUser.uid, mediaToken);
+          try {
+            const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+            u.photoURL = mediaToken;
+            localStorage.setItem('nigerswap_user', JSON.stringify(u));
+          } catch (_) {}
+          if (mediaToken.startsWith('https://')) {
+            try { await updateProfile(currentUser, { photoURL: mediaToken }); } catch (_) {}
+          }
+        } else if (removePhotoFlag) {
+          localStorage.removeItem('nigerswap_photo_' + currentUser.uid);
+          try {
+            const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+            delete u.photoURL;
+            localStorage.setItem('nigerswap_user', JSON.stringify(u));
+          } catch (_) {}
+          try { await updateProfile(currentUser, { photoURL: '' }); } catch (_) {}
+        }
+
+        const profile = getStoredProfile(currentUser.uid);
+        profile.preferredHub = newHub;
+        saveStoredProfile(currentUser.uid, profile);
+
+        setButtonLoading(saveBtn, false);
+        showAuthAlert('editProfileAlert', 'Profile updated successfully!', 'success');
+        renderSwapperProfile(currentUser);
+
+        setTimeout(() => closeModal(editProfileModal), 1200);
+      } catch (err) {
+        setButtonLoading(saveBtn, false);
+        showAuthAlert('editProfileAlert', mapAuthError(err));
+      }
+    });
+
+    // ========================================================================
+    // DEALER EDIT STORE PROFILE MODAL & LOGO UPLOAD
+    // ========================================================================
+    const openDealerEdit = () => {
+      clearAuthAlert('editDealerAlert');
+      const uid = currentUser?.uid || localStorage.getItem('nigerswap_last_uid') || '';
+      const profile = uid ? getStoredProfile(uid) : {};
+
+      inputDealerStoreName.value = profile.businessName || (uid ? localStorage.getItem('nigerswap_shop_' + uid) : '') || currentUser?.displayName || '';
+      inputDealerContactPerson.value = currentUser?.displayName || profile.contactPerson || '';
+      inputDealerPhone.value = currentUser?.phoneNumber || profile.phone || (uid ? localStorage.getItem('nigerswap_phone_' + uid) : '') || '';
+      inputDealerShopAddress.value = profile.shopAddress || '';
+      inputDealerBankName.value = profile.bankName || '';
+      inputDealerBankAccount.value = profile.bankAccountNumber || '';
+
+      const currentDealerPhoto = (uid ? localStorage.getItem('nigerswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || currentUser?.photoURL;
+      if (currentDealerPhoto && editDealerLogoPreviewImg && editDealerLogoPreviewPlaceholder) {
+        displayMedia(editDealerLogoPreviewImg, currentDealerPhoto, editDealerLogoPreviewPlaceholder);
+        if (btnRemoveDealerPhoto) btnRemoveDealerPhoto.style.display = 'inline-flex';
+      } else if (editDealerLogoPreviewPlaceholder) {
+        if (editDealerLogoPreviewImg) editDealerLogoPreviewImg.style.display = 'none';
+        editDealerLogoPreviewPlaceholder.style.display = 'flex';
+        const initial = (profile.businessName || 'S').charAt(0).toUpperCase();
+        editDealerLogoPreviewPlaceholder.textContent = initial || '🏬';
+        if (btnRemoveDealerPhoto) btnRemoveDealerPhoto.style.display = 'none';
+      }
+      pendingDealerPhoto = null;
+      removeDealerPhotoFlag = false;
+      if (inputDealerProfilePicture) inputDealerProfilePicture.value = '';
+
+      openModal(editDealerModal);
+    };
+
+    btnTriggerDealerPhotoUpload?.addEventListener('click', () => {
+      inputDealerProfilePicture?.click();
+    });
+
+    inputDealerProfilePicture?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const compressed = await compressImageFile(file, 400, 400, 0.82);
+        if (compressed) {
+          pendingDealerPhoto = compressed;
+          removeDealerPhotoFlag = false;
+          if (editDealerLogoPreviewImg) {
+            editDealerLogoPreviewImg.src = compressed;
+            editDealerLogoPreviewImg.style.display = 'block';
+          }
+          if (editDealerLogoPreviewPlaceholder) {
+            editDealerLogoPreviewPlaceholder.style.display = 'none';
+          }
+          if (btnRemoveDealerPhoto) {
+            btnRemoveDealerPhoto.style.display = 'inline-flex';
+          }
+        }
+      } catch (err) {
+        console.error('Error attaching store logo:', err);
+      }
+    });
+
+    btnRemoveDealerPhoto?.addEventListener('click', () => {
+      pendingDealerPhoto = null;
+      removeDealerPhotoFlag = true;
+      if (editDealerLogoPreviewImg) {
+        editDealerLogoPreviewImg.src = '';
+        editDealerLogoPreviewImg.style.display = 'none';
+      }
+      if (editDealerLogoPreviewPlaceholder) {
+        editDealerLogoPreviewPlaceholder.style.display = 'flex';
+        const storeName = inputDealerStoreName.value.trim() || 'Store';
+        editDealerLogoPreviewPlaceholder.textContent = storeName.charAt(0).toUpperCase() || '🏬';
+      }
+      if (btnRemoveDealerPhoto) {
+        btnRemoveDealerPhoto.style.display = 'none';
+      }
+      if (inputDealerProfilePicture) inputDealerProfilePicture.value = '';
+    });
+
+    document.getElementById('btnEditDealerProfile')?.addEventListener('click', openDealerEdit);
+    document.getElementById('btnQuickEditDealer')?.addEventListener('click', openDealerEdit);
+    document.getElementById('btnActionEditDealer')?.addEventListener('click', openDealerEdit);
+    document.getElementById('closeDealerEditModal')?.addEventListener('click', () => closeModal(editDealerModal));
+    document.getElementById('cancelDealerEditBtn')?.addEventListener('click', () => closeModal(editDealerModal));
+
+    document.getElementById('editDealerForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearAuthAlert('editDealerAlert');
+      const uid = currentUser?.uid || localStorage.getItem('nigerswap_last_uid');
+      if (!uid) {
+        showAuthAlert('editDealerAlert', 'Please log in before modifying store profile.');
+        return;
+      }
+      const saveBtn = document.getElementById('saveDealerBtn');
+      setButtonLoading(saveBtn, true, 'Saving store info...');
+
+      try {
+        const storeName = inputDealerStoreName.value.trim();
+        const contactPerson = inputDealerContactPerson.value.trim();
+        const phone = inputDealerPhone.value.trim();
+        const address = inputDealerShopAddress.value.trim();
+        const bankName = inputDealerBankName.value.trim();
+        const bankAccount = inputDealerBankAccount.value.trim();
+
+        const profile = getStoredProfile(uid);
+        profile.businessName = storeName;
+        profile.contactPerson = contactPerson;
+        profile.phone = phone;
+        profile.shopAddress = address;
+        profile.bankName = bankName;
+        profile.bankAccountNumber = bankAccount;
+
+        if (pendingDealerPhoto) {
+          const mediaToken = await storeMedia(`dealer_logo_${uid}`, pendingDealerPhoto, { folder: 'store_logos' });
+          localStorage.setItem('nigerswap_photo_' + uid, mediaToken);
+          profile.avatar = mediaToken;
+          profile.photoURL = mediaToken;
+          try {
+            const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+            u.photoURL = mediaToken;
+            localStorage.setItem('nigerswap_user', JSON.stringify(u));
+          } catch (_) {}
+          if (currentUser && mediaToken.startsWith('https://')) {
+            try { await updateProfile(currentUser, { photoURL: mediaToken }); } catch (_) {}
+          }
+        } else if (removeDealerPhotoFlag) {
+          localStorage.removeItem('nigerswap_photo_' + uid);
+          delete profile.avatar;
+          delete profile.photoURL;
+          try {
+            const u = JSON.parse(localStorage.getItem('nigerswap_user') || '{}');
+            delete u.photoURL;
+            localStorage.setItem('nigerswap_user', JSON.stringify(u));
+          } catch (_) {}
+          if (currentUser) {
+            try { await updateProfile(currentUser, { photoURL: '' }); } catch (_) {}
+          }
+        }
+
+        saveStoredProfile(uid, profile);
+
+        localStorage.setItem('nigerswap_shop_' + uid, storeName);
+        localStorage.setItem('nigerswap_phone_' + uid, phone);
+        localStorage.setItem('nigerswap_role_' + uid, 'dealer');
+
+        if (currentUser) {
+          if (contactPerson) {
+            try { await updateProfile(currentUser, { displayName: contactPerson }); } catch (_) {}
+          }
+          await saveUserRole(currentUser, 'dealer', storeName);
+        }
+
+        setButtonLoading(saveBtn, false);
+        showAuthAlert('editDealerAlert', 'Store details saved successfully!', 'success');
+        renderDealerProfile(currentUser);
+
+        setTimeout(() => closeModal(editDealerModal), 1200);
+      } catch (err) {
+        setButtonLoading(saveBtn, false);
+        showAuthAlert('editDealerAlert', err.message || 'Error updating store profile');
+      }
+    });
+
+    // ========================================================================
+    // PASSWORD RESET MODAL
+    // ========================================================================
+    const openPasswordReset = () => {
+      clearAuthAlert('changePasswordAlert');
+      openModal(changePasswordModal);
+    };
+    document.getElementById('btnActionChangePassword')?.addEventListener('click', openPasswordReset);
+    document.getElementById('btnActionChangePasswordDealer')?.addEventListener('click', openPasswordReset);
+    document.getElementById('closePasswordModal')?.addEventListener('click', () => closeModal(changePasswordModal));
+    document.getElementById('cancelPasswordBtn')?.addEventListener('click', () => closeModal(changePasswordModal));
+
+    document.getElementById('passwordResetActionForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearAuthAlert('changePasswordAlert');
+      if (!currentUser?.email) {
+        showAuthAlert('changePasswordAlert', 'No email attached to this account.');
+        return;
+      }
+      const sendBtn = document.getElementById('sendResetBtn');
+      setButtonLoading(sendBtn, true, 'Sending link...');
+      try {
+        await sendPasswordResetEmail(auth, currentUser.email);
+        setButtonLoading(sendBtn, false);
+        showAuthAlert('changePasswordAlert', `Password reset link sent to ${currentUser.email}.`, 'success');
+        setTimeout(() => closeModal(changePasswordModal), 3000);
+      } catch (err) {
+        setButtonLoading(sendBtn, false);
+        showAuthAlert('changePasswordAlert', mapAuthError(err));
+      }
+    });
+
+    // ========================================================================
+    // DELETE ACCOUNT MODAL
+    // ========================================================================
+    document.getElementById('btnActionDeleteAccount')?.addEventListener('click', () => {
+      clearAuthAlert('deleteAccountAlert');
+      openModal(deleteAccountModal);
+    });
+    document.getElementById('closeDeleteModal')?.addEventListener('click', () => closeModal(deleteAccountModal));
+    document.getElementById('cancelDeleteBtn')?.addEventListener('click', () => closeModal(deleteAccountModal));
+
+    document.getElementById('confirmDeleteBtn')?.addEventListener('click', async () => {
+      if (!currentUser) return;
+      const deleteBtn = document.getElementById('confirmDeleteBtn');
+      setButtonLoading(deleteBtn, true, 'Deleting...');
+      try {
+        const uid = currentUser.uid;
+        await deleteUser(currentUser);
+        localStorage.removeItem('nigerswap_role_' + uid);
+        localStorage.removeItem('nigerswap_shop_' + uid);
+        localStorage.removeItem('nigerswap_profile_' + uid);
+        alert('Account deleted successfully.');
+        window.location.href = 'index.html';
+      } catch (err) {
+        setButtonLoading(deleteBtn, false);
+        showAuthAlert('deleteAccountAlert', mapAuthError(err));
+      }
+    });
+
+    // ========================================================================
+    // SIGN OUT (FOR BOTH SWAPPERS & DEALERS)
+    // ========================================================================
+    const handleSignOut = async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch (err) {
+        alert('Error signing out: ' + err.message);
+      }
+    };
+    document.getElementById('btnSignOut')?.addEventListener('click', handleSignOut);
+    document.querySelectorAll('.btn-dash-logout').forEach(btn => btn.addEventListener('click', handleSignOut));
+
+    // Close on backdrop click
+    [editProfileModal, editDealerModal, changePasswordModal, deleteAccountModal].forEach(modal => {
+      modal?.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal(modal);
+      });
+    });
+
+  </script>
+</body>
+</html>

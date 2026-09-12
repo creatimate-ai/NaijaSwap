@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Settings — NaijaSwap</title>
+  <meta name="description" content="Manage your notifications, preferred inspection hubs, security, and app preferences on NaijaSwap.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Ambient Glows (Depth for Frosted Glass) -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Main Container -->
+  <main class="settings-page-container">
+
+    <!-- Top Navigation Header -->
+    <header class="more-header">
+      <a href="more.html" class="more-back-btn" aria-label="Back to More">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>More</span>
+      </a>
+
+      <div class="more-brand-pill">
+        <div class="logo-mark-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span>NaijaSwap</span>
+      </div>
+    </header>
+
+    <!-- Page Title Section -->
+    <section class="more-title-section">
+      <h1 class="more-title">Settings</h1>
+      <p class="more-subtitle">App preferences, notifications, and security options</p>
+    </section>
+
+    <!-- Temporary Toast Alert -->
+    <div id="settingsToast" class="auth-alert" role="alert" style="display: none; margin-bottom: 20px;"></div>
+
+    <!-- SECTION 1: NOTIFICATIONS -->
+    <section class="settings-section">
+      <div class="settings-section-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span>Notifications</span>
+      </div>
+
+      <div class="settings-group-card">
+        <!-- Row 1: Swap Match Alerts -->
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-icon tint-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path>
+                <path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path>
+              </svg>
+            </div>
+            <div class="settings-row-texts">
+              <span class="settings-row-title">Swap Match Alerts</span>
+              <span class="settings-row-desc">Instant alerts when swappers offer phones matching your listing</span>
+            </div>
+          </div>
+          <label class="ios-toggle-switch" aria-label="Toggle Swap Match Alerts">
+            <input type="checkbox" id="toggleSwapMatches" checked>
+            <span class="ios-toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Row 2: Hub Deals & Discounts -->
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-icon tint-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+            <div class="settings-row-texts">
+              <span class="settings-row-title">Hub Deals & Price Drops</span>
+              <span class="settings-row-desc">Notifications for verified dealer inventory arrivals and special rates</span>
+            </div>
+          </div>
+          <label class="ios-toggle-switch" aria-label="Toggle Hub Deals">
+            <input type="checkbox" id="toggleDeals" checked>
+            <span class="ios-toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Row 3: Security Notices via Email -->
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-icon tint-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </div>
+            <div class="settings-row-texts">
+              <span class="settings-row-title">Security & Account Emails</span>
+              <span class="settings-row-desc">Important email alerts on new logins, triage approvals, and password changes</span>
+            </div>
+          </div>
+          <label class="ios-toggle-switch" aria-label="Toggle Security Emails">
+            <input type="checkbox" id="toggleSecurityEmail" checked>
+            <span class="ios-toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- SECTION 3: PRIVACY & PROTOCOL -->
+    <section class="settings-section">
+      <div class="settings-section-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Security & Safe Deal</span>
+      </div>
+
+      <div class="settings-group-card">
+        <!-- Safe Deal Protocol Protection -->
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-icon tint-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <div class="settings-row-texts">
+              <span class="settings-row-title">Enforce Safe Deal Protocol</span>
+              <span class="settings-row-desc">Require certified physical hub triage on all incoming swap proposals</span>
+            </div>
+          </div>
+          <label class="ios-toggle-switch" aria-label="Enforce Safe Deal Protocol">
+            <input type="checkbox" id="toggleSafeDeal" checked disabled title="Safe Deal Protocol is always active for your protection">
+            <span class="ios-toggle-slider" style="opacity: 0.85;"></span>
+          </label>
+        </div>
+
+        <!-- Two-Step Swap Confirmation -->
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-icon tint-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <polyline points="17 11 19 13 23 9"></polyline>
+              </svg>
+            </div>
+            <div class="settings-row-texts">
+              <span class="settings-row-title">High-Value Swap OTP</span>
+              <span class="settings-row-desc">Require email confirmation before confirming swaps over ₦300,000</span>
+            </div>
+          </div>
+          <label class="ios-toggle-switch" aria-label="Toggle High-Value Swap OTP">
+            <input type="checkbox" id="toggleHighValueOtp" checked>
+            <span class="ios-toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: DATA & STORAGE -->
+    <section class="settings-section">
+      <div class="settings-section-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+        </svg>
+        <span>Data & Local Storage</span>
+      </div>
+
+      <div class="settings-group-card">
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-icon tint-neutral">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </div>
+            <div class="settings-row-texts">
+              <span class="settings-row-title">Clear Local Image Cache</span>
+              <span class="settings-row-desc">Frees browser space without deleting your account</span>
+            </div>
+          </div>
+          <button type="button" class="btn-cancel" id="btnClearCache" style="padding: 6px 14px; font-size: 0.8rem;">
+            Clear
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Link to Account -->
+    <div style="margin-top: 10px;">
+      <a href="account.html" class="more-menu-item" style="border-radius: var(--radius-xl);">
+        <div class="more-item-left">
+          <div class="more-item-icon tint-emerald">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <span class="more-item-title">Manage Account Profile & Security</span>
+        </div>
+        <div class="more-item-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+      </a>
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       SWAPPER MOBILE BOTTOM NAVIGATION (FLOATING FROSTED GLASS BAR)
+       More is highlighted as the active tab because Settings is under More
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span>Home</span>
+    </a>
+    <a href="dashboard.html?tab=swaps" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
+      <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
+      <span>My Swaps</span>
+    </a>
+    <a href="dashboard.html?tab=alerts" class="bottom-nav-item" id="navNotifBtn" title="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+    </a>
+    <a href="more.html" class="bottom-nav-item active" id="navMoreBtn" title="More" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>More</span>
+    </a>
+  </nav>
+
+  <!-- ==========================================================================
+       SETTINGS CONTROLLER (LOCAL PERSISTENCE & USER FEEDBACK)
+       ========================================================================== -->
+  <script type="module">
+    import { showAuthAlert, clearAuthAlert } from './js/auth.js';
+
+    const SETTINGS_KEY = 'nigerswap_user_settings';
+
+    // Elements
+    const toggleSwapMatches = document.getElementById('toggleSwapMatches');
+    const toggleDeals = document.getElementById('toggleDeals');
+    const toggleSecurityEmail = document.getElementById('toggleSecurityEmail');
+    const toggleHighValueOtp = document.getElementById('toggleHighValueOtp');
+    const btnClearCache = document.getElementById('btnClearCache');
+    const toastAlert = document.getElementById('settingsToast');
+
+    // Default settings
+    const defaultSettings = {
+      swapMatches: true,
+      hubDeals: true,
+      securityEmail: true,
+      highValueOtp: true
+    };
+
+    // Load saved settings
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        const settings = raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
+
+        if (toggleSwapMatches) toggleSwapMatches.checked = !!settings.swapMatches;
+        if (toggleDeals) toggleDeals.checked = !!settings.hubDeals;
+        if (toggleSecurityEmail) toggleSecurityEmail.checked = !!settings.securityEmail;
+        if (toggleHighValueOtp) toggleHighValueOtp.checked = !!settings.highValueOtp;
+      } catch (_) {}
+    }
+
+    // Save settings
+    let toastTimeout = null;
+    function saveSettings() {
+      const current = {
+        swapMatches: toggleSwapMatches?.checked ?? true,
+        hubDeals: toggleDeals?.checked ?? true,
+        securityEmail: toggleSecurityEmail?.checked ?? true,
+        highValueOtp: toggleHighValueOtp?.checked ?? true
+      };
+
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(current));
+        showAuthAlert('settingsToast', 'Preferences updated successfully!', 'success');
+
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          clearAuthAlert('settingsToast');
+        }, 2200);
+      } catch (_) {}
+    }
+
+    // Event listeners
+    [toggleSwapMatches, toggleDeals, toggleSecurityEmail, toggleHighValueOtp].forEach(el => {
+      el?.addEventListener('change', saveSettings);
+    });
+
+    // Clear Cache button
+    btnClearCache?.addEventListener('click', () => {
+      try {
+        // Clear cached swap media or temporary images without wiping user identity
+        sessionStorage.clear();
+        showAuthAlert('settingsToast', 'Local cache cleared successfully!', 'success');
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          clearAuthAlert('settingsToast');
+        }, 2200);
+      } catch (_) {}
+    });
+
+    // Initialize
+    loadSettings();
+
+    // Check localStorage for swap count badge on bottom nav
+    try {
+      const storedSwaps = localStorage.getItem('niger_swaps_consumer');
+      if (storedSwaps) {
+        const parsed = JSON.parse(storedSwaps);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const badge = document.getElementById('mobileSwapsBadge');
+          if (badge) {
+            badge.textContent = parsed.length;
+            badge.style.display = 'inline-block';
+          }
+        }
+      }
+    } catch (_) {}
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store Listings & Inventory — NaijaSwap Partner Portal</title>
+  <meta name="description" content="Manage your verified store smartphone inventory, list new devices for swap, and configure trade-in tiers on NaijaSwap.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    /* Specific styling for the dedicated listings page */
+    .listings-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .listings-search-box {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+    .listings-search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border-radius: var(--radius-md);
+      background: rgba(7, 12, 17, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      color: #FFF;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all var(--spring-fast);
+    }
+    .listings-search-box input:focus {
+      border-color: var(--cyan-400);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+    }
+    .listings-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-faint);
+      pointer-events: none;
+    }
+    .listings-filters-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+
+  <!-- Ambient Glows -->
+  <div class="dash-glow dash-glow-1"></div>
+  <div class="dash-glow dash-glow-2"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <a href="dealer-dashboard.html" class="brand-logo" aria-label="NaijaSwap Store Portal">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span class="brand-name">Naija<span>Swap</span></span>
+      </a>
+    </div>
+
+    <div class="dash-header-right">
+      <!-- Store Profile Menu -->
+      <div class="user-menu-wrapper">
+        <button type="button" class="user-profile-btn" id="storeMenuBtn" aria-expanded="false" aria-haspopup="true">
+          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));">S</div>
+          <span class="user-name-text" id="topStoreName">My Store</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+
+        <div class="user-dropdown" id="storeDropdown">
+          <a href="dealer-dashboard.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Store Dashboard</span>
+          </a>
+          <a href="dealer-listings.html" class="dropdown-item" style="color: var(--cyan-400); font-weight: 700;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <span>My Listings</span>
+          </a>
+          <a href="dealer-requests.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Swap Requests</span>
+          </a>
+          <a href="dealer-activity.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span>Activity &amp; Audit Log</span>
+          </a>
+          <a href="account.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profile</span>
+          </a>
+          <a href="dashboard.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Customer View</span>
+          </a>
+          <a href="index.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span>Marketplace Home</span>
+          </a>
+          <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Store Listings Content -->
+  <main class="dash-main" style="max-width: 1100px; margin: 0 auto; padding: 24px 20px 120px;">
+
+    <!-- Breadcrumb -->
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-faint); margin-bottom: 16px;">
+      <a href="dealer-dashboard.html" style="color: var(--text-muted); text-decoration: none;">Dashboard</a>
+      <span>/</span>
+      <span style="color: var(--cyan-400); font-weight: 700;">Store Listings</span>
+    </div>
+
+    <!-- Store Welcome & Action Banner -->
+    <div class="store-welcome-card" style="margin-bottom: 24px;">
+      <div class="welcome-title-wrap">
+        <span class="welcome-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border-color: var(--cyan-border);">📦 Verified Store Inventory</span>
+        <h1 id="storeListingsHeading">My Phone Listings</h1>
+        <p class="welcome-subtitle">Manage available smartphones listed for swap or trade-in at your hub store. Track pricing, edit conditions, and publish new stock.</p>
+      </div>
+      <div class="store-header-actions">
+        <button type="button" class="btn-primary-action" id="openAddPhoneModalBtn" style="background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400)); border: none; box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);">
+          <span>+ Add Phone</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="listings-toolbar">
+      <div class="listings-search-box">
+        <svg class="listings-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="listingSearchInput" placeholder="Search by brand, model or storage..." autocomplete="off">
+      </div>
+
+      <div class="listings-filters-row">
+        <select class="filter-select" id="filterBrand" aria-label="Filter by brand">
+          <option value="All">Apple & Samsung</option>
+          <option value="Apple">Apple iPhone</option>
+          <option value="Samsung">Samsung Galaxy</option>
+        </select>
+
+        <select class="filter-select" id="filterCondition" aria-label="Filter by condition">
+          <option value="All">All Conditions</option>
+          <option value="Brand New Sealed">Brand New Sealed</option>
+          <option value="UK Used/Pre-owned">UK Used / Pre-owned</option>
+          <option value="Refurbished">Refurbished</option>
+        </select>
+
+        <button type="button" class="btn-reset-filters" id="resetFiltersBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+          <span>Reset</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Listings Grid Container -->
+    <div class="store-listings-grid" id="storeListingsContainer">
+      <!-- Default Skeleton Placeholders -->
+      <article class="skeleton-phone-card" aria-hidden="true">
+        <div class="skeleton-media skeleton-shimmer"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-title-line skeleton-shimmer"></div>
+          <div class="skeleton-specs-line skeleton-shimmer"></div>
+          <div class="skeleton-location-line skeleton-shimmer"></div>
+        </div>
+        <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
+      </article>
+      <article class="skeleton-phone-card" aria-hidden="true">
+        <div class="skeleton-media skeleton-shimmer"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-title-line skeleton-shimmer"></div>
+          <div class="skeleton-specs-line skeleton-shimmer"></div>
+          <div class="skeleton-location-line skeleton-shimmer"></div>
+        </div>
+        <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
+      </article>
+    </div>
+
+    <!-- Empty State for Listings -->
+    <div class="empty-state-box" id="emptyListingsBox" style="display: none; margin-top: 30px;">
+      <div class="empty-state-icon">📦</div>
+      <h3 class="empty-state-title">No phone listings yet</h3>
+      <p class="empty-state-desc">You haven't listed any phones for swap in your store yet. Add your first phone to receive customer trade-in offers and inquiries.</p>
+      <button type="button" class="btn-primary-action" id="emptyAddPhoneBtn">+ List First Phone</button>
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       STORE / DEALER MOBILE BOTTOM NAVIGATION (GLASS EFFECT)
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav" aria-label="Store Navigation">
+    <a href="dealer-dashboard.html" class="bottom-nav-item" id="navDashBtn" title="Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="dealer-listings.html" class="bottom-nav-item active" id="navListingsBtn" title="My Listings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+      <span>Listings</span>
+    </a>
+    <a href="dealer-requests.html" class="bottom-nav-item" id="navRequestsBtn" title="Swap Requests">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Requests</span>
+    </a>
+    <a href="dealer-dashboard.html#activitySection" class="bottom-nav-item" id="navActivityBtn" title="Recent Activity">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      <span>Activity</span>
+    </a>
+    <a href="more.html" class="bottom-nav-item" id="navStoreMoreBtn" title="More">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>More</span>
+    </a>
+  </nav>
+
+  <!-- ==========================================================================
+       MODAL: + ADD PHONE LISTING (DEALER INVENTORY LISTING FORM)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="addPhoneModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <div class="modal-card modal-card-xl">
+      <div class="modal-header">
+        <div>
+          <span class="tag-badge tag-verified">Store Inventory</span>
+          <h2 class="modal-title" id="addModalTitle" style="margin-top: 4px;">List New Phone Stock</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeAddModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="addPhoneForm" class="dash-form">
+        <div class="form-sections-wrapper">
+
+          <!-- SECTION 1: INVENTORY DETAILS -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">1</span>
+              <div>
+                <h3>Inventory Details</h3>
+                <p>Standardized brand, model, storage, RAM and stock quantity</p>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="dealerDeviceBrand">Brand</label>
+                <select id="dealerDeviceBrand" class="form-select" required>
+                  <option value="" disabled selected>-- Select Brand --</option>
+                  <!-- Populated dynamically -->
+                </select>
+                <div id="dealerCustomBrandGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="dealerCustomBrand" class="form-input" placeholder="Type Apple iPhone or Samsung brand...">
+                  <span class="form-helper-text">Specify brand name if not in list</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dealerDeviceModel">Model</label>
+                <select id="dealerDeviceModel" class="form-select" required disabled>
+                  <option value="" disabled selected>-- Select Brand First --</option>
+                </select>
+                <div id="dealerCustomModelGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="dealerCustomModel" class="form-input" placeholder="Type phone model name...">
+                  <span class="form-helper-text">Specify model if not in list</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="dealerStorage">Storage Capacity</label>
+                <select id="dealerStorage" class="form-select" required>
+                  <option value="64GB">64GB</option>
+                  <option value="128GB" selected>128GB</option>
+                  <option value="256GB">256GB</option>
+                  <option value="512GB">512GB</option>
+                  <option value="1TB">1TB</option>
+                  <option value="Other">Other (Type custom)</option>
+                </select>
+                <div id="dealerCustomStorageGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="dealerCustomStorage" class="form-input" placeholder="e.g. 32GB, 2TB...">
+                  <span class="form-helper-text">Specify custom storage capacity</span>
+                </div>
+              </div>
+              <div class="form-group" id="dealerRamGroup">
+                <label class="form-label" for="dealerRam">RAM</label>
+                <select id="dealerRam" class="form-select">
+                  <option value="4GB">4GB</option>
+                  <option value="6GB">6GB</option>
+                  <option value="8GB" selected>8GB</option>
+                  <option value="12GB">12GB</option>
+                  <option value="16GB">16GB</option>
+                  <option value="N/A (iOS)">N/A (Apple iOS)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="dealerColor">Color / Finish</label>
+                <input type="text" id="dealerColor" class="form-input" placeholder="e.g. Natural Titanium, Deep Purple, Phantom Black" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dealerDeviceStatus">Device Status</label>
+                <select id="dealerDeviceStatus" class="form-select" required>
+                  <option value="Brand New Sealed" selected>Brand New Sealed</option>
+                  <option value="UK Used/Pre-owned">UK Used / Pre-owned</option>
+                  <option value="Refurbished">Refurbished</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="form-label" for="dealerQuantityInStock">Quantity In Stock</label>
+              <input type="number" id="dealerQuantityInStock" class="form-input" value="1" min="1" max="100" required>
+            </div>
+          </div>
+
+          <!-- SECTION 2: STANDARDIZED GRADING & INCLUSIONS -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">2</span>
+              <div>
+                <h3>Standardized Grading & Inclusions</h3>
+                <p>Authentic grading condition, verified battery health, accessories, and warranty</p>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="dealerConditionGrade">Condition Grade</label>
+                <select id="dealerConditionGrade" class="form-select" required>
+                  <option value="Grade A - Pristine" selected>Grade A - Pristine (Like New / Flawless)</option>
+                  <option value="Grade B - Good">Grade B - Good (Minor light marks)</option>
+                  <option value="Grade C - Fair">Grade C - Fair (Noticeable casing wear)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dealerBatteryHealth">Battery Health %</label>
+                <input type="number" id="dealerBatteryHealth" class="form-input" min="50" max="100" value="100" required>
+                <span class="form-helper-text" id="batteryHealthHint">Defaults to 100% for Brand New Sealed stock.</span>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+              <label class="form-label">Package Inclusions (Select all included)</label>
+              <div class="inclusions-chips-grid">
+                <label class="inclusion-chip-label">
+                  <input type="checkbox" name="dealerInclusions" value="Original Box" checked>
+                  <span class="inclusion-chip-span">📦 Original Box</span>
+                </label>
+                <label class="inclusion-chip-label">
+                  <input type="checkbox" name="dealerInclusions" value="Charging Cable" checked>
+                  <span class="inclusion-chip-span">🔌 Charging Cable</span>
+                </label>
+                <label class="inclusion-chip-label">
+                  <input type="checkbox" name="dealerInclusions" value="Charging Brick">
+                  <span class="inclusion-chip-span">⚡ Charging Brick / Adapter</span>
+                </label>
+                <label class="inclusion-chip-label">
+                  <input type="checkbox" name="dealerInclusions" value="Earphones">
+                  <span class="inclusion-chip-span">🎧 Earphones</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+              <label class="form-label" for="dealerStoreWarranty">Store Warranty</label>
+              <select id="dealerStoreWarranty" class="form-select" required>
+                <option value="None">None</option>
+                <option value="7 Days">7 Days Hub Testing Warranty</option>
+                <option value="30 Days" selected>30 Days Full Hub Guarantee</option>
+                <option value="3 Months">3 Months Warranty</option>
+                <option value="1 Year">1 Year Official / Store Warranty</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- SECTION 3: SWAP & TRADE-IN PREFERENCES -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">3</span>
+              <div>
+                <h3>Swap & Trade-In Preferences</h3>
+                <p>Configure trade-in eligibility and minimum acceptable exchange tier</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="triage-row">
+                <div class="triage-info">
+                  <span class="triage-q-title">Allow Swaps for this Phone?</span>
+                  <span class="triage-q-desc">Allow customers to propose trade-ins with top-up valuation.</span>
+                </div>
+                <div class="toggle-switch-wrapper">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="dealerIsSwapAllowed" checked>
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" id="minSwapTierGroup" style="margin-top: 12px;">
+              <label class="form-label" for="dealerMinTradeInTier">Minimum Acceptable Trade-In Tier</label>
+              <select id="dealerMinTradeInTier" class="form-select">
+                <option value="iPhone 11 and above" selected>iPhone 11 and above</option>
+                <option value="iPhone X and above">iPhone X and above</option>
+                <option value="iPhone 8 and above">iPhone 8 and above</option>
+                <option value="iPhone 12 and above">iPhone 12 and above</option>
+                <option value="iPhone 13 and above">iPhone 13 and above</option>
+                <option value="iPhone 14 and above">iPhone 14 and above</option>
+                <option value="iPhone 15 and above">iPhone 15 and above</option>
+                <option value="Samsung S20 and above">Samsung S20 and above</option>
+                <option value="Samsung S21 and above">Samsung S21 and above</option>
+                <option value="Samsung S22 and above">Samsung S22 and above</option>
+                <option value="Samsung S23 and above">Samsung S23 and above</option>
+                <option value="Samsung S24 and above">Samsung S24 and above</option>
+                <option value="Samsung Note 20 and above">Samsung Note 20 and above</option>
+                <option value="Samsung Z Fold and above">Samsung Z Fold and above</option>
+                <option value="Samsung Z Flip and above">Samsung Z Flip and above</option>
+                <option value="custom">Custom requirement...</option>
+              </select>
+              <div id="dealerCustomTradeInTierGroup" style="display: none; margin-top: 8px;">
+                <input type="text" id="dealerCustomTradeInTier" class="form-input" placeholder="e.g. iPhone 12 Pro or Samsung S22 with 85%+ battery">
+                <span class="form-helper-text">Describe the minimum Apple or Samsung phone you will accept.</span>
+              </div>
+              <span class="form-helper-text">Customers will be guided by this tier when submitting trade-ins.</span>
+            </div>
+          </div>
+
+          <!-- SECTION 4: MEDIA UPLOADS (IMAGES & VIDEOS UP TO 5) -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">4</span>
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <h3 style="margin: 0;">Device Photos & Video (Up to 5)</h3>
+                  <span class="tag-badge" id="dealerMediaCounter" style="font-size: 0.72rem; padding: 3px 9px; background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border: 1px solid rgba(6, 182, 212, 0.3);">0 / 5 files</span>
+                </div>
+                <p style="margin: 4px 0 0 0;">Upload high-res photos and short condition inspection clips (Max 5 files total)</p>
+              </div>
+            </div>
+
+            <div class="media-dropzone" id="dealerDropzone">
+              <div class="dropzone-icon" style="background: rgba(6, 182, 212, 0.1); border-color: rgba(6, 182, 212, 0.3); color: var(--cyan-400);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <div class="dropzone-text">
+                <span class="dropzone-prompt"><strong>Click to upload</strong> or drag and drop</span>
+                <span class="dropzone-sub">PNG, JPG, WEBP, or MP4 (Max 5 media files)</span>
+              </div>
+              <input type="file" id="dealerMediaInput" class="dropzone-file-input" multiple accept="image/*,video/*">
+            </div>
+
+            <!-- Upload Progress Bar -->
+            <div class="upload-progress-container" id="dealerUploadProgress" style="display: none;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 4px;">
+                <span style="color: var(--text-muted);">Attaching media...</span>
+                <span id="dealerProgressPct" style="color: var(--cyan-400);">100%</span>
+              </div>
+              <div style="height: 4px; width: 100%; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                <div id="dealerProgressFill" style="height: 100%; width: 100%; background: var(--cyan-400); transition: width 0.2s;"></div>
+              </div>
+            </div>
+
+            <div class="previews-grid-container" id="dealerPreviewsGrid" style="margin-top: 14px;"></div>
+          </div>
+
+        </div>
+
+        <button type="submit" class="btn-primary-action" id="submitAddPhoneBtn" style="justify-content: center; padding: 16px; font-size: 1.02rem; margin-top: 10px; background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400)); border: none;">
+          <span>Publish Store Listing</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: BUSINESS VERIFICATION REQUIRED NOTICE (POPUP MESSAGE)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="dealerVerificationModal" role="dialog" aria-modal="true" aria-labelledby="dealerVerificationTitle">
+    <div class="modal-card" style="max-width: 480px; text-align: center; padding: 32px 24px; position: relative;">
+      <button type="button" class="modal-close-btn" id="closeVerificationModal" aria-label="Close modal" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+
+      <!-- Verification Shield Icon -->
+      <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(239, 68, 68, 0.12)); border: 1.5px solid rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 16px; box-shadow: 0 10px 28px rgba(245, 158, 11, 0.2);">
+        🛡️
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <span class="tag-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--amber-400); border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.74rem; font-weight: 700; padding: 4px 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+          Business Verification Required
+        </span>
+      </div>
+
+      <h2 class="modal-title" id="dealerVerificationTitle" style="font-size: 1.35rem; font-weight: 800; color: #FFF; margin-bottom: 12px; line-height: 1.3;">
+        You Cannot List Phones Yet
+      </h2>
+
+      <p style="color: var(--text-dim, #cbd5e1); font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px;">
+        You cannot list phones for swap or sale on NigerSwap yet because you are <strong style="color: #FFF; font-weight: 700;">yet to complete your business verification</strong>.
+      </p>
+
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 24px; text-align: left; font-size: 0.82rem; color: var(--text-muted); display: flex; gap: 12px; align-items: flex-start; line-height: 1.5;">
+        <span style="font-size: 1.2rem; flex-shrink: 0; line-height: 1;">🏬</span>
+        <span>To protect buyers, ensure trust, and activate your <strong>Verified Store</strong> status on the marketplace, all partner stores must submit their National ID (NIN), BVN, and Physical Shop Address before publishing inventory.</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <a href="dealer-verification.html?required=create%20a%20listing" class="btn-primary-action" id="proceedToVerificationBtn" style="justify-content: center; padding: 15px 20px; font-size: 0.98rem; text-decoration: none; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400)); border: none; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);">
+          <span>Complete Business Verification &rarr;</span>
+        </a>
+        <button type="button" class="btn-cancel" id="dismissVerificationModalBtn" style="justify-content: center; padding: 12px 18px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.02); color: var(--text-muted); font-size: 0.88rem; cursor: pointer; transition: all var(--spring-fast);">
+          <span>Maybe Later</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module">
+    import { requireCompleteProfile, isProfileComplete, compressImageFile, storeMedia, resolveMedia, syncDealerVerificationStatus } from './js/profile.js';
+    import { NaijaSwapData } from './js/dashboard-data.js';
+    import { createListingBackend } from './js/backend-api.js';
+
+    let currentStoreId = 'store_hub_1';
+    let currentStoreName = 'My Phone Store';
+    let dealerAuthUser = null;
+
+    // Synchronous initial cache read from localStorage
+    try {
+      const stored = localStorage.getItem('nigerswap_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        dealerAuthUser = u;
+        if (u.uid) currentStoreId = u.uid;
+        const storedShop = localStorage.getItem('nigerswap_shop_' + u.uid);
+        if (storedShop) currentStoreName = storedShop;
+        else if (u.displayName) currentStoreName = `${u.displayName}'s Gadget Store`;
+      }
+    } catch (e) {}
+
+    // Update Header and Welcome Greeting
+    const topStoreName = document.getElementById('topStoreName');
+    const storeAvatarFallback = document.getElementById('storeAvatarFallback');
+    const storeListingsHeading = document.getElementById('storeListingsHeading');
+    if (topStoreName) topStoreName.textContent = currentStoreName;
+    if (storeAvatarFallback) storeAvatarFallback.textContent = currentStoreName.charAt(0).toUpperCase();
+
+    // Elements
+    const storeListingsContainer = document.getElementById('storeListingsContainer');
+    const emptyListingsBox = document.getElementById('emptyListingsBox');
+    const addPhoneModal = document.getElementById('addPhoneModal');
+    const closeAddModal = document.getElementById('closeAddModal');
+    const openAddPhoneModalBtn = document.getElementById('openAddPhoneModalBtn');
+    const emptyAddPhoneBtn = document.getElementById('emptyAddPhoneBtn');
+    const addPhoneForm = document.getElementById('addPhoneForm');
+    const dealerVerificationModal = document.getElementById('dealerVerificationModal');
+    const closeVerificationModal = document.getElementById('closeVerificationModal');
+    const dismissVerificationModalBtn = document.getElementById('dismissVerificationModalBtn');
+    const storeMenuBtn = document.getElementById('storeMenuBtn');
+    const storeDropdown = document.getElementById('storeDropdown');
+
+    // Filters & Search
+    const listingSearchInput = document.getElementById('listingSearchInput');
+    const filterBrand = document.getElementById('filterBrand');
+    const filterCondition = document.getElementById('filterCondition');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+
+    // Render Store Listings
+    async function renderStoreListings() {
+      if (!storeListingsContainer) return;
+      let allListings;
+      try {
+        allListings = await NaijaSwapData.getListingsRemote();
+      } catch (error) {
+        console.warn('[NigerSwap] Remote listings unavailable; using cached listings.', error);
+        allListings = NaijaSwapData.getListings();
+      }
+      
+      const query = (listingSearchInput?.value || '').trim().toLowerCase();
+      const selectedBrand = filterBrand ? filterBrand.value : 'All';
+      const selectedCondition = filterCondition ? filterCondition.value : 'All';
+
+      let listings = allListings.filter(item => {
+        // Filter by store
+        if (item.storeId !== currentStoreId) return false;
+
+        // Search query
+        if (query) {
+          const matchTitle = (item.title || item.model || '').toLowerCase().includes(query);
+          const matchBrand = (item.brand || '').toLowerCase().includes(query);
+          if (!matchTitle && !matchBrand) return false;
+        }
+
+        // Brand
+        if (selectedBrand !== 'All' && item.brand !== selectedBrand) return false;
+
+        // Condition
+        if (selectedCondition !== 'All') {
+          const itemCond = item.condition || item.conditionGrade || '';
+          if (!itemCond.toLowerCase().includes(selectedCondition.toLowerCase())) return false;
+        }
+
+        return true;
+      });
+
+      if (listings.length === 0) {
+        storeListingsContainer.innerHTML = '';
+        emptyListingsBox.style.display = 'flex';
+        return;
+      }
+
+      emptyListingsBox.style.display = 'none';
+      storeListingsContainer.innerHTML = '';
+
+      listings.forEach(item => {
+        const card = document.createElement('article');
+        card.className = 'store-listing-card fade-in-content';
+
+        card.innerHTML = `
+          <div class="listing-card-media">
+            <img src="${item.image}" alt="${escapeHtml(item.model)}" class="listing-card-img" loading="lazy">
+            <div class="phone-tags-floating">
+              <span class="tag-badge tag-verified">● Active Listing</span>
+            </div>
+          </div>
+          <div class="listing-card-body">
+            <span class="listing-title">${escapeHtml(item.model)}</span>
+            <div class="phone-specs-line">
+              <span>${escapeHtml(item.storage)}</span>
+              <span>•</span>
+              <span>${escapeHtml(item.conditionGrade || item.condition)}</span>
+              ${item.color ? `<span>•</span><span>${escapeHtml(item.color)}</span>` : ''}
+            </div>
+            <div class="phone-location-line">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>${escapeHtml(item.location || 'Computer Village Hub')}</span>
+            </div>
+            <div class="phone-topup-badge" style="margin-top: 8px;">
+              <span class="topup-label">${item.isSwapAllowed ? 'Cash / Swap Value' : 'Cash Outright'}</span>
+              <span class="topup-amount">₦${(item.cashOutrightPrice || item.marketValue || 0).toLocaleString()}</span>
+            </div>
+          </div>
+          <div class="listing-actions-row">
+            <a href="phone-details.html?id=${encodeURIComponent(item.id)}" target="_blank" style="color: var(--cyan-400); text-decoration: none; font-size: 0.76rem; font-weight: 600;">View Marketplace &rarr;</a>
+            <button type="button" class="btn-delete-listing" data-id="${escapeHtml(item.id)}">Remove</button>
+          </div>
+        `;
+
+        card.querySelector('.btn-delete-listing')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (confirm(`Remove ${item.model} from your active store inventory?`)) {
+            NaijaSwapData.deleteListing(item.id, currentStoreId);
+            renderStoreListings();
+          }
+        });
+
+        storeListingsContainer.appendChild(card);
+      });
+    }
+
+    // Filter events
+    if (listingSearchInput) listingSearchInput.addEventListener('input', renderStoreListings);
+    if (filterBrand) filterBrand.addEventListener('change', renderStoreListings);
+    if (filterCondition) filterCondition.addEventListener('change', renderStoreListings);
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener('click', () => {
+        if (listingSearchInput) listingSearchInput.value = '';
+        if (filterBrand) filterBrand.value = 'All';
+        if (filterCondition) filterCondition.value = 'All';
+        renderStoreListings();
+      });
+    }
+
+    // =========================================================================
+    // DEALER INVENTORY FORM CONTROLS & PHOTO UPLOADS
+    // =========================================================================
+    const dealerDeviceBrand = document.getElementById('dealerDeviceBrand');
+    const dealerDeviceModel = document.getElementById('dealerDeviceModel');
+    const dealerStorage = document.getElementById('dealerStorage');
+    const dealerRamGroup = document.getElementById('dealerRamGroup');
+    const dealerRam = document.getElementById('dealerRam');
+    const dealerDeviceStatus = document.getElementById('dealerDeviceStatus');
+    const dealerBatteryHealth = document.getElementById('dealerBatteryHealth');
+    const batteryHealthHint = document.getElementById('batteryHealthHint');
+    const dealerConditionGrade = document.getElementById('dealerConditionGrade');
+    const dealerIsSwapAllowed = document.getElementById('dealerIsSwapAllowed');
+    const minSwapTierGroup = document.getElementById('minSwapTierGroup');
+    const dealerMinTradeInTier = document.getElementById('dealerMinTradeInTier');
+    const dealerCustomTradeInTierGroup = document.getElementById('dealerCustomTradeInTierGroup');
+    const dealerCustomTradeInTier = document.getElementById('dealerCustomTradeInTier');
+
+    let dealerUploadedMedia = [];
+
+    const dealerCustomBrandGroup = document.getElementById('dealerCustomBrandGroup');
+    const dealerCustomBrand = document.getElementById('dealerCustomBrand');
+    const dealerCustomModelGroup = document.getElementById('dealerCustomModelGroup');
+    const dealerCustomModel = document.getElementById('dealerCustomModel');
+    const dealerCustomStorageGroup = document.getElementById('dealerCustomStorageGroup');
+    const dealerCustomStorage = document.getElementById('dealerCustomStorage');
+    const dealerDropzone = document.getElementById('dealerDropzone');
+    const dealerMediaInput = document.getElementById('dealerMediaInput');
+    const dealerUploadProgress = document.getElementById('dealerUploadProgress');
+    const dealerProgressFill = document.getElementById('dealerProgressFill');
+    const dealerPreviewsGrid = document.getElementById('dealerPreviewsGrid');
+    const dealerMediaCounter = document.getElementById('dealerMediaCounter');
+
+    function getEffectiveDealerSpecs() {
+      const brand = (dealerDeviceBrand.value === 'Other' && dealerCustomBrand?.value.trim()) 
+        ? dealerCustomBrand.value.trim() 
+        : dealerDeviceBrand.value;
+      const isCustomModel = dealerDeviceModel.value === 'Other Model' || dealerDeviceModel.value === 'Other Smartphone';
+      const model = (isCustomModel && dealerCustomModel?.value.trim())
+        ? dealerCustomModel.value.trim()
+        : dealerDeviceModel.value;
+      const storage = (dealerStorage.value === 'Other' && dealerCustomStorage?.value.trim())
+        ? dealerCustomStorage.value.trim()
+        : dealerStorage.value;
+      const conditionGrade = dealerConditionGrade ? dealerConditionGrade.value : 'Grade A - Pristine';
+      const deviceStatus = dealerDeviceStatus ? dealerDeviceStatus.value : 'Brand New Sealed';
+      return { brand, model, storage, conditionGrade, deviceStatus };
+    }
+
+    function initDealerForm() {
+      if (!dealerDeviceBrand) return;
+
+      // Populate Brands
+      const brands = NaijaSwapData.getBrands();
+      dealerDeviceBrand.innerHTML = '<option value="" disabled selected>-- Select Brand --</option>' +
+        brands.map(b => `<option value="${b}">${b}</option>`).join('') +
+        '';
+
+      // Brand selection cascades to models & custom inputs
+      dealerDeviceBrand.addEventListener('change', () => {
+        const brand = dealerDeviceBrand.value;
+        if (brand === 'Other') {
+          if (dealerCustomBrandGroup) dealerCustomBrandGroup.style.display = 'block';
+          dealerDeviceModel.disabled = false;
+          dealerDeviceModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone (Type below)</option>';
+          if (dealerCustomModelGroup) dealerCustomModelGroup.style.display = 'block';
+        } else {
+          if (dealerCustomBrandGroup) dealerCustomBrandGroup.style.display = 'none';
+          const models = NaijaSwapData.getModelsForBrand(brand);
+          dealerDeviceModel.disabled = false;
+
+          if (models.length > 0) {
+            dealerDeviceModel.innerHTML = '<option value="" disabled selected>-- Select Model --</option>' +
+              models.map(m => `<option value="${m}">${m}</option>`).join('') +
+              '<option value="Other Model">Other Model (Type custom)</option>';
+          } else {
+            dealerDeviceModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone</option>';
+          }
+          if (dealerCustomModelGroup) dealerCustomModelGroup.style.display = 'none';
+        }
+
+        // Android RAM visibility
+        if (dealerRamGroup) {
+          dealerRamGroup.style.display = NaijaSwapData.isAndroid(brand) ? 'block' : 'none';
+        }
+      });
+
+      if (dealerDeviceModel) {
+        dealerDeviceModel.addEventListener('change', () => {
+          const val = dealerDeviceModel.value;
+          if (val === 'Other Model' || val === 'Other Smartphone') {
+            if (dealerCustomModelGroup) dealerCustomModelGroup.style.display = 'block';
+          } else {
+            if (dealerCustomModelGroup) dealerCustomModelGroup.style.display = 'none';
+          }
+        });
+      }
+
+      if (dealerStorage) {
+        dealerStorage.addEventListener('change', () => {
+          if (dealerStorage.value === 'Other') {
+            if (dealerCustomStorageGroup) dealerCustomStorageGroup.style.display = 'block';
+          } else {
+            if (dealerCustomStorageGroup) dealerCustomStorageGroup.style.display = 'none';
+          }
+        });
+      }
+
+      // Condition Grade hints
+      if (dealerDeviceStatus && dealerBatteryHealth) {
+        dealerDeviceStatus.addEventListener('change', () => {
+          if (dealerDeviceStatus.value === 'Brand New Sealed') {
+            dealerBatteryHealth.value = 100;
+            if (batteryHealthHint) batteryHealthHint.textContent = 'Defaults to 100% for Brand New Sealed stock.';
+          } else {
+            if (batteryHealthHint) batteryHealthHint.textContent = 'Enter tested maximum capacity percentage.';
+          }
+        });
+      }
+
+      // Allow Swap Toggle
+      if (dealerIsSwapAllowed && minSwapTierGroup) {
+        dealerIsSwapAllowed.addEventListener('change', () => {
+          minSwapTierGroup.style.display = dealerIsSwapAllowed.checked ? 'block' : 'none';
+        });
+      }
+
+      if (dealerMinTradeInTier && dealerCustomTradeInTierGroup && dealerCustomTradeInTier) {
+        dealerMinTradeInTier.addEventListener('change', () => {
+          const isCustom = dealerMinTradeInTier.value === 'custom';
+          dealerCustomTradeInTierGroup.style.display = isCustom ? 'block' : 'none';
+          dealerCustomTradeInTier.required = isCustom;
+          if (!isCustom) dealerCustomTradeInTier.value = '';
+        });
+      }
+    }
+
+    // Media Dropzone Handlers
+    function setupDealerDropzone() {
+      if (!dealerDropzone || !dealerMediaInput) return;
+
+      dealerDropzone.addEventListener('click', () => dealerMediaInput.click());
+      dealerMediaInput.addEventListener('change', (e) => {
+        handleDealerMediaFiles(e.target.files);
+        dealerMediaInput.value = '';
+      });
+
+      dealerDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dealerDropzone.classList.add('dragover');
+      });
+      dealerDropzone.addEventListener('dragleave', () => {
+        dealerDropzone.classList.remove('dragover');
+      });
+      dealerDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dealerDropzone.classList.remove('dragover');
+        handleDealerMediaFiles(e.dataTransfer.files);
+      });
+    }
+
+    function handleDealerMediaFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+
+      const remainingSlots = 5 - dealerUploadedMedia.length;
+      if (remainingSlots <= 0) {
+        alert('You have reached the maximum of 5 media uploads. Remove an existing file to add a new one.');
+        return;
+      }
+
+      const filesToAdd = Array.from(fileList).slice(0, remainingSlots);
+      if (fileList.length > remainingSlots) {
+        alert(`You can only add up to 5 items. Adding the first ${remainingSlots} selected.`);
+      }
+
+      if (dealerUploadProgress) {
+        dealerUploadProgress.style.display = 'block';
+        if (dealerProgressFill) dealerProgressFill.style.width = '0%';
+        setTimeout(() => {
+          if (dealerProgressFill) dealerProgressFill.style.width = '100%';
+        }, 50);
+      }
+
+      let loadedCount = 0;
+      filesToAdd.forEach(async (file) => {
+        const isVideo = file.type && file.type.startsWith('video/');
+        let dataUrl = '';
+
+        if (isVideo) {
+          dataUrl = await new Promise((res) => {
+            const reader = new FileReader();
+            reader.onload = (e) => res(e.target.result);
+            reader.onerror = () => res('');
+            reader.readAsDataURL(file);
+          });
+        } else {
+          dataUrl = await compressImageFile(file, 800, 800, 0.72);
+        }
+
+        dealerUploadedMedia.push({
+          name: file.name,
+          size: isVideo ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : '~100 KB (Optimized)',
+          type: file.type,
+          isVideo: isVideo,
+          dataUrl: dataUrl
+        });
+
+        loadedCount++;
+        if (loadedCount === filesToAdd.length) {
+          setTimeout(() => {
+            if (dealerUploadProgress) dealerUploadProgress.style.display = 'none';
+            updateDealerMediaPreviews();
+            updateDealerMediaCounter();
+          }, 200);
+        }
+      });
+    }
+
+    function updateDealerMediaPreviews() {
+      if (!dealerPreviewsGrid) return;
+      dealerPreviewsGrid.innerHTML = '';
+
+      dealerUploadedMedia.forEach((fileData, index) => {
+        const card = document.createElement('div');
+        card.className = 'media-preview-card';
+
+        if (fileData.isVideo) {
+          card.innerHTML = `
+            <div class="preview-video-box">
+              <span class="preview-video-icon">🎬</span>
+              <span class="preview-video-title">${escapeHtml(fileData.name)}</span>
+            </div>
+            <button type="button" class="preview-remove-btn" title="Remove">&times;</button>
+            <span class="preview-size-badge">${fileData.size}</span>
+          `;
+        } else {
+          card.innerHTML = `
+            <img src="${fileData.dataUrl}" class="preview-thumb-img" alt="${escapeHtml(fileData.name)}">
+            <button type="button" class="preview-remove-btn" title="Remove">&times;</button>
+            <span class="preview-size-badge">${fileData.size}</span>
+          `;
+        }
+
+        const removeBtn = card.querySelector('.preview-remove-btn');
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dealerUploadedMedia = dealerUploadedMedia.filter((_, i) => i !== index);
+          updateDealerMediaPreviews();
+          updateDealerMediaCounter();
+        });
+
+        dealerPreviewsGrid.appendChild(card);
+      });
+    }
+
+    function updateDealerMediaCounter() {
+      if (!dealerMediaCounter) return;
+      const count = dealerUploadedMedia.length;
+      dealerMediaCounter.textContent = `${count} / 5 files`;
+      if (count >= 5) {
+        dealerMediaCounter.style.background = 'rgba(239, 68, 68, 0.15)';
+        dealerMediaCounter.style.color = '#ef4444';
+        dealerMediaCounter.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+      } else {
+        dealerMediaCounter.style.background = 'rgba(6, 182, 212, 0.15)';
+        dealerMediaCounter.style.color = 'var(--cyan-400)';
+        dealerMediaCounter.style.borderColor = 'rgba(6, 182, 212, 0.3)';
+      }
+    }
+
+    // Dealer Add Phone Listing Submission
+    if (addPhoneForm) {
+      addPhoneForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const { brand, model, storage, conditionGrade, deviceStatus } = getEffectiveDealerSpecs();
+
+        if (!brand || !model) {
+          alert('Please specify the phone brand and model.');
+          return;
+        }
+
+        const inclusions = Array.from(document.querySelectorAll('input[name="dealerInclusions"]:checked')).map(c => c.value);
+        const color = document.getElementById('dealerColor')?.value.trim() || 'Standard Color';
+        const batteryHealth = parseInt(document.getElementById('dealerBatteryHealth')?.value, 10) || 100;
+        const warranty = document.getElementById('dealerStoreWarranty')?.value || '30 Days Full Hub Guarantee';
+        const isSwapAllowed = dealerIsSwapAllowed ? dealerIsSwapAllowed.checked : true;
+        const selectedTradeInTier = dealerMinTradeInTier?.value || 'iPhone 11 and above';
+        const minTradeInTier = selectedTradeInTier === 'custom'
+          ? dealerCustomTradeInTier?.value.trim()
+          : selectedTradeInTier;
+        if (isSwapAllowed && !minTradeInTier) {
+          alert('Please describe the minimum trade-in phone you will accept.');
+          return;
+        }
+        const quantity = parseInt(document.getElementById('dealerQuantityInStock')?.value, 10) || 1;
+
+        // Store media to Cloud or IndexedDB so raw base64 is NEVER saved into localStorage
+        const processedMedia = [];
+        for (let i = 0; i < dealerUploadedMedia.length; i++) {
+          const item = dealerUploadedMedia[i];
+          let token = item.dataUrl;
+          if (token && token.startsWith('data:')) {
+            token = await storeMedia(`listing_${Date.now()}_m${i}`, item.dataUrl, { folder: 'listing_media' });
+          }
+          processedMedia.push({
+            name: item.name,
+            size: item.size,
+            type: item.type,
+            isVideo: item.isVideo,
+            dataUrl: token
+          });
+        }
+
+        const primaryPhoto = processedMedia.find(m => !m.isVideo)?.dataUrl;
+        const videoMedia = processedMedia.find(m => m.isVideo)?.dataUrl;
+
+        const newListing = NaijaSwapData.addListing(currentStoreId, currentStoreName, {
+          brand: brand,
+          deviceBrand: brand,
+          model: model,
+          deviceModel: model,
+          storage: storage,
+          storageCapacity: storage,
+          ram: (dealerRamGroup && dealerRamGroup.style.display !== 'none') ? dealerRam.value : '',
+          color: color,
+          deviceStatus: deviceStatus,
+          conditionGrade: conditionGrade,
+          batteryHealth: batteryHealth,
+          inclusions: inclusions,
+          warranty: warranty,
+          isSwapAllowed: isSwapAllowed,
+          minTradeInTier: minTradeInTier,
+          quantity: quantity,
+          quantityInStock: quantity,
+          image: primaryPhoto || null,
+          uploadedImage: primaryPhoto || null,
+          uploadedVideo: videoMedia || null,
+          mediaFiles: processedMedia,
+          allMedia: processedMedia
+        });
+        try {
+          const backendResult = await createListingBackend({
+            storeId: currentStoreId,
+            storeName: currentStoreName,
+            brand: newListing.brand,
+            model: newListing.model,
+            storage: newListing.storage,
+            condition: newListing.condition,
+            conditionGrade: newListing.conditionGrade,
+            color: newListing.color,
+            battery: newListing.battery,
+            marketValue: newListing.marketValue,
+            quantityInStock: newListing.quantityInStock,
+            isSwapAllowed: newListing.isSwapAllowed,
+            image: newListing.image,
+            mediaFiles: newListing.mediaFiles,
+            description: newListing.description,
+            location: newListing.location
+          });
+          newListing.firestoreId = backendResult.data.listingId;
+        } catch (error) {
+          NaijaSwapData.deleteListing(newListing.id, currentStoreId);
+          throw new Error(error.message || 'The listing could not be published.');
+        }
+
+        // Reset
+        addPhoneForm.reset();
+        dealerUploadedMedia = [];
+        if (dealerPreviewsGrid) dealerPreviewsGrid.innerHTML = '';
+        if (dealerCustomBrandGroup) dealerCustomBrandGroup.style.display = 'none';
+        if (dealerCustomModelGroup) dealerCustomModelGroup.style.display = 'none';
+        if (dealerCustomStorageGroup) dealerCustomStorageGroup.style.display = 'none';
+        updateDealerMediaCounter();
+        addPhoneModal.classList.remove('active');
+        renderStoreListings();
+        alert(`Success! ${model} (${storage}) has been added to your store listings.`);
+      });
+    }
+
+    async function updateVerificationModalContent(uid) {
+      if (!uid) return;
+      let status = localStorage.getItem('nigerswap_dealer_status_' + uid);
+      try {
+        const remote = await getDoc(doc(db, 'dealerVerification', uid));
+        if (remote.exists() && remote.data().status) {
+          status = remote.data().status;
+          localStorage.setItem('nigerswap_dealer_status_' + uid, status);
+        }
+      } catch (error) {
+        console.warn('[NigerSwap Dealer] Could not load modal verification status:', error.message);
+      }
+      const titleEl = document.getElementById('dealerVerificationTitle');
+      const descEl = titleEl ? titleEl.nextElementSibling : null;
+      const btnEl = document.getElementById('proceedToVerificationBtn');
+      if (status === 'pending') {
+        if (titleEl) titleEl.textContent = 'Verification Under Review';
+        if (descEl) descEl.innerHTML = 'Your store documents have been submitted and are currently <strong style="color:var(--amber-400);">pending review by our admin team</strong>. Approvals typically take 2–4 hours.';
+        if (btnEl) btnEl.innerHTML = '<span>View / Edit Submitted Details &rarr;</span>';
+      } else if (status === 'rejected') {
+        const reason = localStorage.getItem('nigerswap_dealer_reject_reason_' + uid) || 'Some details did not meet our verification guidelines.';
+        if (titleEl) titleEl.textContent = 'Verification Needs Correction';
+        if (descEl) descEl.innerHTML = `Your application was not approved: <strong style="color:var(--rose-400);">${reason}</strong>. Please update your details and re-submit.`;
+        if (btnEl) btnEl.innerHTML = '<span>Update Documents &amp; Re-submit &rarr;</span>';
+      }
+    }
+
+    // Trigger to open Add Phone form or show verification prompt
+    async function handleAddPhoneClick() {
+      // Check if dealer business verification is completed
+      const activeUser = dealerAuthUser || (typeof auth !== 'undefined' && auth?.currentUser) || { uid: localStorage.getItem('nigerswap_last_uid') };
+      await syncDealerVerificationStatus(activeUser?.uid);
+      if (!isProfileComplete(activeUser, 'dealer')) {
+        sessionStorage.setItem('nigerswap_profile_required_action', 'create a listing');
+        await updateVerificationModalContent(activeUser?.uid);
+        if (dealerVerificationModal) {
+          dealerVerificationModal.classList.add('active');
+        } else {
+          requireCompleteProfile(activeUser, 'dealer', 'create a listing');
+        }
+        return;
+      }
+      if (addPhoneModal) addPhoneModal.classList.add('active');
+    }
+
+    // Modal triggers
+    [openAddPhoneModalBtn, emptyAddPhoneBtn].forEach(btn => {
+      if (btn) btn.addEventListener('click', handleAddPhoneClick);
+    });
+
+    if (closeAddModal) closeAddModal.addEventListener('click', () => addPhoneModal.classList.remove('active'));
+    if (closeVerificationModal) closeVerificationModal.addEventListener('click', () => dealerVerificationModal.classList.remove('active'));
+    if (dismissVerificationModalBtn) dismissVerificationModalBtn.addEventListener('click', () => dealerVerificationModal.classList.remove('active'));
+
+    [addPhoneModal, dealerVerificationModal].forEach(modal => {
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.classList.remove('active');
+        });
+      }
+    });
+
+    // Navigation & Dropdown
+    if (storeMenuBtn && storeDropdown) {
+      storeMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        storeDropdown.classList.toggle('active');
+      });
+      document.addEventListener('click', () => storeDropdown.classList.remove('active'));
+    }
+
+    // Hook from auth.js when Firebase user is confirmed/ready
+    window.onNigerSwapUserReady = (user, role) => {
+      if (user) {
+        dealerAuthUser = user;
+        currentStoreId = user.uid;
+        const storedShop = localStorage.getItem('nigerswap_shop_' + user.uid);
+        if (storedShop) currentStoreName = storedShop;
+        else if (user.displayName) currentStoreName = `${user.displayName}'s Gadget Store`;
+
+        if (topStoreName) topStoreName.textContent = currentStoreName;
+
+        const storedPhoto = localStorage.getItem('nigerswap_photo_' + user.uid);
+        if (storeAvatarFallback) {
+          if (storedPhoto) {
+            resolveMedia(storedPhoto).then(src => {
+              if (src && storeAvatarFallback) {
+                storeAvatarFallback.innerHTML = `<img src="${src}" alt="${currentStoreName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+              }
+            });
+          } else {
+            storeAvatarFallback.textContent = currentStoreName.charAt(0).toUpperCase();
+          }
+        }
+
+        renderStoreListings();
+      }
+    };
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Auto-open modal if URL query param action=new is present
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'new') {
+      setTimeout(() => {
+        handleAddPhoneClick();
+      }, 200);
+    }
+
+    // Initialize Page
+    initDealerForm();
+    setupDealerDropzone();
+    renderStoreListings();
+  </script>
+</body>
+</html>

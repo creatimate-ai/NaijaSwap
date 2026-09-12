@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Help & FAQ — NaijaSwap</title>
+  <meta name="description" content="Frequently asked questions, swap rules, top-up valuation guides, and hub inspection answers on NaijaSwap.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Ambient Glows (Depth for Frosted Glass) -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Main Container -->
+  <main class="faq-page-container">
+
+    <!-- Top Navigation Header -->
+    <header class="more-header">
+      <a href="more.html" class="more-back-btn" aria-label="Back to More">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>More</span>
+      </a>
+
+      <div class="more-brand-pill">
+        <div class="logo-mark-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span>NaijaSwap</span>
+      </div>
+    </header>
+
+    <!-- Page Title Section -->
+    <section class="more-title-section">
+      <h1 class="more-title">Help & FAQ</h1>
+      <p class="more-subtitle">Everything you need to know about swapping phones safely in Nigeria</p>
+    </section>
+
+    <!-- LIVE SEARCH INPUT -->
+    <div class="faq-search-box" role="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color: var(--text-faint); flex-shrink: 0;">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input 
+        type="search" 
+        id="faqSearchInput" 
+        class="faq-search-input" 
+        placeholder="Search questions, valuation, hubs..." 
+        aria-label="Search frequently asked questions"
+      >
+    </div>
+
+    <!-- CATEGORY FILTER PILLS -->
+    <div class="faq-category-pills" role="tablist" aria-label="Filter FAQ Categories">
+      <button type="button" class="faq-pill-btn active" data-category="all" role="tab" aria-selected="true">All</button>
+      <button type="button" class="faq-pill-btn" data-category="swapping" role="tab" aria-selected="false">Swapping</button>
+      <button type="button" class="faq-pill-btn" data-category="valuation" role="tab" aria-selected="false">Valuation & Top-Up</button>
+      <button type="button" class="faq-pill-btn" data-category="hubs" role="tab" aria-selected="false">Inspection Hubs</button>
+      <button type="button" class="faq-pill-btn" data-category="safety" role="tab" aria-selected="false">Safety & Escrow</button>
+      <button type="button" class="faq-pill-btn" data-category="account" role="tab" aria-selected="false">Account</button>
+    </div>
+
+    <!-- ZERO RESULTS PLACEHOLDER -->
+    <div id="faqNoResults" style="display: none; padding: 36px 20px; text-align: center; color: var(--text-dim); background: rgba(13, 21, 31, 0.5); border-radius: var(--radius-xl); border: 1px solid rgba(255, 255, 255, 0.08);">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color: var(--text-faint); margin-bottom: 8px;">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        <line x1="8" y1="11" x2="14" y2="11"></line>
+      </svg>
+      <p style="margin: 0; font-size: 0.92rem; font-weight: 600; color: var(--text-white);">No matching questions found</p>
+      <p style="margin: 4px 0 0; font-size: 0.8rem; color: var(--text-dim);">Try searching with different keywords or contact our Support Desk.</p>
+    </div>
+
+    <!-- ACCORDION LIST -->
+    <div class="faq-accordion-list" id="faqAccordionList">
+
+      <!-- ITEM 1: SWAPPING -->
+      <div class="faq-accordion-item" data-category="swapping">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>How does phone swapping work on NaijaSwap?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            You browse available phones or post your own phone listing. When you find a phone you want to swap for, tap "Propose Swap". Our engine calculates whether you add a top-up or receive cash. Once both parties accept, you book an inspection at a certified physical hub where both devices are tested before final handover.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 2: SWAPPING -->
+      <div class="faq-accordion-item" data-category="swapping">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>Which phones can I swap?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            NaijaSwap supports Apple iPhone and Samsung Galaxy swaps through verified dealer hubs. The top-up difference is calculated based on model, storage, condition, and battery health.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 3: SWAPPING -->
+      <div class="faq-accordion-item" data-category="swapping">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>What if my phone has minor screen scratches or lower battery health?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            You can still swap it! When listing your phone, accurately declare the condition (Pristine, Good, Fair) and battery percentage. Our valuation engine adjusts the top-up difference accordingly so the exchange is 100% fair.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 4: VALUATION -->
+      <div class="faq-accordion-item" data-category="valuation">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>How is the swap top-up difference calculated?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            The top-up amount is calculated by comparing the verified market values of both phones. The algorithm factors in model tier, storage size, cosmetic grade, battery cycles, screen authenticity, and market liquidity across Nigerian tech hubs.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 5: VALUATION -->
+      <div class="faq-accordion-item" data-category="valuation">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>Can I negotiate or propose a custom top-up amount?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            Yes. When proposing or counter-offering a swap, you can adjust the suggested top-up figure. Both swappers must mutually agree on the top-up amount before a hub inspection reservation is confirmed.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 6: VALUATION -->
+      <div class="faq-accordion-item" data-category="valuation">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>What happens if the technician finds undisclosed faults at the hub?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            If testing discovers undisclosed issues (e.g. replaced non-genuine display, degraded Face ID, or liquid damage), the technician provides an objective diagnostic report and revised valuation. Both parties can adjust the top-up difference or cancel the swap with zero penalty.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 7: HUBS -->
+      <div class="faq-accordion-item" data-category="hubs">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>Why are swaps required to take place at physical hubs?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            Physical hubs eliminate fraud, robbery, and counterfeit devices. Instead of meeting an unknown individual in an unsafe spot, swaps take place in verified store hubs with specialized diagnostic equipment, CCTV surveillance, and certified technicians.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 8: HUBS -->
+      <div class="faq-accordion-item" data-category="hubs">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>Where are NaijaSwap physical hubs located?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            Our main hubs are situated at Computer Village (Ikeja, Lagos), Victoria Island, and Banex Plaza (Wuse 2, Abuja). We also operate accredited inspection partners in Port Harcourt (Garrison) and Ibadan (Dugbe).
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 9: HUBS -->
+      <div class="faq-accordion-item" data-category="hubs">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>How long does the 32-point inspection take at the hub?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            Physical triage typically takes 15 to 25 minutes per phone. This comprehensive diagnostic checks touch sensitivity, TrueTone, battery wear cycles, camera focus & LiDAR, biometric security, cellular antennas, and liquid contact indicators.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 10: SAFETY -->
+      <div class="faq-accordion-item" data-category="safety">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>What is the Safe Deal Protocol?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            The Safe Deal Protocol is our fraud-prevention architecture. It mandates that no top-up money or phones change hands until both devices pass blacklist checks, iCloud/FRP lock removals, and physical triage in an authorized hub.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 11: SAFETY -->
+      <div class="faq-accordion-item" data-category="safety">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>How do you prevent stolen or iCloud-locked phones?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            Before any swap is cleared, the technician verifies that the owner has logged out of Apple ID or Google Account and disabled Find My / FRP lock. Every device IMEI is cross-checked against national carrier blacklist and stolen-device registries.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 12: SAFETY -->
+      <div class="faq-accordion-item" data-category="safety">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>What should I do if a user asks to meet outside an official hub?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            Never agree to an off-hub meeting. Doing so forfeits all platform protections and violates NaijaSwap policies. Report any user requesting off-hub meetings immediately to our Support Desk so their account can be investigated.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 13: ACCOUNT -->
+      <div class="faq-accordion-item" data-category="account">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>How do I update my profile or change my password?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            Navigate to More &rarr; Account. From there, tap "Edit Profile" to change your full name, phone number, and photo. Tap "Change Password" to receive a password reset link sent to your verified email.
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEM 14: ACCOUNT -->
+      <div class="faq-accordion-item" data-category="account">
+        <button type="button" class="faq-question-btn" aria-expanded="false">
+          <span>How can I permanently delete my NaijaSwap account?</span>
+          <svg class="faq-chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="faq-answer-pane">
+          <div class="faq-answer-content">
+            Go to More &rarr; Account and scroll to the Danger Zone section. Tap "Delete Account" and confirm. All your listings, active swap requests, and personal records will be permanently erased.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- STILL HAVE QUESTIONS CTA CARD -->
+    <section class="faq-help-cta" aria-label="Contact Support Desk">
+      <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-white); margin: 0 0 6px;">Still have questions?</h3>
+      <p style="font-size: 0.84rem; color: var(--text-dim); margin: 0 0 16px; line-height: 1.5;">
+        Can't find the answer you're looking for? Reach out to our priority support desk.
+      </p>
+      <a href="support.html" class="btn-primary-action" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 12px 24px; font-size: 0.88rem;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>Submit a Support Ticket</span>
+      </a>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       SWAPPER MOBILE BOTTOM NAVIGATION (FLOATING FROSTED GLASS BAR)
+       More is highlighted as the active tab because Help & FAQ is under More
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span>Home</span>
+    </a>
+    <a href="dashboard.html?tab=swaps" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
+      <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
+      <span>My Swaps</span>
+    </a>
+    <a href="dashboard.html?tab=alerts" class="bottom-nav-item" id="navNotifBtn" title="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+    </a>
+    <a href="more.html" class="bottom-nav-item active" id="navMoreBtn" title="More" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>More</span>
+    </a>
+  </nav>
+
+  <!-- ==========================================================================
+       FAQ INTERACTIVE CONTROLLER (ACCORDION & INSTANT SEARCH / FILTER)
+       ========================================================================== -->
+  <script>
+    const searchInput = document.getElementById('faqSearchInput');
+    const categoryButtons = document.querySelectorAll('.faq-pill-btn');
+    const items = document.querySelectorAll('.faq-accordion-item');
+    const noResults = document.getElementById('faqNoResults');
+
+    let activeCategory = 'all';
+    let searchQuery = '';
+
+    // Accordion expand / collapse
+    items.forEach(item => {
+      const btn = item.querySelector('.faq-question-btn');
+      const pane = item.querySelector('.faq-answer-pane');
+
+      btn.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+
+        // Close other accordions for clean accordion UX
+        items.forEach(otherItem => {
+          if (otherItem !== item && otherItem.classList.contains('active')) {
+            otherItem.classList.remove('active');
+            otherItem.querySelector('.faq-question-btn')?.setAttribute('aria-expanded', 'false');
+            const otherPane = otherItem.querySelector('.faq-answer-pane');
+            if (otherPane) otherPane.style.maxHeight = '0';
+          }
+        });
+
+        if (isActive) {
+          item.classList.remove('active');
+          btn.setAttribute('aria-expanded', 'false');
+          pane.style.maxHeight = '0';
+        } else {
+          item.classList.add('active');
+          btn.setAttribute('aria-expanded', 'true');
+          pane.style.maxHeight = pane.scrollHeight + 20 + 'px';
+        }
+      });
+    });
+
+    // Filter Items by category and search text
+    function applyFilters() {
+      let visibleCount = 0;
+
+      items.forEach(item => {
+        const itemCategory = item.getAttribute('data-category');
+        const textContent = item.textContent.toLowerCase();
+
+        const matchesCategory = activeCategory === 'all' || itemCategory === activeCategory;
+        const matchesSearch = !searchQuery || textContent.includes(searchQuery);
+
+        if (matchesCategory && matchesSearch) {
+          item.style.display = 'block';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+
+      if (noResults) {
+        noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+      }
+    }
+
+    // Category button clicks
+    categoryButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        categoryButtons.forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        activeCategory = btn.getAttribute('data-category');
+        applyFilters();
+      });
+    });
+
+    // Search input handler with debounce
+    let debounceTimer;
+    searchInput?.addEventListener('input', (e) => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        searchQuery = e.target.value.trim().toLowerCase();
+        applyFilters();
+      }, 150);
+    });
+
+    // Check localStorage for swap count badge on bottom nav
+    try {
+      const storedSwaps = localStorage.getItem('niger_swaps_consumer');
+      if (storedSwaps) {
+        const parsed = JSON.parse(storedSwaps);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const badge = document.getElementById('mobileSwapsBadge');
+          if (badge) {
+            badge.textContent = parsed.length;
+            badge.style.display = 'inline-block';
+          }
+        }
+      }
+    } catch (_) {}
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store Hub — NaijaSwap Partner Portal</title>
+  <meta name="description" content="Manage your phone store inventory, receive customer swap trade-in requests, and track store activity on NaijaSwap.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+
+  <!-- Ambient Glows -->
+  <div class="dash-glow dash-glow-1"></div>
+  <div class="dash-glow dash-glow-2"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <a href="dealer-dashboard.html" class="brand-logo" aria-label="NaijaSwap Store Portal">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span class="brand-name">Naija<span>Swap</span></span>
+      </a>
+    </div>
+
+    <div class="dash-header-right">
+
+      <!-- Store Profile Menu -->
+      <div class="user-menu-wrapper">
+        <button type="button" class="user-profile-btn" id="storeMenuBtn" aria-expanded="false" aria-haspopup="true">
+          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));">S</div>
+          <span class="user-name-text" id="topStoreName">My Store</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+
+        <div class="user-dropdown" id="storeDropdown">
+          <a href="dealer-listings.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <span>My Listings</span>
+          </a>
+          <a href="dealer-requests.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Swap Requests</span>
+          </a>
+          <a href="dealer-activity.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span>Activity &amp; Audit Log</span>
+          </a>
+          <a href="account.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profile</span>
+          </a>
+          <a href="dashboard.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Customer View</span>
+          </a>
+          <a href="index.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span>Marketplace Home</span>
+          </a>
+          <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Store Dashboard Content -->
+  <main class="dash-main">
+
+    <!-- Dynamic Verification Status Alert Banner -->
+    <div id="dealerVerificationBanner" style="display:none;margin-bottom:20px;border-radius:var(--radius-lg);padding:14px 18px;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="bannerStatusIcon" style="font-size:1.4rem;">⏳</span>
+        <div>
+          <div id="bannerStatusTitle" style="font-weight:700;font-size:0.92rem;color:#FFF;">Store Verification Pending Review</div>
+          <div id="bannerStatusDesc" style="font-size:0.8rem;color:var(--text-muted);">Your documents are being reviewed by the compliance team. Listings are locked until verified.</div>
+        </div>
+      </div>
+      <a id="bannerStatusBtn" href="dealer-verification.html" class="btn-cancel" style="text-decoration:none;font-size:0.82rem;padding:8px 14px;white-space:nowrap;">
+        View Status &rarr;
+      </a>
+    </div>
+
+    <!-- Welcome Section -->
+    <div class="store-welcome-card">
+      <div class="welcome-title-wrap">
+        <h1 id="welcomeGreeting">Good morning, <span id="storeNameGreeting">Partner Store</span></h1>
+        <p class="welcome-subtitle">Manage phone inventory, review incoming swap trade-ins, and connect with verified buyers.</p>
+      </div>
+      <div class="store-header-actions">
+        <a href="dealer-listings.html" class="btn-primary-action" style="text-decoration: none;">
+          <span>Manage Listings</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Overview Cards (4 Compact Interactive Cards) -->
+    <div class="overview-grid" role="region" aria-label="Store Overview Metrics">
+      <!-- Card 1: Active Listings (Links to dedicated dealer-listings.html) -->
+      <a href="dealer-listings.html" class="overview-card" id="cardListingsFilter" style="text-decoration: none; cursor: pointer;">
+        <div class="overview-icon-box icon-cyan">📦</div>
+        <div class="overview-info">
+          <span class="overview-number" id="statActiveListings">0</span>
+          <span class="overview-label">Active Listings</span>
+        </div>
+      </a>
+
+      <!-- Card 2: Total Swap Requests (Links to dedicated dealer-requests.html) -->
+      <a href="dealer-requests.html" class="overview-card" id="cardRequestsFilter" style="text-decoration: none; cursor: pointer;">
+        <div class="overview-icon-box icon-green">💬</div>
+        <div class="overview-info">
+          <span class="overview-number" id="statSwapRequests">0</span>
+          <span class="overview-label">Swap Requests</span>
+        </div>
+      </a>
+
+      <!-- Card 3: Pending Requests (Links to dedicated dealer-requests.html?status=Pending) -->
+      <a href="dealer-requests.html?status=Pending" class="overview-card" id="cardPendingFilter" style="text-decoration: none; cursor: pointer;">
+        <div class="overview-icon-box icon-amber">⏳</div>
+        <div class="overview-info">
+          <span class="overview-number" id="statPendingRequests">0</span>
+          <span class="overview-label">Pending Requests</span>
+        </div>
+      </a>
+
+      <!-- Card 4: Completed Swaps -->
+      <div class="overview-card" id="cardCompletedFilter">
+        <div class="overview-icon-box icon-rose">✅</div>
+        <div class="overview-info">
+          <span class="overview-number" id="statCompletedSwaps">0</span>
+          <span class="overview-label">Completed Swaps</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout Grid: Swap Requests & Recent Activity -->
+    <div class="dealer-layout-grid" id="requestsSection">
+      
+      <!-- Swap Requests Section (Compact Dashboard Overview) -->
+      <div>
+        <div class="section-header-row">
+          <div>
+            <h2 class="section-title">Swap Requests</h2>
+            <p class="section-subtitle">Recent trade-in requests submitted for your phones</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="status-badge status-pending" id="pendingCounterBadge">0 Pending</span>
+            <a href="dealer-requests.html" class="btn-primary-action" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none;">
+              <span>View All &rarr;</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="swap-requests-list" id="swapRequestsContainer">
+          <!-- Default Skeleton Requests -->
+          <div class="skeleton-swap-req-card" aria-hidden="true">
+            <div class="skeleton-box skeleton-shimmer" style="width: 55%; height: 18px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 75%; height: 14px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 35%; height: 14px;"></div>
+          </div>
+          <div class="skeleton-swap-req-card" aria-hidden="true">
+            <div class="skeleton-box skeleton-shimmer" style="width: 55%; height: 18px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 75%; height: 14px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 35%; height: 14px;"></div>
+          </div>
+        </div>
+
+        <!-- Empty State for Requests -->
+        <div class="empty-state-box" id="emptyRequestsBox" style="display: none;">
+          <div class="empty-state-icon">💬</div>
+          <h3 class="empty-state-title">No swap requests yet</h3>
+          <p class="empty-state-desc">New swap requests submitted by customers for your store inventory will appear here.</p>
+        </div>
+      </div>
+
+      <!-- Recent Activity Section -->
+      <div id="activitySection">
+        <div class="section-header-row">
+          <div>
+            <h2 class="section-title">Recent Activity</h2>
+            <p class="section-subtitle">Timeline of listings and swap updates</p>
+          </div>
+          <a href="dealer-activity.html" class="btn-primary-action" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none;">
+            <span>View All Activity &rarr;</span>
+          </a>
+        </div>
+
+        <div class="activity-timeline" id="activityTimelineContainer">
+          <!-- Dynamically populated from NaijaSwapData -->
+        </div>
+
+        <!-- Empty State for Activity -->
+        <div class="empty-state-box" id="emptyActivityBox" style="display: none; padding: 32px 16px;">
+          <div class="empty-state-icon" style="width: 48px; height: 48px; font-size: 1.3rem;">⚡</div>
+          <h3 class="empty-state-title" style="font-size: 1rem;">No recent activity</h3>
+          <p class="empty-state-desc" style="font-size: 0.8rem; margin-bottom: 0;">Store actions, new phone listings, and swap responses will be logged here.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- My Listings Section (Store Inventory) -->
+    <section id="listingsSection" style="margin-top: 10px;">
+      <div class="section-header-row">
+        <div>
+          <h2 class="section-title">My Listings</h2>
+          <p class="section-subtitle">Available phones currently listed for swap in your store</p>
+        </div>
+        <a href="dealer-listings.html" class="btn-primary-action" style="text-decoration: none;">
+          <span>View All Listings &rarr;</span>
+        </a>
+      </div>
+
+      <div class="store-listings-grid" id="storeListingsContainer">
+        <!-- Default Skeleton Inventory -->
+        <article class="skeleton-phone-card" aria-hidden="true">
+          <div class="skeleton-media skeleton-shimmer"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-title-line skeleton-shimmer"></div>
+            <div class="skeleton-specs-line skeleton-shimmer"></div>
+            <div class="skeleton-location-line skeleton-shimmer"></div>
+          </div>
+          <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
+        </article>
+        <article class="skeleton-phone-card" aria-hidden="true">
+          <div class="skeleton-media skeleton-shimmer"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-title-line skeleton-shimmer"></div>
+            <div class="skeleton-specs-line skeleton-shimmer"></div>
+            <div class="skeleton-location-line skeleton-shimmer"></div>
+          </div>
+          <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
+        </article>
+        <article class="skeleton-phone-card" aria-hidden="true">
+          <div class="skeleton-media skeleton-shimmer"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-title-line skeleton-shimmer"></div>
+            <div class="skeleton-specs-line skeleton-shimmer"></div>
+            <div class="skeleton-location-line skeleton-shimmer"></div>
+          </div>
+          <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
+        </article>
+      </div>
+
+      <!-- Empty State for Listings -->
+      <div class="empty-state-box" id="emptyListingsBox" style="display: none;">
+        <div class="empty-state-icon">📦</div>
+        <h3 class="empty-state-title">No phone listings yet</h3>
+        <p class="empty-state-desc">You haven't listed any phones for swap in your store. Add your first phone to receive customer trade-in offers.</p>
+        <a href="dealer-listings.html?action=new" class="btn-primary-action" id="emptyAddPhoneBtn" style="text-decoration: none;">+ List First Phone</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       STORE / DEALER MOBILE BOTTOM NAVIGATION (GLASS EFFECT)
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav" aria-label="Store Navigation">
+    <button type="button" class="bottom-nav-item active" id="navDashBtn" title="Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span>Dashboard</span>
+    </button>
+    <a href="dealer-listings.html" class="bottom-nav-item" id="navListingsBtn" title="My Listings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+      <span>Listings</span>
+    </a>
+    <a href="dealer-requests.html" class="bottom-nav-item" id="navRequestsBtn" title="Swap Requests">
+      <span class="bottom-nav-badge" id="mobileRequestsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Requests</span>
+    </a>
+    <a href="dealer-activity.html" class="bottom-nav-item" id="navActivityBtn" title="Activity">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      <span>Activity</span>
+    </a>
+    <a href="more.html" class="bottom-nav-item" id="navStoreMoreBtn" title="More">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>More</span>
+    </a>
+  </nav>
+
+  <!-- ==========================================================================
+       MODAL: VIEW SWAP REQUEST DETAILS
+       ========================================================================== -->
+  <div class="modal-backdrop" id="viewRequestModal" role="dialog" aria-modal="true" aria-labelledby="viewReqModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="status-badge status-pending" id="modalReqStatusBadge">Pending</span>
+          <h2 class="modal-title" id="viewReqModalTitle" style="margin-top: 4px;">Swap Request Details</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeViewReqModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+        <span style="font-size: 0.74rem; color: var(--text-faint); text-transform: uppercase; font-weight: 700; display: block;">Customer Information</span>
+        <strong id="modalCustomerName" style="color: #FFF; font-size: 1rem; display: block; margin-top: 2px;">Emeka O.</strong>
+        <span id="modalCustomerContact" style="font-size: 0.8rem; color: var(--text-muted);">emeka@gmail.com</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 10px;">
+          <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Customer's Phone:</span>
+          <strong id="modalCustomerPhone" style="font-size: 0.88rem; color: #FFF;">iPhone 13 Pro (128GB)</strong>
+          <span id="modalCustomerCondition" style="font-size: 0.76rem; color: var(--emerald-400); display: block; margin-top: 2px;">Grade A</span>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 10px;">
+          <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Store Phone Requested:</span>
+          <strong id="modalTargetPhone" style="font-size: 0.88rem; color: var(--cyan-400);">iPhone 15 Pro (256GB)</strong>
+          <span id="modalTopupVal" style="font-size: 0.76rem; color: var(--emerald-400); font-weight: 700; display: block; margin-top: 2px;">+₦240,000 Top-Up</span>
+        </div>
+      </div>
+
+      <div id="modalNoteBox" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px; margin-bottom: 20px; font-size: 0.82rem; color: var(--text-dim);">
+        <span style="font-size: 0.72rem; color: var(--text-faint); display: block; margin-bottom: 2px;">Customer Note:</span>
+        <span id="modalNoteText">No additional notes provided.</span>
+      </div>
+
+      <div style="display: flex; gap: 10px;" id="modalActionButtonsRow">
+        <button type="button" class="btn-primary-action" id="modalAcceptBtn" style="flex: 1; justify-content: center;">
+          <span>Accept Swap Request</span>
+        </button>
+        <button type="button" class="btn-action-sm btn-decline" id="modalDeclineBtn" style="padding: 10px 18px; border-radius: var(--radius-full);">
+          <span>Decline</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: BUSINESS VERIFICATION REQUIRED NOTICE (POPUP MESSAGE)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="dealerVerificationModal" role="dialog" aria-modal="true" aria-labelledby="dealerVerificationTitle">
+    <div class="modal-card" style="max-width: 480px; text-align: center; padding: 32px 24px; position: relative;">
+      <button type="button" class="modal-close-btn" id="closeVerificationModal" aria-label="Close modal" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+
+      <!-- Verification Shield Icon -->
+      <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(239, 68, 68, 0.12)); border: 1.5px solid rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 16px; box-shadow: 0 10px 28px rgba(245, 158, 11, 0.2);">
+        🛡️
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <span class="tag-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--amber-400); border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.74rem; font-weight: 700; padding: 4px 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+          Business Verification Required
+        </span>
+      </div>
+
+      <h2 class="modal-title" id="dealerVerificationTitle" style="font-size: 1.35rem; font-weight: 800; color: #FFF; margin-bottom: 12px; line-height: 1.3;">
+        You Cannot List Phones Yet
+      </h2>
+
+      <p style="color: var(--text-dim, #cbd5e1); font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px;">
+        You cannot list phones for swap or sale on NigerSwap yet because you are <strong style="color: #FFF; font-weight: 700;">yet to complete your business verification</strong>.
+      </p>
+
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 24px; text-align: left; font-size: 0.82rem; color: var(--text-muted); display: flex; gap: 12px; align-items: flex-start; line-height: 1.5;">
+        <span style="font-size: 1.2rem; flex-shrink: 0; line-height: 1;">🏬</span>
+        <span>To protect buyers, ensure trust, and activate your <strong>Verified Store</strong> status on the marketplace, all partner stores must submit their National ID (NIN), BVN, and Physical Shop Address before publishing inventory.</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <a href="dealer-verification.html?required=create%20a%20listing" class="btn-primary-action" id="proceedToVerificationBtn" style="justify-content: center; padding: 15px 20px; font-size: 0.98rem; text-decoration: none; border-radius: var(--radius-md); background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400)); border: none; box-shadow: 0 4px 18px rgba(6, 182, 212, 0.35);">
+          <span>Complete Business Verification &rarr;</span>
+        </a>
+        <button type="button" class="btn-cancel" id="dismissVerificationModalBtn" style="justify-content: center; padding: 12px 18px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.02); color: var(--text-muted); font-size: 0.88rem; cursor: pointer; transition: all var(--spring-fast);">
+          <span>Maybe Later</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module">
+    import { requireCompleteProfile, isProfileComplete, resolveMedia } from './js/profile.js';
+    import { NaijaSwapData } from './js/dashboard-data.js';
+    import { logNigerSwap } from './js/auth.js';
+    import { db, doc, getDoc } from './js/firebase-config.js';
+
+    let currentStoreId = '';
+    let currentStoreName = 'Store Portal';
+    let activeInspectedReq = null;
+    let dealerReady = false;
+    let dealerAuthUser = null;
+
+    // Immediate synchronous cache pre-fill
+    try {
+      const stored = localStorage.getItem('nigerswap_user');
+      if (stored) {
+        dealerAuthUser = JSON.parse(stored);
+        if (dealerAuthUser?.uid) {
+          currentStoreId = dealerAuthUser.uid;
+          const storedShop = localStorage.getItem('nigerswap_shop_' + dealerAuthUser.uid);
+          if (storedShop) currentStoreName = storedShop;
+        }
+      }
+    } catch (_) {}
+
+    // Define user hook immediately before any auth event fires
+    window.onNigerSwapUserReady = (user, role) => {
+      console.info('[NigerSwap Dealer] Dealer profile ready:', { uid: user?.uid, email: user?.email, role });
+      if (user) {
+        dealerAuthUser = user;
+        dealerReady = true;
+        currentStoreId = user.uid;
+        
+        const storedShop = localStorage.getItem('nigerswap_shop_' + user.uid);
+        currentStoreName = storedShop || (user.displayName ? `${user.displayName}'s Gadgets` : 'My Gadget Store');
+
+        const topName = document.getElementById('topStoreName');
+        const avatarEl = document.getElementById('storeAvatarFallback');
+        if (topName) topName.textContent = currentStoreName;
+
+        const storedPhoto = localStorage.getItem('nigerswap_photo_' + user.uid);
+        if (avatarEl) {
+          if (storedPhoto) {
+            resolveMedia(storedPhoto).then(src => {
+              if (src && avatarEl) {
+                avatarEl.innerHTML = `<img src="${src}" alt="${currentStoreName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+              }
+            });
+          } else {
+            avatarEl.textContent = currentStoreName.charAt(0).toUpperCase();
+          }
+        }
+
+        refreshDashboard();
+      }
+    };
+
+    // Elements
+    const statActiveListings = document.getElementById('statActiveListings');
+    const statSwapRequests = document.getElementById('statSwapRequests');
+    const statPendingRequests = document.getElementById('statPendingRequests');
+    const statCompletedSwaps = document.getElementById('statCompletedSwaps');
+    const pendingCounterBadge = document.getElementById('pendingCounterBadge');
+    const swapRequestsContainer = document.getElementById('swapRequestsContainer');
+    const emptyRequestsBox = document.getElementById('emptyRequestsBox');
+    const storeListingsContainer = document.getElementById('storeListingsContainer');
+    const emptyListingsBox = document.getElementById('emptyListingsBox');
+    const activityTimelineContainer = document.getElementById('activityTimelineContainer');
+    const emptyActivityBox = document.getElementById('emptyActivityBox');
+    const mobileRequestsBadge = document.getElementById('mobileRequestsBadge');
+
+    // Modals
+    const viewRequestModal = document.getElementById('viewRequestModal');
+    const closeViewReqModal = document.getElementById('closeViewReqModal');
+
+    // Navigation & Dropdown
+    const storeMenuBtn = document.getElementById('storeMenuBtn');
+    const storeDropdown = document.getElementById('storeDropdown');
+    const navDashBtn = document.getElementById('navDashBtn');
+    const navListingsBtn = document.getElementById('navListingsBtn');
+    const navRequestsBtn = document.getElementById('navRequestsBtn');
+    const navActivityBtn = document.getElementById('navActivityBtn');
+
+    // Dynamic Time Greeting
+    function updateGreeting() {
+      const hour = new Date().getHours();
+      let greeting = 'Good morning';
+      if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+      else if (hour >= 17) greeting = 'Good evening';
+      
+      const welcomeGreeting = document.getElementById('welcomeGreeting');
+      if (welcomeGreeting) {
+        welcomeGreeting.innerHTML = `${greeting}, <span id="storeNameGreeting">${escapeHtml(currentStoreName)}</span>`;
+      }
+    }
+
+    // Refresh Overview Counts
+    function refreshStats() {
+      const stats = NaijaSwapData.getStoreStats(currentStoreId);
+      if (statActiveListings) statActiveListings.textContent = stats.activeListings;
+      if (statSwapRequests) statSwapRequests.textContent = stats.totalRequests;
+      if (statPendingRequests) statPendingRequests.textContent = stats.pendingRequests;
+      if (statCompletedSwaps) statCompletedSwaps.textContent = stats.completedSwaps;
+      if (pendingCounterBadge) pendingCounterBadge.textContent = `${stats.pendingRequests} Pending`;
+      
+      if (mobileRequestsBadge) {
+        if (stats.pendingRequests > 0) {
+          mobileRequestsBadge.textContent = stats.pendingRequests;
+          mobileRequestsBadge.style.display = 'inline-block';
+        } else {
+          mobileRequestsBadge.style.display = 'none';
+        }
+      }
+    }
+
+    // Render Swap Requests (Compact Preview for Dashboard)
+    async function renderSwapRequests() {
+      let requests;
+      try {
+        requests = await NaijaSwapData.getStoreSwapRequestsRemote(dealerAuthUser?.uid || currentStoreId);
+      } catch (error) {
+        console.warn('[NigerSwap] Remote dealer requests unavailable; using cached requests.', error);
+        requests = NaijaSwapData.getStoreSwapRequests(currentStoreId);
+      }
+      if (!swapRequestsContainer) return;
+
+      if (requests.length === 0) {
+        swapRequestsContainer.innerHTML = '';
+        emptyRequestsBox.style.display = 'flex';
+        return;
+      }
+
+      emptyRequestsBox.style.display = 'none';
+      swapRequestsContainer.innerHTML = '';
+
+      // Compact view: Show top 3 recent requests on dashboard
+      const previewRequests = requests.slice(0, 3);
+
+      previewRequests.forEach(req => {
+        const card = document.createElement('div');
+        card.className = 'request-card fade-in-content';
+
+        let badgeClass = 'status-pending';
+        if (req.status === 'accepted') badgeClass = 'status-accepted';
+        else if (req.status === 'rejected') badgeClass = 'status-declined';
+        else if (req.status === 'completed') badgeClass = 'status-completed';
+
+        const initial = (req.customerName || 'C').charAt(0).toUpperCase();
+
+        card.innerHTML = `
+          <div class="request-card-header">
+            <div class="request-customer-meta">
+              <div class="request-avatar">${initial}</div>
+              <div>
+                <span class="request-customer-name">${escapeHtml(req.customerName)}</span>
+                <div class="request-timestamp">${NaijaSwapData.formatRelativeTime(req.createdAt)} • ${escapeHtml(req.location)}</div>
+              </div>
+            </div>
+            <span class="status-badge ${badgeClass}">${req.status}</span>
+          </div>
+
+          <div class="request-swap-body">
+            <div>
+              <span class="swap-phone-desc">Offering: <strong>${escapeHtml(req.currentPhone)}</strong> (${escapeHtml(req.currentCondition)})</span>
+              <div style="font-size: 0.8rem; color: var(--cyan-400); margin-top: 2px; font-weight: 600;">Wants: ${escapeHtml(req.targetPhone)} ${escapeHtml(req.targetStorage || '')}</div>
+            </div>
+            <div style="text-align: right;">
+              <span class="topup-label">Offer Top-Up</span>
+              <div class="swap-topup-value">${escapeHtml(req.topupOffered)}</div>
+            </div>
+          </div>
+
+          <div class="request-actions-row">
+            <button type="button" class="btn-action-sm btn-view-req" data-id="${req.id}">Quick View</button>
+            <a href="dealer-requests.html?id=${encodeURIComponent(req.id)}" class="btn-action-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px;">Full Details &rarr;</a>
+            ${req.status === 'pending' ? `
+              <button type="button" class="btn-action-sm btn-accept" data-id="${req.id}">Accept</button>
+              <button type="button" class="btn-action-sm btn-decline" data-id="${req.id}">Decline</button>
+            ` : ''}
+          </div>
+        `;
+
+        // Action button event bindings
+        card.querySelector('.btn-view-req')?.addEventListener('click', () => openRequestDetails(req));
+        card.querySelector('.btn-accept')?.addEventListener('click', () => handleAcceptRequest(req.id));
+        card.querySelector('.btn-decline')?.addEventListener('click', () => handleDeclineRequest(req.id));
+
+        swapRequestsContainer.appendChild(card);
+      });
+
+      // Footer callout link to dedicated dealer-requests.html
+      const footerLinkBox = document.createElement('div');
+      footerLinkBox.style.cssText = 'padding: 12px 0 4px; text-align: center; border-top: 1px solid var(--border-light); margin-top: 8px;';
+      footerLinkBox.innerHTML = `
+        <a href="dealer-requests.html" style="color: var(--cyan-400); font-weight: 600; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+          <span>View All Swap Requests (${requests.length}) with Triage &amp; Media</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+      `;
+      swapRequestsContainer.appendChild(footerLinkBox);
+    }
+
+    function handleAcceptRequest(reqId) {
+      NaijaSwapData.updateSwapRequestStatus(reqId, 'Accepted', currentStoreId);
+      refreshDashboard();
+    }
+
+    function handleDeclineRequest(reqId) {
+      NaijaSwapData.updateSwapRequestStatus(reqId, 'Declined', currentStoreId);
+      refreshDashboard();
+    }
+
+    // Open Request Details Modal
+    function openRequestDetails(req) {
+      activeInspectedReq = req;
+      document.getElementById('modalReqStatusBadge').textContent = req.status;
+      document.getElementById('modalReqStatusBadge').className = `status-badge ${req.status === 'accepted' ? 'status-accepted' : req.status === 'rejected' ? 'status-declined' : 'status-pending'}`;
+      document.getElementById('modalCustomerName').textContent = req.customerName;
+      document.getElementById('modalCustomerContact').textContent = req.customerEmail || req.customerPhone || 'Verified Customer';
+      document.getElementById('modalCustomerPhone').textContent = req.currentPhone;
+      document.getElementById('modalCustomerCondition').textContent = req.currentCondition;
+      document.getElementById('modalTargetPhone').textContent = `${req.targetPhone} ${req.targetStorage || ''}`;
+      document.getElementById('modalTopupVal').textContent = `+${req.topupOffered} Top-Up`;
+      document.getElementById('modalNoteText').textContent = req.note || 'No additional notes provided.';
+
+      const actionsRow = document.getElementById('modalActionButtonsRow');
+      if (actionsRow) {
+        actionsRow.style.display = req.status === 'pending' ? 'flex' : 'none';
+      }
+
+      viewRequestModal.classList.add('active');
+    }
+
+    document.getElementById('modalAcceptBtn')?.addEventListener('click', () => {
+      if (activeInspectedReq) {
+        handleAcceptRequest(activeInspectedReq.id);
+        viewRequestModal.classList.remove('active');
+      }
+    });
+
+    document.getElementById('modalDeclineBtn')?.addEventListener('click', () => {
+      if (activeInspectedReq) {
+        handleDeclineRequest(activeInspectedReq.id);
+        viewRequestModal.classList.remove('active');
+      }
+    });
+
+    // Render Store Listings
+    function renderStoreListings() {
+      const listings = NaijaSwapData.getStoreListings(currentStoreId);
+      if (!storeListingsContainer) return;
+
+      if (listings.length === 0) {
+        storeListingsContainer.innerHTML = '';
+        emptyListingsBox.style.display = 'flex';
+        return;
+      }
+
+      emptyListingsBox.style.display = 'none';
+      storeListingsContainer.innerHTML = '';
+
+      listings.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'store-listing-card fade-in-content';
+
+        card.innerHTML = `
+          <div class="listing-card-media">
+            <img src="${item.image}" alt="${item.model}" class="listing-card-img" loading="lazy">
+            <div class="phone-tags-floating">
+              <span class="tag-badge tag-verified">● Active Listing</span>
+            </div>
+          </div>
+          <div class="listing-card-body">
+            <span class="listing-title">${escapeHtml(item.model)}</span>
+            <div class="phone-specs-line">
+              <span>${escapeHtml(item.storage)}</span>
+              <span>•</span>
+              <span>${escapeHtml(item.conditionGrade || item.condition)}</span>
+            </div>
+            <div class="phone-location-line">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>${escapeHtml(item.location)}</span>
+            </div>
+            <div class="phone-topup-badge" style="margin-top: 8px;">
+              <span class="topup-label">${item.isSwapAllowed ? 'Cash / Swap Value' : 'Cash Outright'}</span>
+              <span class="topup-amount">₦${(item.cashOutrightPrice || item.marketValue || 0).toLocaleString()}</span>
+            </div>
+          </div>
+          <div class="listing-actions-row">
+            <span style="font-size: 0.72rem; color: var(--text-faint);">Added ${NaijaSwapData.formatRelativeTime(item.createdAt)}</span>
+            <button type="button" class="btn-delete-listing" data-id="${item.id}">Remove</button>
+          </div>
+        `;
+
+        card.querySelector('.btn-delete-listing')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (confirm(`Remove ${item.model} from your active store inventory?`)) {
+            NaijaSwapData.deleteListing(item.id, currentStoreId);
+            refreshDashboard();
+          }
+        });
+
+        storeListingsContainer.appendChild(card);
+      });
+    }
+
+    // Render Recent Activity
+    function renderActivityTimeline() {
+      const activities = NaijaSwapData.getStoreActivity(currentStoreId);
+      if (!activityTimelineContainer) return;
+
+      if (activities.length === 0) {
+        activityTimelineContainer.innerHTML = '';
+        emptyActivityBox.style.display = 'flex';
+        return;
+      }
+
+      emptyActivityBox.style.display = 'none';
+      activityTimelineContainer.innerHTML = '';
+
+      activities.forEach(act => {
+        const item = document.createElement('div');
+        item.className = 'activity-item';
+
+        let iconNode = '⚡';
+        let bgStyle = 'background: rgba(255,255,255,0.06); color: #FFF;';
+        if (act.type === 'swap_request' || act.type === 'swap_received') {
+          iconNode = '💬';
+          bgStyle = 'background: var(--cyan-subtle); color: var(--cyan-400); border: 1px solid var(--cyan-border);';
+        } else if (act.type === 'swap_accepted') {
+          iconNode = '✅';
+          bgStyle = 'background: var(--emerald-subtle); color: var(--emerald-400); border: 1px solid var(--emerald-border);';
+        } else if (act.type === 'listing_added' || act.type === 'phone_added') {
+          iconNode = '📦';
+          bgStyle = 'background: var(--amber-subtle); color: var(--amber-400); border: 1px solid var(--amber-border);';
+        }
+
+        item.innerHTML = `
+          <div class="activity-icon-node" style="${bgStyle}">${iconNode}</div>
+          <div class="activity-text-col">
+            <span class="activity-title">${escapeHtml(act.title)}</span>
+            <span class="activity-desc">${escapeHtml(act.description)}</span>
+            <span class="activity-time">${NaijaSwapData.formatRelativeTime(act.createdAt)}</span>
+          </div>
+        `;
+        activityTimelineContainer.appendChild(item);
+      });
+    }
+
+    async function refreshDashboard() {
+      try {
+        console.info('[NigerSwap Dealer] Refreshing dashboard components with store ID:', currentStoreId);
+        updateGreeting();
+        refreshStats();
+        renderSwapRequests();
+        renderStoreListings();
+        renderActivityTimeline();
+        const uid = dealerAuthUser?.uid || currentStoreId || localStorage.getItem('nigerswap_last_uid');
+        if (uid) await renderVerificationBanner(uid);
+      } catch (error) {
+        console.error('[NigerSwap Dealer] Failed to refresh dashboard:', error);
+      }
+    }
+
+    async function renderVerificationBanner(uid) {
+      const banner = document.getElementById('dealerVerificationBanner');
+      if (!banner) return;
+      let status = localStorage.getItem('nigerswap_dealer_status_' + uid)
+        || (localStorage.getItem('nigerswap_dealer_verified_' + uid) === 'true' ? 'approved' : 'unverified');
+      let rejectionReason = localStorage.getItem('nigerswap_dealer_reject_reason_' + uid) || '';
+
+      try {
+        const remote = await getDoc(doc(db, 'dealerVerification', uid));
+        if (remote.exists()) {
+          const remoteData = remote.data();
+          status = remoteData.status || status;
+          rejectionReason = remoteData.rejectionReason || rejectionReason;
+          localStorage.setItem('nigerswap_dealer_status_' + uid, status);
+          if (rejectionReason) localStorage.setItem('nigerswap_dealer_reject_reason_' + uid, rejectionReason);
+        }
+      } catch (error) {
+        console.warn('[NigerSwap Dealer] Could not load remote verification status:', error.message);
+      }
+
+      const icon = document.getElementById('bannerStatusIcon');
+      const title = document.getElementById('bannerStatusTitle');
+      const desc = document.getElementById('bannerStatusDesc');
+      const btn = document.getElementById('bannerStatusBtn');
+
+      if (status === 'pending') {
+        banner.style.display = 'flex';
+        banner.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(6,182,212,0.06))';
+        banner.style.border = '1px solid rgba(245,158,11,0.35)';
+        icon.textContent = '⏳';
+        title.textContent = 'Business Verification Under Review';
+        title.style.color = 'var(--amber-400)';
+        desc.textContent = 'Your KYC documents were submitted and are currently awaiting review. Approvals typically take 2–4 hours.';
+        btn.textContent = 'View Submitted Details \u2192';
+        btn.href = 'dealer-verification.html';
+      } else if (status === 'rejected') {
+        const reason = rejectionReason || 'Some uploaded documents need correction.';
+        banner.style.display = 'flex';
+        banner.style.background = 'rgba(244,63,94,0.12)';
+        banner.style.border = '1px solid rgba(244,63,94,0.35)';
+        icon.textContent = '⚠️';
+        title.textContent = 'Verification Needs Correction';
+        title.style.color = 'var(--rose-400)';
+        desc.textContent = `Action required: ${reason}`;
+        btn.textContent = 'Update Documents \u2192';
+        btn.href = 'dealer-verification.html?edit=true';
+      } else if (status === 'unverified') {
+        banner.style.display = 'flex';
+        banner.style.background = 'rgba(6,182,212,0.08)';
+        banner.style.border = '1px solid rgba(6,182,212,0.25)';
+        icon.textContent = '🏬';
+        title.textContent = 'Complete Business Verification';
+        title.style.color = 'var(--cyan-400)';
+        desc.textContent = 'Verify your NIN, BVN, and physical shop address to activate verified status and publish inventory.';
+        btn.textContent = 'Verify Now \u2192';
+        btn.href = 'dealer-verification.html';
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    // Initial render call
+    refreshDashboard();
+
+    const dealerVerificationModal = document.getElementById('dealerVerificationModal');
+    const closeVerificationModal = document.getElementById('closeVerificationModal');
+    const dismissVerificationModalBtn = document.getElementById('dismissVerificationModalBtn');
+    async function updateVerificationModalContent(uid) {
+      if (!uid) return;
+      let status = localStorage.getItem('nigerswap_dealer_status_' + uid);
+      try {
+        const remote = await getDoc(doc(db, 'dealerVerification', uid));
+        if (remote.exists() && remote.data().status) {
+          status = remote.data().status;
+          localStorage.setItem('nigerswap_dealer_status_' + uid, status);
+        }
+      } catch (error) {
+        console.warn('[NigerSwap Dealer] Could not load modal verification status:', error.message);
+      }
+      const titleEl = document.getElementById('dealerVerificationTitle');
+      const descEl = titleEl ? titleEl.nextElementSibling : null;
+      const btnEl = document.getElementById('proceedToVerificationBtn');
+      if (status === 'pending') {
+        if (titleEl) titleEl.textContent = 'Verification Under Review';
+        if (descEl) descEl.innerHTML = 'Your store documents have been submitted and are currently <strong style="color:var(--amber-400);">pending review by our admin team</strong>. Approvals typically take 2–4 hours.';
+        if (btnEl) btnEl.innerHTML = '<span>View / Edit Submitted Details &rarr;</span>';
+      } else if (status === 'rejected') {
+        const reason = localStorage.getItem('nigerswap_dealer_reject_reason_' + uid) || 'Some details did not meet our verification guidelines.';
+        if (titleEl) titleEl.textContent = 'Verification Needs Correction';
+        if (descEl) descEl.innerHTML = `Your application was not approved: <strong style="color:var(--rose-400);">${reason}</strong>. Please update your details and re-submit.`;
+        if (btnEl) btnEl.innerHTML = '<span>Update Documents &amp; Re-submit &rarr;</span>';
+      }
+    }
+
+    if (emptyAddPhoneBtn) {
+      emptyAddPhoneBtn.addEventListener('click', (e) => {
+        const activeUser = dealerAuthUser || { uid: localStorage.getItem('nigerswap_last_uid') };
+        if (!isProfileComplete(activeUser, 'dealer')) {
+          e.preventDefault();
+          sessionStorage.setItem('nigerswap_profile_required_action', 'create a listing');
+          updateVerificationModalContent(activeUser?.uid);
+          if (dealerVerificationModal) {
+            dealerVerificationModal.classList.add('active');
+          } else {
+            window.location.href = 'dealer-verification.html?required=create%20a%20listing';
+          }
+        }
+      });
+    }
+
+    // Modal handlers
+    if (closeViewReqModal) closeViewReqModal.addEventListener('click', () => viewRequestModal.classList.remove('active'));
+    if (closeVerificationModal) closeVerificationModal.addEventListener('click', () => dealerVerificationModal.classList.remove('active'));
+    if (dismissVerificationModalBtn) dismissVerificationModalBtn.addEventListener('click', () => dealerVerificationModal.classList.remove('active'));
+
+    [viewRequestModal, dealerVerificationModal].forEach(modal => {
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.classList.remove('active');
+        });
+      }
+    });
+
+    // Navigation & Dropdown
+    if (storeMenuBtn && storeDropdown) {
+      storeMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        storeDropdown.classList.toggle('active');
+      });
+      document.addEventListener('click', () => storeDropdown.classList.remove('active'));
+    }
+
+    function setActiveNav(btn) {
+      document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    if (navDashBtn) {
+      navDashBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setActiveNav(navDashBtn);
+      });
+    }
+
+
+    if (navActivityBtn) {
+      navActivityBtn.addEventListener('click', () => {
+        document.getElementById('activitySection').scrollIntoView({ behavior: 'smooth' });
+        setActiveNav(navActivityBtn);
+      });
+    }
+
+    if (navStoreMoreBtn) {
+      navStoreMoreBtn.addEventListener('click', () => {
+        window.location.href = 'more.html';
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Store Activity & Audit Log — NaijaSwap Partner Portal</title>
+  <meta name="description" content="Comprehensive real-time activity stream and audit trail of phone swap requests, inventory changes, hub inspections, and customer transactions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    /* Specific styling for the dedicated Dealer Activities Page */
+    .activity-page-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    /* Stats Banner */
+    .activity-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) {
+      .activity-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      .activity-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+    }
+
+    .act-stat-card {
+      background: rgba(13, 20, 29, 0.72);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all var(--spring-fast);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+    .act-stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: transparent;
+      transition: background var(--spring-fast);
+    }
+    .act-stat-card:hover {
+      border-color: rgba(6, 182, 212, 0.4);
+      background: rgba(18, 28, 40, 0.85);
+      transform: translateY(-2px);
+    }
+    .act-stat-card.active-stat {
+      border-color: var(--cyan-400);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+    }
+    .act-stat-card.active-stat::after {
+      background: linear-gradient(90deg, var(--cyan-400), var(--emerald-400));
+    }
+    .act-stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+    }
+    .act-stat-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .act-stat-num {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #FFF;
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+    .act-stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-weight: 600;
+    }
+
+    /* Toolbar & Search Controls */
+    .activity-toolbar {
+      background: rgba(13, 20, 29, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .toolbar-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .act-search-box {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+    .act-search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      border-radius: var(--radius-md);
+      background: rgba(7, 12, 17, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      color: #FFF;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all var(--spring-fast);
+    }
+    .act-search-box input:focus {
+      border-color: var(--cyan-400);
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.25);
+    }
+    .act-search-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-faint);
+      pointer-events: none;
+    }
+    .toolbar-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .select-time-period {
+      padding: 9px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(7, 12, 17, 0.7);
+      border: 1px solid var(--glass-border);
+      color: var(--text-dim);
+      font-size: 0.84rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+    .select-time-period:focus {
+      border-color: var(--cyan-400);
+    }
+
+    /* Category Filter Pills */
+    .act-pills-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .act-pills-row::-webkit-scrollbar {
+      display: none;
+    }
+    .act-filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 15px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-full);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--spring-fast);
+    }
+    .act-filter-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFF;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+    .act-filter-pill.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(0, 210, 106, 0.12));
+      border-color: var(--cyan-border);
+      color: #FFF;
+      font-weight: 700;
+      box-shadow: 0 2px 10px rgba(6, 182, 212, 0.15);
+    }
+    .act-filter-pill .pill-badge {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1px 7px;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+    }
+    .act-filter-pill.active .pill-badge {
+      background: var(--cyan-400);
+      color: #05080B;
+      font-weight: 800;
+    }
+
+    /* Timeline Section & Day Groups */
+    .timeline-group {
+      margin-bottom: 28px;
+    }
+    .timeline-group-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .timeline-group-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--cyan-400);
+      white-space: nowrap;
+    }
+    .timeline-group-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--glass-border), transparent);
+    }
+    .timeline-group-count {
+      font-size: 0.74rem;
+      color: var(--text-faint);
+      font-weight: 600;
+    }
+
+    /* Activity Items Stream */
+    .activity-feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .act-card {
+      background: rgba(13, 20, 29, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: all var(--spring-fast);
+      position: relative;
+    }
+    .act-card:hover {
+      border-color: rgba(6, 182, 212, 0.35);
+      background: rgba(18, 28, 40, 0.85);
+      transform: translateX(3px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+    }
+    .act-node-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .act-content-col {
+      flex: 1;
+      min-width: 0;
+    }
+    .act-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .act-item-title {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #FFF;
+      line-height: 1.3;
+    }
+    .act-time-badge {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .act-item-desc {
+      font-size: 0.86rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+    .act-meta-tags-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .act-meta-tag {
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .act-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-act-quick {
+      padding: 5px 12px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-dim);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all var(--spring-fast);
+    }
+    .btn-act-quick:hover {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: var(--cyan-border);
+      color: var(--cyan-400);
+    }
+
+    /* Modal Form Styles */
+    .form-group-custom {
+      margin-bottom: 16px;
+    }
+    .form-label-custom {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .form-input-custom, .form-select-custom, .form-textarea-custom {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(7, 12, 17, 0.85);
+      border: 1px solid var(--glass-border);
+      color: #FFF;
+      font-size: 0.88rem;
+      font-family: inherit;
+      outline: none;
+      transition: all var(--spring-fast);
+    }
+    .form-input-custom:focus, .form-select-custom:focus, .form-textarea-custom:focus {
+      border-color: var(--cyan-400);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
+    }
+    .form-textarea-custom {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    /* Toast Notification Banner */
+    .toast-popup {
+      position: fixed;
+      bottom: 84px;
+      right: 20px;
+      background: rgba(13, 22, 33, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--cyan-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      color: #FFF;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all var(--spring-fast);
+      pointer-events: none;
+    }
+    .toast-popup.active {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glows -->
+  <div class="dash-glow dash-glow-1"></div>
+  <div class="dash-glow dash-glow-2"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <a href="dealer-dashboard.html" class="brand-logo" aria-label="NaijaSwap Store Portal">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span class="brand-name">Naija<span>Swap</span></span>
+      </a>
+      <span class="badge-tag" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border: 1px solid var(--cyan-border); font-size: 0.72rem; padding: 2px 8px; border-radius: var(--radius-full); font-weight: 700; margin-left: 6px;">
+        Store Hub
+      </span>
+    </div>
+
+    <div class="dash-header-right">
+      <!-- Store Profile Menu -->
+      <div class="user-menu-wrapper">
+        <button type="button" class="user-profile-btn" id="storeMenuBtn" aria-expanded="false" aria-haspopup="true">
+          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));">S</div>
+          <span class="user-name-text" id="topStoreName">My Store</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+
+        <div class="user-dropdown" id="storeDropdown">
+          <a href="dealer-dashboard.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            <span>Store Dashboard</span>
+          </a>
+          <a href="dealer-listings.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <span>My Listings</span>
+          </a>
+          <a href="dealer-requests.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Swap Requests</span>
+          </a>
+          <a href="dealer-activity.html" class="dropdown-item" style="color: var(--cyan-400); font-weight: 700;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            <span>Activity &amp; Audit Log</span>
+          </a>
+          <a href="account.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Store Profile &amp; Bank Payout</span>
+          </a>
+          <a href="dashboard.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Customer View</span>
+          </a>
+          <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Activity Container -->
+  <main class="dash-main">
+
+    <!-- Hero / Welcome Header -->
+    <div class="store-welcome-card" style="margin-bottom: 22px;">
+      <div class="welcome-title-wrap">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+          <a href="dealer-dashboard.html" style="font-size: 0.8rem; color: var(--text-faint); text-decoration: none;">Store Hub</a>
+          <span style="font-size: 0.8rem; color: var(--text-faint);">&rsaquo;</span>
+          <span style="font-size: 0.8rem; color: var(--cyan-400); font-weight: 700;">Activity &amp; Audit Log</span>
+        </div>
+        <h1 style="font-size: 1.65rem; font-weight: 800; color: #FFF; margin-bottom: 4px;">
+          Store Activity &amp; Audit Trail
+        </h1>
+        <p class="welcome-subtitle">
+          Real-time timeline and ledger of swap trade-ins, inventory changes, price updates, customer handovers, and hub verifications.
+        </p>
+      </div>
+
+      <div class="store-header-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button type="button" class="btn-action-sm" id="btnExportLog" style="padding: 10px 16px; border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: #FFF; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          <span>Export Audit Log</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 4 Overview Metric Cards -->
+    <div class="activity-stats-grid" role="region" aria-label="Activity Metrics">
+      <!-- 1. Total Logged -->
+      <div class="act-stat-card active-stat" id="statCardAll" data-category="all">
+        <div class="act-stat-icon" style="background: rgba(6, 182, 212, 0.12); color: var(--cyan-400); border-color: var(--cyan-border);">⚡</div>
+        <div class="act-stat-info">
+          <span class="act-stat-num" id="statTotalEvents">0</span>
+          <span class="act-stat-label">Total Activities</span>
+        </div>
+      </div>
+
+      <!-- 2. Swap Proposals & Trades -->
+      <div class="act-stat-card" id="statCardSwaps" data-category="swap">
+        <div class="act-stat-icon" style="background: rgba(0, 210, 106, 0.12); color: var(--emerald-400); border-color: var(--emerald-border);">💬</div>
+        <div class="act-stat-info">
+          <span class="act-stat-num" id="statSwapEvents">0</span>
+          <span class="act-stat-label">Swap Trade Events</span>
+        </div>
+      </div>
+
+      <!-- 3. Inventory & Pricing Updates -->
+      <div class="act-stat-card" id="statCardInventory" data-category="inventory">
+        <div class="act-stat-icon" style="background: rgba(245, 158, 11, 0.12); color: var(--amber-400); border-color: var(--amber-border);">📦</div>
+        <div class="act-stat-info">
+          <span class="act-stat-num" id="statInventoryEvents">0</span>
+          <span class="act-stat-label">Inventory &amp; Pricing</span>
+        </div>
+      </div>
+
+      <!-- 4. Hub Inspections & Verifications -->
+      <div class="act-stat-card" id="statCardSecurity" data-category="security">
+        <div class="act-stat-icon" style="background: rgba(168, 85, 247, 0.12); color: #c084fc; border-color: rgba(168, 85, 247, 0.3);">🛡️</div>
+        <div class="act-stat-info">
+          <span class="act-stat-num" id="statSecurityEvents">0</span>
+          <span class="act-stat-label">Inspections &amp; KYC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="activity-toolbar">
+      <div class="toolbar-top-row">
+        <!-- Search input -->
+        <div class="act-search-box">
+          <svg class="act-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="actSearchInput" placeholder="Search activities by phone model, customer, action, or note..." aria-label="Search activity log">
+        </div>
+
+        <!-- Time period filter & Clear -->
+        <div class="toolbar-actions-group">
+          <select class="select-time-period" id="actPeriodSelect" aria-label="Filter by time period">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">Past 7 Days</option>
+            <option value="month">Past 30 Days</option>
+          </select>
+
+          <button type="button" class="btn-action-sm" id="btnResetFilters" style="display: none; padding: 9px 14px; border-radius: var(--radius-md); background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-weight: 600; cursor: pointer;">
+            ✕ Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="act-pills-row" role="tablist" aria-label="Filter activities by category">
+        <button type="button" class="act-filter-pill active" data-cat="all">
+          <span>All Activities</span>
+          <span class="pill-badge" id="pillCountAll">0</span>
+        </button>
+        <button type="button" class="act-filter-pill" data-cat="swap">
+          <span>💬 Swap Trade-Ins</span>
+          <span class="pill-badge" id="pillCountSwap">0</span>
+        </button>
+        <button type="button" class="act-filter-pill" data-cat="inventory">
+          <span>📦 Inventory &amp; Stock</span>
+          <span class="pill-badge" id="pillCountInventory">0</span>
+        </button>
+        <button type="button" class="act-filter-pill" data-cat="inspection">
+          <span>🔍 Hub Diagnostics</span>
+          <span class="pill-badge" id="pillCountInspection">0</span>
+        </button>
+        <button type="button" class="act-filter-pill" data-cat="security">
+          <span>🛡️ KYC &amp; Security</span>
+          <span class="pill-badge" id="pillCountSecurity">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Filter Status & Count Summary -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <span style="font-size: 0.85rem; color: var(--text-muted);" id="resultsCounterText">
+        Showing all logged events
+      </span>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" id="btnClearHistoryPrompt" style="background: none; border: none; color: var(--text-faint); font-size: 0.78rem; text-decoration: underline; cursor: pointer;">
+          Clear History
+        </button>
+      </div>
+    </div>
+
+    <!-- Timeline Activity Stream Container -->
+    <div id="timelineContainer">
+      <!-- Dynamically generated timeline groups -->
+    </div>
+
+    <!-- Empty State Box (When no events exist or match filters) -->
+    <div class="empty-state-box" id="emptyActivityState" style="display: none; padding: 48px 24px; text-align: center;">
+      <div class="empty-state-icon" style="font-size: 2.4rem; margin-bottom: 12px;">⚡</div>
+      <h3 class="empty-state-title" id="emptyStateTitle" style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin-bottom: 8px;">No store activity yet</h3>
+      <p class="empty-state-desc" id="emptyStateDesc" style="max-width: 480px; margin: 0 auto 20px; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">
+        Customer swap trade-in proposals, published phone listings, and transaction status updates will be logged here automatically in real-time.
+      </p>
+      <button type="button" class="btn-primary-action" id="emptyResetBtn" style="margin: 0 auto; display: none;">
+        <span>Reset Filter Criteria</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       STORE / DEALER MOBILE BOTTOM NAVIGATION
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav" aria-label="Store Navigation">
+    <a href="dealer-dashboard.html" class="bottom-nav-item" id="navDashBtn" title="Dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="dealer-listings.html" class="bottom-nav-item" id="navListingsBtn" title="My Listings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+      <span>Listings</span>
+    </a>
+    <a href="dealer-requests.html" class="bottom-nav-item" id="navRequestsBtn" title="Swap Requests">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Requests</span>
+    </a>
+    <a href="dealer-activity.html" class="bottom-nav-item active" id="navActivityBtn" title="Activity">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      <span>Activity</span>
+    </a>
+    <a href="more.html" class="bottom-nav-item" id="navStoreMoreBtn" title="More">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>More</span>
+    </a>
+  </nav>
+
+
+
+  <!-- ==========================================================================
+       MODAL: VIEW ACTIVITY FULL DETAILS
+       ========================================================================== -->
+  <div class="modal-backdrop" id="viewDetailModal" role="dialog" aria-modal="true" aria-labelledby="viewDetailModalTitle">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <div>
+          <span class="status-badge status-accepted" id="detailCatBadge">Activity</span>
+          <h2 class="modal-title" id="viewDetailModalTitle" style="margin-top: 4px; font-size: 1.25rem;">Event Details</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeDetailModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;">
+        <div style="font-size: 0.74rem; color: var(--text-faint); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Description</div>
+        <p id="detailFullDesc" style="color: #FFF; font-size: 0.94rem; line-height: 1.6; margin: 0;"></p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 10px 12px;">
+          <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Timestamp</span>
+          <strong id="detailTimeStr" style="font-size: 0.84rem; color: #FFF; display: block; margin-top: 2px;">--</strong>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 10px 12px;">
+          <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Reference Code</span>
+          <strong id="detailRefCode" style="font-size: 0.84rem; color: var(--cyan-400); display: block; margin-top: 2px;">--</strong>
+        </div>
+      </div>
+
+      <div id="detailExtraBox" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px; margin-bottom: 20px; font-size: 0.84rem; display: none;">
+        <span style="font-size: 0.72rem; color: var(--text-faint); display: block; margin-bottom: 4px;">Associated Context</span>
+        <div id="detailExtraContent" style="color: var(--text-dim); line-height: 1.5;"></div>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn-primary-action" id="btnCopyEventRef" style="flex: 1; justify-content: center;">
+          <span>Copy Reference Code</span>
+        </button>
+        <button type="button" class="btn-cancel" id="closeDetailBtn" style="padding: 10px 18px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.04); color: var(--text-muted); cursor: pointer;">
+          <span>Close</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: CONFIRM CLEAR HISTORY
+       ========================================================================== -->
+  <div class="modal-backdrop" id="clearHistoryModal" role="dialog" aria-modal="true" aria-labelledby="clearHistoryTitle">
+    <div class="modal-card" style="max-width: 440px; text-align: center; padding: 28px 24px;">
+      <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 16px;">
+        🗑️
+      </div>
+      <h2 class="modal-title" id="clearHistoryTitle" style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin-bottom: 8px;">
+        Clear Store Activity Log?
+      </h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 22px;">
+        This will clear your local store activity timeline. Your live phone listings and pending swap requests will remain safe.
+      </p>
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn-action-sm btn-decline" id="btnConfirmClearHistory" style="flex: 1; padding: 12px; font-weight: 700;">
+          Yes, Clear Log
+        </button>
+        <button type="button" class="btn-cancel" id="btnCancelClearHistory" style="flex: 1; padding: 12px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.04); color: #FFF;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-popup" id="toastBox">
+    <span id="toastIcon">✅</span>
+    <span id="toastMessage">Activity saved successfully!</span>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module">
+    import { resolveMedia } from './js/profile.js';
+    import { NaijaSwapData } from './js/dashboard-data.js';
+
+    let currentStoreId = '';
+    let currentStoreName = 'Store Portal';
+    let dealerAuthUser = null;
+
+    // Filters state
+    let activeCategory = 'all';
+    let activePeriod = 'all';
+    let searchQuery = '';
+
+    // Cache pre-fill
+    try {
+      const stored = localStorage.getItem('nigerswap_user');
+      if (stored) {
+        dealerAuthUser = JSON.parse(stored);
+        if (dealerAuthUser?.uid) {
+          currentStoreId = dealerAuthUser.uid;
+          const storedShop = localStorage.getItem('nigerswap_shop_' + dealerAuthUser.uid);
+          if (storedShop) currentStoreName = storedShop;
+        }
+      }
+    } catch (_) {}
+
+    // Auth hook
+    window.onNigerSwapUserReady = (user, role) => {
+      if (user) {
+        dealerAuthUser = user;
+        currentStoreId = user.uid;
+        const storedShop = localStorage.getItem('nigerswap_shop_' + user.uid);
+        currentStoreName = storedShop || (user.displayName ? `${user.displayName}'s Gadgets` : 'My Gadget Store');
+
+        const topName = document.getElementById('topStoreName');
+        const avatarEl = document.getElementById('storeAvatarFallback');
+        if (topName) topName.textContent = currentStoreName;
+
+        const storedPhoto = localStorage.getItem('nigerswap_photo_' + user.uid);
+        if (avatarEl) {
+          if (storedPhoto) {
+            resolveMedia(storedPhoto).then(src => {
+              if (src && avatarEl) {
+                avatarEl.innerHTML = `<img src="${src}" alt="${currentStoreName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+              }
+            });
+          } else {
+            avatarEl.textContent = currentStoreName.charAt(0).toUpperCase();
+          }
+        }
+
+        renderAll();
+      }
+    };
+
+    // UI Elements
+    const timelineContainer = document.getElementById('timelineContainer');
+    const emptyActivityState = document.getElementById('emptyActivityState');
+    const actSearchInput = document.getElementById('actSearchInput');
+    const actPeriodSelect = document.getElementById('actPeriodSelect');
+    const btnResetFilters = document.getElementById('btnResetFilters');
+    const emptyResetBtn = document.getElementById('emptyResetBtn');
+    const resultsCounterText = document.getElementById('resultsCounterText');
+
+    // Stats
+    const statTotalEvents = document.getElementById('statTotalEvents');
+    const statSwapEvents = document.getElementById('statSwapEvents');
+    const statInventoryEvents = document.getElementById('statInventoryEvents');
+    const statSecurityEvents = document.getElementById('statSecurityEvents');
+
+    // Pill badges
+    const pillCountAll = document.getElementById('pillCountAll');
+    const pillCountSwap = document.getElementById('pillCountSwap');
+    const pillCountInventory = document.getElementById('pillCountInventory');
+    const pillCountInspection = document.getElementById('pillCountInspection');
+    const pillCountSecurity = document.getElementById('pillCountSecurity');
+    // Purge legacy mock activities if present
+    try {
+      const rawLogs = JSON.parse(localStorage.getItem('naijaswap_activity_log')) || [];
+      const cleanLogs = rawLogs.filter(l => l && !String(l.id || '').startsWith('act_10') && l.title !== 'Galaxy S24 Ultra Listed');
+      if (cleanLogs.length !== rawLogs.length) {
+        localStorage.setItem('naijaswap_activity_log', JSON.stringify(cleanLogs));
+      }
+    } catch (_) {}
+
+    // Modals
+    const viewDetailModal = document.getElementById('viewDetailModal');
+    const clearHistoryModal = document.getElementById('clearHistoryModal');
+    const toastBox = document.getElementById('toastBox');
+
+    // Toast helper
+    function showToast(message, icon = '✅') {
+      const toastMsg = document.getElementById('toastMessage');
+      const toastIc = document.getElementById('toastIcon');
+      if (toastMsg) toastMsg.textContent = message;
+      if (toastIc) toastIc.textContent = icon;
+      toastBox.classList.add('active');
+      setTimeout(() => toastBox.classList.remove('active'), 3200);
+    }
+
+    // Categorization helper
+    function getNormalizedCategory(act) {
+      if (act.category) return act.category.toLowerCase();
+      const type = (act.type || '').toLowerCase();
+      if (type.includes('swap')) return 'swap';
+      if (type.includes('listing') || type.includes('price') || type.includes('stock') || type.includes('phone')) return 'inventory';
+      if (type.includes('inspection') || type.includes('diagnostic')) return 'inspection';
+      if (type.includes('kyc') || type.includes('auth') || type.includes('security')) return 'security';
+      if (type.includes('note')) return 'note';
+      return 'general';
+    }
+
+    // Time grouping helper
+    function getTimeGroup(isoString) {
+      if (!isoString) return 'Earlier';
+      const eventDate = new Date(isoString);
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
+      const startOfWeek = new Date(startOfToday.getTime() - 86400000 * 7);
+
+      if (eventDate >= startOfToday) return 'Today';
+      if (eventDate >= startOfYesterday) return 'Yesterday';
+      if (eventDate >= startOfWeek) return 'This Week';
+      return 'Older Activities';
+    }
+
+    // Filter Logic
+    function getFilteredActivities() {
+      const allActivities = NaijaSwapData.getStoreActivity(currentStoreId);
+      const now = Date.now();
+
+      return allActivities.filter(act => {
+        const cat = getNormalizedCategory(act);
+        
+        // Category filter
+        if (activeCategory !== 'all') {
+          if (activeCategory === 'swap' && cat !== 'swap') return false;
+          if (activeCategory === 'inventory' && cat !== 'inventory') return false;
+          if (activeCategory === 'inspection' && cat !== 'inspection') return false;
+          if (activeCategory === 'security' && cat !== 'security') return false;
+          if (activeCategory === 'note' && cat !== 'note') return false;
+        }
+
+        // Period filter
+        if (activePeriod !== 'all' && act.createdAt) {
+          const actTime = new Date(act.createdAt).getTime();
+          const diffHours = (now - actTime) / (1000 * 3600);
+          if (activePeriod === 'today' && diffHours > 24) return false;
+          if (activePeriod === 'week' && diffHours > 168) return false;
+          if (activePeriod === 'month' && diffHours > 720) return false;
+        }
+
+        // Search query
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase().trim();
+          const title = (act.title || '').toLowerCase();
+          const desc = (act.description || '').toLowerCase();
+          const customer = (act.customerName || '').toLowerCase();
+          const loc = (act.customerLocation || '').toLowerCase();
+          const dev = (act.deviceModel || '').toLowerCase();
+          const ref = (act.id || '').toLowerCase();
+          if (!title.includes(q) && !desc.includes(q) && !customer.includes(q) && !loc.includes(q) && !dev.includes(q) && !ref.includes(q)) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+    }
+
+    // Update Counts & Stats
+    function updateStatsAndCounts() {
+      const allActivities = NaijaSwapData.getStoreActivity(currentStoreId);
+      
+      let swapCount = 0;
+      let invCount = 0;
+      let inspCount = 0;
+      let secCount = 0;
+
+      allActivities.forEach(act => {
+        const cat = getNormalizedCategory(act);
+        if (cat === 'swap') swapCount++;
+        else if (cat === 'inventory') invCount++;
+        else if (cat === 'inspection') inspCount++;
+        else if (cat === 'security') secCount++;
+      });
+
+      if (statTotalEvents) statTotalEvents.textContent = allActivities.length;
+      if (statSwapEvents) statSwapEvents.textContent = swapCount;
+      if (statInventoryEvents) statInventoryEvents.textContent = invCount;
+      if (statSecurityEvents) statSecurityEvents.textContent = inspCount + secCount;
+
+      if (pillCountAll) pillCountAll.textContent = allActivities.length;
+      if (pillCountSwap) pillCountSwap.textContent = swapCount;
+      if (pillCountInventory) pillCountInventory.textContent = invCount;
+      if (pillCountInspection) pillCountInspection.textContent = inspCount;
+      if (pillCountSecurity) pillCountSecurity.textContent = secCount;
+    }
+
+    // Render Timeline Feed
+    function renderTimeline() {
+      updateStatsAndCounts();
+      const filtered = getFilteredActivities();
+      if (!timelineContainer) return;
+
+      // Update counter text & reset button
+      const hasActiveFilters = activeCategory !== 'all' || activePeriod !== 'all' || searchQuery.trim() !== '';
+      if (btnResetFilters) btnResetFilters.style.display = hasActiveFilters ? 'inline-flex' : 'none';
+
+      if (resultsCounterText) {
+        if (hasActiveFilters) {
+          resultsCounterText.innerHTML = `Showing <strong>${filtered.length}</strong> matching activities (${activeCategory.toUpperCase()} filter)`;
+        } else {
+          resultsCounterText.textContent = `Showing all ${filtered.length} logged activities`;
+        }
+      }
+
+      if (filtered.length === 0) {
+        timelineContainer.innerHTML = '';
+        emptyActivityState.style.display = 'block';
+        const emptyTitle = document.getElementById('emptyStateTitle');
+        const emptyDesc = document.getElementById('emptyStateDesc');
+        const emptyReset = document.getElementById('emptyResetBtn');
+
+        if (hasActiveFilters) {
+          if (emptyTitle) emptyTitle.textContent = 'No matching activities found';
+          if (emptyDesc) emptyDesc.textContent = 'No logged events match your current filter and search criteria. Reset filters to view all activity.';
+          if (emptyReset) emptyReset.style.display = 'inline-flex';
+        } else {
+          if (emptyTitle) emptyTitle.textContent = 'No store activity yet';
+          if (emptyDesc) emptyDesc.textContent = 'Actions such as publishing new phone listings, receiving customer swap trade-in proposals, and updating trade statuses will appear here automatically.';
+          if (emptyReset) emptyReset.style.display = 'none';
+        }
+        return;
+      }
+
+      emptyActivityState.style.display = 'none';
+      timelineContainer.innerHTML = '';
+
+      // Group items by time
+      const groups = {};
+      filtered.forEach(act => {
+        const grp = getTimeGroup(act.createdAt);
+        if (!groups[grp]) groups[grp] = [];
+        groups[grp].push(act);
+      });
+
+      const groupOrder = ['Today', 'Yesterday', 'This Week', 'Older Activities'];
+
+      groupOrder.forEach(grpName => {
+        const items = groups[grpName];
+        if (!items || items.length === 0) return;
+
+        const groupSection = document.createElement('div');
+        groupSection.className = 'timeline-group fade-in-content';
+
+        groupSection.innerHTML = `
+          <div class="timeline-group-header">
+            <span class="timeline-group-title">${grpName}</span>
+            <div class="timeline-group-line"></div>
+            <span class="timeline-group-count">${items.length} ${items.length === 1 ? 'event' : 'events'}</span>
+          </div>
+          <div class="activity-feed-list" id="feedGroup_${grpName.replace(/\s+/g, '')}"></div>
+        `;
+
+        const feedList = groupSection.querySelector('.activity-feed-list');
+
+        items.forEach(act => {
+          const card = document.createElement('div');
+          card.className = 'act-card';
+
+          const cat = getNormalizedCategory(act);
+          let icon = '⚡';
+          let iconBg = 'background: rgba(255,255,255,0.06); color: #FFF; border: 1px solid var(--glass-border);';
+
+          if (cat === 'swap') {
+            if (act.type === 'swap_accepted' || act.type === 'swap_completed') {
+              icon = '✅';
+              iconBg = 'background: rgba(0, 210, 106, 0.15); color: var(--emerald-400); border: 1px solid var(--emerald-border);';
+            } else if (act.type === 'swap_declined' || act.type === 'swap_cancelled') {
+              icon = '✕';
+              iconBg = 'background: rgba(244, 63, 94, 0.15); color: var(--rose-400); border: 1px solid var(--rose-border);';
+            } else {
+              icon = '💬';
+              iconBg = 'background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border: 1px solid var(--cyan-border);';
+            }
+          } else if (cat === 'inventory') {
+            icon = '📦';
+            iconBg = 'background: rgba(245, 158, 11, 0.15); color: var(--amber-400); border: 1px solid var(--amber-border);';
+          } else if (cat === 'inspection') {
+            icon = '🔍';
+            iconBg = 'background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);';
+          } else if (cat === 'security') {
+            icon = '🛡️';
+            iconBg = 'background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);';
+          } else if (cat === 'note') {
+            icon = '📝';
+            iconBg = 'background: rgba(255, 255, 255, 0.08); color: #FFF; border: 1px solid var(--glass-border);';
+          }
+
+          const relativeTime = NaijaSwapData.formatRelativeTime(act.createdAt);
+          const fullDateStr = act.createdAt ? new Date(act.createdAt).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+
+          card.innerHTML = `
+            <div class="act-node-icon-wrap" style="${iconBg}">${icon}</div>
+            <div class="act-content-col">
+              <div class="act-header-row">
+                <span class="act-item-title">${escapeHtml(act.title)}</span>
+                <span class="act-time-badge" title="${fullDateStr}">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>${relativeTime}</span>
+                </span>
+              </div>
+
+              <div class="act-item-desc">${escapeHtml(act.description)}</div>
+
+              <div class="act-meta-tags-row">
+                <span class="act-meta-tag" style="text-transform: capitalize;">${cat}</span>
+                ${act.customerName ? `<span class="act-meta-tag">👤 ${escapeHtml(act.customerName)}</span>` : ''}
+                ${act.customerLocation ? `<span class="act-meta-tag">📍 ${escapeHtml(act.customerLocation)}</span>` : ''}
+                ${act.amount ? `<span class="act-meta-tag" style="color: var(--emerald-400); font-weight: 700;">${escapeHtml(act.amount)}</span>` : ''}
+                ${act.id ? `<span class="act-meta-tag" style="font-family: monospace; font-size: 0.7rem; color: var(--text-faint);">REF: ${escapeHtml(act.id.substring(0, 10))}</span>` : ''}
+              </div>
+
+              <div class="act-actions-row">
+                <button type="button" class="btn-act-quick btn-view-act" data-id="${act.id}">
+                  <span>View Details</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+                ${cat === 'swap' ? `
+                  <a href="dealer-requests.html" class="btn-act-quick" style="color: var(--cyan-400);">
+                    <span>Go to Swap Requests &rarr;</span>
+                  </a>
+                ` : ''}
+                ${cat === 'inventory' ? `
+                  <a href="dealer-listings.html" class="btn-act-quick" style="color: var(--amber-400);">
+                    <span>View Store Inventory &rarr;</span>
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+          `;
+
+          card.querySelector('.btn-view-act')?.addEventListener('click', () => openActivityDetail(act));
+
+          feedList.appendChild(card);
+        });
+
+        timelineContainer.appendChild(groupSection);
+      });
+    }
+
+    // Open Activity Detail Modal
+    let activeInspectedAct = null;
+    function openActivityDetail(act) {
+      activeInspectedAct = act;
+      const cat = getNormalizedCategory(act);
+      const catBadge = document.getElementById('detailCatBadge');
+      const titleEl = document.getElementById('viewDetailModalTitle');
+      const descEl = document.getElementById('detailFullDesc');
+      const timeEl = document.getElementById('detailTimeStr');
+      const refEl = document.getElementById('detailRefCode');
+      const extraBox = document.getElementById('detailExtraBox');
+      const extraContent = document.getElementById('detailExtraContent');
+
+      if (catBadge) {
+        catBadge.textContent = cat.toUpperCase();
+        catBadge.className = `status-badge ${cat === 'swap' ? 'status-accepted' : cat === 'inventory' ? 'status-pending' : 'status-pending'}`;
+      }
+      if (titleEl) titleEl.textContent = act.title;
+      if (descEl) descEl.textContent = act.description;
+      if (timeEl) timeEl.textContent = act.createdAt ? new Date(act.createdAt).toLocaleString('en-NG', { dateStyle: 'full', timeStyle: 'medium' }) : 'Recent';
+      if (refEl) refEl.textContent = act.id || `ACT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+      let extraHtml = '';
+      if (act.customerName) extraHtml += `<div><strong>Customer:</strong> ${escapeHtml(act.customerName)}</div>`;
+      if (act.customerLocation) extraHtml += `<div><strong>Location:</strong> ${escapeHtml(act.customerLocation)}</div>`;
+      if (act.amount) extraHtml += `<div><strong>Cash Top-Up:</strong> <span style="color: var(--emerald-400); font-weight: 700;">${escapeHtml(act.amount)}</span></div>`;
+      if (act.deviceModel) extraHtml += `<div><strong>Device Model:</strong> ${escapeHtml(act.deviceModel)}</div>`;
+      if (act.storeId) extraHtml += `<div><strong>Store Partner ID:</strong> ${escapeHtml(act.storeId)}</div>`;
+
+      if (extraBox && extraContent) {
+        if (extraHtml) {
+          extraContent.innerHTML = extraHtml;
+          extraBox.style.display = 'block';
+        } else {
+          extraBox.style.display = 'none';
+        }
+      }
+
+      viewDetailModal.classList.add('active');
+    }
+
+    // Copy Reference Code
+    document.getElementById('btnCopyEventRef')?.addEventListener('click', () => {
+      if (activeInspectedAct?.id) {
+        navigator.clipboard?.writeText(activeInspectedAct.id).then(() => {
+          showToast('Reference Code copied to clipboard!', '📋');
+        }).catch(() => {
+          showToast('Code: ' + activeInspectedAct.id, '📋');
+        });
+      }
+    });
+
+    // Reset Filters
+    function resetFilters() {
+      activeCategory = 'all';
+      activePeriod = 'all';
+      searchQuery = '';
+      if (actSearchInput) actSearchInput.value = '';
+      if (actPeriodSelect) actPeriodSelect.value = 'all';
+
+      document.querySelectorAll('.act-filter-pill').forEach(p => {
+        p.classList.toggle('active', p.getAttribute('data-cat') === 'all');
+      });
+      document.querySelectorAll('.act-stat-card').forEach(s => {
+        s.classList.toggle('active-stat', s.getAttribute('data-category') === 'all');
+      });
+
+      renderTimeline();
+    }
+
+    if (btnResetFilters) btnResetFilters.addEventListener('click', resetFilters);
+    if (emptyResetBtn) emptyResetBtn.addEventListener('click', resetFilters);
+
+    // Search Input Listener
+    if (actSearchInput) {
+      actSearchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        renderTimeline();
+      });
+    }
+
+    // Period Select Listener
+    if (actPeriodSelect) {
+      actPeriodSelect.addEventListener('change', (e) => {
+        activePeriod = e.target.value;
+        renderTimeline();
+      });
+    }
+
+    // Category Pill Listeners
+    document.querySelectorAll('.act-filter-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.act-filter-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        activeCategory = pill.getAttribute('data-cat') || 'all';
+
+        document.querySelectorAll('.act-stat-card').forEach(s => {
+          s.classList.toggle('active-stat', s.getAttribute('data-category') === activeCategory);
+        });
+
+        renderTimeline();
+      });
+    });
+
+    // Stat Cards Filter Listener
+    document.querySelectorAll('.act-stat-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const cat = card.getAttribute('data-category') || 'all';
+        activeCategory = cat;
+
+        document.querySelectorAll('.act-stat-card').forEach(s => s.classList.remove('active-stat'));
+        card.classList.add('active-stat');
+
+        document.querySelectorAll('.act-filter-pill').forEach(p => {
+          p.classList.toggle('active', p.getAttribute('data-cat') === cat);
+        });
+
+        renderTimeline();
+      });
+    });
+
+    // Export Audit Log
+    const btnExportLog = document.getElementById('btnExportLog');
+    if (btnExportLog) {
+      btnExportLog.addEventListener('click', () => {
+        const activities = getFilteredActivities();
+        if (activities.length === 0) {
+          alert('No activities available to export.');
+          return;
+        }
+
+        const csvRows = [
+          ['Event ID', 'Date & Time', 'Category', 'Action Title', 'Description', 'Customer', 'Amount', 'Store ID']
+        ];
+
+        activities.forEach(a => {
+          csvRows.push([
+            a.id || '',
+            a.createdAt || '',
+            getNormalizedCategory(a),
+            `"${(a.title || '').replace(/"/g, '""')}"`,
+            `"${(a.description || '').replace(/"/g, '""')}"`,
+            `"${(a.customerName || '').replace(/"/g, '""')}"`,
+            `"${(a.amount || '').replace(/"/g, '""')}"`,
+            a.storeId || ''
+          ]);
+        });
+
+        const csvContent = 'data:text/csv;charset=utf-8,' + csvRows.map(e => e.join(',')).join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `NigerSwap_Store_Activity_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('Activity audit trail exported as CSV!', '📊');
+      });
+    }
+
+    // Clear History Modal
+    const btnClearHistoryPrompt = document.getElementById('btnClearHistoryPrompt');
+    const btnConfirmClearHistory = document.getElementById('btnConfirmClearHistory');
+    const btnCancelClearHistory = document.getElementById('btnCancelClearHistory');
+
+    if (btnClearHistoryPrompt) {
+      btnClearHistoryPrompt.addEventListener('click', () => {
+        clearHistoryModal.classList.add('active');
+      });
+    }
+    if (btnCancelClearHistory) btnCancelClearHistory.addEventListener('click', () => clearHistoryModal.classList.remove('active'));
+    if (btnConfirmClearHistory) {
+      btnConfirmClearHistory.addEventListener('click', () => {
+        NaijaSwapData.clearStoreActivity(currentStoreId);
+        clearHistoryModal.classList.remove('active');
+        showToast('Store activity log cleared.', '🗑️');
+        renderTimeline();
+      });
+    }
+
+    // Modal Close buttons
+    const closeDetailModal = document.getElementById('closeDetailModal');
+    const closeDetailBtn = document.getElementById('closeDetailBtn');
+    if (closeDetailModal) closeDetailModal.addEventListener('click', () => viewDetailModal.classList.remove('active'));
+    if (closeDetailBtn) closeDetailBtn.addEventListener('click', () => viewDetailModal.classList.remove('active'));
+
+    // Backdrop click dismiss
+    [viewDetailModal, clearHistoryModal].forEach(modal => {
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.classList.remove('active');
+        });
+      }
+    });
+
+    // User Dropdown menu toggle
+    const storeMenuBtn = document.getElementById('storeMenuBtn');
+    const storeDropdown = document.getElementById('storeDropdown');
+    if (storeMenuBtn && storeDropdown) {
+      storeMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        storeDropdown.classList.toggle('active');
+      });
+      document.addEventListener('click', () => storeDropdown.classList.remove('active'));
+    }
+
+    function renderAll() {
+      updateStatsAndCounts();
+      renderTimeline();
+    }
+
+    // Initial render
+    renderAll();
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>

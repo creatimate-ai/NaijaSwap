@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Alerts — NaijaSwap</title>
+  <meta name="description" content="Stay updated on your Nigerian phone trade-in proposals, store approvals, and hub physical inspection slots.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    /* Alerts Page Custom Glassmorphic Styling */
+    .header-icon-btn.is-active {
+      color: var(--emerald-400);
+      background: rgba(0, 210, 106, 0.08);
+      border-color: rgba(0, 210, 106, 0.28);
+      box-shadow: 0 0 16px rgba(0, 210, 106, 0.14), var(--glass-specular-soft);
+    }
+    .header-icon-btn.is-active:hover {
+      color: #FFF;
+      background: rgba(0, 210, 106, 0.15);
+      border-color: rgba(0, 210, 106, 0.45);
+    }
+
+    .alerts-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .alerts-pills-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .alerts-pills-group::-webkit-scrollbar {
+      display: none;
+    }
+
+    .alert-filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-full);
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--spring-fast);
+      box-shadow: var(--glass-specular-soft);
+    }
+    .alert-filter-pill:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-white);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .alert-filter-pill.active {
+      background: linear-gradient(135deg, rgba(0, 210, 106, 0.18), rgba(0, 210, 106, 0.06));
+      border-color: var(--emerald-border);
+      color: #FFF;
+      box-shadow: 0 4px 14px rgba(0, 210, 106, 0.15), var(--glass-specular);
+    }
+    .alert-filter-pill .count-badge {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1px 7px;
+      border-radius: 10px;
+      font-size: 0.74rem;
+    }
+    .alert-filter-pill.active .count-badge {
+      background: var(--emerald-500);
+      color: #05080B;
+      font-weight: 800;
+    }
+
+    .alerts-action-btns {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-alert-ctrl {
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--spring-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-alert-ctrl:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFF;
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    /* Stack of Notification Cards */
+    .alerts-cards-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alert-card-item {
+      background: linear-gradient(135deg, rgba(16, 26, 37, 0.72), rgba(10, 16, 23, 0.65));
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: var(--glass-shadow), var(--glass-specular-soft);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: all var(--spring-fast);
+      position: relative;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .alert-card-item:hover {
+      border-color: var(--glass-border-hover);
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, rgba(20, 32, 45, 0.8), rgba(12, 19, 28, 0.75));
+    }
+
+    .alert-card-item.is-unread {
+      border-color: rgba(0, 210, 106, 0.35);
+      background: linear-gradient(135deg, rgba(0, 210, 106, 0.08), rgba(16, 26, 37, 0.85));
+    }
+    .alert-card-item.is-unread::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 18px;
+      bottom: 18px;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: var(--emerald-400);
+      box-shadow: 0 0 10px var(--emerald-400);
+    }
+
+    .alert-icon-wrap {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: var(--glass-specular-soft);
+    }
+    .alert-icon-wrap.tint-emerald {
+      background: rgba(0, 210, 106, 0.12);
+      border: 1px solid var(--emerald-border);
+      color: var(--emerald-400);
+    }
+    .alert-icon-wrap.tint-amber {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid var(--amber-border);
+      color: var(--amber-400);
+    }
+    .alert-icon-wrap.tint-rose {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid var(--rose-border);
+      color: var(--rose-400);
+    }
+    .alert-icon-wrap.tint-cyan {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid var(--cyan-border);
+      color: var(--cyan-400);
+    }
+
+    .alert-content-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+    .alert-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .alert-card-title {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #FFF;
+    }
+    .alert-time-text {
+      font-size: 0.74rem;
+      color: var(--text-faint);
+      white-space: nowrap;
+    }
+    .alert-message-text {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .alert-dismiss-btn {
+      background: none;
+      border: none;
+      color: var(--text-faint);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      transition: color var(--spring-fast);
+      align-self: flex-start;
+    }
+    .alert-dismiss-btn:hover {
+      color: var(--rose-400);
+    }
+  </style>
+</head>
+<body>
+
+
+
+  <!-- Ambient Depth Glows -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Top Navigation Header (Consistent with Dashboard) -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <a href="dashboard.html" class="brand-logo" aria-label="NaijaSwap Home">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span class="brand-name">Naija<span>Swap</span></span>
+      </a>
+      <span class="role-tag role-tag-swapper">
+        <span>🔄</span>
+        <span>Swapper</span>
+      </span>
+    </div>
+
+    <div class="dash-header-right">
+      <!-- User Menu -->
+      <div class="user-menu-wrapper">
+        <button type="button" class="user-profile-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
+          <div class="user-avatar" id="headerAvatarFallback">S</div>
+          <span class="user-name-text" id="headerUserName">Swapper</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+          <a href="account.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profile</span>
+          </a>
+          <a href="dashboard.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Browse Phones</span>
+          </a>
+          <a href="my-swaps.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+            <span>My Swap Requests</span>
+          </a>
+          <a href="alerts.html" class="dropdown-item" style="color: var(--emerald-400); font-weight: 700;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Alerts & Notifications</span>
+          </a>
+          <a href="index.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span>Marketplace Home</span>
+          </a>
+          <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Alerts Container -->
+  <main class="dash-main" style="max-width: 980px; margin: 0 auto; padding: 24px 20px 120px;">
+
+    <!-- Breadcrumb & Page Heading -->
+    <div class="page-heading-section" style="margin-bottom: 22px;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-faint); margin-bottom: 8px;">
+        <a href="dashboard.html" style="color: var(--text-muted); text-decoration: none;">Dashboard</a>
+        <span>/</span>
+        <span style="color: var(--emerald-400); font-weight: 700;">Alerts</span>
+      </div>
+      <h1 style="font-size: 1.65rem; font-weight: 800; color: #FFF; margin: 0 0 6px 0; letter-spacing: -0.02em;">Alerts</h1>
+      <p style="font-size: 0.86rem; color: var(--text-muted); margin: 0;">Stay updated on your phone trade-in proposals, store responses, and verification slots</p>
+    </div>
+
+    <!-- Filter & Controls Bar -->
+    <div class="alerts-filter-bar">
+      <div class="alerts-pills-group" id="alertsFilterPills" role="tablist">
+        <button type="button" class="alert-filter-pill active" data-filter="all">
+          <span>All Alerts</span>
+          <span class="count-badge" id="countAllAlerts">0</span>
+        </button>
+        <button type="button" class="alert-filter-pill" data-filter="unread">
+          <span>Unread</span>
+          <span class="count-badge" id="countUnreadAlerts">0</span>
+        </button>
+        <button type="button" class="alert-filter-pill" data-filter="swaps">
+          <span>Swaps</span>
+          <span class="count-badge" id="countSwapAlerts">0</span>
+        </button>
+      </div>
+
+      <div class="alerts-action-btns">
+        <button type="button" class="btn-alert-ctrl" id="markAllReadBtn" title="Mark all notifications as read">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Mark all as read</span>
+        </button>
+        <button type="button" class="btn-alert-ctrl" id="clearAllAlertsBtn" title="Clear all notifications" style="color: var(--rose-400);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span>Clear all</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Alerts List / Empty State Container -->
+    <div id="alertsContainer" aria-live="polite">
+      <!-- Default Frosted Shimmer Alert Skeletons -->
+      <div class="skeleton-swap-req-card" aria-hidden="true">
+        <div style="display: flex; gap: 14px; align-items: flex-start;">
+          <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 42px; height: 42px; flex-shrink: 0; margin-bottom: 0;"></div>
+          <div style="flex: 1;">
+            <div class="skeleton-box skeleton-shimmer" style="width: 45%; height: 16px; margin-bottom: 8px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 80%; height: 14px; margin-bottom: 6px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 25%; height: 12px; margin-bottom: 0;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="skeleton-swap-req-card" aria-hidden="true">
+        <div style="display: flex; gap: 14px; align-items: flex-start;">
+          <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 42px; height: 42px; flex-shrink: 0; margin-bottom: 0;"></div>
+          <div style="flex: 1;">
+            <div class="skeleton-box skeleton-shimmer" style="width: 50%; height: 16px; margin-bottom: 8px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 75%; height: 14px; margin-bottom: 6px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 30%; height: 12px; margin-bottom: 0;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="skeleton-swap-req-card" aria-hidden="true">
+        <div style="display: flex; gap: 14px; align-items: flex-start;">
+          <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 42px; height: 42px; flex-shrink: 0; margin-bottom: 0;"></div>
+          <div style="flex: 1;">
+            <div class="skeleton-box skeleton-shimmer" style="width: 40%; height: 16px; margin-bottom: 8px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 85%; height: 14px; margin-bottom: 6px;"></div>
+            <div class="skeleton-box skeleton-shimmer" style="width: 20%; height: 12px; margin-bottom: 0;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       SWAPPER MOBILE BOTTOM NAVIGATION (MATCHING ALL PAGES PARITY)
+       ========================================================================== -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span>Home</span>
+    </a>
+    <a href="my-swaps.html" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
+      <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
+      <span>My Swaps</span>
+    </a>
+    <a href="alerts.html" class="bottom-nav-item active" id="navNotifBtn" title="Alerts" aria-current="page">
+      <span class="bottom-nav-badge" id="mobileAlertsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+    </a>
+    <a href="more.html" class="bottom-nav-item" id="navMoreBtn" title="More">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>More</span>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module">
+    import { NaijaSwapData } from './js/dashboard-data.js';
+    import { db, collection, getDocs } from './js/firebase-config.js';
+
+    let currentUserId = 'user_guest';
+    let currentUserName = 'Swapper';
+    let currentFilter = 'all';
+    let userReady = false;
+
+    // DOM Elements
+    const alertsContainer = document.getElementById('alertsContainer');
+    const countAllAlerts = document.getElementById('countAllAlerts');
+    const countUnreadAlerts = document.getElementById('countUnreadAlerts');
+    const countSwapAlerts = document.getElementById('countSwapAlerts');
+    const markAllReadBtn = document.getElementById('markAllReadBtn');
+    const clearAllAlertsBtn = document.getElementById('clearAllAlertsBtn');
+    const notifDot = document.getElementById('notifDot');
+    const mobileAlertsBadge = document.getElementById('mobileAlertsBadge');
+    const mobileSwapsBadge = document.getElementById('mobileSwapsBadge');
+
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+
+    // Initialize session user from synchronous local cache
+    try {
+      const stored = localStorage.getItem('nigerswap_user') || localStorage.getItem('naijaswap_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        currentUserId = u.uid || 'user_guest';
+        currentUserName = u.displayName || (u.email ? u.email.split('@')[0] : 'Swapper');
+      }
+    } catch (e) {}
+
+    // Update Header User UI
+    function updateHeaderUserUI(name, uid, photoURL) {
+      const headerUserName = document.getElementById('headerUserName');
+      const headerAvatarFallback = document.getElementById('headerAvatarFallback');
+      if (headerUserName) headerUserName.textContent = name;
+      if (headerAvatarFallback) {
+        const storedPhoto = uid ? localStorage.getItem('nigerswap_photo_' + uid) : null;
+        const photo = storedPhoto || (photoURL && photoURL.startsWith('http') ? photoURL : null);
+        if (photo) {
+          headerAvatarFallback.innerHTML = `<img src="${photo}" alt="${escapeHtml(name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        } else {
+          headerAvatarFallback.textContent = name.charAt(0).toUpperCase();
+        }
+      }
+    }
+
+    updateHeaderUserUI(currentUserName, currentUserId);
+
+    // Hook from auth.js when Firebase user is confirmed/ready
+    window.onNigerSwapUserReady = (user, role) => {
+      if (user) {
+        userReady = true;
+        currentUserId = user.uid;
+        currentUserName = user.displayName || (user.email ? user.email.split('@')[0] : 'Swapper');
+
+        updateHeaderUserUI(currentUserName, user.uid, user.photoURL);
+
+        // Re-render alerts with the authenticated user ID
+        renderAlerts();
+      }
+    };
+
+    // Render Notifications
+    async function loadRemoteNotifications() {
+      if (!currentUserId || currentUserId === 'user_guest') return;
+      try {
+        const snapshot = await getDocs(collection(db, 'users', currentUserId, 'notifications'));
+        const remote = [];
+        snapshot.forEach(item => remote.push(item.data()));
+        const local = NaijaSwapData.getUserNotifications(currentUserId);
+        const merged = [...remote, ...local.filter(item => !remote.some(remoteItem => remoteItem.id === item.id))];
+        merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        window.nigerswapRemoteNotifications = merged;
+      } catch (error) {
+        console.warn('[Alerts] Could not load remote notifications:', error.message);
+      }
+    }
+
+    async function renderAlerts() {
+      if (!userReady) return;
+      await loadRemoteNotifications();
+      const allNotifs = window.nigerswapRemoteNotifications || NaijaSwapData.getUserNotifications(currentUserId);
+      const unreadCount = allNotifs.filter(n => !n.isRead).length;
+      const swapCount = allNotifs.filter(n => (n.type || '').includes('swap')).length;
+
+      // Update counters
+      if (countAllAlerts) countAllAlerts.textContent = allNotifs.length;
+      if (countUnreadAlerts) countUnreadAlerts.textContent = unreadCount;
+      if (countSwapAlerts) countSwapAlerts.textContent = swapCount;
+
+      // Header dot & mobile bottom nav badge
+      if (notifDot) {
+        notifDot.style.display = unreadCount > 0 ? 'block' : 'none';
+      }
+      if (mobileAlertsBadge) {
+        if (unreadCount > 0) {
+          mobileAlertsBadge.textContent = unreadCount;
+          mobileAlertsBadge.style.display = 'inline-block';
+        } else {
+          mobileAlertsBadge.style.display = 'none';
+        }
+      }
+
+      // Also update swaps badge in bottom nav
+      const mySwaps = NaijaSwapData.getUserSwapRequests(currentUserId);
+      if (mobileSwapsBadge) {
+        if (mySwaps.length > 0) {
+          mobileSwapsBadge.textContent = mySwaps.length;
+          mobileSwapsBadge.style.display = 'inline-block';
+        } else {
+          mobileSwapsBadge.style.display = 'none';
+        }
+      }
+
+      // Filter
+      let list = allNotifs;
+      if (currentFilter === 'unread') {
+        list = allNotifs.filter(n => !n.isRead);
+      } else if (currentFilter === 'swaps') {
+        list = allNotifs.filter(n => (n.type || '').includes('swap'));
+      }
+
+      // Empty state
+      if (allNotifs.length === 0) {
+        alertsContainer.innerHTML = `
+          <div class="empty-state-box" id="emptyAlertsState">
+            <div class="empty-state-icon">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </div>
+            <h3 class="empty-state-title">No alerts yet</h3>
+            <p class="empty-state-desc">
+              You don't have any notifications right now. When you submit swap requests, receive store approvals, or get hub inspection updates, they will appear here.
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+              <a href="dashboard.html" class="btn-primary-action" style="text-decoration: none; padding: 12px 22px; display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <span>Browse Phones</span>
+              </a>
+              <a href="my-swaps.html?action=new" class="btn-reset-filters" style="text-decoration: none; padding: 12px 22px; font-weight: 700; color: #FFF; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+                <span>Propose a Swap</span>
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      if (list.length === 0) {
+        alertsContainer.innerHTML = `
+          <div class="empty-state-box">
+            <h3 class="empty-state-title" style="font-size: 1.1rem;">No ${currentFilter} notifications</h3>
+            <p class="empty-state-desc">You're completely caught up in this category.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Render cards
+      let html = '<div class="alerts-cards-stack fade-in-content">';
+      list.forEach(notif => {
+        let tint = 'tint-emerald';
+        let iconSvg = '<path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>';
+
+        if (notif.type === 'swap_accepted') {
+          tint = 'tint-emerald';
+          iconSvg = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
+        } else if (notif.type === 'swap_declined' || notif.type === 'swap_cancelled') {
+          tint = 'tint-rose';
+          iconSvg = '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>';
+        } else if (notif.type === 'system') {
+          tint = 'tint-cyan';
+          iconSvg = '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>';
+        }
+
+        const timeStr = NaijaSwapData.formatRelativeTime(notif.createdAt);
+        const unreadClass = notif.isRead ? '' : 'is-unread';
+
+        html += `
+          <div class="alert-card-item ${unreadClass}" data-id="${escapeHtml(notif.id)}" data-link="${escapeHtml(notif.link || 'my-swaps.html')}">
+            <div class="alert-icon-wrap ${tint}">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                ${iconSvg}
+              </svg>
+            </div>
+            <div class="alert-content-wrap">
+              <div class="alert-title-row">
+                <span class="alert-card-title">${escapeHtml(notif.title)}</span>
+                <span class="alert-time-text">${escapeHtml(timeStr)}</span>
+              </div>
+              <p class="alert-message-text">${escapeHtml(notif.message)}</p>
+            </div>
+            <button type="button" class="alert-dismiss-btn" data-id="${escapeHtml(notif.id)}" title="Dismiss notification" aria-label="Dismiss">&times;</button>
+          </div>
+        `;
+      });
+      html += '</div>';
+
+      alertsContainer.innerHTML = html;
+
+      // Bind click on cards
+      document.querySelectorAll('.alert-card-item').forEach(card => {
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.alert-dismiss-btn')) return;
+          const id = card.dataset.id;
+          const link = card.dataset.link;
+          NaijaSwapData.markNotificationRead(id);
+          if (link) window.location.href = link;
+        });
+      });
+
+      // Bind dismiss
+      document.querySelectorAll('.alert-dismiss-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.id;
+          NaijaSwapData.deleteNotification(id);
+          renderAlerts();
+        });
+      });
+
+    }
+
+    // Filter Listeners
+    document.querySelectorAll('.alert-filter-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.alert-filter-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentFilter = pill.dataset.filter;
+        renderAlerts();
+      });
+    });
+
+    // Mark all as read
+    if (markAllReadBtn) {
+      markAllReadBtn.addEventListener('click', () => {
+        NaijaSwapData.markAllNotificationsRead(currentUserId);
+        renderAlerts();
+      });
+    }
+
+    // Clear all
+    if (clearAllAlertsBtn) {
+      clearAllAlertsBtn.addEventListener('click', () => {
+        if (confirm('Clear all notifications?')) {
+          NaijaSwapData.clearAllNotifications(currentUserId);
+          renderAlerts();
+        }
+      });
+    }
+
+    // Dropdown
+    if (userMenuBtn && userDropdown) {
+      userMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('active');
+      });
+      document.addEventListener('click', () => userDropdown.classList.remove('active'));
+    }
+
+    // Auth readiness triggers the first data render.
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
