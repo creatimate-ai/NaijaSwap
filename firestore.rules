@@ -54,7 +54,7 @@ service cloud.firestore {
         || (isOwner(uid)
           && request.resource.data.uid == resource.data.uid
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
-            ['displayName', 'phoneNumber', 'businessName', 'shopName', 'photoURL'])
+            ['displayName', 'phoneNumber', 'businessName', 'shopName', 'photoURL', 'preferences', 'updatedAt'])
           && !('role' in request.resource.data.diff(resource.data).affectedKeys())
           && !('accountType' in request.resource.data.diff(resource.data).affectedKeys())
           && !('verificationStatus' in request.resource.data.diff(resource.data).affectedKeys())
@@ -90,20 +90,24 @@ service cloud.firestore {
     }
 
     match /dealerVerification/{uid} {
+      // Clients may create their own verification record with status:'pending' only.
       allow create: if isOwner(uid)
         && request.resource.data.uid == uid
         && !('role' in request.resource.data)
         && !('verificationStatus' in request.resource.data)
-        && !('status' in request.resource.data);
+        && (!('status' in request.resource.data) || request.resource.data.status == 'pending');
       allow read: if isSignedIn() && (
         uid == request.auth.uid ||
         isAdmin()
       );
-      allow update: if isOwner(uid)
+      // Clients may re-submit; status can only be reset to 'pending'. Admins may approve/reject.
+      allow update: if isAdmin() || (isOwner(uid)
         && request.resource.data.uid == resource.data.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
           ['storeName', 'businessEmail', 'phoneNumber', 'cacNumber',
-           'governmentIdData', 'proofOfAddressData']);
+           'governmentIdData', 'proofOfAddressData', 'status', 'submittedAt', 'updatedAt'])
+        && (!('status' in request.resource.data.diff(resource.data).affectedKeys())
+            || request.resource.data.status == 'pending'));
       allow delete: if false;
     }
 
@@ -132,16 +136,43 @@ service cloud.firestore {
     }
 
     match /swapRequests/{requestId} {
-      // Swap writes must go through callable functions, which validate ownership,
-      // IMEI uniqueness, payment, inspection, and handover confirmations.
-      allow create: if false;
+      // Swap creates go through the Render API server which validates IMEI,
+      // ownership, and payment. Client writes are allowed for authenticated users.
+      allow create: if isSignedIn()
+        && request.resource.data.customerUid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.disputeStatus == 'none';
       allow read: if isSignedIn() && (
         request.auth.uid == resource.data.customerUid ||
         request.auth.uid == resource.data.dealerUid ||
         isAdmin()
       );
-      allow update: if false;
+      allow update: if isAdmin()
+        || (isSignedIn() && (
+          request.auth.uid == resource.data.customerUid ||
+          request.auth.uid == resource.data.dealerUid
+        ) && validSwapTransition(resource.data.status, request.resource.data.status));
       allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && (
+          request.auth.uid == get(/databases/$(database)/documents/swapRequests/$(requestId)).data.customerUid ||
+          request.auth.uid == get(/databases/$(database)/documents/swapRequests/$(requestId)).data.dealerUid ||
+          isAdmin()
+        );
+        allow create: if isSignedIn() && (
+          request.auth.uid == get(/databases/$(database)/documents/swapRequests/$(requestId)).data.customerUid ||
+          request.auth.uid == get(/databases/$(database)/documents/swapRequests/$(requestId)).data.dealerUid ||
+          isAdmin()
+        ) && request.resource.data.senderUid == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.authorUid == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
 
     match /auditLogs/{logId} {

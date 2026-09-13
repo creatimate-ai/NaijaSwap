@@ -1,0 +1,19 @@
+{
+  "name": "NaijaSwap — Nigeria's Phone Swap Network",
+  "short_name": "NaijaSwap",
+  "description": "Find verified phone dealers across Nigeria offering phone swaps with transparent algorithmic top-up valuations.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080C0E",
+  "theme_color": "#080C0E",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "finance", "utilities"]
+}

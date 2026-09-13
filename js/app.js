@@ -1,3 +1,6 @@
+import { db, collection, query, where } from './firebase-config.js';
+import { getCountFromServer } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+
 /**
  * NaijaSwap - Modern Interactive Landing Page Logic
  * Features:
@@ -107,8 +110,11 @@ const DealerMatchingService = {
   },
 
   // Format count into user-facing badge label
-  formatBadgeText: function(count) {
-    return `${count} dealers matching`;
+  formatBadgeText: function(count, type = 'listing') {
+    if (type === 'dealer') {
+      return `${count} dealers matching`;
+    }
+    return `${count} active listing${count !== 1 ? 's' : ''}`;
   }
 };
 
@@ -558,3 +564,21 @@ function initBackToTop() {
     });
   });
 }
+
+async function loadLiveCounts() {
+  try {
+    const listingsQuery = query(collection(db, 'listings'), where('status', '==', 'active'));
+    const countSnap = await getCountFromServer(listingsQuery);
+    const count = countSnap.data().count;
+    DealerMatchingService.DEFAULT_MATCHING_COUNT = count;
+    // Update the hero badge if count > 0
+    const el = document.getElementById('swapDealersCount');
+    if (el && count > 0) el.textContent = `${count} active listing${count !== 1 ? 's' : ''}`;
+  } catch (e) {
+    // Silently fail — keep the default text
+    console.warn('[App] Could not load live listing count:', e.message);
+  }
+}
+
+// Initialize live counts when script loads (or on DOM ready)
+document.addEventListener('DOMContentLoaded', loadLiveCounts);

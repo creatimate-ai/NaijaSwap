@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Verified Phone Dealer Stores & Swap Inventory — NaijaSwap Nigeria</title>
+  <meta name="description" content="Browse verified phone dealer stores across Nigeria. Find authentic iPhone, Samsung, and Google Pixel swap listings with trusted physical inspection.">
+  <meta name="keywords" content="phone dealer store Nigeria, Computer Village phone shops, verified phone dealers, buy swap phone store Lagos, NaijaSwap store">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="canonical" href="https://naijaswap.web.app/store.html">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!-- Open Graph Protocol -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NaijaSwap">
+  <meta property="og:title" content="Verified Phone Dealer Stores & Swap Inventory — NaijaSwap Nigeria">
+  <meta property="og:description" content="Browse verified phone dealer stores across Nigeria. Find authentic iPhone, Samsung, and Google Pixel swap listings with trusted physical inspection.">
+  <meta property="og:url" content="https://naijaswap.web.app/store.html">
+  <meta property="og:image" content="https://naijaswap.web.app/assets/og-banner.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_NG">
+
+  <!-- Twitter Card Protocol -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Verified Phone Dealer Stores & Swap Inventory — NaijaSwap Nigeria">
+  <meta name="twitter:description" content="Browse verified phone dealer stores across Nigeria. Find authentic iPhone, Samsung, and Google Pixel swap listings with trusted physical inspection.">
+  <meta name="twitter:image" content="https://naijaswap.web.app/assets/og-banner.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    /* Custom styling for store header */
+    .store-profile-header {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .store-profile-top {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .store-profile-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--emerald-400);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .store-profile-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .store-profile-info {
+      flex: 1;
+    }
+    .store-profile-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #FFF;
+      margin: 0 0 4px 0;
+    }
+    .store-profile-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .store-profile-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin: 0;
+    }
+    .store-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #25D366;
+      color: #FFF;
+      padding: 10px 20px;
+      border-radius: var(--radius-lg);
+      font-weight: 600;
+      text-decoration: none;
+      align-self: flex-start;
+      font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+    .store-action-btn:hover {
+      opacity: 0.9;
+    }
+    
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      transition: color 0.2s;
+    }
+    .back-nav:hover {
+      color: #FFF;
+    }
+    .back-nav svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .loading-store {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .store-rating-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      color: #fbbf24;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+    .store-verified-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+    .reviews-container {
+      margin-top: 48px;
+    }
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .review-card {
+      background: var(--surface-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .review-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .review-author {
+      font-weight: 700;
+      color: #FFF;
+      font-size: 0.95rem;
+    }
+    .review-stars {
+      color: #fbbf24;
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+    }
+    .review-date {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+    .review-comment {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .review-verified-tag {
+      font-size: 0.72rem;
+      color: #34d399;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <a href="dashboard.html" class="brand-logo" aria-label="NaijaSwap Home">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span class="brand-name">Naija<span>Swap</span></span>
+      </a>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <a href="dashboard.html" class="back-nav">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to Marketplace
+    </a>
+
+    <div id="storeHeaderContainer">
+      <div class="loading-store">Loading store profile...</div>
+    </div>
+    
+    <h2 style="color: #FFF; font-size: 1.25rem; font-weight: 700; margin-bottom: 16px;">Store Listings</h2>
+
+    <div class="phones-grid" id="phonesGrid">
+       <!-- skeleton loaded initially -->
+    </div>
+    
+    <div class="empty-state-box" id="emptyState" style="display: none;">
+      <div class="empty-state-icon">📱</div>
+      <h3 class="empty-state-title">No active listings</h3>
+      <p class="empty-state-desc">This store has no active listings yet.</p>
+    </div>
+
+    <!-- Verified Customer Reviews Section -->
+    <section class="reviews-container" id="reviewsSection">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+        <div>
+          <h2 style="color:#FFF;font-size:1.25rem;font-weight:700;margin:0;">Verified Customer Reviews</h2>
+          <p style="color:var(--text-dim);font-size:0.85rem;margin:4px 0 0 0;">Feedback from swappers who completed inspections and trades with this hub.</p>
+        </div>
+        <div id="reviewsSummaryBadge"></div>
+      </div>
+      <div class="reviews-grid" id="reviewsGrid">
+        <div style="color: var(--text-muted); font-size: 0.88rem;">Loading reviews...</div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span>Home</span>
+    </a>
+    <a href="my-swaps.html" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
+      <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
+      <span>My Swaps</span>
+    </a>
+    <a href="alerts.html" class="bottom-nav-item" id="navNotifBtn" title="Alerts">
+      <span class="bottom-nav-badge" id="mobileAlertsBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span>Alerts</span>
+    </a>
+    <a href="more.html" class="bottom-nav-item" id="navMoreBtn" title="More">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>More</span>
+    </a>
+  </nav>
+
+  <script type="module">
+    import { db, doc, getDoc, collection, query, where, orderBy, getDocs } from './js/firebase-config.js';
+    import { NaijaSwapData } from './js/dashboard-data.js';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const storeId = urlParams.get('storeId');
+
+    const storeHeaderContainer = document.getElementById('storeHeaderContainer');
+    const phonesGrid = document.getElementById('phonesGrid');
+    const emptyState = document.getElementById('emptyState');
+    const reviewsGrid = document.getElementById('reviewsGrid');
+    const reviewsSummaryBadge = document.getElementById('reviewsSummaryBadge');
+
+    function escapeHtml(unsafe) {
+      if (!unsafe) return '';
+      return String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatCurrency(amount) {
+      if (!amount) return '₦0';
+      return '₦' + parseInt(amount, 10).toLocaleString('en-NG');
+    }
+
+    async function loadStoreProfile() {
+      if (!storeId) {
+        storeHeaderContainer.innerHTML = '<div class="loading-store">No store specified.</div>';
+        phonesGrid.innerHTML = '';
+        return;
+      }
+
+      try {
+        let store = null;
+        try {
+          const docRef = doc(db, 'dealerProfiles', storeId);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            store = docSnap.data();
+          }
+        } catch (e) {
+          console.warn("Could not fetch dealerProfile doc:", e);
+        }
+
+        if (!store) {
+          // Fallback to marketplace store metadata if available
+          store = {
+            storeName: storeId.replace(/_/g, ' ').toUpperCase(),
+            address: 'Verified Hub Partner Center',
+            verified: true,
+            description: 'Certified Nigerian smartphone swap hub and physical inspection desk.'
+          };
+        }
+
+        renderStoreHeader(store);
+        loadStoreListings(storeId, store.address || '');
+        loadStoreReviews(storeId);
+      } catch (error) {
+        console.error("Error loading store profile:", error);
+        storeHeaderContainer.innerHTML = '<div class="loading-store">Error loading store profile.</div>';
+        phonesGrid.innerHTML = '';
+      }
+    }
+
+    function renderStoreHeader(store) {
+      const storeName = escapeHtml(store.storeName || 'Unknown Store');
+      const contactPerson = escapeHtml(store.contactPerson || '');
+      const location = escapeHtml(store.address || '');
+      const desc = escapeHtml(store.description || '');
+      const phone = store.phoneNumber ? store.phoneNumber.replace(/\s+/g, '') : '';
+      
+      let logoHtml = `<div class="store-profile-logo">${storeName.charAt(0).toUpperCase()}</div>`;
+      if (store.logoUrl) {
+        logoHtml = `<div class="store-profile-logo"><img src="${escapeHtml(store.logoUrl)}" alt="Logo"></div>`;
+      }
+
+      let whatsappBtn = '';
+      if (phone) {
+        let waPhone = phone;
+        if (waPhone.startsWith('0')) waPhone = '234' + waPhone.substring(1);
+        if (waPhone.startsWith('+')) waPhone = waPhone.substring(1);
+        
+        whatsappBtn = `
+          <a href="https://wa.me/${waPhone}" target="_blank" class="store-action-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            Chat on WhatsApp
+          </a>
+        `;
+      }
+
+      storeHeaderContainer.innerHTML = `
+        <div class="store-profile-header">
+          <div class="store-profile-top">
+            ${logoHtml}
+            <div class="store-profile-info">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <h1 class="store-profile-name" style="margin-bottom:0;">${storeName}</h1>
+                <span class="store-verified-pill">🛡️ Verified Partner Hub</span>
+                <span class="store-rating-badge" id="headerRatingBadge">★ 5.0 Rating</span>
+              </div>
+              <div class="store-profile-meta" style="margin-top: 6px;">
+                ${contactPerson ? `<span>👤 ${contactPerson}</span>` : ''}
+                ${location ? `<span>📍 ${location}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          ${desc ? `<p class="store-profile-desc">${desc}</p>` : ''}
+          ${whatsappBtn}
+        </div>
+      `;
+    }
+
+    async function loadStoreListings(storeId, storeLocation) {
+      phonesGrid.innerHTML = `
+        <article class="skeleton-phone-card" aria-hidden="true">
+          <div class="skeleton-media skeleton-shimmer"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-title-line skeleton-shimmer"></div>
+            <div class="skeleton-specs-line skeleton-shimmer"></div>
+            <div class="skeleton-location-line skeleton-shimmer"></div>
+          </div>
+          <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
+        </article>
+      `.repeat(4);
+
+      try {
+        let docs = [];
+        try {
+          const listingsRef = collection(db, 'listings');
+          const q = query(
+            listingsRef,
+            where('storeOwnerUid', '==', storeId)
+          );
+          const snapshot = await getDocs(q);
+          snapshot.forEach(docSnap => {
+            docs.push({ id: docSnap.id, ...docSnap.data() });
+          });
+        } catch (e) {
+          console.warn("Firestore listings query fallback:", e);
+        }
+
+        // Also merge local listings for this store
+        const localListings = NaijaSwapData.getMarketplaceListings();
+        const matchedLocal = localListings.filter(l => l.storeId === storeId || l.storeOwnerUid === storeId);
+        matchedLocal.forEach(loc => {
+          if (!docs.some(d => d.id === loc.id)) docs.push(loc);
+        });
+
+        docs.sort((a, b) => {
+          const aTime = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+          const bTime = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
+          return bTime - aTime;
+        });
+
+        phonesGrid.innerHTML = '';
+
+        if (docs.length === 0) {
+          emptyState.style.display = 'flex';
+        } else {
+          emptyState.style.display = 'none';
+          docs.forEach(phone => {
+            const card = document.createElement('article');
+            card.className = 'phone-card fade-in-content';
+            card.setAttribute('data-id', phone.id);
+
+            const isOutOfStock = phone.quantityInStock === 0 || phone.status === 'out_of_stock' || phone.status === 'sold';
+            
+            const mainImg = (phone.mediaUrls && phone.mediaUrls.length > 0) 
+                            ? escapeHtml(phone.mediaUrls[0]) 
+                            : (phone.image || 'img/placeholder.png');
+            const location = escapeHtml(phone.location || storeLocation || 'N/A');
+            
+            const brandText = escapeHtml(phone.brand || '');
+            let brandBadge = brandText ? `<span class="tag-badge tag-recent">${brandText}</span>` : '';
+            if (isOutOfStock) {
+              brandBadge += `<span class="tag-badge" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5);">Swapped</span>`;
+            }
+            
+            card.innerHTML = `
+              <div class="phone-card-media">
+                <div class="phone-tags-floating">${brandBadge}</div>
+                <img src="${mainImg}" alt="${escapeHtml(phone.model)}" class="phone-card-img" loading="lazy" style="${isOutOfStock ? 'filter: grayscale(0.5) opacity(0.8);' : ''}">
+              </div>
+              <div class="phone-card-body">
+                <div class="phone-title-block">
+                  <h3>${escapeHtml(phone.model)}</h3>
+                  <div class="phone-specs-line">
+                    <span>${escapeHtml(phone.storage)}</span>
+                    <span>•</span>
+                    <span>${escapeHtml(phone.condition)}</span>
+                  </div>
+                </div>
+                <div class="phone-price-line" style="margin-top: 8px; font-weight: 700; color: #FFF; font-size: 1.1rem;">
+                  ${formatCurrency(phone.price || phone.marketValue)}
+                </div>
+                <div class="phone-location-line" style="margin-top: 8px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <span>${location}</span>
+                </div>
+              </div>
+              <div class="phone-card-footer">
+                <button type="button" class="btn-view-details" style="${isOutOfStock ? 'background: rgba(255,255,255,0.08); color: var(--text-dim);' : ''}">
+                  <span>${isOutOfStock ? 'Swapped / Out of Stock' : 'View Details & Swap'}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+              </div>
+            `;
+            
+            card.addEventListener('click', () => {
+              window.location.href = `phone-details.html?id=${encodeURIComponent(phone.id)}`;
+            });
+            
+            phonesGrid.appendChild(card);
+          });
+        }
+
+      } catch (error) {
+        console.error("Error loading listings:", error);
+        phonesGrid.innerHTML = '<div style="color: var(--text-muted); padding: 20px;">Failed to load listings.</div>';
+      }
+    }
+
+    async function loadStoreReviews(storeId) {
+      try {
+        const reviews = await NaijaSwapData.getStoreReviews(storeId);
+        const summary = NaijaSwapData.getStoreRatingSummary(reviews);
+
+        // Update header badge
+        const headerBadge = document.getElementById('headerRatingBadge');
+        if (headerBadge) {
+          headerBadge.textContent = `${summary.averageRating} ★ (${summary.count} ${summary.count === 1 ? 'review' : 'reviews'})`;
+        }
+
+        if (reviewsSummaryBadge) {
+          reviewsSummaryBadge.innerHTML = `
+            <div class="store-rating-badge" style="font-size: 0.95rem; padding: 6px 14px;">
+              <span>⭐</span>
+              <span>${summary.averageRating} out of 5.0</span>
+              <span style="color: var(--text-dim); font-weight: normal;">• ${summary.count} Verified Swaps</span>
+            </div>
+          `;
+        }
+
+        if (!reviews || reviews.length === 0) {
+          reviewsGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); border-radius: var(--radius-md); padding: 24px; text-align: center; color: var(--text-muted);">
+              <div style="font-size: 1.5rem; margin-bottom: 6px;">✨</div>
+              <strong style="color: #FFF; display: block; margin-bottom: 4px;">No reviews yet</strong>
+              <span>Complete a smartphone swap with this hub to be the first to leave a verified rating and review!</span>
+            </div>
+          `;
+          return;
+        }
+
+        reviewsGrid.innerHTML = '';
+        reviews.forEach(r => {
+          const stars = '★'.repeat(Math.min(5, Math.max(1, Math.round(Number(r.rating) || 5)))) + 
+                        '☆'.repeat(Math.max(0, 5 - Math.min(5, Math.max(1, Math.round(Number(r.rating) || 5)))));
+          
+          let dateStr = 'Recent';
+          if (r.createdAt) {
+            try {
+              const d = r.createdAt.toDate ? r.createdAt.toDate() : new Date(r.createdAt);
+              dateStr = d.toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' });
+            } catch (e) {}
+          }
+
+          const card = document.createElement('div');
+          card.className = 'review-card';
+          card.innerHTML = `
+            <div class="review-header">
+              <div>
+                <div class="review-author">${escapeHtml(r.customerName || 'Verified Swapper')}</div>
+                <div class="review-verified-tag">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Verified Swap Trade-in
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div class="review-stars" aria-label="${r.rating} stars">${stars}</div>
+                <div class="review-date">${dateStr}</div>
+              </div>
+            </div>
+            ${r.comment ? `<p class="review-comment">“${escapeHtml(r.comment)}”</p>` : ''}
+            ${r.targetPhoneModel ? `<div style="font-size: 0.76rem; color: var(--cyan-400); margin-top: auto;">Swapped for: ${escapeHtml(r.targetPhoneModel)}</div>` : ''}
+          `;
+          reviewsGrid.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error loading store reviews:", err);
+        reviewsGrid.innerHTML = '<div style="color: var(--text-muted);">Could not load reviews.</div>';
+      }
+    }
+
+    // Initialize
+    loadStoreProfile();
+  </script>
+</body>
+</html>

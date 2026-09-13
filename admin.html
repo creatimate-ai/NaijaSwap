@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Admin &amp; Hub Inspection Desk — NaijaSwap</title>
+  <meta name="description" content="NaijaSwap Administrator and Hub Technician Inspection Portal. Verify dealers and conduct physical device diagnostic triage.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .admin-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 20px 120px 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .admin-nav-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 12px;
+      overflow-x: auto;
+    }
+    .admin-nav-tab {
+      padding: 10px 20px;
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--spring-fast);
+      white-space: nowrap;
+    }
+    .admin-nav-tab:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-white);
+    }
+    .admin-nav-tab.active {
+      background: linear-gradient(135deg, rgba(0,210,106,0.18), rgba(6,182,212,0.1));
+      border-color: var(--emerald-border);
+      color: var(--text-white);
+      box-shadow: 0 4px 16px rgba(0,210,106,0.15);
+    }
+    .admin-tab-pane {
+      display: none;
+    }
+    .admin-tab-pane.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: var(--glass-specular-soft);
+    }
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #FFF;
+      margin-top: 4px;
+    }
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+    }
+    .verif-card {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: var(--glass-shadow);
+    }
+    .verif-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .verif-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .verif-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .verif-meta-label {
+      font-size: 0.72rem;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+    .verif-meta-val {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      word-break: break-word;
+    }
+    .doc-preview-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      background: rgba(6,182,212,0.1);
+      border: 1px solid var(--cyan-border);
+      color: var(--cyan-400);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--spring-fast);
+      margin-right: 8px;
+      margin-top: 6px;
+    }
+    .doc-preview-link:hover {
+      background: rgba(6,182,212,0.2);
+      color: #FFF;
+    }
+    .diag-checklist {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .diag-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .diag-item label {
+      cursor: pointer;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      flex: 1;
+    }
+    .diag-toggle {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--emerald-400);
+      cursor: pointer;
+    }
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .role-admin {
+      background: rgba(0,210,106,0.15);
+      border: 1px solid var(--emerald-border);
+      color: var(--emerald-400);
+    }
+    .role-tech {
+      background: rgba(6,182,212,0.15);
+      border: 1px solid var(--cyan-border);
+      color: var(--cyan-400);
+    }
+    .code-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--emerald-400);
+    }
+  </style>
+</head>
+<body>
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <a href="index.html" class="brand-logo" aria-label="NaijaSwap Home">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span class="brand-name">Naija<span>Swap</span></span>
+      </a>
+      <span class="role-badge role-admin" id="portalHeaderBadge">🛡️ Staff Portal</span>
+    </div>
+
+    <div class="dash-header-right">
+      <a href="dashboard.html" class="btn-cancel" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none;">
+        Browse Marketplace
+      </a>
+      <a href="dealer-dashboard.html" class="btn-cancel" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none;">
+        Store Portal
+      </a>
+      <button type="button" class="btn-cancel btn-dash-logout" style="padding: 7px 14px; font-size: 0.8rem;">
+        Sign Out
+      </button>
+    </div>
+  </header>
+
+  <main class="admin-container">
+    <!-- Dev / Access Privilege Helper Banner -->
+    <div id="devRoleBanner" style="display:none;background:rgba(245,158,11,0.08);border:1px solid var(--amber-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:1.4rem;">⚙️</span>
+        <div>
+          <div style="font-weight:700;color:#FFF;font-size:0.9rem;" id="devRoleTitle">Testing Mode: Admin &amp; Technician Desk</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);" id="devRoleDesc">You are currently testing. Enable staff permissions to review dealer KYC and issue diagnostic certificates.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button type="button" id="btnMakeAdmin" class="btn-primary-action" style="padding:8px 16px;font-size:0.82rem;">
+          Grant Admin Access
+        </button>
+        <button type="button" id="btnMakeTech" class="btn-cancel" style="padding:8px 16px;font-size:0.82rem;">
+          Grant Technician Access
+        </button>
+      </div>
+    </div>
+
+    <!-- Page Title -->
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 1.8rem; font-weight: 800; color: #FFF; margin-bottom: 6px;">Staff Operations &amp; Inspection Desk</h1>
+      <p style="color: var(--text-muted); font-size: 0.92rem;">Review partner store verification documents, conduct certified physical hub inspections, and audit live escrow swaps.</p>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="admin-nav-tabs" aria-label="Admin Sections">
+      <button type="button" class="admin-nav-tab active" data-tab="tabVerifications">
+        <span>🏬 Dealer KYC Review</span>
+        <span class="count-badge" id="badgePendingVerifs">0</span>
+      </button>
+      <button type="button" class="admin-nav-tab" data-tab="tabInspections">
+        <span>🔬 Hub Device Inspection</span>
+      </button>
+      <button type="button" class="admin-nav-tab" data-tab="tabSwaps">
+        <span>🔄 Live Swaps &amp; Escrow</span>
+      </button>
+    </nav>
+
+    <!-- ======================================================================
+         TAB 1: DEALER KYC VERIFICATION DESK
+         ====================================================================== -->
+    <section id="tabVerifications" class="admin-tab-pane active">
+      <!-- Quick Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Pending Review</div>
+          <div class="stat-val" id="statPendingCount" style="color: var(--amber-400);">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Approved Stores</div>
+          <div class="stat-val" id="statApprovedCount" style="color: var(--emerald-400);">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Rejected / Returned</div>
+          <div class="stat-val" id="statRejectedCount" style="color: var(--rose-400);">0</div>
+        </div>
+      </div>
+
+      <!-- Filter Row -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;gap:8px;">
+          <button type="button" class="swap-filter-pill active" data-verif-filter="pending" id="filterVerifPending">Pending</button>
+          <button type="button" class="swap-filter-pill" data-verif-filter="approved" id="filterVerifApproved">Approved</button>
+          <button type="button" class="swap-filter-pill" data-verif-filter="rejected" id="filterVerifRejected">Rejected</button>
+          <button type="button" class="swap-filter-pill" data-verif-filter="all" id="filterVerifAll">All Stores</button>
+        </div>
+        <button type="button" id="btnRefreshVerifs" class="btn-cancel" style="padding: 7px 14px; font-size: 0.8rem;">
+          ↻ Refresh List
+        </button>
+      </div>
+
+      <!-- Verifications List Container -->
+      <div id="verificationsList">
+        <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+          Loading dealer verification applications...
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 2: HUB DEVICE INSPECTION & CERTIFICATE ISSUANCE
+         ====================================================================== -->
+    <section id="tabInspections" class="admin-tab-pane">
+      <div class="verif-card" style="margin-bottom: 24px;">
+        <h2 style="font-size: 1.15rem; font-weight: 700; color: #FFF; margin-bottom: 8px;">Select Swap for Physical Inspection</h2>
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 16px;">
+          Enter the Swap Request ID, IMEI, or choose from accepted walk-in swaps waiting at the hub.
+        </p>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+          <input type="text" id="inputInspectLookup" class="form-input" placeholder="e.g. swap_12345 or enter 15-digit IMEI..." style="flex:1;min-width:240px;">
+          <button type="button" id="btnInspectLookup" class="btn-primary-action" style="white-space:nowrap;padding:0 24px;">
+            Lookup Swap
+          </button>
+        </div>
+
+        <!-- Quick Pick Pending Inspection Swaps -->
+        <div id="quickInspectionPicks" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+
+      <!-- Active Inspection Panel -->
+      <div id="activeInspectionPanel" class="verif-card" style="display:none;">
+        <div class="verif-card-head">
+          <div>
+            <span class="role-badge role-tech" id="inspHubBadge">📍 Ikeja Computer Village Hub</span>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin-top: 6px;" id="inspSwapTitle">
+              Trade-in Inspection: iPhone 12 Pro → iPhone 15 Pro
+            </h3>
+            <div style="font-size: 0.8rem; color: var(--text-muted);" id="inspSwapSubtitle">
+              Request ID: <span class="code-pill" id="inspReqIdText">REQ-1234</span>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.75rem;color:var(--text-faint);">Agreed Top-Up</div>
+            <div style="font-size:1.1rem;font-weight:800;color:var(--emerald-400);" id="inspTopupVal">₦240,000</div>
+          </div>
+        </div>
+
+        <!-- Device Info Grid -->
+        <div class="verif-grid" style="margin-bottom: 24px;">
+          <div class="verif-meta-item">
+            <span class="verif-meta-label">Customer Device (Trade-In)</span>
+            <span class="verif-meta-val" id="inspCurrentDeviceVal">iPhone 12 Pro • 128GB</span>
+          </div>
+          <div class="verif-meta-item">
+            <span class="verif-meta-label">IMEI / Serial</span>
+            <span class="verif-meta-val code-pill" id="inspImeiVal">354892091234567</span>
+          </div>
+          <div class="verif-meta-item">
+            <span class="verif-meta-label">Customer Name &amp; Phone</span>
+            <span class="verif-meta-val" id="inspCustomerVal">Adeola Balogun (08012345678)</span>
+          </div>
+          <div class="verif-meta-item">
+            <span class="verif-meta-label">Store / Partner Dealer</span>
+            <span class="verif-meta-val" id="inspStoreVal">Computer Village Hub</span>
+          </div>
+        </div>
+
+        <!-- Diagnostic Checklist -->
+        <h4 style="font-size:0.95rem;font-weight:700;color:#FFF;margin-bottom:12px;">🔬 Physical Diagnostic Checklist</h4>
+        <div class="diag-checklist">
+          <div class="diag-item">
+            <label for="chkScreen">
+              <div>Display &amp; Digitizer</div>
+              <div style="font-size:0.75rem;color:var(--text-faint);">Original OEM panel, no ghost touch, TrueTone active</div>
+            </label>
+            <input type="checkbox" id="chkScreen" class="diag-toggle" checked>
+          </div>
+
+          <div class="diag-item">
+            <label for="chkBattery">
+              <div>Battery Health Verified</div>
+              <div style="font-size:0.75rem;color:var(--text-faint);">Health &gt; 80%, no service warning</div>
+            </label>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <input type="number" id="inputBatteryPct" class="form-input" value="89" min="50" max="100" style="width:64px;padding:4px 8px;text-align:center;font-size:0.82rem;">
+              <span style="font-size:0.8rem;color:var(--text-muted);">%</span>
+              <input type="checkbox" id="chkBattery" class="diag-toggle" checked>
+            </div>
+          </div>
+
+          <div class="diag-item">
+            <label for="chkIcloud">
+              <div>iCloud / Google FRP Sign-Out</div>
+              <div style="font-size:0.75rem;color:var(--text-faint);">Find My disabled, device factory reset</div>
+            </label>
+            <input type="checkbox" id="chkIcloud" class="diag-toggle" checked>
+          </div>
+
+          <div class="diag-item">
+            <label for="chkCameras">
+              <div>Cameras &amp; Sensors</div>
+              <div style="font-size:0.75rem;color:var(--text-faint);">Front/Rear lenses, flash, LiDAR functional</div>
+            </label>
+            <input type="checkbox" id="chkCameras" class="diag-toggle" checked>
+          </div>
+
+          <div class="diag-item">
+            <label for="chkBiometrics">
+              <div>Biometrics &amp; Audio</div>
+              <div style="font-size:0.75rem;color:var(--text-faint);">Face ID / Touch ID, speakers, mic tested</div>
+            </label>
+            <input type="checkbox" id="chkBiometrics" class="diag-toggle" checked>
+          </div>
+
+          <div class="diag-item">
+            <label for="chkImei">
+              <div>Anti-Theft IMEI Clearance</div>
+              <div style="font-size:0.75rem;color:var(--text-faint);">Clean registry, not blacklisted or reported lost</div>
+            </label>
+            <input type="checkbox" id="chkImei" class="diag-toggle" checked>
+          </div>
+        </div>
+
+        <!-- Grade & Notes -->
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:24px;">
+          <div>
+            <label class="form-label" for="selectGrade">Verified Condition Grade</label>
+            <select id="selectGrade" class="form-select">
+              <option value="Brand New Sealed">Brand New Sealed</option>
+              <option value="Grade A (Like New)" selected>Grade A (Like New / Mint)</option>
+              <option value="Grade B (Very Good)">Grade B (Very Good - minor wear)</option>
+              <option value="Grade C (Good)">Grade C (Good - screen scratch)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="inputTechnicianNotes">Technician Observations / Remarks</label>
+            <input type="text" id="inputTechnicianNotes" class="form-input" placeholder="e.g. Clean device, minor micro-abrasion on bottom bezel, 100% operational.">
+          </div>
+        </div>
+
+        <!-- Action Row -->
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.06);padding-top:18px;">
+          <div style="display:flex;gap:10px;">
+            <button type="button" id="btnRecordPass" class="btn-primary-action" style="padding:10px 24px;font-weight:700;">
+              ✓ Pass &amp; Issue Digital Certificate
+            </button>
+            <button type="button" id="btnRecordFail" class="btn-cancel" style="color:var(--rose-400);border-color:var(--rose-border);padding:10px 20px;">
+              ✕ Fail Inspection
+            </button>
+          </div>
+          <a href="#" target="_blank" id="btnViewCertLink" class="btn-cancel" style="display:none;align-items:center;gap:6px;color:var(--emerald-400);border-color:var(--emerald-border);text-decoration:none;">
+            <span>📜 View Certificate</span> &rarr;
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         TAB 3: LIVE SWAPS & ESCROW MONITOR
+         ====================================================================== -->
+    <section id="tabSwaps" class="admin-tab-pane">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;gap:8px;overflow-x:auto;">
+          <button type="button" class="swap-filter-pill active" data-swap-filter="all">All Statuses</button>
+          <button type="button" class="swap-filter-pill" data-swap-filter="under_inspection">Under Inspection</button>
+          <button type="button" class="swap-filter-pill" data-swap-filter="inspection_passed">Inspection Passed</button>
+          <button type="button" class="swap-filter-pill" data-swap-filter="completed">Completed</button>
+          <button type="button" class="swap-filter-pill" data-swap-filter="disputed">Disputed</button>
+        </div>
+        <button type="button" id="btnRefreshSwaps" class="btn-cancel" style="padding: 7px 14px; font-size: 0.8rem;">
+          ↻ Refresh Swaps
+        </button>
+      </div>
+
+      <div id="adminSwapsList">
+        <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+          Loading swaps...
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       ADMIN CONTROLLER (FIRESTORE & BACKEND API)
+       ====================================================================== -->
+  <script type="module">
+    import { auth, db, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, limit, onAuthStateChanged } from './js/firebase-config.js';
+    import { apiGet, apiPost } from './js/backend-api.js';
+
+    let currentAdminUid = null;
+    let currentUserData = null;
+    let currentVerifications = [];
+    let currentSwaps = [];
+    let selectedInspectSwap = null;
+
+    // Elements
+    const portalHeaderBadge = document.getElementById('portalHeaderBadge');
+    const devRoleBanner = document.getElementById('devRoleBanner');
+    const btnMakeAdmin = document.getElementById('btnMakeAdmin');
+    const btnMakeTech = document.getElementById('btnMakeTech');
+    const verificationsList = document.getElementById('verificationsList');
+    const adminSwapsList = document.getElementById('adminSwapsList');
+    const activeInspectionPanel = document.getElementById('activeInspectionPanel');
+    const btnInspectLookup = document.getElementById('btnInspectLookup');
+    const inputInspectLookup = document.getElementById('inputInspectLookup');
+    const btnRecordPass = document.getElementById('btnRecordPass');
+    const btnRecordFail = document.getElementById('btnRecordFail');
+    const btnViewCertLink = document.getElementById('btnViewCertLink');
+
+    // Stats Elements
+    const statPendingCount = document.getElementById('statPendingCount');
+    const statApprovedCount = document.getElementById('statApprovedCount');
+    const statRejectedCount = document.getElementById('statRejectedCount');
+    const badgePendingVerifs = document.getElementById('badgePendingVerifs');
+
+    // Tab Switching
+    document.querySelectorAll('.admin-nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.admin-nav-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        const targetId = tab.dataset.tab;
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) targetPane.classList.add('active');
+
+        if (targetId === 'tabVerifications') loadVerifications();
+        if (targetId === 'tabSwaps') loadSwaps();
+      });
+    });
+
+    // Dev Role Setup (Development / Test accounts)
+    btnMakeAdmin?.addEventListener('click', async () => {
+      try {
+        if (!currentAdminUid) return alert('Please log in first.');
+        await apiPost('/api/admin/setup-role', { role: 'admin' });
+        alert('✓ Granted Admin role! Page will now reload with full administrative privileges.');
+        window.location.reload();
+      } catch (e) {
+        // Direct firestore fallback
+        await setDoc(doc(db, 'users', currentAdminUid), { role: 'admin', accountType: 'admin' }, { merge: true });
+        alert('✓ Granted Admin role directly. Reloading...');
+        window.location.reload();
+      }
+    });
+
+    btnMakeTech?.addEventListener('click', async () => {
+      try {
+        if (!currentAdminUid) return alert('Please log in first.');
+        await apiPost('/api/admin/setup-role', { role: 'technician' });
+        alert('✓ Granted Hub Technician role! You can now conduct inspections.');
+        window.location.reload();
+      } catch (e) {
+        await setDoc(doc(db, 'users', currentAdminUid), { role: 'technician', accountType: 'technician', isTechnician: true }, { merge: true });
+        alert('✓ Granted Technician role directly. Reloading...');
+        window.location.reload();
+      }
+    });
+
+    // Initialize Auth Listener
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html?redirect=admin.html';
+        return;
+      }
+      currentAdminUid = user.uid;
+
+      // Check user role
+      try {
+        const uSnap = await getDoc(doc(db, 'users', user.uid));
+        if (uSnap.exists()) {
+          currentUserData = uSnap.data();
+          const isAdmin = currentUserData.role === 'admin' || currentUserData.accountType === 'admin';
+          const isTech = currentUserData.role === 'technician' || currentUserData.accountType === 'technician';
+
+          if (isAdmin) {
+            portalHeaderBadge.textContent = '🛡️ Super Admin';
+            portalHeaderBadge.className = 'role-badge role-admin';
+          } else if (isTech) {
+            portalHeaderBadge.textContent = '🔬 Hub Technician';
+            portalHeaderBadge.className = 'role-badge role-tech';
+          } else {
+            // Show dev role banner so tester can immediately self-promote
+            devRoleBanner.style.display = 'flex';
+          }
+        } else {
+          devRoleBanner.style.display = 'flex';
+        }
+      } catch (_) {
+        devRoleBanner.style.display = 'flex';
+      }
+
+      loadVerifications();
+      loadSwaps();
+    });
+
+    // -------------------------------------------------------------
+    // TAB 1: DEALER VERIFICATIONS
+    // -------------------------------------------------------------
+    let currentVerifFilter = 'pending';
+    document.querySelectorAll('[data-verif-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-verif-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentVerifFilter = btn.dataset.verifFilter;
+        renderVerifications();
+      });
+    });
+
+    document.getElementById('btnRefreshVerifs')?.addEventListener('click', loadVerifications);
+
+    async function loadVerifications() {
+      verificationsList.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Fetching dealer verification queue...</div>';
+      try {
+        // Try backend API first
+        const res = await apiGet('/api/admin/verifications?status=all');
+        if (res?.ok && Array.isArray(res.verifications)) {
+          currentVerifications = res.verifications;
+        } else {
+          throw new Error('API fallback');
+        }
+      } catch (err) {
+        // Firestore fallback
+        try {
+          const snap = await getDocs(collection(db, 'dealerVerification'));
+          currentVerifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch (e) {
+          // Local storage fallback for offline demo
+          try {
+            currentVerifications = JSON.parse(localStorage.getItem('naijaswap_verifications') || '[]');
+          } catch (_) { currentVerifications = []; }
+        }
+      }
+
+      updateVerifStats();
+      renderVerifications();
+    }
+
+    function updateVerifStats() {
+      const pending = currentVerifications.filter(v => (v.status || 'pending').toLowerCase() === 'pending').length;
+      const approved = currentVerifications.filter(v => (v.status || '').toLowerCase() === 'approved').length;
+      const rejected = currentVerifications.filter(v => (v.status || '').toLowerCase() === 'rejected').length;
+
+      statPendingCount.textContent = pending;
+      badgePendingVerifs.textContent = pending;
+      statApprovedCount.textContent = approved;
+      statRejectedCount.textContent = rejected;
+    }
+
+    function renderVerifications() {
+      const filtered = currentVerifications.filter(v => {
+        const s = (v.status || 'pending').toLowerCase();
+        if (currentVerifFilter === 'all') return true;
+        return s === currentVerifFilter;
+      });
+
+      if (!filtered.length) {
+        verificationsList.innerHTML = `
+          <div class="empty-state-box" style="padding:48px 20px;">
+            <div style="font-size:2.2rem;margin-bottom:8px;">🏬</div>
+            <h3 style="color:#FFF;font-size:1.1rem;margin-bottom:6px;">No ${currentVerifFilter} dealer verifications</h3>
+            <p style="color:var(--text-muted);font-size:0.85rem;">Applications will show here when stores submit their documents.</p>
+          </div>
+        `;
+        return;
+      }
+
+      verificationsList.innerHTML = filtered.map(v => {
+        const uid = v.uid || v.id;
+        const status = (v.status || 'pending').toLowerCase();
+        const isApproved = status === 'approved';
+        const isRejected = status === 'rejected';
+
+        const statusPill = isApproved 
+          ? '<span class="role-badge role-admin" style="color:var(--emerald-400);">✓ Approved</span>'
+          : (isRejected ? '<span class="role-badge" style="background:rgba(244,63,94,0.15);border:1px solid var(--rose-border);color:var(--rose-400);">✕ Rejected</span>' : '<span class="role-badge" style="background:rgba(245,158,11,0.15);border:1px solid var(--amber-border);color:var(--amber-400);">⏳ Pending Review</span>');
+
+        return `
+          <article class="verif-card" id="card_verif_${escapeHtml(uid)}">
+            <div class="verif-card-head">
+              <div>
+                <h3 style="font-size:1.15rem;font-weight:700;color:#FFF;">${escapeHtml(v.storeName || v.businessName || 'Store ' + uid.slice(0, 6))}</h3>
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;">
+                  UID: <span class="code-pill">${escapeHtml(uid)}</span>
+                  ${v.submittedAt ? ` • Submitted ${new Date(v.submittedAt.seconds ? v.submittedAt.seconds*1000 : v.submittedAt).toLocaleDateString()}` : ''}
+                </div>
+              </div>
+              <div>${statusPill}</div>
+            </div>
+
+            <div class="verif-grid">
+              <div class="verif-meta-item">
+                <span class="verif-meta-label">Business Email</span>
+                <span class="verif-meta-val">${escapeHtml(v.businessEmail || 'Not specified')}</span>
+              </div>
+              <div class="verif-meta-item">
+                <span class="verif-meta-label">Phone Hotline</span>
+                <span class="verif-meta-val">${escapeHtml(v.phoneNumber || 'Not specified')}</span>
+              </div>
+              <div class="verif-meta-item">
+                <span class="verif-meta-label">CAC Reg Number</span>
+                <span class="verif-meta-val">${escapeHtml(v.cacNumber || 'Sole Proprietorship')}</span>
+              </div>
+              <div class="verif-meta-item">
+                <span class="verif-meta-label">National Identity (NIN / BVN)</span>
+                <span class="verif-meta-val">${v.nin ? `NIN: ${escapeHtml(v.nin)}` : 'NIN: Verified'} • ${v.bvn ? `BVN: ${escapeHtml(v.bvn)}` : 'BVN: Verified'}</span>
+              </div>
+              <div class="verif-meta-item">
+                <span class="verif-meta-label">Shop Address</span>
+                <span class="verif-meta-val">${escapeHtml(v.shopAddress || v.address || 'Computer Village / Banex Plaza')}</span>
+              </div>
+              <div class="verif-meta-item">
+                <span class="verif-meta-label">Settlement Bank</span>
+                <span class="verif-meta-val">${escapeHtml(v.bankName || 'Access Bank')} • ${escapeHtml(v.bankAccountNumber || '••••••••••')}</span>
+              </div>
+            </div>
+
+            <!-- KYC Documents -->
+            <div style="margin-bottom:18px;">
+              <span class="verif-meta-label" style="display:block;margin-bottom:6px;">Uploaded KYC Evidence</span>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                ${v.governmentIdData ? `<a href="${escapeHtml(v.governmentIdData)}" target="_blank" rel="noopener" class="doc-preview-link">📄 Government ID (View)</a>` : '<span style="font-size:0.8rem;color:var(--text-faint);">No Gov ID</span>'}
+                ${v.proofOfAddressData ? `<a href="${escapeHtml(v.proofOfAddressData)}" target="_blank" rel="noopener" class="doc-preview-link">📄 Proof of Address (View)</a>` : '<span style="font-size:0.8rem;color:var(--text-faint);">No Proof of Address</span>'}
+              </div>
+            </div>
+
+            <!-- Review Actions -->
+            <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;flex-wrap:wrap;">
+              ${!isApproved ? `
+                <button type="button" class="btn-primary-action btn-approve-dealer" data-uid="${escapeHtml(uid)}" style="padding:8px 18px;font-size:0.84rem;">
+                  ✓ Approve Dealer &amp; Unlock Store
+                </button>
+              ` : ''}
+              ${!isRejected ? `
+                <button type="button" class="btn-cancel btn-reject-dealer" data-uid="${escapeHtml(uid)}" style="padding:8px 16px;font-size:0.84rem;color:var(--rose-400);border-color:var(--rose-border);">
+                  ✕ Reject
+                </button>
+              ` : ''}
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      // Wire up approval buttons
+      document.querySelectorAll('.btn-approve-dealer').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const uid = btn.dataset.uid;
+          if (!confirm('Approve this store dealer? They will be granted dealer role and allowed to publish listings.')) return;
+          btn.disabled = true;
+          btn.textContent = 'Approving...';
+          try {
+            await apiPost('/api/admin/verification-status', { uid, status: 'approved' });
+            alert('✓ Dealer successfully approved and notified!');
+            loadVerifications();
+          } catch (e) {
+            // Firestore direct update fallback
+            await setDoc(doc(db, 'dealerVerification', uid), { status: 'approved', reviewedAt: new Date() }, { merge: true });
+            await setDoc(doc(db, 'users', uid), { role: 'dealer', accountType: 'dealer', verificationStatus: 'approved' }, { merge: true });
+            alert('✓ Dealer approved directly in database!');
+            loadVerifications();
+          }
+        });
+      });
+
+      // Wire up rejection buttons
+      document.querySelectorAll('.btn-reject-dealer').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const uid = btn.dataset.uid;
+          const reason = prompt('Please enter the reason for rejection (e.g. Blurry ID, CAC registration mismatch):');
+          if (!reason) return;
+          btn.disabled = true;
+          try {
+            await apiPost('/api/admin/verification-status', { uid, status: 'rejected', reason });
+            alert('Dealer verification marked rejected.');
+            loadVerifications();
+          } catch (e) {
+            await setDoc(doc(db, 'dealerVerification', uid), { status: 'rejected', rejectReason: reason, reviewedAt: new Date() }, { merge: true });
+            await setDoc(doc(db, 'users', uid), { verificationStatus: 'rejected' }, { merge: true });
+            alert('Dealer rejected directly in database.');
+            loadVerifications();
+          }
+        });
+      });
+    }
+
+    // -------------------------------------------------------------
+    // TAB 2: HUB INSPECTION DESK
+    // -------------------------------------------------------------
+    btnInspectLookup?.addEventListener('click', () => {
+      const q = (inputInspectLookup.value || '').trim();
+      if (!q) return alert('Please enter a Swap Request ID or IMEI.');
+      findAndInspectSwap(q);
+    });
+
+    async function findAndInspectSwap(searchQuery) {
+      let found = currentSwaps.find(s => 
+        s.id === searchQuery || 
+        s.currentDevice?.imeiNumber === searchQuery ||
+        (s.currentDevice?.imeiNumber && s.currentDevice.imeiNumber.includes(searchQuery))
+      );
+
+      if (!found) {
+        try {
+          const snap = await getDoc(doc(db, 'swapRequests', searchQuery));
+          if (snap.exists()) found = { id: snap.id, ...snap.data() };
+        } catch (_) {}
+      }
+
+      if (!found) {
+        alert(`No swap request found matching "${searchQuery}". Please check the ID or pick from the list below.`);
+        return;
+      }
+
+      setupInspectionPanel(found);
+    }
+
+    function setupInspectionPanel(swap) {
+      selectedInspectSwap = swap;
+      activeInspectionPanel.style.display = 'block';
+      activeInspectionPanel.scrollIntoView({ behavior: 'smooth' });
+
+      document.getElementById('inspReqIdText').textContent = swap.id;
+      document.getElementById('inspSwapTitle').textContent = `Inspection: ${swap.currentDevice?.model || 'Device'} → ${swap.targetDevice?.model || 'Target'}`;
+      document.getElementById('inspTopupVal').textContent = swap.topupAmount ? `+₦${Number(swap.topupAmount).toLocaleString()}` : 'No Top-up';
+      document.getElementById('inspCurrentDeviceVal').textContent = `${swap.currentDevice?.model || 'Device'} • ${swap.currentDevice?.storage || '128GB'} • ${swap.currentDevice?.color || 'Color'}`;
+      document.getElementById('inspImeiVal').textContent = swap.currentDevice?.imeiNumber || 'No IMEI provided';
+      document.getElementById('inspCustomerVal').textContent = `${swap.customerName || 'Customer'} (${swap.customerPhone || 'Verified Swapper'})`;
+      document.getElementById('inspStoreVal').textContent = swap.storeName || 'Partner Store';
+
+      // Pre-fill existing inspection data if already inspected
+      if (swap.diagnosticDetails) {
+        document.getElementById('chkScreen').checked = swap.diagnosticDetails.screenPassed !== false;
+        document.getElementById('chkBattery').checked = swap.diagnosticDetails.batteryHealth >= 80;
+        document.getElementById('inputBatteryPct').value = swap.diagnosticDetails.batteryHealth || 90;
+        document.getElementById('chkIcloud').checked = swap.diagnosticDetails.icloudSignedOut !== false;
+        document.getElementById('chkCameras').checked = swap.diagnosticDetails.camerasPassed !== false;
+        document.getElementById('chkBiometrics').checked = swap.diagnosticDetails.biometricsPassed !== false;
+        document.getElementById('chkImei').checked = swap.diagnosticDetails.imeiClean !== false;
+        if (swap.diagnosticDetails.physicalGrade) document.getElementById('selectGrade').value = swap.diagnosticDetails.physicalGrade;
+      }
+
+      if (swap.inspectionReportId) {
+        btnViewCertLink.style.display = 'inline-flex';
+        btnViewCertLink.href = `certificate.html?id=${swap.id}`;
+      } else {
+        btnViewCertLink.style.display = 'none';
+      }
+    }
+
+    btnRecordPass?.addEventListener('click', async () => {
+      if (!selectedInspectSwap) return;
+      btnRecordPass.disabled = true;
+      btnRecordPass.textContent = 'Generating Certificate...';
+
+      const diagnostics = {
+        screenPassed: document.getElementById('chkScreen').checked,
+        batteryHealth: parseInt(document.getElementById('inputBatteryPct').value, 10) || 90,
+        icloudSignedOut: document.getElementById('chkIcloud').checked,
+        camerasPassed: document.getElementById('chkCameras').checked,
+        biometricsPassed: document.getElementById('chkBiometrics').checked,
+        imeiClean: document.getElementById('chkImei').checked,
+        physicalGrade: document.getElementById('selectGrade').value
+      };
+
+      const notes = document.getElementById('inputTechnicianNotes').value.trim();
+
+      try {
+        const res = await apiPost('/api/swap/inspection', {
+          requestId: selectedInspectSwap.id,
+          passed: true,
+          diagnostics,
+          notes: notes || 'Device successfully cleared all physical diagnostic and anti-theft tests.',
+          technicianName: currentUserData?.displayName || 'Senior Hub Technician'
+        });
+
+        alert(`✓ Inspection Passed! Diagnostic certificate #${res.inspectionReportId || 'NS-CERT'} issued.`);
+        btnViewCertLink.style.display = 'inline-flex';
+        btnViewCertLink.href = `certificate.html?id=${selectedInspectSwap.id}`;
+        loadSwaps();
+      } catch (err) {
+        // Direct Firestore fallback
+        const certId = 'NS-CERT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        await setDoc(doc(db, 'swapRequests', selectedInspectSwap.id), {
+          inspectionStatus: 'passed',
+          inspectionReportId: certId,
+          diagnosticDetails: diagnostics,
+          inspectionNotes: notes,
+          status: 'inspection_passed',
+          inspectedAt: new Date()
+        }, { merge: true });
+
+        alert(`✓ Certificate #${certId} issued directly!`);
+        btnViewCertLink.style.display = 'inline-flex';
+        btnViewCertLink.href = `certificate.html?id=${selectedInspectSwap.id}`;
+        loadSwaps();
+      } finally {
+        btnRecordPass.disabled = false;
+        btnRecordPass.textContent = '✓ Pass & Issue Digital Certificate';
+      }
+    });
+
+    btnRecordFail?.addEventListener('click', async () => {
+      if (!selectedInspectSwap) return;
+      const reason = prompt('Please specify why this device failed inspection (e.g. Replaced non-genuine LCD, active iCloud lock):');
+      if (!reason) return;
+
+      btnRecordFail.disabled = true;
+      try {
+        await apiPost('/api/swap/inspection', {
+          requestId: selectedInspectSwap.id,
+          passed: false,
+          notes: reason,
+          technicianName: currentUserData?.displayName || 'Hub Technician'
+        });
+        alert('Inspection marked as failed.');
+        loadSwaps();
+      } catch (e) {
+        await setDoc(doc(db, 'swapRequests', selectedInspectSwap.id), {
+          inspectionStatus: 'failed',
+          inspectionNotes: reason,
+          inspectedAt: new Date()
+        }, { merge: true });
+        alert('Inspection failed recorded.');
+        loadSwaps();
+      } finally {
+        btnRecordFail.disabled = false;
+      }
+    });
+
+    // -------------------------------------------------------------
+    // TAB 3: LIVE SWAPS & ESCROW MONITOR
+    // -------------------------------------------------------------
+    let currentSwapFilter = 'all';
+    document.querySelectorAll('[data-swap-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-swap-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSwapFilter = btn.dataset.swapFilter;
+        renderSwaps();
+      });
+    });
+
+    document.getElementById('btnRefreshSwaps')?.addEventListener('click', loadSwaps);
+
+    async function loadSwaps() {
+      try {
+        const res = await apiGet('/api/admin/swaps');
+        if (res?.ok && Array.isArray(res.swaps)) {
+          currentSwaps = res.swaps;
+        } else {
+          throw new Error('API fallback');
+        }
+      } catch (err) {
+        try {
+          const snap = await getDocs(query(collection(db, 'swapRequests'), orderBy('createdAt', 'desc'), limit(100)));
+          currentSwaps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch (e) {
+          try {
+            currentSwaps = JSON.parse(localStorage.getItem('naijaswap_swap_requests') || '[]');
+          } catch (_) { currentSwaps = []; }
+        }
+      }
+
+      renderSwaps();
+      renderQuickInspectionPicks();
+    }
+
+    function renderQuickInspectionPicks() {
+      const picksContainer = document.getElementById('quickInspectionPicks');
+      if (!picksContainer) return;
+
+      const inspectable = currentSwaps.filter(s => ['accepted', 'under_inspection', 'reviewed', 'pending'].includes((s.status || '').toLowerCase())).slice(0, 8);
+      if (!inspectable.length) {
+        picksContainer.innerHTML = '<span style="font-size:0.8rem;color:var(--text-faint);">No swaps currently awaiting physical inspection.</span>';
+        return;
+      }
+
+      picksContainer.innerHTML = inspectable.map(s => `
+        <button type="button" class="swap-filter-pill btn-quick-pick" data-id="${escapeHtml(s.id)}" style="font-size:0.78rem;">
+          🔬 ${escapeHtml(s.currentDevice?.model || 'Device')} (ID: ${escapeHtml(s.id.slice(0, 6))})
+        </button>
+      `).join('');
+
+      picksContainer.querySelectorAll('.btn-quick-pick').forEach(b => {
+        b.addEventListener('click', () => {
+          const s = currentSwaps.find(x => x.id === b.dataset.id);
+          if (s) setupInspectionPanel(s);
+        });
+      });
+    }
+
+    function renderSwaps() {
+      const filtered = currentSwaps.filter(s => {
+        if (currentSwapFilter === 'all') return true;
+        return (s.status || '').toLowerCase() === currentSwapFilter;
+      });
+
+      if (!filtered.length) {
+        adminSwapsList.innerHTML = `
+          <div class="empty-state-box" style="padding:48px 20px;">
+            <div style="font-size:2.2rem;margin-bottom:8px;">🔄</div>
+            <h3 style="color:#FFF;font-size:1.1rem;margin-bottom:6px;">No ${currentSwapFilter} swaps found</h3>
+            <p style="color:var(--text-muted);font-size:0.85rem;">Swaps submitted by customers will appear in this real-time monitor.</p>
+          </div>
+        `;
+        return;
+      }
+
+      adminSwapsList.innerHTML = filtered.map(s => {
+        const status = (s.status || 'pending').toLowerCase();
+        const payStatus = s.paymentStatus || 'not_required';
+        const inspectStatus = s.inspectionStatus || 'pending';
+
+        return `
+          <article class="verif-card" style="margin-bottom:14px;">
+            <div class="verif-card-head" style="margin-bottom:12px;padding-bottom:10px;">
+              <div>
+                <span class="code-pill">ID: ${escapeHtml(s.id)}</span>
+                <strong style="color:#FFF;margin-left:10px;font-size:0.95rem;">
+                  ${escapeHtml(s.currentDevice?.model || 'Current')} ➔ ${escapeHtml(s.targetDevice?.model || 'Target')}
+                </strong>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <span class="role-badge" style="background:rgba(255,255,255,0.06);color:var(--text-dim);">Status: ${status}</span>
+                <span class="role-badge ${payStatus === 'paid' ? 'role-admin' : ''}" style="color:${payStatus === 'paid' ? 'var(--emerald-400)' : 'var(--amber-400)'};">
+                  Payment: ${payStatus}
+                </span>
+                <span class="role-badge ${inspectStatus === 'passed' ? 'role-admin' : ''}" style="color:${inspectStatus === 'passed' ? 'var(--emerald-400)' : 'var(--cyan-400)'};">
+                  Inspection: ${inspectStatus}
+                </span>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+              <div style="font-size:0.82rem;color:var(--text-muted);">
+                Customer: <strong style="color:var(--text-dim);">${escapeHtml(s.customerName || 'Swapper')}</strong> • 
+                Store: <strong style="color:var(--text-dim);">${escapeHtml(s.storeName || 'Store')}</strong> • 
+                Top-Up: <strong style="color:var(--emerald-400);">${s.topupAmount ? `+₦${Number(s.topupAmount).toLocaleString()}` : '₦0'}</strong>
+              </div>
+
+              <div style="display:flex;gap:8px;">
+                <button type="button" class="btn-cancel btn-jump-inspect" data-id="${escapeHtml(s.id)}" style="padding:6px 14px;font-size:0.78rem;">
+                  🔬 Inspect Device
+                </button>
+                ${s.inspectionReportId ? `
+                  <a href="certificate.html?id=${escapeHtml(s.id)}" target="_blank" class="btn-cancel" style="padding:6px 14px;font-size:0.78rem;text-decoration:none;color:var(--emerald-400);border-color:var(--emerald-border);">
+                    📜 Certificate
+                  </a>
+                ` : ''}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      adminSwapsList.querySelectorAll('.btn-jump-inspect').forEach(b => {
+        b.addEventListener('click', () => {
+          const s = currentSwaps.find(x => x.id === b.dataset.id);
+          if (s) {
+            document.querySelector('[data-tab="tabInspections"]').click();
+            setupInspectionPanel(s);
+          }
+        });
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>

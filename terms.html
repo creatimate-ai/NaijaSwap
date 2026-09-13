@@ -3,8 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Terms & Conditions — NaijaSwap</title>
-  <meta name="description" content="NaijaSwap terms of service, Safe Deal Protocol, device ownership requirements, and swap inspection agreements.">
+  <title>Terms & Conditions — NaijaSwap Nigeria</title>
+  <meta name="description" content="NaijaSwap terms of service, Safe Deal Protocol, verified device ownership requirements, and physical swap inspection agreements.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="canonical" href="https://naijaswap.web.app/terms.html">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!-- Open Graph Protocol -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NaijaSwap">
+  <meta property="og:title" content="Terms & Conditions — NaijaSwap Nigeria">
+  <meta property="og:description" content="NaijaSwap terms of service, Safe Deal Protocol, verified device ownership requirements, and physical swap inspection agreements.">
+  <meta property="og:url" content="https://naijaswap.web.app/terms.html">
+  <meta property="og:image" content="https://naijaswap.web.app/assets/og-banner.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_NG">
+
+  <!-- Twitter Card Protocol -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Terms & Conditions — NaijaSwap Nigeria">
+  <meta name="twitter:description" content="NaijaSwap terms of service, Safe Deal Protocol, verified device ownership requirements, and physical swap inspection agreements.">
+  <meta name="twitter:image" content="https://naijaswap.web.app/assets/og-banner.svg">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -21,11 +44,11 @@
 
     <!-- Top Navigation Header -->
     <header class="more-header">
-      <a href="more.html" class="more-back-btn" aria-label="Back to More">
+      <a href="more.html" onclick="if (window.history.length > 1 && document.referrer) { window.history.back(); return false; }" class="more-back-btn" aria-label="Back">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-        <span>More</span>
+        <span>Back</span>
       </a>
 
       <div class="more-brand-pill">
@@ -170,30 +193,6 @@
 
   </main>
 
-  <!-- ==========================================================================
-       SWAPPER MOBILE BOTTOM NAVIGATION (FLOATING FROSTED GLASS BAR)
-       More is highlighted as the active tab
-       ========================================================================== -->
-  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
-    <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <span>Home</span>
-    </a>
-    <a href="dashboard.html?tab=swaps" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
-      <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
-      <span>My Swaps</span>
-    </a>
-    <a href="dashboard.html?tab=alerts" class="bottom-nav-item" id="navNotifBtn" title="Notifications">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span>Alerts</span>
-    </a>
-    <a href="more.html" class="bottom-nav-item active" id="navMoreBtn" title="More" aria-current="page">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-      <span>More</span>
-    </a>
-  </nav>
-
   <script>
     // Smooth scroll for in-page table of contents chips
     document.querySelectorAll('.legal-toc-chip').forEach(chip => {
@@ -208,21 +207,6 @@
         }
       });
     });
-
-    // Check localStorage for swap count badge on bottom nav
-    try {
-      const storedSwaps = localStorage.getItem('niger_swaps_consumer');
-      if (storedSwaps) {
-        const parsed = JSON.parse(storedSwaps);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const badge = document.getElementById('mobileSwapsBadge');
-          if (badge) {
-            badge.textContent = parsed.length;
-            badge.style.display = 'inline-block';
-          }
-        }
-      }
-    } catch (_) {}
   </script>
 
 </body>

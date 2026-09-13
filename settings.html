@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Settings — NaijaSwap</title>
   <meta name="description" content="Manage your notifications, preferred inspection hubs, security, and app preferences on NaijaSwap.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -21,11 +24,11 @@
 
     <!-- Top Navigation Header -->
     <header class="more-header">
-      <a href="more.html" class="more-back-btn" aria-label="Back to More">
+      <a href="more.html" onclick="if (window.history.length > 1 && document.referrer) { window.history.back(); return false; }" class="more-back-btn" aria-label="Back">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-        <span>More</span>
+        <span>Back</span>
       </a>
 
       <div class="more-brand-pill">
@@ -230,34 +233,11 @@
   </main>
 
   <!-- ==========================================================================
-       SWAPPER MOBILE BOTTOM NAVIGATION (FLOATING FROSTED GLASS BAR)
-       More is highlighted as the active tab because Settings is under More
-       ========================================================================== -->
-  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
-    <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      <span>Home</span>
-    </a>
-    <a href="dashboard.html?tab=swaps" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
-      <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
-      <span>My Swaps</span>
-    </a>
-    <a href="dashboard.html?tab=alerts" class="bottom-nav-item" id="navNotifBtn" title="Notifications">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span>Alerts</span>
-    </a>
-    <a href="more.html" class="bottom-nav-item active" id="navMoreBtn" title="More" aria-current="page">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-      <span>More</span>
-    </a>
-  </nav>
-
-  <!-- ==========================================================================
        SETTINGS CONTROLLER (LOCAL PERSISTENCE & USER FEEDBACK)
        ========================================================================== -->
   <script type="module">
     import { showAuthAlert, clearAuthAlert } from './js/auth.js';
+    import { auth, db, doc, setDoc, getDoc, onAuthStateChanged } from './js/firebase-config.js';
 
     const SETTINGS_KEY = 'naijaswap_user_settings';
 
@@ -277,22 +257,42 @@
       highValueOtp: true
     };
 
-    // Load saved settings
-    function loadSettings() {
-      try {
-        const raw = localStorage.getItem(SETTINGS_KEY);
-        const settings = raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
+    let currentUid = null;
 
-        if (toggleSwapMatches) toggleSwapMatches.checked = !!settings.swapMatches;
-        if (toggleDeals) toggleDeals.checked = !!settings.hubDeals;
-        if (toggleSecurityEmail) toggleSecurityEmail.checked = !!settings.securityEmail;
-        if (toggleHighValueOtp) toggleHighValueOtp.checked = !!settings.highValueOtp;
-      } catch (_) {}
+    // Apply settings object to toggle elements
+    function applySettings(settings) {
+      if (toggleSwapMatches) toggleSwapMatches.checked = !!settings.swapMatches;
+      if (toggleDeals) toggleDeals.checked = !!settings.hubDeals;
+      if (toggleSecurityEmail) toggleSecurityEmail.checked = !!settings.securityEmail;
+      if (toggleHighValueOtp) toggleHighValueOtp.checked = !!settings.highValueOtp;
     }
 
-    // Save settings
+    // Load saved settings — Firestore first, fallback to localStorage
+    async function loadSettings(uid) {
+      // Always apply localStorage defaults first for instant render
+      try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if (raw) applySettings({ ...defaultSettings, ...JSON.parse(raw) });
+        else applySettings(defaultSettings);
+      } catch (_) { applySettings(defaultSettings); }
+
+      if (!uid) return;
+      // Then fetch from Firestore and override
+      try {
+        const snap = await getDoc(doc(db, 'users', uid));
+        if (snap.exists() && snap.data().preferences) {
+          const prefs = { ...defaultSettings, ...snap.data().preferences };
+          applySettings(prefs);
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(prefs));
+        }
+      } catch (e) {
+        console.warn('[Settings] Could not load Firestore preferences:', e.message);
+      }
+    }
+
+    // Save settings — localStorage + Firestore
     let toastTimeout = null;
-    function saveSettings() {
+    async function saveSettings() {
       const current = {
         swapMatches: toggleSwapMatches?.checked ?? true,
         hubDeals: toggleDeals?.checked ?? true,
@@ -300,15 +300,24 @@
         highValueOtp: toggleHighValueOtp?.checked ?? true
       };
 
-      try {
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(current));
-        showAuthAlert('settingsToast', 'Preferences updated successfully!', 'success');
+      // Always save to localStorage
+      try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(current)); } catch (_) {}
 
-        if (toastTimeout) clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => {
-          clearAuthAlert('settingsToast');
-        }, 2200);
-      } catch (_) {}
+      // Save to Firestore if authenticated
+      if (currentUid) {
+        try {
+          await setDoc(doc(db, 'users', currentUid), {
+            preferences: current,
+            updatedAt: new Date()
+          }, { merge: true });
+        } catch (e) {
+          console.warn('[Settings] Could not save to Firestore:', e.message);
+        }
+      }
+
+      showAuthAlert('settingsToast', '✓ Preferences saved', 'success');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => { clearAuthAlert('settingsToast'); }, 2200);
     }
 
     // Event listeners
@@ -319,33 +328,19 @@
     // Clear Cache button
     btnClearCache?.addEventListener('click', () => {
       try {
-        // Clear cached swap media or temporary images without wiping user identity
         sessionStorage.clear();
         showAuthAlert('settingsToast', 'Local cache cleared successfully!', 'success');
         if (toastTimeout) clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => {
-          clearAuthAlert('settingsToast');
-        }, 2200);
+        toastTimeout = setTimeout(() => { clearAuthAlert('settingsToast'); }, 2200);
       } catch (_) {}
     });
 
-    // Initialize
-    loadSettings();
-
-    // Check localStorage for swap count badge on bottom nav
-    try {
-      const storedSwaps = localStorage.getItem('niger_swaps_consumer');
-      if (storedSwaps) {
-        const parsed = JSON.parse(storedSwaps);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const badge = document.getElementById('mobileSwapsBadge');
-          if (badge) {
-            badge.textContent = parsed.length;
-            badge.style.display = 'inline-block';
-          }
-        }
-      }
-    } catch (_) {}
+    // Initialize — load from localStorage immediately, then from Firestore once auth is ready
+    loadSettings(null);
+    onAuthStateChanged(auth, (user) => {
+      currentUid = user ? user.uid : null;
+      if (user) loadSettings(user.uid);
+    });
   </script>
 
 </body>

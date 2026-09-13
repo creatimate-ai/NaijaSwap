@@ -28,25 +28,19 @@ import {
   httpsCallable
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-functions.js";
 import {
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
-import {
   initializeAppCheck,
   ReCaptchaV3Provider
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
 
 // NaijaSwap Firebase Project Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA_-8YhICPUqxOx8O3tJqgNnKdNlLmeeRI",
-  authDomain: "naijaswap.firebaseapp.com",
-  projectId: "naijaswap",
-  storageBucket: "naijaswap.firebasestorage.app",
-  messagingSenderId: "898687380339",
-  appId: "1:898687380339:web:0ad6a846df002d6c3ef306",
-  measurementId: "G-449HYBSTHM"
+  apiKey: "AIzaSyAgzk3CibYYmfRd47b0BQphlzAfCixA_LA",
+  authDomain: "naijaswap1.firebaseapp.com",
+  projectId: "naijaswap1",
+  storageBucket: "naijaswap1.firebasestorage.app",
+  messagingSenderId: "881342460016",
+  appId: "1:881342460016:web:23fe9c2ed350f3bacd04b5",
+  measurementId: "G-Y80K70BTPR"
 };
 
 // Initialize Firebase App
@@ -56,8 +50,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const functions = getFunctions(app);
-const storage = getStorage(app);
-const appCheckSiteKey = window.NIGERSWAP_APPCHECK_SITE_KEY || '';
+const appCheckSiteKey = window.NAIJASWAP_APPCHECK_SITE_KEY || '';
 if (appCheckSiteKey) {
   initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider(appCheckSiteKey),
@@ -114,9 +107,5 @@ export {
   updatePassword,
   deleteUser,
   functions,
-  httpsCallable,
-  storage,
-  storageRef,
-  uploadBytes,
-  getDownloadURL
+  httpsCallable
 };

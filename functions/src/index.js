@@ -65,14 +65,7 @@ function asPositiveAmount(value, fieldName) {
 }
 
 function isAllowedDocumentUrl(value) {
-  try {
-    const url = new URL(value);
-    const isFirebaseKycObject = url.hostname === 'firebasestorage.googleapis.com'
-      && url.pathname.startsWith('/v0/b/naijaswap.firebasestorage.app/o/kyc%2F');
-    return url.protocol === 'https:' && isFirebaseKycObject;
-  } catch (_) {
-    return false;
-  }
+  return false;
 }
 
 function requireInspectionData(requestData) {
@@ -509,6 +502,35 @@ exports.updateSwapRequestStatus = functions.https.onCall(async (data, context) =
     }
     if (requestData.paymentStatus === 'unpaid') {
       throw new functions.https.HttpsError('failed-precondition', 'Top-up payment must be verified before completion.');
+    }
+
+    try {
+      const listingId = requestData.targetDevice?.listingId || requestData.targetDevice?.id;
+      let listingRef = null;
+      if (listingId) {
+        const docRef = db.collection('listings').doc(listingId);
+        const check = await docRef.get();
+        if (check.exists) listingRef = docRef;
+      }
+      if (!listingRef && requestData.dealerUid && requestData.targetDevice?.model) {
+        const matchSnap = await db.collection('listings')
+          .where('storeOwnerUid', '==', requestData.dealerUid)
+          .where('model', '==', requestData.targetDevice.model)
+          .limit(1).get();
+        if (!matchSnap.empty) listingRef = matchSnap.docs[0].ref;
+      }
+      if (listingRef) {
+        const lSnap = await listingRef.get();
+        const curQty = Math.max(0, Number(lSnap.data().quantityInStock || 1));
+        const newQty = Math.max(0, curQty - 1);
+        await listingRef.set({
+          quantityInStock: newQty,
+          status: newQty === 0 ? 'out_of_stock' : 'active',
+          updatedAt: FieldValue.serverTimestamp()
+        }, { merge: true });
+      }
+    } catch (e) {
+      console.warn('[Functions] Stock decrement error:', e.message);
     }
   }
 

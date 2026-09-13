@@ -1,0 +1,37 @@
+# NaijaSwap robots.txt
+# Production: https://naijaswap.web.app
+
+User-agent: *
+Allow: /
+Allow: /about.html
+Allow: /faq.html
+Allow: /store.html
+Allow: /support.html
+Allow: /terms.html
+Allow: /privacy-policy.html
+Allow: /signup.html
+Allow: /login.html
+Allow: /assets/
+Allow: /css/
+Allow: /js/
+
+# Disallow authenticated customer and dealer management panels
+Disallow: /dashboard.html
+Disallow: /account.html
+Disallow: /alerts.html
+Disallow: /certificate.html
+Disallow: /dealer-dashboard.html
+Disallow: /dealer-listings.html
+Disallow: /dealer-requests.html
+Disallow: /dealer-activity.html
+Disallow: /dealer-verification.html
+Disallow: /my-swaps.html
+Disallow: /settings.html
+Disallow: /admin.html
+Disallow: /phone-auth.html
+Disallow: /dealer-listing.html
+Disallow: /dealer-request.html
+Disallow: /dealer-activities.html
+Disallow: /api/
+
+Sitemap: https://naijaswap.web.app/sitemap.xml

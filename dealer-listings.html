@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Store Listings & Inventory — NaijaSwap Partner Portal</title>
   <meta name="description" content="Manage your verified store smartphone inventory, list new devices for swap, and configure trade-in tiers on NaijaSwap.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -545,6 +548,7 @@
     import { requireCompleteProfile, isProfileComplete, compressImageFile, storeMedia, resolveMedia, syncDealerVerificationStatus } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { createListingBackend } from './js/backend-api.js';
+    import { db, doc, getDoc, auth } from './js/firebase-config.js';
 
     let currentStoreId = 'store_hub_1';
     let currentStoreName = 'My Phone Store';
@@ -639,13 +643,17 @@
 
       listings.forEach(item => {
         const card = document.createElement('article');
-        card.className = 'store-listing-card fade-in-content';
+        const isOutOfStock = item.quantityInStock === 0 || item.status === 'out_of_stock' || item.status === 'sold';
+        const stockQty = typeof item.quantityInStock === 'number' ? item.quantityInStock : 1;
 
         card.innerHTML = `
           <div class="listing-card-media">
-            <img src="${item.image}" alt="${escapeHtml(item.model)}" class="listing-card-img" loading="lazy">
+            <img src="${item.image}" alt="${escapeHtml(item.model)}" class="listing-card-img" loading="lazy" style="${isOutOfStock ? 'filter: grayscale(0.6) opacity(0.8);' : ''}">
             <div class="phone-tags-floating">
-              <span class="tag-badge tag-verified">● Active Listing</span>
+              ${isOutOfStock 
+                ? `<span class="tag-badge" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5);">● Out of Stock / Swapped</span>`
+                : `<span class="tag-badge tag-verified">● Active (${stockQty} in stock)</span>`
+              }
             </div>
           </div>
           <div class="listing-card-body">
@@ -665,11 +673,20 @@
               <span class="topup-amount">₦${(item.cashOutrightPrice || item.marketValue || 0).toLocaleString()}</span>
             </div>
           </div>
-          <div class="listing-actions-row">
+          <div class="listing-actions-row" style="flex-wrap: wrap; gap: 8px;">
             <a href="phone-details.html?id=${encodeURIComponent(item.id)}" target="_blank" style="color: var(--cyan-400); text-decoration: none; font-size: 0.76rem; font-weight: 600;">View Marketplace &rarr;</a>
-            <button type="button" class="btn-delete-listing" data-id="${escapeHtml(item.id)}">Remove</button>
+            <div style="display: flex; gap: 6px; margin-left: auto;">
+              <button type="button" class="btn-restock-listing" data-id="${escapeHtml(item.id)}" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(0, 210, 106, 0.15); border: 1px solid var(--emerald-border); color: var(--emerald-400); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer;">+ Restock (+1)</button>
+              <button type="button" class="btn-delete-listing" data-id="${escapeHtml(item.id)}">Remove</button>
+            </div>
           </div>
         `;
+
+        card.querySelector('.btn-restock-listing')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          NaijaSwapData.restockListing(item.id, 1, currentStoreId);
+          renderStoreListings();
+        });
 
         card.querySelector('.btn-delete-listing')?.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -748,34 +765,26 @@
     function initDealerForm() {
       if (!dealerDeviceBrand) return;
 
-      // Populate Brands
+      // Populate Brands (Apple and Samsung only)
       const brands = NaijaSwapData.getBrands();
       dealerDeviceBrand.innerHTML = '<option value="" disabled selected>-- Select Brand --</option>' +
-        brands.map(b => `<option value="${b}">${b}</option>`).join('') +
-        '';
+        brands.map(b => `<option value="${b}">${b}</option>`).join('');
 
       // Brand selection cascades to models & custom inputs
       dealerDeviceBrand.addEventListener('change', () => {
         const brand = dealerDeviceBrand.value;
-        if (brand === 'Other') {
-          if (dealerCustomBrandGroup) dealerCustomBrandGroup.style.display = 'block';
-          dealerDeviceModel.disabled = false;
-          dealerDeviceModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone (Type below)</option>';
-          if (dealerCustomModelGroup) dealerCustomModelGroup.style.display = 'block';
-        } else {
-          if (dealerCustomBrandGroup) dealerCustomBrandGroup.style.display = 'none';
-          const models = NaijaSwapData.getModelsForBrand(brand);
-          dealerDeviceModel.disabled = false;
+        if (dealerCustomBrandGroup) dealerCustomBrandGroup.style.display = 'none';
+        const models = NaijaSwapData.getModelsForBrand(brand);
+        dealerDeviceModel.disabled = false;
 
-          if (models.length > 0) {
-            dealerDeviceModel.innerHTML = '<option value="" disabled selected>-- Select Model --</option>' +
-              models.map(m => `<option value="${m}">${m}</option>`).join('') +
-              '<option value="Other Model">Other Model (Type custom)</option>';
-          } else {
-            dealerDeviceModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone</option>';
-          }
-          if (dealerCustomModelGroup) dealerCustomModelGroup.style.display = 'none';
+        if (models.length > 0) {
+          dealerDeviceModel.innerHTML = '<option value="" disabled selected>-- Select Model --</option>' +
+            models.map(m => `<option value="${m}">${m}</option>`).join('') +
+            '<option value="Other Model">Other Model (Type custom)</option>';
+        } else {
+          dealerDeviceModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone</option>';
         }
+        if (dealerCustomModelGroup) dealerCustomModelGroup.style.display = 'none';
 
         // Android RAM visibility
         if (dealerRamGroup) {

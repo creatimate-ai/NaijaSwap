@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Dealer Verification - NaijaSwap</title>
   <meta name="description" content="Complete your dealer business verification to publish listings on NaijaSwap.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -365,11 +368,10 @@
   </main>
   <div id="bottomNavContainer"></div>
   <script type="module">
-    import { auth, onAuthStateChanged, db, doc, getDoc } from './js/firebase-config.js';
+    import { auth, onAuthStateChanged, db, doc, getDoc, setDoc } from './js/firebase-config.js';
     import { getStoredProfile, saveStoredProfile, compressImageFile, getStoredRole } from './js/profile.js';
     import { showAuthAlert, clearAuthAlert, setButtonLoading } from './js/auth.js';
-    import { uploadPrivateKycDocument } from './js/private-storage.js';
-    import { submitDealerVerificationBackend } from './js/backend-api.js';
+    import { uploadPrivateKycDocument } from './js/private-storage.js?v=direct-cloudinary-1';
 
     let currentUser = null, currentStep = 1, isEditMode = false;
     const TOTAL_STEPS = 6;
@@ -622,23 +624,28 @@
           localStorage.setItem('naijaswap_user', JSON.stringify(u));
         } catch (_) {}
 
-        // Sync application to Firestore
+        // Sync application directly to Firestore (no Render API needed)
         try {
           const governmentIdUrl = data.governmentIdData;
           const proofOfAddressUrl = data.proofOfAddressData;
           if (!governmentIdUrl || !proofOfAddressUrl) {
             throw new Error('Both verification documents must be uploaded successfully.');
           }
-          await submitDealerVerificationBackend({
+          const now = new Date();
+          await setDoc(doc(db, 'dealerVerification', uid), {
+            uid,
             storeName: data.businessName,
             businessEmail: data.businessEmail,
             phoneNumber: data.phoneNumber || '',
             cacNumber: data.cacNumber,
             governmentIdData: governmentIdUrl,
-            proofOfAddressData: proofOfAddressUrl
-          });
+            proofOfAddressData: proofOfAddressUrl,
+            status: 'pending',
+            submittedAt: now,
+            updatedAt: now
+          }, { merge: true });
         } catch (syncErr) {
-          throw new Error('Verification could not be submitted to the admin queue. Please try again after the Firebase rules are published.');
+          throw new Error(syncErr.message || 'Verification could not be submitted. Please try again.');
         }
 
         setButtonLoading(submitBtn, false, 'Submit Verification');

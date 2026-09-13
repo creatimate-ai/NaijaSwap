@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Store Hub — NaijaSwap Partner Portal</title>
   <meta name="description" content="Manage your phone store inventory, receive customer swap trade-in requests, and track store activity on NaijaSwap.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -647,13 +650,17 @@
 
       listings.forEach(item => {
         const card = document.createElement('div');
-        card.className = 'store-listing-card fade-in-content';
+        const isOutOfStock = item.quantityInStock === 0 || item.status === 'out_of_stock' || item.status === 'sold';
+        const stockQty = typeof item.quantityInStock === 'number' ? item.quantityInStock : 1;
 
         card.innerHTML = `
           <div class="listing-card-media">
-            <img src="${item.image}" alt="${item.model}" class="listing-card-img" loading="lazy">
+            <img src="${item.image}" alt="${item.model}" class="listing-card-img" loading="lazy" style="${isOutOfStock ? 'filter: grayscale(0.6) opacity(0.8);' : ''}">
             <div class="phone-tags-floating">
-              <span class="tag-badge tag-verified">● Active Listing</span>
+              ${isOutOfStock
+                ? `<span class="tag-badge" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5);">● Out of Stock / Swapped</span>`
+                : `<span class="tag-badge tag-verified">● Active (${stockQty} in stock)</span>`
+              }
             </div>
           </div>
           <div class="listing-card-body">

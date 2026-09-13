@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>NaijaSwap — Explore Verified Phone Swaps</title>
   <meta name="description" content="Browse verified smartphones for swap across Nigeria, calculate top-up valuations, and request swaps from trusted stores.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -108,6 +111,57 @@
       <button type="button" class="brand-chip active" data-brand="All">Apple & Samsung</button>
       <button type="button" class="brand-chip" data-brand="iPhone">iPhone</button>
       <button type="button" class="brand-chip" data-brand="Samsung">Samsung</button>
+      <button type="button" class="brand-chip" id="toggleFilterPanelBtn" style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+        <span>Filter</span>
+      </button>
+    </div>
+
+    <!-- Collapsible Advanced Filter Panel -->
+    <div id="advancedFilterPanel" style="display: none; padding: 20px; margin-bottom: 20px; background: rgba(7, 12, 17, 0.7); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); transition: max-height 0.3s ease-out; overflow: hidden;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+        <div class="form-group">
+          <label class="form-label" for="panelSearchInput">Model Search</label>
+          <input type="text" id="panelSearchInput" class="form-input" placeholder="Search models...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price Range (₦)</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="number" id="panelMinPrice" class="form-input" placeholder="Min" min="0">
+            <input type="number" id="panelMaxPrice" class="form-input" placeholder="Max" min="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="panelCondition">Condition</label>
+          <select id="panelCondition" class="form-select">
+            <option value="Any">Any</option>
+            <option value="Brand New">Brand New</option>
+            <option value="Like New">Like New / Excellent</option>
+            <option value="Grade A">Grade A</option>
+            <option value="Grade B">Grade B / Good</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="panelStorage">Storage</label>
+          <select id="panelStorage" class="form-select">
+            <option value="Any">Any</option>
+            <option value="64GB">64GB</option>
+            <option value="128GB">128GB</option>
+            <option value="256GB">256GB</option>
+            <option value="512GB">512GB</option>
+            <option value="1TB">1TB</option>
+          </select>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 24px;">
+          <input type="checkbox" id="panelSwapAllowed" style="width: 18px; height: 18px;">
+          <label class="form-label" for="panelSwapAllowed" style="margin-bottom: 0;">Swap Allowed</label>
+        </div>
+      </div>
+      <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+        <button type="button" class="btn-reset-filters" id="panelClearFiltersBtn">
+          Clear Filters
+        </button>
+      </div>
     </div>
 
     <!-- Basic Clean Filter Controls -->
@@ -605,21 +659,82 @@
     let activeBrand = 'All';
 
     // Render Phone Listings to Grid
-    async function renderPhoneListings() {
-      const filters = {
-        brand: activeBrand,
-        storage: filterStorage ? filterStorage.value : 'All',
-        condition: filterCondition ? filterCondition.value : 'All',
-        location: filterLocation ? filterLocation.value : 'All',
-        query: searchInput ? searchInput.value.trim() : ''
-      };
+    let allListingsCache = null;
 
-      let listings;
-      try {
-        listings = await NaijaSwapData.getListingsRemote(filters);
-      } catch (error) {
-        console.warn('[NaijaSwap] Remote listings unavailable; using cached listings.', error);
-        listings = NaijaSwapData.getListings(filters);
+    async function renderPhoneListings() {
+      if (!allListingsCache) {
+        const initialFilters = {
+          brand: 'All',
+          storage: 'All',
+          condition: 'All',
+          location: 'All',
+          query: ''
+        };
+        try {
+          allListingsCache = await NaijaSwapData.getListingsRemote(initialFilters);
+        } catch (error) {
+          console.warn('[NaijaSwap] Remote listings unavailable; using cached listings.', error);
+          allListingsCache = NaijaSwapData.getListings(initialFilters);
+        }
+      }
+
+      let listings = [...allListingsCache];
+
+      // Existing basic filters
+      if (activeBrand !== 'All') {
+        listings = listings.filter(phone => phone.brand.toLowerCase() === activeBrand.toLowerCase() || (activeBrand === 'iPhone' && phone.brand === 'Apple'));
+      }
+      if (filterBrand && filterBrand.value !== 'All') {
+        listings = listings.filter(phone => phone.brand.toLowerCase() === filterBrand.value.toLowerCase() || (filterBrand.value === 'Apple' && phone.brand === 'Apple') || (filterBrand.value === 'Samsung' && phone.brand === 'Samsung'));
+      }
+      if (filterStorage && filterStorage.value !== 'All') {
+        listings = listings.filter(phone => phone.storage === filterStorage.value);
+      }
+      if (filterCondition && filterCondition.value !== 'All') {
+        listings = listings.filter(phone => (phone.condition || '').toLowerCase().includes(filterCondition.value.toLowerCase()));
+      }
+      if (filterLocation && filterLocation.value !== 'All') {
+        listings = listings.filter(phone => (phone.location || '').toLowerCase().includes(filterLocation.value.toLowerCase()));
+      }
+      if (searchInput && searchInput.value.trim()) {
+        const q = searchInput.value.trim().toLowerCase();
+        listings = listings.filter(phone => (phone.model || '').toLowerCase().includes(q));
+      }
+
+      // New Panel Filters
+      const panelSearch = document.getElementById('panelSearchInput');
+      const panelMinPrice = document.getElementById('panelMinPrice');
+      const panelMaxPrice = document.getElementById('panelMaxPrice');
+      const panelCondition = document.getElementById('panelCondition');
+      const panelStorage = document.getElementById('panelStorage');
+      const panelSwapAllowed = document.getElementById('panelSwapAllowed');
+
+      if (panelSearch && panelSearch.value.trim()) {
+        const q = panelSearch.value.trim().toLowerCase();
+        listings = listings.filter(phone => (phone.model || '').toLowerCase().includes(q));
+      }
+      if (panelMinPrice && panelMinPrice.value) {
+        const min = parseInt(panelMinPrice.value);
+        listings = listings.filter(phone => {
+          const price = phone.cashOutrightPrice || phone.marketValue || 0;
+          return price >= min;
+        });
+      }
+      if (panelMaxPrice && panelMaxPrice.value) {
+        const max = parseInt(panelMaxPrice.value);
+        listings = listings.filter(phone => {
+          const price = phone.cashOutrightPrice || phone.marketValue || 0;
+          return price <= max;
+        });
+      }
+      if (panelCondition && panelCondition.value !== 'Any') {
+        listings = listings.filter(phone => (phone.condition || '').toLowerCase().includes(panelCondition.value.toLowerCase()));
+      }
+      if (panelStorage && panelStorage.value !== 'Any') {
+        listings = listings.filter(phone => phone.storage === panelStorage.value);
+      }
+      if (panelSwapAllowed && panelSwapAllowed.checked) {
+        listings = listings.filter(phone => phone.isSwapAllowed);
       }
 
       if (listings.length === 0) {
@@ -636,15 +751,21 @@
         card.className = 'phone-card fade-in-content';
         card.setAttribute('data-id', phone.id);
 
-        const tagsHtml = (phone.tags || []).map(t => {
+        const isOutOfStock = phone.quantityInStock === 0 || phone.status === 'out_of_stock' || phone.status === 'sold';
+
+        let tagsHtml = (phone.tags || []).map(t => {
           const isVerified = t.toLowerCase().includes('verified');
           return `<span class="tag-badge ${isVerified ? 'tag-verified' : 'tag-recent'}">${t}</span>`;
         }).join('');
 
+        if (isOutOfStock) {
+          tagsHtml += `<span class="tag-badge" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5);">Swapped</span>`;
+        }
+
         card.innerHTML = `
           <div class="phone-card-media">
             <div class="phone-tags-floating">${tagsHtml}</div>
-            <img src="${phone.image}" alt="${phone.brand} ${phone.model}" class="phone-card-img" loading="lazy">
+            <img src="${phone.image}" alt="${phone.brand} ${phone.model}" class="phone-card-img" loading="lazy" style="${isOutOfStock ? 'filter: grayscale(0.5) opacity(0.85);' : ''}">
           </div>
           <div class="phone-card-body">
             <div class="phone-title-block">
@@ -659,13 +780,18 @@
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
               <span>${phone.location}</span>
             </div>
-            <div style="display:flex;align-items:center;gap:5px;margin-top:8px;color:var(--emerald-400);font-size:0.76rem;font-weight:700;">
-              ${phone.storeVerified ? '<span aria-label="Verified dealer">✓ Verified Dealer</span>' : '<span style="color:var(--text-muted);">Dealer verification pending</span>'}
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-size:0.76rem;">
+              <div style="display:flex;align-items:center;gap:5px;color:var(--emerald-400);font-weight:700;">
+                ${phone.storeVerified ? '<span aria-label="Verified dealer">🛡️ Verified Hub</span>' : '<span style="color:var(--text-muted);">Verification pending</span>'}
+              </div>
+              <div style="color:#fbbf24;font-weight:700;">
+                ★ 4.9
+              </div>
             </div>
           </div>
           <div class="phone-card-footer">
-            <button type="button" class="btn-view-details">
-              <span>View Details & Swap</span>
+            <button type="button" class="btn-view-details" style="${isOutOfStock ? 'background: rgba(255,255,255,0.08); color: var(--text-dim);' : ''}">
+              <span>${isOutOfStock ? 'Swapped / Out of Stock' : 'View Details & Swap'}</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
           </div>
@@ -764,6 +890,45 @@
     }
 
     // Filter Listeners
+    const toggleFilterPanelBtn = document.getElementById('toggleFilterPanelBtn');
+    const advancedFilterPanel = document.getElementById('advancedFilterPanel');
+    if (toggleFilterPanelBtn && advancedFilterPanel) {
+      toggleFilterPanelBtn.addEventListener('click', () => {
+        if (advancedFilterPanel.style.display === 'none') {
+          advancedFilterPanel.style.display = 'block';
+          // Small delay for smooth slide if we had max-height, but block is fine for now
+        } else {
+          advancedFilterPanel.style.display = 'none';
+        }
+      });
+    }
+
+    const panelSearch = document.getElementById('panelSearchInput');
+    const panelMinPrice = document.getElementById('panelMinPrice');
+    const panelMaxPrice = document.getElementById('panelMaxPrice');
+    const panelCondition = document.getElementById('panelCondition');
+    const panelStorage = document.getElementById('panelStorage');
+    const panelSwapAllowed = document.getElementById('panelSwapAllowed');
+    const panelClearFiltersBtn = document.getElementById('panelClearFiltersBtn');
+
+    [panelSearch, panelMinPrice, panelMaxPrice].forEach(el => {
+      if (el) el.addEventListener('input', renderPhoneListings);
+    });
+    [panelCondition, panelStorage, panelSwapAllowed].forEach(el => {
+      if (el) el.addEventListener('change', renderPhoneListings);
+    });
+
+    if (panelClearFiltersBtn) {
+      panelClearFiltersBtn.addEventListener('click', () => {
+        if (panelSearch) panelSearch.value = '';
+        if (panelMinPrice) panelMinPrice.value = '';
+        if (panelMaxPrice) panelMaxPrice.value = '';
+        if (panelCondition) panelCondition.value = 'Any';
+        if (panelStorage) panelStorage.value = 'Any';
+        if (panelSwapAllowed) panelSwapAllowed.checked = false;
+        renderPhoneListings();
+      });
+    }
     brandChips.forEach(chip => {
       chip.addEventListener('click', () => {
         brandChips.forEach(c => c.classList.remove('active'));

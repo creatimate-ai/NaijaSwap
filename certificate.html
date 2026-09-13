@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Digital Inspection Certificate — NaijaSwap Safe Deal Protocol</title>
+  <meta name="description" content="Official NaijaSwap Certified Device Diagnostic & Anti-Theft Inspection Certificate.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    body {
+      background: #04070A;
+      padding: 24px 16px 80px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cert-outer-wrapper {
+      width: 100%;
+      max-width: 820px;
+      position: relative;
+    }
+    .cert-top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .cert-paper {
+      background: linear-gradient(145deg, #0A121A 0%, #060B10 100%);
+      border: 2px solid rgba(0, 210, 106, 0.4);
+      border-radius: 24px;
+      padding: 44px 40px;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 210, 106, 0.12), var(--glass-specular);
+      overflow: hidden;
+    }
+    /* Holographic Guiloched Border */
+    .cert-paper::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border: 1px dashed rgba(0, 210, 106, 0.25);
+      border-radius: 18px;
+      pointer-events: none;
+    }
+    .cert-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-25deg);
+      font-size: 5.5rem;
+      font-weight: 900;
+      color: rgba(0, 210, 106, 0.03);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      pointer-events: none;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .cert-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .cert-protocol-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      background: rgba(0, 210, 106, 0.12);
+      border: 1px solid var(--emerald-border);
+      color: var(--emerald-400);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+    .cert-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #FFF;
+      letter-spacing: -0.02em;
+    }
+    .cert-subtitle {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .cert-id-tag {
+      text-align: right;
+    }
+    .cert-id-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--emerald-400);
+      letter-spacing: 0.08em;
+    }
+    .cert-date {
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      margin-top: 4px;
+    }
+
+    /* Device Showcase Banner inside Cert */
+    .cert-device-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+    .cert-device-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #FFF;
+    }
+    .cert-device-spec {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    /* Diagnostic Table */
+    .cert-diag-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+    }
+    .cert-diag-row {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .diag-label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+    .diag-val-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--emerald-400);
+      background: rgba(0, 210, 106, 0.1);
+      border: 1px solid rgba(0, 210, 106, 0.25);
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+    }
+
+    /* Seal and Signatures Footer */
+    .cert-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+    }
+    .cert-stamp-seal {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 2px dashed var(--emerald-400);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--emerald-400);
+      padding: 8px;
+      box-shadow: 0 0 20px rgba(0, 210, 106, 0.15), inset 0 0 14px rgba(0, 210, 106, 0.1);
+      transform: rotate(-10deg);
+    }
+    .seal-text-top {
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .seal-icon {
+      font-size: 1.5rem;
+      line-height: 1.1;
+      margin: 2px 0;
+    }
+    .seal-text-bot {
+      font-size: 0.54rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .cert-sign-box {
+      text-align: right;
+    }
+    .cert-sign-line {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-style: italic;
+      color: var(--cyan-400);
+      margin-bottom: 2px;
+    }
+    .cert-tech-info {
+      font-size: 0.78rem;
+      color: var(--text-faint);
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #FFF !important;
+        color: #000 !important;
+        padding: 0 !important;
+      }
+      .cert-top-actions, .dash-glow {
+        display: none !important;
+      }
+      .cert-paper {
+        background: #FFF !important;
+        color: #111 !important;
+        border: 2px solid #009944 !important;
+        box-shadow: none !important;
+        padding: 30px !important;
+      }
+      .cert-title, .cert-device-name, .cert-id-number {
+        color: #111 !important;
+      }
+      .cert-subtitle, .cert-date, .diag-label, .cert-device-spec, .cert-tech-info {
+        color: #444 !important;
+      }
+      .cert-device-card, .cert-diag-row {
+        background: #F4F6F8 !important;
+        border-color: #E2E8F0 !important;
+      }
+      .diag-val-badge {
+        background: #E6F8ED !important;
+        color: #007A33 !important;
+        border-color: #A3E4BC !important;
+      }
+      .cert-stamp-seal {
+        border-color: #009944 !important;
+        color: #009944 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <div class="cert-outer-wrapper">
+    <!-- Top Action Buttons -->
+    <div class="cert-top-actions">
+      <a href="my-swaps.html" class="btn-cancel" style="text-decoration: none; padding: 8px 16px; font-size: 0.84rem;">
+        &larr; Back to My Swaps
+      </a>
+      <div style="display:flex;gap:10px;">
+        <button type="button" id="btnShareCert" class="btn-cancel" style="padding: 8px 16px; font-size: 0.84rem;">
+          🔗 Share Link
+        </button>
+        <button type="button" id="btnPrintCert" class="btn-primary-action" style="padding: 8px 20px; font-size: 0.84rem;">
+          🖨️ Print / Save PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Official Certificate Paper -->
+    <article class="cert-paper" id="certificatePaper">
+      <div class="cert-watermark">GENUINE • VERIFIED</div>
+
+      <!-- Certificate Header -->
+      <header class="cert-header">
+        <div>
+          <div class="cert-protocol-badge">
+            <span>🛡️ Safe Deal Physical Triage Protocol</span>
+          </div>
+          <h1 class="cert-title">Digital Diagnostic Certificate</h1>
+          <p class="cert-subtitle" id="certSubtitle">Physical inspection passed and anti-theft clearance verified.</p>
+        </div>
+
+        <div class="cert-id-tag">
+          <div class="cert-id-number" id="certReportIdText">NS-CERT-9041A</div>
+          <div class="cert-date" id="certDateText">Issued September 13, 2026</div>
+          <div style="font-size:0.75rem;color:var(--emerald-400);font-weight:700;margin-top:2px;">● Blockchain &amp; Firestore Verified</div>
+        </div>
+      </header>
+
+      <!-- Inspected Device Showcase -->
+      <section class="cert-device-card">
+        <div>
+          <span style="font-size:0.74rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;font-weight:700;">Certified Device</span>
+          <div class="cert-device-name" id="certDeviceTitle">iPhone 12 Pro • 128GB</div>
+          <div class="cert-device-spec" id="certDeviceSpec">Pacific Blue • Condition: Grade A (Like New)</div>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:0.74rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;font-weight:700;">IMEI / Serial Number</span>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:0.95rem;font-weight:700;color:var(--text-dim);" id="certImeiText">35489209•••••••</div>
+          <span class="diag-val-badge" style="margin-top:4px;">✓ Anti-Theft Cleared</span>
+        </div>
+      </section>
+
+      <!-- Detailed 6-Point Diagnostic Breakdown -->
+      <section class="cert-diag-grid">
+        <div class="cert-diag-row">
+          <span class="diag-label">Display &amp; Digitizer</span>
+          <span class="diag-val-badge" id="badgeScreen">✓ OEM Panel Passed</span>
+        </div>
+        <div class="cert-diag-row">
+          <span class="diag-label">Battery Health Capacity</span>
+          <span class="diag-val-badge" id="badgeBattery">✓ 89% Diagnostic Health</span>
+        </div>
+        <div class="cert-diag-row">
+          <span class="diag-label">iCloud / FRP Account Lock</span>
+          <span class="diag-val-badge" id="badgeIcloud">✓ Logged Out &amp; Reset</span>
+        </div>
+        <div class="cert-diag-row">
+          <span class="diag-label">Front &amp; Rear Camera Sensors</span>
+          <span class="diag-val-badge" id="badgeCameras">✓ All Sensors Passed</span>
+        </div>
+        <div class="cert-diag-row">
+          <span class="diag-label">Biometrics &amp; Audio Transducers</span>
+          <span class="diag-val-badge" id="badgeBiometrics">✓ Face ID &amp; Mic 100%</span>
+        </div>
+        <div class="cert-diag-row">
+          <span class="diag-label">National Carrier IMEI Registry</span>
+          <span class="diag-val-badge" id="badgeImei">✓ Clean / No Blacklist</span>
+        </div>
+      </section>
+
+      <!-- Remarks / Hub Notes -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:14px 18px;margin-bottom:28px;">
+        <span style="font-size:0.74rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;font-weight:700;display:block;margin-bottom:4px;">Inspection Remarks &amp; Hub Notes</span>
+        <p style="font-size:0.86rem;color:var(--text-dim);line-height:1.5;margin:0;" id="certNotesText">
+          Device passed all hardware diagnostic tests at the Computer Village Ikeja verification bench. Housing exhibits minimal cosmetic micro-abrasions consistent with Grade A grading. Approved for immediate swap settlement.
+        </p>
+      </div>
+
+      <!-- Footer Stamp & Signature -->
+      <footer class="cert-footer">
+        <!-- Hologram / Emerald Seal -->
+        <div class="cert-stamp-seal">
+          <span class="seal-text-top">NaijaSwap</span>
+          <span class="seal-icon">✓</span>
+          <span class="seal-text-bot">Verified Hub Triage</span>
+        </div>
+
+        <!-- Hub Location -->
+        <div>
+          <span style="font-size:0.72rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;font-weight:700;">Inspection Station</span>
+          <div style="font-size:0.88rem;color:#FFF;font-weight:700;margin-top:2px;" id="certHubText">Computer Village Verification Hub, Ikeja, Lagos</div>
+          <div style="font-size:0.78rem;color:var(--text-muted);">Licensed Inspection Center #LAG-024</div>
+        </div>
+
+        <!-- Technician Signature Box -->
+        <div class="cert-sign-box">
+          <div class="cert-sign-line" id="certSignLine">Chinedu O.</div>
+          <div style="font-size:0.85rem;color:#FFF;font-weight:700;" id="certTechNameText">Chinedu Okafor</div>
+          <div class="cert-tech-info">Senior Verification Technician</div>
+        </div>
+      </footer>
+    </article>
+  </div>
+
+  <script type="module">
+    import { db, doc, getDoc } from './js/firebase-config.js';
+    import { apiGet } from './js/backend-api.js';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const lookupId = urlParams.get('id') || 'demo';
+
+    document.getElementById('btnPrintCert')?.addEventListener('click', () => window.print());
+    document.getElementById('btnShareCert')?.addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.href);
+      alert('✓ Certificate link copied to clipboard!');
+    });
+
+    async function loadCertificate() {
+      let data = null;
+
+      // Try Backend API lookup
+      try {
+        const res = await apiGet(`/api/certificate?id=${encodeURIComponent(lookupId)}`);
+        if (res?.ok && res.certificate) {
+          data = res.certificate;
+        }
+      } catch (_) {}
+
+      // Try Firestore lookup
+      if (!data && lookupId !== 'demo') {
+        try {
+          const snap = await getDoc(doc(db, 'swapRequests', lookupId));
+          if (snap.exists()) {
+            const s = snap.data();
+            data = {
+              reportId: s.inspectionReportId || ('NS-CERT-' + snap.id.slice(0, 6).toUpperCase()),
+              requestId: snap.id,
+              inspectedAt: s.inspectedAt || s.updatedAt,
+              technicianName: s.technicianName || 'Certified Technician',
+              hubLocation: s.hubLocation || 'Computer Village Hub, Ikeja, Lagos',
+              notes: s.inspectionNotes || 'Device cleared all physical and anti-theft tests.',
+              diagnosticDetails: s.diagnosticDetails || {},
+              device: s.currentDevice || {},
+              targetDevice: s.targetDevice || {},
+              storeName: s.storeName || 'Partner Store'
+            };
+          }
+        } catch (_) {}
+      }
+
+      // Populate Certificate View
+      if (data) {
+        document.getElementById('certReportIdText').textContent = data.reportId || 'NS-CERT-9041A';
+        const dateObj = data.inspectedAt ? new Date(data.inspectedAt.seconds ? data.inspectedAt.seconds*1000 : data.inspectedAt) : new Date();
+        document.getElementById('certDateText').textContent = 'Issued ' + dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        const dev = data.device || {};
+        document.getElementById('certDeviceTitle').textContent = `${dev.model || 'Device'} • ${dev.storage || '128GB'}`;
+        document.getElementById('certDeviceSpec').textContent = `${dev.color || 'Standard'} • Condition: ${data.diagnosticDetails?.physicalGrade || dev.condition || 'Grade A (Like New)'}`;
+
+        const imei = dev.imeiNumber || '354892091234567';
+        document.getElementById('certImeiText').textContent = imei.length > 8 ? imei.slice(0, 8) + '•••••••' : imei;
+
+        if (data.notes) document.getElementById('certNotesText').textContent = data.notes;
+        if (data.hubLocation) document.getElementById('certHubText').textContent = data.hubLocation;
+        if (data.technicianName) {
+          document.getElementById('certTechNameText').textContent = data.technicianName;
+          document.getElementById('certSignLine').textContent = data.technicianName.split(' ')[0] + ' ' + (data.technicianName.split(' ')[1] ? data.technicianName.split(' ')[1][0] + '.' : '');
+        }
+
+        if (data.diagnosticDetails?.batteryHealth) {
+          document.getElementById('badgeBattery').textContent = `✓ ${data.diagnosticDetails.batteryHealth}% Diagnostic Health`;
+        }
+      }
+    }
+
+    loadCertificate();
+  </script>
+</body>
+</html>

@@ -3475,7 +3475,7 @@ body {
 .support-page-container {
   max-width: 520px;
   margin: 0 auto;
-  padding: 20px 18px 120px 18px;
+  padding: 20px 18px 48px 18px;
   position: relative;
   z-index: 1;
   min-height: 100vh;
@@ -3738,7 +3738,7 @@ body {
 .settings-page-container {
   max-width: 620px;
   margin: 0 auto;
-  padding: 24px 18px 120px;
+  padding: 24px 18px 48px;
   position: relative;
   z-index: 10;
 }
@@ -3915,7 +3915,7 @@ body {
 .about-page-container {
   max-width: 640px;
   margin: 0 auto;
-  padding: 24px 18px 120px;
+  padding: 24px 18px 48px;
   position: relative;
   z-index: 10;
 }
@@ -4061,7 +4061,7 @@ body {
 .faq-page-container {
   max-width: 640px;
   margin: 0 auto;
-  padding: 24px 18px 120px;
+  padding: 24px 18px 48px;
   position: relative;
   z-index: 10;
 }
@@ -4221,7 +4221,7 @@ body {
 .legal-page-container {
   max-width: 680px;
   margin: 0 auto;
-  padding: 24px 18px 120px;
+  padding: 24px 18px 48px;
   position: relative;
   z-index: 10;
 }

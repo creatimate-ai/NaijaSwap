@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>My Swaps — NaijaSwap</title>
   <meta name="description" content="Track your Nigerian verified phone swap proposals, inspection status, and store approvals.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -737,11 +740,126 @@
     </div>
   </div>
 
+  <!-- ==========================================================================
+       MODAL: DISPUTE FORM
+       ========================================================================== -->
+  <div class="modal-backdrop" id="disputeModal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Open Dispute</h2>
+        <button type="button" class="modal-close-btn" id="closeDisputeModal" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="disputeForm" style="padding: 24px;">
+        <input type="hidden" id="disputeRequestId" />
+        <div class="form-group">
+          <label class="form-label" for="disputeReason">Please describe the issue in detail</label>
+          <textarea id="disputeReason" class="form-input" style="min-height: 120px;" required></textarea>
+        </div>
+        <button type="submit" class="btn-primary-action" style="width: 100%; justify-content: center; margin-top: 16px;">
+          Submit Dispute
+        </button>
+      </form>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: IN-APP CHAT & NEGOTIATION
+       ========================================================================== -->
+  <div class="modal-backdrop" id="chatModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-card" style="max-width: 580px; height: 80vh; max-height: 640px; display: flex; flex-direction: column; padding: 0; overflow: hidden;">
+      <div class="modal-header" style="padding: 16px 20px; border-bottom: 1px solid var(--glass-border); background: rgba(13, 21, 30, 0.85);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="user-avatar" id="chatHeaderAvatar" style="width:36px;height:36px;font-size:0.85rem;background:linear-gradient(135deg,var(--emerald-400),var(--cyan-400));">🏪</div>
+          <div>
+            <h3 class="modal-title" id="chatModalTitle" style="font-size:1.05rem;margin:0;">Chat Store</h3>
+            <div style="font-size:0.75rem;color:var(--emerald-400);display:flex;align-items:center;gap:4px;">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--emerald-400);display:inline-block;"></span>
+              <span>Encrypted Safe Deal Chat</span>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeChatModal" aria-label="Close chat">&times;</button>
+      </div>
+
+      <!-- Quick Reply Shortcuts Bar -->
+      <div id="chatQuickReplies" style="display:flex;gap:6px;overflow-x:auto;padding:8px 16px;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.04);scrollbar-width:none;">
+        <button type="button" class="swap-filter-pill chat-quick-pill" data-msg="Is the screen original OEM?">📱 Original Screen?</button>
+        <button type="button" class="swap-filter-pill chat-quick-pill" data-msg="What is the battery health percentage?">🔋 Battery health?</button>
+        <button type="button" class="swap-filter-pill chat-quick-pill" data-msg="I am heading to Computer Village hub now.">📍 Heading to Hub</button>
+        <button type="button" class="swap-filter-pill chat-quick-pill" data-msg="Can we negotiate the top-up difference?">🤝 Top-up negotiation</button>
+      </div>
+
+      <!-- Messages Thread Scroll Area -->
+      <div id="chatMessagesContainer" style="flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:12px;background:radial-gradient(circle at top right, rgba(6,182,212,0.03), transparent 70%);">
+        <div style="text-align:center;color:var(--text-faint);font-size:0.8rem;padding:20px;">Loading chat messages...</div>
+      </div>
+
+      <!-- Message Input Form -->
+      <form id="chatMessageForm" style="display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--glass-border);background:rgba(10, 16, 23, 0.95);">
+        <input type="text" id="chatInputText" class="form-input" placeholder="Type a message or counter..." autocomplete="off" style="flex:1;border-radius:var(--radius-full);padding-left:18px;" required>
+        <button type="submit" class="btn-primary-action" id="btnSendChat" style="padding:0 20px;border-radius:var(--radius-full);">
+          Send
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: REVIEW & RATING SUBMISSION
+       ========================================================================== -->
+  <div class="modal-backdrop" id="reviewModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <div>
+          <span class="role-badge role-admin" style="margin-bottom:6px;color:var(--emerald-400);">✓ Completed Swap</span>
+          <h2 class="modal-title" id="reviewModalTitle">Rate your Swap Experience</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeReviewModal" aria-label="Close modal">&times;</button>
+      </div>
+      <form id="reviewForm" style="padding: 24px;">
+        <input type="hidden" id="reviewRequestId" />
+        <input type="hidden" id="reviewStoreId" />
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;" id="reviewStorePrompt">
+          How was your experience swapping with this verified dealer?
+        </p>
+        
+        <!-- Interactive Star Selector -->
+        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:14px;">
+          <button type="button" class="star-rate-btn" data-star="1" style="background:none;border:none;font-size:2rem;cursor:pointer;color:#F59E0B;">★</button>
+          <button type="button" class="star-rate-btn" data-star="2" style="background:none;border:none;font-size:2rem;cursor:pointer;color:#F59E0B;">★</button>
+          <button type="button" class="star-rate-btn" data-star="3" style="background:none;border:none;font-size:2rem;cursor:pointer;color:#F59E0B;">★</button>
+          <button type="button" class="star-rate-btn" data-star="4" style="background:none;border:none;font-size:2rem;cursor:pointer;color:#F59E0B;">★</button>
+          <button type="button" class="star-rate-btn" data-star="5" style="background:none;border:none;font-size:2rem;cursor:pointer;color:#F59E0B;">★</button>
+        </div>
+        <div id="starRatingLabel" style="text-align:center;font-size:0.88rem;font-weight:700;color:var(--emerald-400);margin-bottom:16px;">
+          5 Stars - Excellent Swap!
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reviewComment">Your Feedback (Visible to future swappers)</label>
+          <textarea id="reviewComment" class="form-input" style="min-height: 100px;" placeholder="e.g. Fast inspection at Computer Village, phone is 100% clean and pristine!" required></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary-action" id="btnSubmitReview" style="width:100%;justify-content:center;margin-top:16px;">
+          Submit Verified Review
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script type="module" src="js/auth.js"></script>
   <script type="module">
+    import { auth, db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from './js/firebase-config.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { updateSwapRequestStatusBackend, confirmSwapHandoverBackend, openSwapDisputeBackend } from './js/backend-api.js';
+    import { updateSwapRequestStatusBackend } from './js/backend-api.js';
+
+    async function apiPost(path, body) {
+      const token = await auth.currentUser.getIdToken();
+      const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(body) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Request failed');
+      return d;
+    }
 
     let currentUserId = 'user_guest';
     let currentUserName = 'Swapper';
@@ -855,6 +973,21 @@
 
         // Re-render user swap requests with the authenticated user ID
         renderSwaps();
+        
+        // Handle Paystack Return URL
+        const params = new URLSearchParams(window.location.search);
+        const reference = params.get('reference');
+        if (reference) {
+          apiPost('/api/payments/verify', { reference })
+            .then(() => {
+              alert('Payment verified successfully!');
+              window.history.replaceState({}, document.title, window.location.pathname);
+              renderSwaps();
+            })
+            .catch(err => {
+              alert('Failed to verify payment: ' + err.message);
+            });
+        }
       }
     };
 
@@ -1062,14 +1195,25 @@
               </div>
             ` : ''}
             ${req.status === 'inspection_passed' ? `
-              <button type="button" class="btn-action-sm btn-confirm-handover" data-id="${escapeHtml(req.id)}">Confirm Handover</button>
-            ` : ''}
-            ${['accepted', 'under_inspection', 'inspection_passed'].includes(req.status) ? `
-              <button type="button" class="btn-action-sm btn-open-dispute" data-id="${escapeHtml(req.id)}">Report Problem</button>
+              <button type="button" class="btn-action-sm btn-confirm-handover" data-id="${escapeHtml(req.id)}" style="background: rgba(0,210,106,0.1); border: 1px solid var(--emerald-border); color: var(--emerald-400); padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; margin-bottom: 12px;">
+                Confirm Handover
+              </button>
             ` : ''}
 
             <!-- Card Actions Footer -->
             <div class="swap-actions-footer">
+              ${!['cancelled', 'rejected', 'completed'].includes(req.status) ? `
+                <button type="button" class="btn-action-sm btn-open-dispute" data-id="${escapeHtml(req.id)}" style="background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); padding: 8px 16px; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; margin-right: auto;">
+                  Open Dispute
+                </button>
+              ` : ''}
+
+              ${req.status === 'accepted' && req.paymentStatus === 'unpaid' ? `
+                <button type="button" class="btn-action-sm btn-accept btn-pay-topup" data-id="${escapeHtml(req.id)}" data-amount="${escapeHtml(req.topupOffered || '0')}" style="padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: var(--emerald-500); color: #000;">
+                  Pay Top-up
+                </button>
+              ` : ''}
+
               ${req.status === 'pending' ? `
                 <button type="button" class="btn-action-sm btn-decline btn-cancel-request" data-id="${escapeHtml(req.id)}" style="background: rgba(244,63,94,0.1); border: 1px solid var(--rose-border); color: var(--rose-400); padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer;">
                   Cancel Proposal
@@ -1081,9 +1225,25 @@
                 <button type="button" class="btn-action-sm btn-counter-again" data-id="${escapeHtml(req.id)}">Send Counter-offer</button>
               ` : ''}
 
-              <a href="https://wa.me/?text=${waMsg}" target="_blank" rel="noopener" class="btn-action-sm btn-accept" style="text-decoration: none; padding: 8px 18px; border-radius: var(--radius-md); font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-                <span>Chat Hub Store</span>
+              <button type="button" class="btn-action-sm btn-open-chat" data-id="${escapeHtml(req.id)}" data-store="${escapeHtml(req.storeName || 'Store')}" style="padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: linear-gradient(135deg, rgba(0,210,106,0.18), rgba(6,182,212,0.14)); border: 1px solid var(--emerald-border); color: #FFF; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>In-App Chat</span>
+              </button>
+
+              ${(req.inspectionReportId || req.inspectionStatus === 'passed' || req.status === 'inspection_passed' || req.status === 'completed') ? `
+                <a href="certificate.html?id=${escapeHtml(req.id)}" target="_blank" class="btn-action-sm" style="text-decoration: none; padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: rgba(0,210,106,0.1); border: 1px solid var(--emerald-border); color: var(--emerald-400); display: inline-flex; align-items: center; gap: 6px;">
+                  <span>📜 Certificate</span>
+                </a>
+              ` : ''}
+
+              ${req.status === 'completed' ? `
+                <button type="button" class="btn-action-sm btn-rate-swap" data-id="${escapeHtml(req.id)}" data-storeid="${escapeHtml(req.dealerUid || req.storeId)}" data-storename="${escapeHtml(req.storeName || 'Store')}" style="padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: rgba(245,158,11,0.15); border: 1px solid var(--amber-border); color: var(--amber-400); display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <span>★ Rate Store</span>
+                </button>
+              ` : ''}
+
+              <a href="https://wa.me/?text=${waMsg}" target="_blank" rel="noopener" class="btn-action-sm" style="text-decoration: none; padding: 8px 14px; border-radius: var(--radius-md); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: rgba(37,211,102,0.08); color: #25D366; border: 1px solid rgba(37,211,102,0.25);">
+                <span>WhatsApp</span>
               </a>
 
               ${req.targetListingId || req.targetPhoneId ? `
@@ -1098,6 +1258,25 @@
       html += '</div>';
 
       swapsListContainer.innerHTML = html;
+
+      // Bind In-App Chat buttons
+      document.querySelectorAll('.btn-open-chat').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const reqId = e.currentTarget.dataset.id;
+          const storeName = e.currentTarget.dataset.store;
+          openChatModal(reqId, storeName);
+        });
+      });
+
+      // Bind Rating & Review buttons
+      document.querySelectorAll('.btn-rate-swap').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const reqId = e.currentTarget.dataset.id;
+          const storeId = e.currentTarget.dataset.storeid;
+          const storeName = e.currentTarget.dataset.storename;
+          openReviewModal(reqId, storeId, storeName);
+        });
+      });
 
       // Bind Cancel Request buttons
       document.querySelectorAll('.btn-cancel-request').forEach(btn => {
@@ -1115,18 +1294,18 @@
               });
               NaijaSwapData.updateSwapRequestStatus(reqId, 'cancelled', request.storeId);
               renderSwaps();
-            } catch (error) {
-              alert(error.message || 'Unable to cancel this swap request.');
+            } catch (err) {
+              alert(err.message || 'Error cancelling request');
             }
           }
         });
       });
 
       document.querySelectorAll('.btn-accept-counter').forEach(btn => {
-        btn.addEventListener('click', () => respondToCounter(btn.dataset.id, 'Accepted'));
+        btn.addEventListener('click', () => respondToCounter(btn.dataset.id, 'accepted'));
       });
       document.querySelectorAll('.btn-reject-counter').forEach(btn => {
-        btn.addEventListener('click', () => respondToCounter(btn.dataset.id, 'Declined'));
+        btn.addEventListener('click', () => respondToCounter(btn.dataset.id, 'rejected'));
       });
       document.querySelectorAll('.btn-counter-again').forEach(btn => {
         btn.addEventListener('click', () => sendCustomerCounter(btn.dataset.id));
@@ -1136,6 +1315,19 @@
       });
       document.querySelectorAll('.btn-open-dispute').forEach(btn => {
         btn.addEventListener('click', () => openDispute(btn.dataset.id));
+      });
+      document.querySelectorAll('.btn-pay-topup').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const reqId = e.currentTarget.dataset.id;
+          const topupAmount = e.currentTarget.dataset.amount;
+          const amountNaira = parseInt(topupAmount.replace(/\D/g, '')) || 0;
+          try {
+            const d = await apiPost('/api/payments/initialize', { requestId: reqId, amountNaira, email: auth.currentUser.email });
+            window.location.href = d.authorizationUrl;
+          } catch (error) {
+            alert(error.message || 'Payment initialization failed');
+          }
+        });
       });
 
     }
@@ -1177,31 +1369,287 @@
       } catch (error) {
         alert(error.message || 'Unable to send your counter-offer.');
       }
+    }
 
-      async function confirmHandover(requestId) {
-        const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === requestId);
-        if (!request?.firestoreId || !confirm('Confirm that you received the inspected device and completed the handover at the authorized hub?')) return;
-        try {
-          await confirmSwapHandoverBackend({ requestId: request.firestoreId, confirmed: true });
-          alert('Your confirmation was recorded. The dealer must also confirm before the swap can complete.');
-          renderSwaps();
-        } catch (error) {
-          alert(error.message || 'Unable to record handover confirmation.');
-        }
+    async function confirmHandover(requestId) {
+      const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === requestId);
+      if (!request?.firestoreId || !confirm('Confirm that you received the inspected device and completed the handover at the authorized hub?')) return;
+      try {
+        await apiPost('/api/swap/confirm-handover', { requestId: request.firestoreId, confirmed: true });
+        alert('Your confirmation was recorded. The dealer must also confirm before the swap can complete.');
+        // Refresh local data to reflect changes
+        request.status = 'completed'; // optimistic update
+        renderSwaps();
+      } catch (error) {
+        alert(error.message || 'Unable to record handover confirmation.');
       }
+    }
 
-      async function openDispute(requestId) {
-        const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === requestId);
-        const reason = prompt('Describe the problem with this swap:');
-        if (!reason || !request?.firestoreId) return;
+    function openDispute(requestId) {
+      const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === requestId);
+      if (!request?.firestoreId) {
+        alert('This swap is not connected to the live backend yet.');
+        return;
+      }
+      const disputeModal = document.getElementById('disputeModal');
+      const disputeRequestId = document.getElementById('disputeRequestId');
+      const disputeReason = document.getElementById('disputeReason');
+      
+      disputeRequestId.value = request.firestoreId;
+      disputeReason.value = '';
+      disputeModal.classList.add('active');
+    }
+
+    const disputeModal = document.getElementById('disputeModal');
+    const closeDisputeModal = document.getElementById('closeDisputeModal');
+    const disputeForm = document.getElementById('disputeForm');
+
+    if (closeDisputeModal && disputeModal) {
+      closeDisputeModal.addEventListener('click', () => disputeModal.classList.remove('active'));
+      disputeModal.addEventListener('click', (e) => {
+        if (e.target === disputeModal) disputeModal.classList.remove('active');
+      });
+    }
+
+    if (disputeForm) {
+      disputeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const requestId = document.getElementById('disputeRequestId').value;
+        const reason = document.getElementById('disputeReason').value.trim();
+        if (!reason || !requestId) return;
         try {
-          await openSwapDisputeBackend({ requestId: request.firestoreId, reason });
+          await apiPost('/api/swap/dispute', { requestId, reason });
           alert('Your dispute was opened and the swap has been flagged for review.');
+          disputeModal.classList.remove('active');
+          disputeForm.reset();
         } catch (error) {
           alert(error.message || 'Unable to open the dispute.');
         }
+      });
+    }
+
+    // =========================================================================
+    // IN-APP CHAT CONTROLLER
+    // =========================================================================
+    const chatModal = document.getElementById('chatModal');
+    const closeChatModal = document.getElementById('closeChatModal');
+    const chatMessageForm = document.getElementById('chatMessageForm');
+    const chatInputText = document.getElementById('chatInputText');
+    const chatMessagesContainer = document.getElementById('chatMessagesContainer');
+    const chatModalTitle = document.getElementById('chatModalTitle');
+    let activeChatRequestId = null;
+    let chatUnsubscribe = null;
+
+    function openChatModal(requestId, storeName) {
+      activeChatRequestId = requestId;
+      chatModalTitle.textContent = `Chat with ${storeName || 'Store'}`;
+      chatMessagesContainer.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:24px;font-size:0.82rem;">Connecting to real-time chat...</div>';
+      chatModal.style.display = 'flex';
+      chatModal.classList.add('active');
+
+      if (chatUnsubscribe) chatUnsubscribe();
+
+      // Real-time Firestore listener on swap subcollection
+      try {
+        const msgsQuery = query(
+          collection(db, 'swapRequests', requestId, 'messages'),
+          orderBy('createdAt', 'asc')
+        );
+        chatUnsubscribe = onSnapshot(msgsQuery, (snapshot) => {
+          if (snapshot.empty) {
+            chatMessagesContainer.innerHTML = `
+              <div style="text-align:center;padding:32px 16px;color:var(--text-muted);font-size:0.84rem;">
+                <div style="font-size:1.8rem;margin-bottom:6px;">💬</div>
+                <strong>Start a direct conversation</strong>
+                <p style="color:var(--text-faint);font-size:0.78rem;margin-top:4px;">Ask about device condition, battery, or notify the hub when arriving.</p>
+              </div>
+            `;
+            return;
+          }
+          chatMessagesContainer.innerHTML = snapshot.docs.map(d => {
+            const m = d.data();
+            const isMe = m.senderUid === (auth.currentUser ? auth.currentUser.uid : currentUserId);
+            const timeStr = m.createdAt ? new Date(m.createdAt.seconds ? m.createdAt.seconds * 1000 : m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            return `
+              <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};">
+                <span style="font-size:0.68rem;color:var(--text-faint);margin-bottom:2px;padding:0 4px;">
+                  ${isMe ? 'You' : escapeHtml(m.senderName || 'Store')} • ${timeStr}
+                </span>
+                <div style="max-width:80%;padding:10px 14px;border-radius:${isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px'};background:${isMe ? 'linear-gradient(135deg,var(--emerald-500),#02944b)' : 'rgba(255,255,255,0.06)'};color:${isMe ? '#021307' : '#FFF'};font-size:0.88rem;font-weight:${isMe ? '700' : '500'};line-height:1.4;box-shadow:0 4px 12px rgba(0,0,0,0.25);word-break:break-word;">
+                  ${escapeHtml(m.text)}
+                </div>
+              </div>
+            `;
+          }).join('');
+          chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }, (err) => {
+          console.warn('[Chat] Snapshot listener error:', err.message);
+        });
+      } catch (e) {
+        console.warn('[Chat] Init error:', e.message);
       }
     }
+
+    closeChatModal?.addEventListener('click', () => {
+      chatModal.style.display = 'none';
+      chatModal.classList.remove('active');
+      if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
+    });
+
+    chatModal?.addEventListener('click', (e) => {
+      if (e.target === chatModal) {
+        chatModal.style.display = 'none';
+        chatModal.classList.remove('active');
+        if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
+      }
+    });
+
+    chatMessageForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = (chatInputText.value || '').trim();
+      if (!text || !activeChatRequestId) return;
+      chatInputText.value = '';
+
+      try {
+        await addDoc(collection(db, 'swapRequests', activeChatRequestId, 'messages'), {
+          requestId: activeChatRequestId,
+          senderUid: auth.currentUser ? auth.currentUser.uid : currentUserId,
+          senderName: currentUserName,
+          senderRole: 'customer',
+          text,
+          type: 'text',
+          createdAt: serverTimestamp()
+        });
+      } catch (err) {
+        try {
+          await apiPost('/api/swap/messages', {
+            requestId: activeChatRequestId,
+            text,
+            senderName: currentUserName
+          });
+        } catch (apiErr) {
+          alert('Could not send message: ' + (apiErr.message || err.message));
+        }
+      }
+    });
+
+    // Quick replies chips
+    document.querySelectorAll('.chat-quick-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        if (chatInputText) {
+          chatInputText.value = pill.dataset.msg;
+          chatInputText.focus();
+        }
+      });
+    });
+
+    // =========================================================================
+    // RATING & REVIEW CONTROLLER
+    // =========================================================================
+    const reviewModal = document.getElementById('reviewModal');
+    const closeReviewModal = document.getElementById('closeReviewModal');
+    const reviewForm = document.getElementById('reviewForm');
+    const reviewRequestId = document.getElementById('reviewRequestId');
+    const reviewStoreId = document.getElementById('reviewStoreId');
+    const reviewStorePrompt = document.getElementById('reviewStorePrompt');
+    const starRatingLabel = document.getElementById('starRatingLabel');
+    let selectedRating = 5;
+
+    const STAR_LABELS = {
+      1: '1 Star - Poor Experience',
+      2: '2 Stars - Below Average',
+      3: '3 Stars - Satisfactory',
+      4: '4 Stars - Very Good Store',
+      5: '5 Stars - Excellent Swap!'
+    };
+
+    function updateStarsUI(rating) {
+      selectedRating = rating;
+      if (starRatingLabel) starRatingLabel.textContent = STAR_LABELS[rating] || `${rating} Stars`;
+      document.querySelectorAll('.star-rate-btn').forEach(b => {
+        const starNum = parseInt(b.dataset.star, 10);
+        b.style.color = starNum <= rating ? '#F59E0B' : 'rgba(255,255,255,0.2)';
+      });
+    }
+
+    document.querySelectorAll('.star-rate-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const r = parseInt(btn.dataset.star, 10);
+        updateStarsUI(r);
+      });
+    });
+
+    function openReviewModal(requestId, storeId, storeName) {
+      if (reviewRequestId) reviewRequestId.value = requestId;
+      if (reviewStoreId) reviewStoreId.value = storeId || '';
+      if (reviewStorePrompt) reviewStorePrompt.textContent = `How was your swap experience with ${storeName || 'this store'}?`;
+      updateStarsUI(5);
+      const commentInput = document.getElementById('reviewComment');
+      if (commentInput) commentInput.value = '';
+      if (reviewModal) {
+        reviewModal.style.display = 'flex';
+        reviewModal.classList.add('active');
+      }
+    }
+
+    closeReviewModal?.addEventListener('click', () => {
+      if (reviewModal) {
+        reviewModal.style.display = 'none';
+        reviewModal.classList.remove('active');
+      }
+    });
+
+    reviewModal?.addEventListener('click', (e) => {
+      if (e.target === reviewModal) {
+        reviewModal.style.display = 'none';
+        reviewModal.classList.remove('active');
+      }
+    });
+
+    reviewForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const requestId = reviewRequestId.value;
+      const storeId = reviewStoreId.value;
+      const comment = document.getElementById('reviewComment').value.trim();
+      const submitBtn = document.getElementById('btnSubmitReview');
+
+      if (!requestId || !comment) return;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting Review...';
+
+      try {
+        await apiPost('/api/reviews', {
+          requestId,
+          storeId,
+          rating: selectedRating,
+          comment,
+          authorName: currentUserName
+        });
+        alert('★ Thank you! Your verified review has been submitted.');
+        reviewModal.style.display = 'none';
+        reviewModal.classList.remove('active');
+      } catch (err) {
+        try {
+          await addDoc(collection(db, 'reviews'), {
+            requestId,
+            storeId,
+            authorUid: auth.currentUser ? auth.currentUser.uid : currentUserId,
+            authorName: currentUserName,
+            rating: selectedRating,
+            comment,
+            createdAt: serverTimestamp()
+          });
+          alert('★ Thank you! Your review was recorded.');
+          reviewModal.style.display = 'none';
+          reviewModal.classList.remove('active');
+        } catch (fErr) {
+          alert('Review submission failed: ' + (err.message || fErr.message));
+        }
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Verified Review';
+      }
+    });
 
     // Filter bar tab listeners
     if (swapFilterBar) {

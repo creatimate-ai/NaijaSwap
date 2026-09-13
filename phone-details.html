@@ -3,7 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Phone Details & Swap | NaijaSwap</title>
+  <title>Phone Details & Swap Value | NaijaSwap Nigeria</title>
+  <meta name="description" content="View phone specs, verified inspection condition, and calculate your swap top-up value on NaijaSwap.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="canonical" href="https://naijaswap.web.app/phone-details.html">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!-- Open Graph Protocol -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NaijaSwap">
+  <meta property="og:title" content="Phone Details & Swap Value | NaijaSwap Nigeria">
+  <meta property="og:description" content="View phone specs, verified inspection condition, and calculate your swap top-up value on NaijaSwap.">
+  <meta property="og:url" content="https://naijaswap.web.app/phone-details.html">
+  <meta property="og:image" content="https://naijaswap.web.app/assets/og-banner.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_NG">
+
+  <!-- Twitter Card Protocol -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Phone Details & Swap Value | NaijaSwap Nigeria">
+  <meta name="twitter:description" content="View phone specs, verified inspection condition, and calculate your swap top-up value on NaijaSwap.">
+  <meta name="twitter:image" content="https://naijaswap.web.app/assets/og-banner.svg">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -492,15 +515,21 @@
           <!-- Store / Dealer Hub Info -->
           <div class="details-store-box">
             <div class="store-badge-header">
-              <div class="store-name-link">
+              <a href="#" id="storePageLink" class="store-name-link" style="text-decoration:none;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-400)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                 <span id="storeNameText">Computer Village Hub</span>
                 <span id="storeVerifiedMark" title="Verified dealer" aria-label="Verified dealer" style="display:none;color:var(--emerald-400);font-weight:800;">✓</span>
-              </div>
+              </a>
               <span class="tag-badge tag-verified">Verified Hub</span>
             </div>
 
-            <div class="store-hub-info" id="hubAddressText">
+            <div id="storeRatingRow" style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:0.84rem;">
+              <span id="storeRatingStars" style="color:#fbbf24;font-weight:700;">★ 5.0</span>
+              <span id="storeRatingCount" style="color:var(--text-dim);">(Verified Store)</span>
+              <a href="#" id="storeViewReviewsLink" style="color:var(--cyan-400);font-size:0.78rem;margin-left:auto;text-decoration:none;">View Reviews →</a>
+            </div>
+
+            <div class="store-hub-info" id="hubAddressText" style="margin-top:10px;">
               Shop B14, Digital Complex, Otigba Street, Computer Village, Ikeja, Lagos
             </div>
 
@@ -522,6 +551,15 @@
 
       <!-- RIGHT: Specs, Dynamic Calculator & Proposal Form -->
       <div class="details-info-column">
+
+        <!-- Out of Stock Warning Banner -->
+        <div id="outOfStockBanner" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);border-radius:var(--radius-md);padding:14px 18px;margin-bottom:16px;color:#fca5a5;font-size:0.9rem;align-items:center;gap:12px;">
+          <span style="font-size:1.6rem;">⚠️</span>
+          <div>
+            <strong style="display:block;color:#FFF;font-size:0.98rem;margin-bottom:2px;">This Device Has Been Swapped (Out of Stock)</strong>
+            <span>This unit was recently completed in an exchange. You can still message the hub technician or browse other verified inventory.</span>
+          </div>
+        </div>
 
         <!-- Title & Specs Card -->
         <div class="details-title-card">
@@ -957,6 +995,7 @@
   <script type="module">
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { createSwapRequestBackend } from './js/backend-api.js';
+    import { db, doc, getDoc } from './js/firebase-config.js';
 
     let currentUserId = 'user_guest';
     let currentUserName = 'Swapper';
@@ -1098,6 +1137,40 @@
       }
       hubAddressText.textContent = targetPhone.hubAddress || `${targetPhone.location} Inspection Center`;
 
+      // Update store links and fetch dealer reviews rating
+      const storeUid = targetPhone.storeOwnerUid || targetPhone.storeId;
+      const storePageLink = document.getElementById('storePageLink');
+      const storeViewReviewsLink = document.getElementById('storeViewReviewsLink');
+      if (storeUid) {
+        if (storePageLink) storePageLink.href = `store.html?storeId=${encodeURIComponent(storeUid)}`;
+        if (storeViewReviewsLink) storeViewReviewsLink.href = `store.html?storeId=${encodeURIComponent(storeUid)}`;
+        
+        // Async fetch dealer rating summary
+        NaijaSwapData.getStoreReviews(storeUid).then(reviews => {
+          const summary = NaijaSwapData.getStoreRatingSummary(reviews);
+          const starsEl = document.getElementById('storeRatingStars');
+          const countEl = document.getElementById('storeRatingCount');
+          if (starsEl) starsEl.textContent = `★ ${summary.averageRating}`;
+          if (countEl) countEl.textContent = `(${summary.count} ${summary.count === 1 ? 'review' : 'reviews'})`;
+        }).catch(() => {});
+      }
+
+      // Check Out of Stock status
+      const isOutOfStock = targetPhone.quantityInStock === 0 || targetPhone.status === 'out_of_stock' || targetPhone.status === 'sold';
+      const outOfStockBanner = document.getElementById('outOfStockBanner');
+      if (outOfStockBanner) {
+        outOfStockBanner.style.display = isOutOfStock ? 'flex' : 'none';
+      }
+      if (isOutOfStock) {
+        const submitBtn = document.getElementById('btnSubmitSwapWithDevice');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.5';
+          submitBtn.style.cursor = 'not-allowed';
+          submitBtn.textContent = 'Device Already Swapped (Out of Stock)';
+        }
+      }
+
       // Specs
       specStoragePill.textContent = targetPhone.storage;
       specConditionPill.textContent = targetPhone.condition;
@@ -1113,9 +1186,24 @@
       specWarranty.textContent = targetPhone.warranty || '30-Day Hub Warranty';
 
       // WhatsApp link
-      const waNumber = targetPhone.whatsappNumber || '2348023456789';
-      const waMsg = encodeURIComponent(`Hello ${targetPhone.storeName || 'NaijaSwap Hub'}, I am viewing the ${targetPhone.model} (${targetPhone.storage}) listed for swap on NaijaSwap. I would like to trade in my phone.`);
-      directWhatsAppBtn.href = `https://wa.me/${waNumber}?text=${waMsg}`;
+      let dealerPhone = '';
+      if (storeUid) {
+        try {
+          const dealerProfileSnap = await getDoc(doc(db, 'dealerProfiles', storeUid));
+          dealerPhone = dealerProfileSnap.exists() ? (dealerProfileSnap.data().phoneNumber || '') : '';
+        } catch (e) {
+          console.error("Error fetching dealer profile:", e);
+        }
+      }
+      const waNumber = targetPhone.whatsappNumber || dealerPhone;
+      
+      if (waNumber) {
+        const waMsg = encodeURIComponent(`Hello ${targetPhone.storeName || 'NaijaSwap Hub'}, I am viewing the ${targetPhone.model} (${targetPhone.storage}) listed for swap on NaijaSwap. I would like to trade in my phone.`);
+        directWhatsAppBtn.href = `https://wa.me/${waNumber.replace(/[^0-9]/g, '')}?text=${waMsg}`;
+        directWhatsAppBtn.style.display = 'inline-flex';
+      } else {
+        directWhatsAppBtn.style.display = 'none';
+      }
 
       // Update floating tags
       const detailsTagsContainer = document.getElementById('detailsTagsContainer');
@@ -1351,15 +1439,31 @@
           successMsg.innerHTML = `Your swap proposal for <strong>${escapeHtml(targetPhone.model)}</strong> offering your listed <strong>${escapeHtml(currentDev.model)} (${escapeHtml(currentDev.storageCapacity)})</strong> with an estimated top-up of <strong style="color: var(--emerald-400);">${calc.estTopUpFormatted}</strong> has been logged with ${escapeHtml(targetPhone.storeName)}.`;
         }
 
-        const waNumber = targetPhone.whatsappNumber || '2348023456789';
-        const proposalWaMsg = encodeURIComponent(
-          `Hello ${targetPhone.storeName}, I just submitted a swap proposal on NaijaSwap!\n\n` +
-          `• Target Phone: ${targetPhone.model} (${targetPhone.storage})\n` +
-          `• My Listed Phone: ${currentDev.model} (${currentDev.storageCapacity}, ${currentDev.condition || 'Verified'})\n` +
-          `• Est. Top-up: ${calc.estTopUpFormatted}\n\n` +
-          `When can I visit your hub for inspection?`
-        );
-        if (waLink) waLink.href = `https://wa.me/${waNumber}?text=${proposalWaMsg}`;
+        let dealerPhone = '';
+        const storeUid = targetPhone.storeOwnerUid || targetPhone.storeId;
+        if (storeUid) {
+          try {
+            const dealerProfileSnap = await getDoc(doc(db, 'dealerProfiles', storeUid));
+            dealerPhone = dealerProfileSnap.exists() ? (dealerProfileSnap.data().phoneNumber || '') : '';
+          } catch (e) {}
+        }
+        const waNumber = targetPhone.whatsappNumber || dealerPhone;
+        
+        if (waNumber) {
+          const proposalWaMsg = encodeURIComponent(
+            `Hello ${targetPhone.storeName}, I just submitted a swap proposal on NaijaSwap!\n\n` +
+            `• Target Phone: ${targetPhone.model} (${targetPhone.storage})\n` +
+            `• My Listed Phone: ${currentDev.model} (${currentDev.storageCapacity}, ${currentDev.condition || 'Verified'})\n` +
+            `• Est. Top-up: ${calc.estTopUpFormatted}\n\n` +
+            `When can I visit your hub for inspection?`
+          );
+          if (waLink) {
+            waLink.href = `https://wa.me/${waNumber.replace(/[^0-9]/g, '')}?text=${proposalWaMsg}`;
+            waLink.style.display = 'inline-flex';
+          }
+        } else {
+          if (waLink) waLink.style.display = 'none';
+        }
 
         updateMySwapsBadge();
       });

@@ -10,6 +10,7 @@ const STORAGE_KEYS = {
   ACTIVITY_LOG: 'naijaswap_activity_log',
   NOTIFICATIONS: 'naijaswap_user_notifications',
   USER_DEVICES: 'naijaswap_user_devices',
+  REVIEWS: 'naijaswap_reviews',
   INITIALIZED: 'naijaswap_data_initialized_v3'
 };
 
@@ -858,6 +859,37 @@ export const NaijaSwapData = {
     return true;
   },
 
+  restockListing(listingId, addQty = 1, storeId = null) {
+    let items = [];
+    try {
+      items = JSON.parse(localStorage.getItem(STORAGE_KEYS.LISTINGS)) || [];
+    } catch {
+      items = DEFAULT_LISTINGS;
+    }
+
+    let target = null;
+    items = items.map(x => {
+      if (x.id === listingId) {
+        const cur = typeof x.quantityInStock === 'number' ? x.quantityInStock : 0;
+        x.quantityInStock = cur + addQty;
+        x.status = 'Active';
+        target = x;
+      }
+      return x;
+    });
+
+    localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(items));
+
+    if (target && storeId) {
+      this.logActivity(storeId, {
+        type: 'inventory_restocked',
+        title: 'Inventory Restocked',
+        description: `Restocked ${target.model} (${target.storage}) +${addQty} unit(s)`
+      });
+    }
+    return target;
+  },
+
   // --- SWAP REQUESTS MANAGEMENT (CONSUMER FORM) ---
   createSwapRequest(requestData) {
     let requests = [];
@@ -1078,6 +1110,10 @@ export const NaijaSwapData = {
     localStorage.setItem(STORAGE_KEYS.SWAP_REQUESTS, JSON.stringify(requests));
 
     if (updated) {
+      if (normalizedStatus === 'completed') {
+        this.decrementListingStock(updated.listingId || updated.targetPhoneId, updated);
+      }
+
       this.logActivity(storeId || updated.storeId, {
         type: normalizedStatus === 'accepted' ? 'swap_accepted' : normalizedStatus === 'rejected' ? 'swap_rejected' : 'swap_updated',
         title: 'Swap ' + normalizedStatus,
@@ -1095,6 +1131,38 @@ export const NaijaSwapData = {
     }
 
     return updated;
+  },
+
+  decrementListingStock(listingId, swapRequest = {}) {
+    let items = [];
+    try {
+      items = JSON.parse(localStorage.getItem(STORAGE_KEYS.LISTINGS)) || [];
+    } catch {
+      items = DEFAULT_LISTINGS;
+    }
+
+    let found = false;
+    items = items.map(item => {
+      const matchById = listingId && item.id === listingId;
+      const matchByModel = swapRequest && (
+        (item.model && swapRequest.targetPhoneModel && item.model.toLowerCase() === swapRequest.targetPhoneModel.toLowerCase()) ||
+        (item.model && swapRequest.targetModel && item.model.toLowerCase() === swapRequest.targetModel.toLowerCase())
+      ) && (!swapRequest.storeId || item.storeId === swapRequest.storeId);
+
+      if (!found && (matchById || matchByModel)) {
+        found = true;
+        const currentQty = typeof item.quantityInStock === 'number' ? item.quantityInStock : 1;
+        const newQty = Math.max(0, currentQty - 1);
+        item.quantityInStock = newQty;
+        if (newQty <= 0) {
+          item.status = 'out_of_stock';
+        }
+      }
+      return item;
+    });
+
+    localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(items));
+    return found;
   },
 
   cancelSwapRequest(requestId) {
@@ -1440,6 +1508,80 @@ export const NaijaSwapData = {
   getUnreadNotificationsCount(userId) {
     const list = this.getUserNotifications(userId);
     return list.filter(n => !n.isRead).length;
+  },
+
+  async getStoreReviews(storeId) {
+    if (!storeId) return [];
+    try {
+      if (db) {
+        const q = query(
+          collection(db, 'reviews'),
+          where('storeId', '==', storeId),
+          orderBy('createdAt', 'desc'),
+          limit(20)
+        );
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+      }
+    } catch (e) {
+      console.warn('Firestore reviews fetch failed, attempting API server fallback', e);
+    }
+
+    try {
+      const resp = await fetch(`/api/reviews?storeId=${encodeURIComponent(storeId)}`);
+      if (resp.ok) {
+        const json = await resp.json();
+        if (json.reviews && json.reviews.length > 0) return json.reviews;
+      }
+    } catch (e) {}
+
+    try {
+      const local = JSON.parse(localStorage.getItem(STORAGE_KEYS.REVIEWS) || '[]');
+      return local.filter(r => r.storeId === storeId);
+    } catch {
+      return [];
+    }
+  },
+
+  async addStoreReview(reviewData) {
+    let saved = false;
+    try {
+      const resp = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewData)
+      });
+      if (resp.ok) saved = true;
+    } catch (e) {}
+
+    try {
+      const local = JSON.parse(localStorage.getItem(STORAGE_KEYS.REVIEWS) || '[]');
+      const newReview = {
+        id: 'rev_' + Date.now(),
+        ...reviewData,
+        createdAt: new Date().toISOString()
+      };
+      local.unshift(newReview);
+      localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(local));
+      return newReview;
+    } catch {
+      return reviewData;
+    }
+  },
+
+  getStoreRatingSummary(reviews = []) {
+    if (!reviews || reviews.length === 0) {
+      return { averageRating: 5.0, count: 0, formatted: '5.0 ★ (New Verified Hub)' };
+    }
+    const sum = reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0);
+    const avg = (sum / reviews.length).toFixed(1);
+    return {
+      averageRating: parseFloat(avg),
+      count: reviews.length,
+      formatted: `${avg} ★ (${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'})`
+    };
   }
 };
 

@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>More — NaijaSwap</title>
   <meta name="description" content="NaijaSwap preferences, account options, store hub, legal policies, support, and help center.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -41,9 +44,6 @@
 
     <!-- Page Title Section -->
     <section class="more-title-section">
-      <div id="roleTagHeaderWrap" style="margin-bottom: 8px;">
-        <span class="role-tag role-tag-swapper" id="topRoleTag">🔄 Swapper Account</span>
-      </div>
       <h1 class="more-title" id="moreMainTitle">More</h1>
       <p class="more-subtitle" id="moreMainSubtitle">App settings, support channels, and legal information</p>
     </section>
@@ -136,9 +136,6 @@
         moreBackBtnText.textContent = 'Store Hub';
         brandPillTitle.innerHTML = 'NaijaSwap <strong>Store</strong>';
         
-        topRoleTag.className = 'role-tag role-tag-dealer';
-        topRoleTag.innerHTML = '<span>🏬</span><span>Verified Store Dealer</span>';
-        
         moreMainTitle.textContent = 'Store Hub & Settings';
         moreMainSubtitle.textContent = 'Manage phone inventory, incoming swap requests, business verification, and settlement.';
         
@@ -175,9 +172,6 @@
         moreBackBtn.href = 'dashboard.html';
         moreBackBtnText.textContent = 'Back';
         brandPillTitle.textContent = 'NaijaSwap';
-
-        topRoleTag.className = 'role-tag role-tag-swapper';
-        topRoleTag.innerHTML = '<span>🔄</span><span>Swapper Account</span>';
 
         moreMainTitle.textContent = 'More';
         moreMainSubtitle.textContent = 'App preferences, swap history, support channels, and legal policies.';
@@ -223,6 +217,20 @@
             <div class="more-item-texts">
               <span class="more-item-title">Settings & Notifications</span>
               <span class="more-item-sub">Trade alert preferences and sound settings</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
+        <!-- Hub Inspection & Admin Portal -->
+        <a href="admin.html" class="more-menu-item" id="menuAdminDesk">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Staff & Hub Inspection Portal</span>
+              <span class="more-item-sub">Physical diagnostics, KYC reviews & certificates</span>
             </div>
           </div>
           <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
@@ -316,18 +324,17 @@
           <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
         </a>
 
-        <!-- 5. Become a Dealer -->
-        <a href="dealer-verification.html" class="more-menu-item" id="menuBecomeDealer">
+
+
+        <!-- Hub Inspection & Staff Desk -->
+        <a href="admin.html" class="more-menu-item" id="menuAdminDeskSwapper">
           <div class="more-item-left">
-            <div class="more-item-icon tint-cyan">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+            <div class="more-item-icon tint-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
             <div class="more-item-texts">
-              <div style="display: flex; align-items: center;">
-                <span class="more-item-title">Become a Partner Store</span>
-                <span class="more-badge-pill badge-cyan" style="margin-left: 8px;">Dealers</span>
-              </div>
-              <span class="more-item-sub">List your phones and accept swaps as a verified store</span>
+              <span class="more-item-title">Staff & Hub Inspection Portal</span>
+              <span class="more-item-sub">Physical diagnostics, KYC reviews & certificates</span>
             </div>
           </div>
           <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>

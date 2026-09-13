@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="ogBg" cx="30%" cy="20%" r="90%">
+      <stop offset="0%" stop-color="#0e1f1c"/>
+      <stop offset="50%" stop-color="#080d12"/>
+      <stop offset="100%" stop-color="#040608"/>
+    </radialGradient>
+    <linearGradient id="emeraldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#16222f"/>
+      <stop offset="100%" stop-color="#0d151d"/>
+    </linearGradient>
+    <filter id="blurGlow1" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="80"/>
+    </filter>
+    <filter id="blurGlow2" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="60"/>
+    </filter>
+  </defs>
+
+  <!-- Deep Obsidian Canvas Background -->
+  <rect width="1200" height="630" fill="url(#ogBg)"/>
+
+  <!-- Ambient Atmospheric Glows -->
+  <circle cx="200" cy="180" r="220" fill="#059669" opacity="0.35" filter="url(#blurGlow1)"/>
+  <circle cx="950" cy="420" r="240" fill="#0284c7" opacity="0.25" filter="url(#blurGlow2)"/>
+
+  <!-- Subtle Cyber Tech Grid lines -->
+  <g opacity="0.05" stroke="#ffffff" stroke-width="1">
+    <line x1="0" y1="105" x2="1200" y2="105"/>
+    <line x1="0" y1="210" x2="1200" y2="210"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="420" x2="1200" y2="420"/>
+    <line x1="0" y1="525" x2="1200" y2="525"/>
+    <line x1="200" y1="0" x2="200" y2="630"/>
+    <line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="1000" y1="0" x2="1000" y2="630"/>
+  </g>
+
+  <!-- Header / Brand Section -->
+  <g transform="translate(80, 75)">
+    <!-- Logo Icon -->
+    <rect width="56" height="56" rx="14" fill="#10b981"/>
+    <path d="M22 28L14 36M14 36L22 44M14 36H42" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M34 44L42 36M42 36L34 28M42 36H14" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Brand Typography -->
+    <text x="72" y="39" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" fill="#ffffff">
+      Naija<tspan fill="#10b981">Swap</tspan>
+    </text>
+  </g>
+
+  <!-- Nigeria Market Pill Badge -->
+  <g transform="translate(80, 160)">
+    <rect width="280" height="38" rx="19" fill="url(#badgeGrad)" stroke="#10b981" stroke-opacity="0.4" stroke-width="1.2"/>
+    <circle cx="20" cy="19" r="5" fill="#10b981"/>
+    <text x="36" y="24" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#6ee7b7" letter-spacing="0.5">
+      NIGERIA'S #1 PHONE SWAP NETWORK
+    </text>
+  </g>
+
+  <!-- Main Value Proposition Headlines -->
+  <g transform="translate(80, 240)">
+    <text x="0" y="45" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="-1">
+      Swap Your Phone for
+    </text>
+    <text x="0" y="105" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="52" font-weight="800" fill="url(#emeraldGlow)" letter-spacing="-1">
+      The One You Want.
+    </text>
+    <text x="0" y="160" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="22" font-weight="400" fill="#94a3b8">
+      Discover verified dealer swap offers across Lagos, Abuja &amp; Port Harcourt.
+    </text>
+  </g>
+
+  <!-- Feature Highlights / Trust Badges in Footer Area -->
+  <g transform="translate(80, 480)">
+    <!-- Hub Physical Inspection -->
+    <g transform="translate(0, 0)">
+      <rect width="220" height="60" rx="12" fill="#111c24" stroke="rgba(255,255,255,0.08)"/>
+      <circle cx="28" cy="30" r="12" fill="#10b981" fill-opacity="0.15"/>
+      <text x="28" y="34" font-size="13" text-anchor="middle" fill="#10b981">✓</text>
+      <text x="52" y="27" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Hub Inspection</text>
+      <text x="52" y="44" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">Computer Village &amp; Beyond</text>
+    </g>
+
+    <!-- Algorithmic Valuation -->
+    <g transform="translate(240, 0)">
+      <rect width="220" height="60" rx="12" fill="#111c24" stroke="rgba(255,255,255,0.08)"/>
+      <circle cx="28" cy="30" r="12" fill="#06b6d4" fill-opacity="0.15"/>
+      <text x="28" y="34" font-size="13" text-anchor="middle" fill="#06b6d4">⚡</text>
+      <text x="52" y="27" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Instant Top-Up</text>
+      <text x="52" y="44" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">Transparent Valuations</text>
+    </g>
+
+    <!-- Verified Dealers Only -->
+    <g transform="translate(480, 0)">
+      <rect width="220" height="60" rx="12" fill="#111c24" stroke="rgba(255,255,255,0.08)"/>
+      <circle cx="28" cy="30" r="12" fill="#10b981" fill-opacity="0.15"/>
+      <text x="28" y="34" font-size="13" text-anchor="middle" fill="#10b981">🛡️</text>
+      <text x="52" y="27" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#ffffff">Verified Stores</text>
+      <text x="52" y="44" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">100% Fraud Protection</text>
+    </g>
+  </g>
+
+  <!-- Right Visual Display Card (Simulated Phone Swap Showcase) -->
+  <g transform="translate(800, 130)">
+    <!-- Device Frame Card -->
+    <rect width="320" height="420" rx="28" fill="url(#cardGrad)" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+    
+    <!-- Top Card Status -->
+    <rect x="24" y="28" width="110" height="26" rx="13" fill="#10b981" fill-opacity="0.15"/>
+    <text x="79" y="45" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#34d399" text-anchor="middle">LIVE SWAP</text>
+    
+    <text x="296" y="46" font-family="system-ui, sans-serif" font-size="12" fill="#64748b" text-anchor="end">🇳🇬 Lagos Hub</text>
+
+    <!-- Swap Representation -->
+    <g transform="translate(24, 80)">
+      <!-- From Device -->
+      <rect width="272" height="74" rx="14" fill="#080d12" stroke="rgba(255,255,255,0.06)"/>
+      <text x="16" y="32" font-family="system-ui, sans-serif" font-size="11" fill="#64748b" font-weight="600">YOU HAVE</text>
+      <text x="16" y="55" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="16" font-weight="700" fill="#ffffff">iPhone 12 Pro (128GB)</text>
+      
+      <!-- Exchange Indicator -->
+      <circle cx="136" cy="98" r="18" fill="#10b981"/>
+      <path d="M132 94L128 98M128 98L132 102M128 98H144" stroke="#ffffff" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M140 102L144 98M144 98L140 94M144 98H128" stroke="#ffffff" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+      <!-- To Device -->
+      <g transform="translate(0, 122)">
+        <rect width="272" height="74" rx="14" fill="#080d12" stroke="rgba(16,185,129,0.3)"/>
+        <text x="16" y="32" font-family="system-ui, sans-serif" font-size="11" fill="#34d399" font-weight="600">YOU GET</text>
+        <text x="16" y="55" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="16" font-weight="700" fill="#ffffff">iPhone 15 Pro (128GB)</text>
+      </g>
+    </g>
+
+    <!-- Top-up estimation bar -->
+    <g transform="translate(24, 305)">
+      <rect width="272" height="85" rx="16" fill="#0b161c" stroke="rgba(6,182,212,0.2)"/>
+      <text x="136" y="34" font-family="system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle">Calculated Top-Up</text>
+      <text x="136" y="66" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="26" font-weight="800" fill="#38bdf8" text-anchor="middle">₦480,000</text>
+    </g>
+  </g>
+</svg>

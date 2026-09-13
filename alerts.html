@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Alerts — NaijaSwap</title>
   <meta name="description" content="Stay updated on your Nigerian phone trade-in proposals, store approvals, and hub physical inspection slots.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -401,12 +404,17 @@
   <script type="module" src="js/auth.js"></script>
   <script type="module">
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { db, collection, getDocs } from './js/firebase-config.js';
+    import { db, collection, auth } from './js/firebase-config.js';
+    import {
+      onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, limit
+    } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 
     let currentUserId = 'user_guest';
     let currentUserName = 'Swapper';
     let currentFilter = 'all';
     let userReady = false;
+    let unsubscribeSnapshot = null;
+    let liveNotifications = [];
 
     // DOM Elements
     const alertsContainer = document.getElementById('alertsContainer');
@@ -450,6 +458,40 @@
 
     updateHeaderUserUI(currentUserName, currentUserId);
 
+    // --- Real-time Firestore listener ---
+    function startRealtimeListener(uid) {
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+      const notifRef = collection(db, 'users', uid, 'notifications');
+      const q = query(notifRef, orderBy('createdAt', 'desc'), limit(100));
+      unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+        liveNotifications = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderAlerts();
+      }, (err) => {
+        console.warn('[Alerts] Snapshot error:', err.message);
+        renderAlerts();
+      });
+    }
+
+    // Mark a single notification as read in Firestore
+    async function markReadInFirestore(uid, notifId) {
+      try {
+        await updateDoc(doc(db, 'users', uid, 'notifications', notifId), { isRead: true });
+      } catch (e) { console.warn('[Alerts] markRead error:', e.message); }
+    }
+
+    // Mark all notifications as read in Firestore
+    async function markAllReadInFirestore(uid) {
+      const unread = liveNotifications.filter(n => !n.isRead);
+      await Promise.all(unread.map(n => markReadInFirestore(uid, n.id)));
+    }
+
+    // Delete a notification from Firestore
+    async function deleteInFirestore(uid, notifId) {
+      try {
+        await deleteDoc(doc(db, 'users', uid, 'notifications', notifId));
+      } catch (e) { console.warn('[Alerts] delete error:', e.message); }
+    }
+
     // Hook from auth.js when Firebase user is confirmed/ready
     window.onNaijaSwapUserReady = (user, role) => {
       if (user) {
@@ -459,31 +501,32 @@
 
         updateHeaderUserUI(currentUserName, user.uid, user.photoURL);
 
-        // Re-render alerts with the authenticated user ID
-        renderAlerts();
+        // Start real-time listener — replaces old renderAlerts() call
+        startRealtimeListener(user.uid);
       }
     };
 
-    // Render Notifications
-    async function loadRemoteNotifications() {
-      if (!currentUserId || currentUserId === 'user_guest') return;
-      try {
-        const snapshot = await getDocs(collection(db, 'users', currentUserId, 'notifications'));
-        const remote = [];
-        snapshot.forEach(item => remote.push(item.data()));
-        const local = NaijaSwapData.getUserNotifications(currentUserId);
-        const merged = [...remote, ...local.filter(item => !remote.some(remoteItem => remoteItem.id === item.id))];
-        merged.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        window.naijaswapRemoteNotifications = merged;
-      } catch (error) {
-        console.warn('[Alerts] Could not load remote notifications:', error.message);
+    // Notification type config
+    function getNotifStyle(type) {
+      const t = String(type || '');
+      if (t.includes('accepted') || t.includes('passed') || t.includes('approved') || t === 'verification_approved') {
+        return { tint: 'tint-emerald', icon: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>' };
       }
+      if (t.includes('rejected') || t.includes('cancelled') || t.includes('failed') || t.includes('dispute')) {
+        return { tint: 'tint-rose', icon: '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>' };
+      }
+      if (t.includes('pending') || t.includes('payment') || t.includes('countered')) {
+        return { tint: 'tint-amber', icon: '<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>' };
+      }
+      if (t.includes('handover') || t.includes('inspection') || t.includes('completed')) {
+        return { tint: 'tint-cyan', icon: '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>' };
+      }
+      return { tint: 'tint-emerald', icon: '<path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>' };
     }
 
-    async function renderAlerts() {
-      if (!userReady) return;
-      await loadRemoteNotifications();
-      const allNotifs = window.naijaswapRemoteNotifications || NaijaSwapData.getUserNotifications(currentUserId);
+    // Render Notifications
+    function renderAlerts() {
+      const allNotifs = liveNotifications;
       const unreadCount = allNotifs.filter(n => !n.isRead).length;
       const swapCount = allNotifs.filter(n => (n.type || '').includes('swap')).length;
 
@@ -493,9 +536,7 @@
       if (countSwapAlerts) countSwapAlerts.textContent = swapCount;
 
       // Header dot & mobile bottom nav badge
-      if (notifDot) {
-        notifDot.style.display = unreadCount > 0 ? 'block' : 'none';
-      }
+      if (notifDot) notifDot.style.display = unreadCount > 0 ? 'block' : 'none';
       if (mobileAlertsBadge) {
         if (unreadCount > 0) {
           mobileAlertsBadge.textContent = unreadCount;
@@ -518,11 +559,8 @@
 
       // Filter
       let list = allNotifs;
-      if (currentFilter === 'unread') {
-        list = allNotifs.filter(n => !n.isRead);
-      } else if (currentFilter === 'swaps') {
-        list = allNotifs.filter(n => (n.type || '').includes('swap'));
-      }
+      if (currentFilter === 'unread') list = allNotifs.filter(n => !n.isRead);
+      else if (currentFilter === 'swaps') list = allNotifs.filter(n => (n.type || '').includes('swap'));
 
       // Empty state
       if (allNotifs.length === 0) {
@@ -566,36 +604,33 @@
       // Render cards
       let html = '<div class="alerts-cards-stack fade-in-content">';
       list.forEach(notif => {
-        let tint = 'tint-emerald';
-        let iconSvg = '<path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>';
-
-        if (notif.type === 'swap_accepted') {
-          tint = 'tint-emerald';
-          iconSvg = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
-        } else if (notif.type === 'swap_declined' || notif.type === 'swap_cancelled') {
-          tint = 'tint-rose';
-          iconSvg = '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>';
-        } else if (notif.type === 'system') {
-          tint = 'tint-cyan';
-          iconSvg = '<circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line>';
-        }
-
-        const timeStr = NaijaSwapData.formatRelativeTime(notif.createdAt);
+        const { tint, icon } = getNotifStyle(notif.type);
+        const ts = notif.createdAt;
+        let timeStr = '';
+        try {
+          const d = ts?.toDate ? ts.toDate() : new Date(ts || 0);
+          const diff = (Date.now() - d.getTime()) / 1000;
+          if (diff < 60) timeStr = 'Just now';
+          else if (diff < 3600) timeStr = `${Math.floor(diff / 60)}m ago`;
+          else if (diff < 86400) timeStr = `${Math.floor(diff / 3600)}h ago`;
+          else timeStr = d.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' });
+        } catch (e) { timeStr = ''; }
         const unreadClass = notif.isRead ? '' : 'is-unread';
+        const link = notif.requestId ? `my-swaps.html?requestId=${notif.requestId}` : (notif.link || 'my-swaps.html');
 
         html += `
-          <div class="alert-card-item ${unreadClass}" data-id="${escapeHtml(notif.id)}" data-link="${escapeHtml(notif.link || 'my-swaps.html')}">
+          <div class="alert-card-item ${unreadClass}" data-id="${escapeHtml(notif.id)}" data-link="${escapeHtml(link)}">
             <div class="alert-icon-wrap ${tint}">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                ${iconSvg}
+                ${icon}
               </svg>
             </div>
             <div class="alert-content-wrap">
               <div class="alert-title-row">
-                <span class="alert-card-title">${escapeHtml(notif.title)}</span>
+                <span class="alert-card-title">${escapeHtml(notif.title || 'Notification')}</span>
                 <span class="alert-time-text">${escapeHtml(timeStr)}</span>
               </div>
-              <p class="alert-message-text">${escapeHtml(notif.message)}</p>
+              <p class="alert-message-text">${escapeHtml(notif.message || '')}</p>
             </div>
             <button type="button" class="alert-dismiss-btn" data-id="${escapeHtml(notif.id)}" title="Dismiss notification" aria-label="Dismiss">&times;</button>
           </div>
@@ -611,7 +646,7 @@
           if (e.target.closest('.alert-dismiss-btn')) return;
           const id = card.dataset.id;
           const link = card.dataset.link;
-          NaijaSwapData.markNotificationRead(id);
+          if (id && currentUserId !== 'user_guest') markReadInFirestore(currentUserId, id);
           if (link) window.location.href = link;
         });
       });
@@ -621,8 +656,8 @@
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           const id = btn.dataset.id;
-          NaijaSwapData.deleteNotification(id);
-          renderAlerts();
+          if (id && currentUserId !== 'user_guest') deleteInFirestore(currentUserId, id);
+          // onSnapshot will auto-re-render after deletion
         });
       });
 
@@ -640,18 +675,17 @@
 
     // Mark all as read
     if (markAllReadBtn) {
-      markAllReadBtn.addEventListener('click', () => {
-        NaijaSwapData.markAllNotificationsRead(currentUserId);
-        renderAlerts();
+      markAllReadBtn.addEventListener('click', async () => {
+        if (currentUserId !== 'user_guest') await markAllReadInFirestore(currentUserId);
       });
     }
 
     // Clear all
     if (clearAllAlertsBtn) {
-      clearAllAlertsBtn.addEventListener('click', () => {
-        if (confirm('Clear all notifications?')) {
-          NaijaSwapData.clearAllNotifications(currentUserId);
-          renderAlerts();
+      clearAllAlertsBtn.addEventListener('click', async () => {
+        if (!confirm('Clear all notifications?')) return;
+        if (currentUserId !== 'user_guest') {
+          await Promise.all(liveNotifications.map(n => deleteInFirestore(currentUserId, n.id)));
         }
       });
     }
