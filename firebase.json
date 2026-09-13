@@ -23,6 +23,15 @@
       ],
       "headers": [
         {
+          "source": "**/*.@(html|js)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        },
+        {
           "source": "/sitemap.xml",
           "headers": [
             {
@@ -71,6 +80,15 @@
         "**/*.md"
       ],
       "headers": [
+        {
+          "source": "**/*.@(html|js)",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            }
+          ]
+        },
         {
           "source": "/sitemap.xml",
           "headers": [

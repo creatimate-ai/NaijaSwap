@@ -893,12 +893,18 @@ router.get('/api/certificate', async (request, response) => {
 router.post('/api/admin/setup-role', authenticate, async (request, response) => {
   try {
     const uid = request.user.uid;
-    const targetRole = String(request.body.role || 'admin').trim().toLowerCase();
-    if (!['admin', 'technician', 'dealer', 'customer'].includes(targetRole)) {
-      return response.status(400).json({ error: 'Invalid role.' });
+    const targetRole = String(request.body.role || '').trim().toLowerCase();
+    if (!['admin', 'technician'].includes(targetRole)) {
+      return response.status(403).json({ error: 'Role modification between swapper and dealer is strictly prohibited.' });
     }
+    const isDev = process.env.NODE_ENV !== 'production';
     const firebase = getFirebaseAdmin();
     const db = firebase.firestore();
+    const callerDoc = await db.collection('users').doc(uid).get();
+    const isAlreadyAdmin = callerDoc.exists && callerDoc.data().role === 'admin' && callerDoc.data().accountType === 'admin';
+    if (!isDev && !isAlreadyAdmin) {
+      return response.status(403).json({ error: 'Unauthorized to configure administrative roles.' });
+    }
     await db.collection('users').doc(uid).set({
       role: targetRole,
       accountType: targetRole === 'technician' ? 'technician' : targetRole,

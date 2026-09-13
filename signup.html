@@ -2,6 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <script>
+    if (window.location.hostname === "127.0.0.1") {
+      const u = new URL(window.location.href);
+      u.hostname = "localhost";
+      window.location.replace(u.href);
+    }
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create an Account — Join NaijaSwap Nigeria</title>
   <meta name="description" content="Join thousands of Nigerians swapping smartphones safely. Sign up as a phone swapper or verified dealer on NaijaSwap.">
@@ -159,6 +166,6 @@
   </main>
 
   <!-- Authentication Controller Script -->
-  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/auth.js?v=2.2"></script>
 </body>
 </html>

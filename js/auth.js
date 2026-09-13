@@ -92,25 +92,6 @@ if (typeof window !== "undefined") {
       return [];
     }
   };
-  window.__naijaswap_setDealerRole = async (targetUid = null) => {
-    const user = auth.currentUser;
-    const uid = targetUid || (user ? user.uid : localStorage.getItem("naijaswap_last_uid"));
-    if (!uid) {
-      console.warn("[NaijaSwap] No active user UID found. Please log in first.");
-      return;
-    }
-    localStorage.setItem("naijaswap_role_" + uid, "dealer");
-    localStorage.setItem("naijaswap_shop_" + uid, "Verified Gadget Hub");
-    if (user && user.uid === uid) {
-      try {
-        await saveUserRole(user, "dealer", "Verified Gadget Hub");
-      } catch (e) {
-        console.warn("[NaijaSwap] Firestore role update note:", e.message);
-      }
-    }
-    logNaijaSwap("info", "Auth", `Role for ${uid} updated to "dealer". Reloading...`);
-    window.location.reload();
-  };
 }
 
 function recordAuthDiagnostic(event, details = {}) {
@@ -148,94 +129,155 @@ function normalizeRole(role) {
     : DEFAULT_ROLE;
 }
 
+export function isCurrentRoute(...routeNames) {
+  if (typeof window === "undefined" || !window.location) return false;
+  const currentPath = (window.location.pathname || "").toLowerCase().replace(/\/$/, "");
+  const segments = currentPath.split("/");
+  const lastSegment = segments[segments.length - 1] || "";
+  const baseName = lastSegment.replace(/\.html$/, "");
+
+  return routeNames.some(name => {
+    const targetBase = name.toLowerCase().replace(/\.html$/, "");
+    return baseName === targetBase;
+  });
+}
+
 export async function saveUserRole(user, role, shopName = "") {
   if (!user || !user.uid) return;
-  const normalizedRole = normalizeRole(role);
-  localStorage.setItem("naijaswap_role_" + user.uid, normalizedRole);
-  localStorage.setItem("naijaswap_last_role", normalizedRole);
-  if (normalizedRole === "dealer" && shopName) {
+  const requestedRole = normalizeRole(role);
+
+  // Guard: Once a user has signed up, their role is PERMANENT and IMMUTABLE.
+  // Check if this user already has an existing role in local storage or Firestore.
+  let establishedRole = null;
+  const cachedRole = localStorage.getItem("naijaswap_role_" + user.uid);
+  if (cachedRole) {
+    establishedRole = normalizeRole(cachedRole);
+  }
+
+  try {
+    const userDocRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userDocRef);
+    if (snap && snap.exists()) {
+      const data = snap.data();
+      const firestoreRole = normalizeRole(data.accountType || data.role);
+      if (firestoreRole) {
+        establishedRole = firestoreRole;
+      }
+    }
+  } catch (_) {}
+
+  // If a role is already established for this user, do not allow switching!
+  const finalRole = establishedRole || requestedRole;
+
+  localStorage.setItem("naijaswap_role_" + user.uid, finalRole);
+  localStorage.setItem("naijaswap_last_role", finalRole);
+  if (finalRole === "dealer" && shopName) {
     localStorage.setItem("naijaswap_shop_" + user.uid, shopName);
   }
 
-  logNaijaSwap("info", "Auth", `Saved role "${normalizedRole}" locally for ${user.uid} (${shopName || "no shop name"}).`);
+  logNaijaSwap("info", "Auth", `User ${user.uid} locked to permanent role "${finalRole}".`);
 
-  // Persist to Firestore asynchronously without blocking application flow
+  // Persist to Firestore asynchronously
   try {
     const userDocRef = doc(db, "users", user.uid);
     await setDoc(userDocRef, {
       uid: user.uid,
-      accountType: normalizedRole,
-      role: normalizedRole,
+      accountType: finalRole,
+      role: finalRole,
       email: user.email || "",
       displayName: user.displayName || "",
       phoneNumber: user.phoneNumber || "",
-      ...(shopName ? { shopName } : {})
+      ...(shopName && finalRole === "dealer" ? { shopName } : {})
     }, { merge: true });
-
-    // The deployed Auth onCreate trigger owns server-side profile creation.
-    // Do not call an optional HTTP function during profile or image updates.
   } catch (err) {
-    logNaijaSwap("warn", "Auth", `Firestore role sync failed (local cache active): ${err.message}`);
+    logNaijaSwap("warn", "Auth", `Firestore role sync note: ${err.message}`);
   }
 }
 
 export async function getUserRole(user) {
   if (!user || !user.uid) return DEFAULT_ROLE;
 
-  // 1. Check direct local role for this user UID
-  const cachedRole = localStorage.getItem("naijaswap_role_" + user.uid);
-  if (cachedRole && normalizeRole(cachedRole) === "dealer") {
-    logNaijaSwap("info", "Auth", `Resolved role from local storage: "dealer"`);
-    return "dealer";
-  }
-
-  // 2. Check pending role from signup
-  const pendingRole = localStorage.getItem("naijaswap_role_pending") || sessionStorage.getItem("pending_signup_role");
-  if (pendingRole && normalizeRole(pendingRole) === "dealer") {
-    localStorage.setItem("naijaswap_role_" + user.uid, "dealer");
-    localStorage.removeItem("naijaswap_role_pending");
-    sessionStorage.removeItem("pending_signup_role");
-    logNaijaSwap("info", "Auth", `Resolved role from pending signup: "dealer"`);
-    return "dealer";
-  }
-
-  // 3. Check if user is currently visiting dealer pages
-  const currentPath = window.location.pathname.toLowerCase();
-  if (
-    currentPath.endsWith("dealer-dashboard.html") ||
-    currentPath.endsWith("dealer-verification.html") ||
-    currentPath.endsWith("dealer-listings.html") ||
-    currentPath.endsWith("dealer-listing.html") ||
-    currentPath.endsWith("dealer-requests.html") ||
-    currentPath.endsWith("dealer-request.html")
-  ) {
-    localStorage.setItem("naijaswap_role_" + user.uid, "dealer");
-    logNaijaSwap("info", "Auth", `User authenticated on dealer portal. Setting role to "dealer".`);
-    saveUserRole(user, "dealer");
-    return "dealer";
-  }
-
-  // 4. Check Firestore user document with short 2s race timeout
+  // 1. Primary Source of Truth: Check Firestore user document
   try {
     const userRef = doc(db, "users", user.uid);
     const snapshot = await Promise.race([
       getDoc(userRef),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("Lookup timeout")), 2000))
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Lookup timeout")), ROLE_LOOKUP_TIMEOUT_MS))
     ]);
     if (snapshot && snapshot.exists()) {
       const data = snapshot.data();
       const storedRole = normalizeRole(data.accountType || data.role);
       if (data.shopName) localStorage.setItem("naijaswap_shop_" + user.uid, data.shopName);
       localStorage.setItem("naijaswap_role_" + user.uid, storedRole);
-      logNaijaSwap("info", "Auth", `Resolved role from Firestore: "${storedRole}"`);
+      localStorage.setItem("naijaswap_last_role", storedRole);
+      logNaijaSwap("info", "Auth", `Resolved permanent role from Firestore: "${storedRole}"`);
       return storedRole;
     }
   } catch (err) {
     logNaijaSwap("info", "Auth", `Firestore role lookup note: ${err.message}`);
   }
 
-  // 5. Fallback
-  return normalizeRole(cachedRole || DEFAULT_ROLE);
+  // 2. Direct local role cache for this specific UID
+  const cachedRole = localStorage.getItem("naijaswap_role_" + user.uid);
+  if (cachedRole) {
+    const norm = normalizeRole(cachedRole);
+    logNaijaSwap("info", "Auth", `Resolved permanent role from local cache: "${norm}"`);
+    return norm;
+  }
+
+  // 3. Check pending role from initial signup
+  const pendingRole = localStorage.getItem("naijaswap_role_pending") || sessionStorage.getItem("pending_signup_role");
+  if (pendingRole) {
+    const norm = normalizeRole(pendingRole);
+    localStorage.setItem("naijaswap_role_" + user.uid, norm);
+    localStorage.setItem("naijaswap_last_role", norm);
+    localStorage.removeItem("naijaswap_role_pending");
+    sessionStorage.removeItem("pending_signup_role");
+    logNaijaSwap("info", "Auth", `Resolved role from pending signup: "${norm}"`);
+    return norm;
+  }
+
+  // 4. Fallback default
+  return DEFAULT_ROLE;
+}
+
+export function isValidRedirectTarget(url) {
+  if (!url || typeof url !== "string") return false;
+  try {
+    const targetUrl = new URL(url, window.location.origin);
+    const path = targetUrl.pathname.toLowerCase().replace(/\/$/, "");
+    const lastSeg = path.split("/").pop() || "";
+    const base = lastSeg.replace(/\.html$/, "");
+    if (!base || ["login", "signup", "phone-auth"].includes(base)) {
+      return false;
+    }
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+export async function redirectUserAfterAuth(user) {
+  if (!user || !user.uid) return;
+  try {
+    const userRole = await getUserRole(user);
+    const redirect = sessionStorage.getItem("post_login_redirect");
+    sessionStorage.removeItem("post_login_redirect");
+
+    if (isValidRedirectTarget(redirect)) {
+      logNaijaSwap("info", "Auth", `Redirecting authenticated user to saved destination: ${redirect}`);
+      window.location.assign(redirect);
+      return;
+    }
+
+    const target = userRole === "dealer" ? "/dealer-dashboard.html" : "/dashboard.html";
+    logNaijaSwap("info", "Auth", `Redirecting authenticated ${userRole} to ${target}`);
+    console.log(`[NaijaSwap Auth] Redirecting ${user.uid} (${userRole}) to ${target}`);
+    window.location.assign(target);
+  } catch (err) {
+    console.error("[NaijaSwap Auth] Error during post-auth redirection:", err);
+    window.location.assign("/dashboard.html");
+  }
 }
 
 /* ==========================================================================
@@ -286,8 +328,14 @@ export function mapAuthError(error) {
       return "Phone authentication is not enabled in your Firebase Console. Please go to Authentication > Sign-in method in Firebase Console and enable Phone.";
     case "auth/invalid-app-credential":
     case "auth/app-not-authorized":
-    case "auth/unauthorized-domain":
-      return "Domain not authorized. If testing locally on http://127.0.0.1:5500, please add '127.0.0.1' to Firebase Console > Authentication > Settings > Authorized domains, or open http://localhost:5500 instead.";
+    case "auth/unauthorized-domain": {
+      const isLoopbackIp = typeof window !== "undefined" && window.location && window.location.hostname === "127.0.0.1";
+      if (isLoopbackIp) {
+        const switchUrl = window.location.href.replace("//127.0.0.1", "//localhost");
+        return `Domain <code>127.0.0.1</code> is not authorized by Firebase Auth.<br><a href="${switchUrl}" style="display:inline-block;margin-top:8px;padding:6px 14px;background:#38bdf8;color:#05080a;border-radius:6px;font-weight:700;text-decoration:none;">Switch to localhost:5500 &rarr;</a><br><small style="opacity:0.8;display:block;margin-top:6px;">Or add '127.0.0.1' in Firebase Console &gt; Authentication &gt; Settings &gt; Authorized domains.</small>`;
+      }
+      return `Domain (${window.location.hostname}) is not authorized in Firebase Console. Please add '${window.location.hostname}' to Firebase Console &gt; Authentication &gt; Settings &gt; Authorized domains.`;
+    }
     case "auth/billing-not-enabled":
       return "SMS quota exceeded or billing required for real numbers. Please use a test phone number configured in Firebase Console.";
     case "auth/quota-exceeded":
@@ -402,8 +450,8 @@ export function initLoginForm() {
 
       try {
         setButtonLoading(submitBtn, true, "Signing in...");
-        await signInWithEmailAndPassword(auth, email, password);
-        // Successful login: onAuthStateChanged will handle redirection
+        const userCred = await signInWithEmailAndPassword(auth, email, password);
+        await redirectUserAfterAuth(userCred.user);
       } catch (err) {
         setButtonLoading(submitBtn, false);
         showAuthAlert("loginAlert", mapAuthError(err));
@@ -415,10 +463,20 @@ export function initLoginForm() {
   if (googleBtn) {
     googleBtn.addEventListener("click", async () => {
       clearAuthAlert("loginAlert");
+      if (typeof window !== "undefined" && window.location && window.location.hostname === "127.0.0.1") {
+        const localUrl = new URL(window.location.href);
+        localUrl.hostname = "localhost";
+        window.location.replace(localUrl.href);
+        return;
+      }
       try {
         setButtonLoading(googleBtn, true, "Connecting to Google...");
-        await signInWithPopup(auth, googleProvider);
+        console.log("[NaijaSwap Auth] Triggering signInWithPopup...");
+        const result = await signInWithPopup(auth, googleProvider);
+        console.log("[NaijaSwap Auth] Google sign-in success, UID:", result.user?.uid);
+        await redirectUserAfterAuth(result.user);
       } catch (err) {
+        console.error("[NaijaSwap Auth] Google sign-in failed:", err.code, err.message);
         setButtonLoading(googleBtn, false);
         showAuthAlert("loginAlert", mapAuthError(err));
       }
@@ -608,6 +666,12 @@ export function initSignupForm() {
   if (googleBtn) {
     googleBtn.addEventListener("click", async () => {
       clearAuthAlert("signupAlert");
+      if (typeof window !== "undefined" && window.location && window.location.hostname === "127.0.0.1") {
+        const localUrl = new URL(window.location.href);
+        localUrl.hostname = "localhost";
+        window.location.replace(localUrl.href);
+        return;
+      }
       const selectedRole = roleInput?.value || sessionStorage.getItem("pending_signup_role") || "customer";
       const shopName = document.getElementById("signupShopName")?.value.trim();
 
@@ -791,8 +855,8 @@ export function initPhoneAuth() {
 
       try {
         setButtonLoading(verifyCodeBtn, true, "Verifying code...");
-        await confirmationResult.confirm(code);
-        // Successful phone verification: onAuthStateChanged will handle redirection
+        const result = await confirmationResult.confirm(code);
+        await redirectUserAfterAuth(result.user);
       } catch (err) {
         console.error("Firebase verifyCode error:", err);
         setButtonLoading(verifyCodeBtn, false);
@@ -859,19 +923,24 @@ export function initDashboard() {
 export function initRouteProtection() {
   printPriorSessionLogs();
 
-  const currentPath = window.location.pathname.toLowerCase();
-  const isLoginPage = currentPath.endsWith("login.html");
-  const isPhoneAuthPage = currentPath.endsWith("phone-auth.html");
-  const isAuthPage = isLoginPage || isPhoneAuthPage;
-  const isCustomerDash = currentPath.endsWith("dashboard.html");
-  const isDealerDash =
-    currentPath.endsWith("dealer-dashboard.html") ||
-    currentPath.endsWith("dealer-listings.html") ||
-    currentPath.endsWith("dealer-listing.html") ||
-    currentPath.endsWith("dealer-requests.html") ||
-    currentPath.endsWith("dealer-request.html");
-  const isAccountPage = currentPath.endsWith("account.html");
-  const isCustomerProtectedPage = currentPath.endsWith("my-swaps.html") || currentPath.endsWith("alerts.html");
+  const isLoginPage = isCurrentRoute("login") || !!document.getElementById("loginForm");
+  const isSignupPage = isCurrentRoute("signup") || !!document.getElementById("signupForm");
+  const isPhoneAuthPage = isCurrentRoute("phone-auth") || !!document.getElementById("sendCodeForm");
+  const isAuthPage = isLoginPage || isSignupPage || isPhoneAuthPage;
+
+  const isCustomerDash = isCurrentRoute("dashboard") || (!!document.getElementById("dashUserName") && !document.getElementById("dealerAuthDiagnostic"));
+  const isDealerDash = isCurrentRoute(
+    "dealer-dashboard",
+    "dealer-listings",
+    "dealer-listing",
+    "dealer-requests",
+    "dealer-request",
+    "dealer-verification",
+    "dealer-activities",
+    "dealer-activity"
+  ) || !!document.getElementById("dealerAuthDiagnostic");
+  const isAccountPage = isCurrentRoute("account");
+  const isCustomerProtectedPage = isCurrentRoute("my-swaps", "alerts");
   const isAnyDash = isCustomerDash || isDealerDash || isAccountPage || isCustomerProtectedPage;
 
   logNaijaSwap("info", "Auth", `Route initialized: ${window.location.pathname}`);
@@ -895,11 +964,6 @@ export function initRouteProtection() {
           phoneNumber: user.phoneNumber || "",
           photoURL: photo || null
         }));
-        localStorage.setItem("naijaswap_user", JSON.stringify({
-          uid: user.uid,
-          displayName: displayName,
-          email: user.email || ""
-        }));
       } catch (e) {}
 
       // Automatically update global header user pill
@@ -915,20 +979,21 @@ export function initRouteProtection() {
       }
 
       if (isAuthPage) {
-        const redirect = sessionStorage.getItem("post_login_redirect");
-        sessionStorage.removeItem("post_login_redirect");
-        if (redirect && !redirect.toLowerCase().endsWith("login.html") && !redirect.toLowerCase().endsWith("signup.html")) {
-          logNaijaSwap("info", "Auth", `Redirecting authenticated user to saved destination: ${redirect}`);
-          window.location.href = redirect;
-          return;
-        }
-        if (userRole === "dealer") {
-          logNaijaSwap("info", "Auth", "Redirecting authenticated dealer to dealer dashboard.");
-          window.location.href = "dealer-dashboard.html";
-        } else {
-          logNaijaSwap("info", "Auth", "Redirecting authenticated customer to customer dashboard.");
-          window.location.href = "dashboard.html";
-        }
+        await redirectUserAfterAuth(user);
+        return;
+      }
+
+      // STRICT ROLE ROUTE PROTECTION:
+      // Swappers cannot access dealer portal pages; dealers cannot access customer dashboard/swap flows
+      if (userRole === "customer" && isDealerDash) {
+        logNaijaSwap("warn", "Auth", `Access denied: Swapper account (${user.uid}) cannot access dealer portal (${window.location.pathname}). Redirecting to swapper dashboard.`);
+        window.location.replace("dashboard.html");
+        return;
+      }
+
+      if (userRole === "dealer" && (isCustomerDash || isCurrentRoute("my-swaps"))) {
+        logNaijaSwap("info", "Auth", `Dealer account (${user.uid}) redirected to store portal.`);
+        window.location.replace("dealer-dashboard.html");
         return;
       }
 
@@ -1024,9 +1089,11 @@ function updateLandingNavbar(user) {
   if (!authNavContainer) return;
 
   if (user) {
+    const userRole = localStorage.getItem("naijaswap_role_" + user.uid) || localStorage.getItem("naijaswap_last_role") || "customer";
+    const dashTarget = userRole === "dealer" ? "dealer-dashboard.html" : "dashboard.html";
     const displayName = user.displayName || (user.email ? user.email.split("@")[0] : "Account");
     authNavContainer.innerHTML = `
-      <a href="dashboard.html" class="nav-user-pill" title="View Account">
+      <a href="${dashTarget}" class="nav-user-pill" title="View Account">
         <span class="user-pill-dot"></span>
         <span class="user-pill-name">${displayName}</span>
       </a>

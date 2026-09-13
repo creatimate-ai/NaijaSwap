@@ -605,6 +605,9 @@
   <script type="module">
     import {
       auth,
+      db,
+      doc,
+      setDoc,
       onAuthStateChanged,
       updateProfile,
       signOut,
@@ -619,7 +622,8 @@
       showAuthAlert,
       clearAuthAlert,
       setButtonLoading,
-      saveUserRole
+      saveUserRole,
+      getUserRole
     } from './js/auth.js';
 
     import {
@@ -729,12 +733,8 @@
     function openModal(modal) { if (modal) modal.classList.add('active'); }
     function closeModal(modal) { if (modal) modal.classList.remove('active'); }
 
-    // Read initial role
-    const urlParams = new URLSearchParams(window.location.search);
-    const paramRole = urlParams.get('role');
-
+    // Permanent role resolution (URL overrides are strictly prohibited)
     function resolveRole(uid) {
-      if (paramRole && (paramRole === 'dealer' || paramRole === 'customer')) return paramRole;
       return getStoredRole(uid);
     }
 
@@ -972,11 +972,11 @@
     }
 
     // Auth state observer
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       currentUser = user;
 
       if (user) {
-        currentRole = resolveRole(user.uid);
+        currentRole = await getUserRole(user);
         if (currentRole === 'dealer') {
           renderDealerProfile(user);
         } else {
@@ -1218,6 +1218,10 @@
         showAuthAlert('editDealerAlert', 'Please log in before modifying store profile.');
         return;
       }
+      if (currentRole !== 'dealer') {
+        showAuthAlert('editDealerAlert', 'Unauthorized. Only verified dealer accounts can edit store profiles.');
+        return;
+      }
       const saveBtn = document.getElementById('saveDealerBtn');
       setButtonLoading(saveBtn, true, 'Saving store info...');
 
@@ -1268,13 +1272,19 @@
 
         localStorage.setItem('naijaswap_shop_' + uid, storeName);
         localStorage.setItem('naijaswap_phone_' + uid, phone);
-        localStorage.setItem('naijaswap_role_' + uid, 'dealer');
 
         if (currentUser) {
           if (contactPerson) {
             try { await updateProfile(currentUser, { displayName: contactPerson }); } catch (_) {}
           }
-          await saveUserRole(currentUser, 'dealer', storeName);
+          try {
+            const userDocRef = doc(db, 'users', uid);
+            await setDoc(userDocRef, {
+              shopName: storeName,
+              phoneNumber: phone,
+              displayName: contactPerson || currentUser.displayName || ''
+            }, { merge: true });
+          } catch (_) {}
         }
 
         setButtonLoading(saveBtn, false);

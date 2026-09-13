@@ -612,8 +612,6 @@
         // Mark status as pending review
         localStorage.setItem('naijaswap_dealer_status_' + uid, 'pending');
         localStorage.setItem('naijaswap_dealer_verified_' + uid, 'pending');
-        localStorage.setItem('naijaswap_role_' + uid, 'dealer');
-        localStorage.setItem('naijaswap_last_role', 'dealer');
         localStorage.setItem('naijaswap_last_uid', uid);
         if (data.businessName) localStorage.setItem('naijaswap_shop_' + uid, data.businessName);
 
@@ -825,14 +823,22 @@
 
     const cachedUid = (()=>{try{return localStorage.getItem('naijaswap_last_uid')||JSON.parse(localStorage.getItem('naijaswap_user')||'{}')?.uid;}catch(_){return null;}})();
     const cachedRole = cachedUid?(localStorage.getItem('naijaswap_role_'+cachedUid)||localStorage.getItem('naijaswap_last_role')||'customer'):'customer';
-    renderBottomNav(cachedRole);
-    if (cachedUid) initWizard(cachedUid);
+    if (cachedRole !== 'dealer') {
+      window.location.replace('dashboard.html');
+    } else {
+      renderBottomNav(cachedRole);
+      if (cachedUid) initWizard(cachedUid);
+    }
 
     onAuthStateChanged(auth, user => {
       currentUser = user;
       if (!user) { window.location.href='login.html'; return; }
       localStorage.setItem('naijaswap_last_uid', user.uid);
       const role = getStoredRole(user.uid);
+      if (role !== 'dealer') {
+        window.location.replace('dashboard.html');
+        return;
+      }
       renderBottomNav(role);
       if (!cachedUid) initWizard(user.uid);
     });

@@ -85,6 +85,7 @@
   <script type="module">
     import { auth, onAuthStateChanged } from './js/firebase-config.js';
     import { getStoredProfile, getStoredRole, isProfileComplete, getStoreMetrics, resolveMedia } from './js/profile.js';
+    import { getUserRole } from './js/auth.js';
 
     // Elements
     const moreBackBtn = document.getElementById('moreBackBtn');
@@ -101,20 +102,13 @@
     const moreMenuList = document.getElementById('moreMenuList');
     const bottomNavContainer = document.getElementById('bottomNavContainer');
 
-    // Determine initial role immediately to avoid any UI flash
-    const urlParams = new URLSearchParams(window.location.search);
-    const paramRole = urlParams.get('role');
-    
+    // Determine initial role from stored authentication state (URL overrides prohibited)
     function resolveInitialRole() {
-      if (paramRole && (paramRole === 'dealer' || paramRole === 'customer')) {
-        return paramRole;
-      }
       try {
         const lastUid = localStorage.getItem('naijaswap_last_uid');
         if (lastUid) {
           const direct = localStorage.getItem('naijaswap_role_' + lastUid);
           if (direct) return direct.toLowerCase();
-          if (localStorage.getItem('naijaswap_shop_' + lastUid)) return 'dealer';
         }
         const lastRole = localStorage.getItem('naijaswap_last_role');
         if (lastRole) return lastRole.toLowerCase();
@@ -222,19 +216,6 @@
           <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
         </a>
 
-        <!-- Hub Inspection & Admin Portal -->
-        <a href="admin.html" class="more-menu-item" id="menuAdminDesk">
-          <div class="more-item-left">
-            <div class="more-item-icon tint-emerald">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            </div>
-            <div class="more-item-texts">
-              <span class="more-item-title">Staff & Hub Inspection Portal</span>
-              <span class="more-item-sub">Physical diagnostics, KYC reviews & certificates</span>
-            </div>
-          </div>
-          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-        </a>
 
         <!-- 7. Partner Support -->
         <a href="support.html" class="more-menu-item" id="menuSupport">
@@ -326,19 +307,7 @@
 
 
 
-        <!-- Hub Inspection & Staff Desk -->
-        <a href="admin.html" class="more-menu-item" id="menuAdminDeskSwapper">
-          <div class="more-item-left">
-            <div class="more-item-icon tint-emerald">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            </div>
-            <div class="more-item-texts">
-              <span class="more-item-title">Staff & Hub Inspection Portal</span>
-              <span class="more-item-sub">Physical diagnostics, KYC reviews & certificates</span>
-            </div>
-          </div>
-          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-        </a>
+
 
         <!-- 6. Support -->
         <a href="support.html" class="more-menu-item" id="menuSupport">
@@ -475,12 +444,12 @@
     renderMorePage(currentRole);
 
     // Dynamic Auth listener to refine data
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const detectedRole = getStoredRole(user.uid);
-        renderMorePage(paramRole || detectedRole, user);
+        const detectedRole = await getUserRole(user);
+        renderMorePage(detectedRole, user);
       } else {
-        renderMorePage(paramRole || currentRole, null);
+        renderMorePage(currentRole, null);
       }
     });
 

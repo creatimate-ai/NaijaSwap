@@ -3,6 +3,13 @@
  * Uses Firebase Web SDK v12.19.0 (Modular)
  */
 
+// Auto-normalize 127.0.0.1 to localhost for Firebase Auth compatibility
+if (typeof window !== "undefined" && window.location && window.location.hostname === "127.0.0.1") {
+  const localUrl = new URL(window.location.href);
+  localUrl.hostname = "localhost";
+  window.location.replace(localUrl.href);
+}
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getFirestore, collection, doc, getDoc, getDocs, setDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { 

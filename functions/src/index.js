@@ -98,13 +98,16 @@ async function ensureUserDocument(uid, extraData = {}) {
   const userRef = db.collection('users').doc(uid);
   const snapshot = await userRef.get();
 
+  const existingRole = snapshot.exists ? (snapshot.data().role || snapshot.data().accountType) : null;
+  const roleToSet = existingRole ? normalizeRole(existingRole) : normalizeRole(extraData.role || 'customer');
+
   const baseData = {
     uid,
-    email: extraData.email || '',
-    displayName: extraData.displayName || '',
-    role: normalizeRole(extraData.role || 'customer'),
-    accountType: normalizeRole(extraData.role || 'customer'),
-    verificationStatus: extraData.verificationStatus || 'none',
+    email: extraData.email || (snapshot.exists ? snapshot.data().email || '' : ''),
+    displayName: extraData.displayName || (snapshot.exists ? snapshot.data().displayName || '' : ''),
+    role: roleToSet,
+    accountType: roleToSet,
+    verificationStatus: extraData.verificationStatus || (snapshot.exists ? snapshot.data().verificationStatus || 'none' : 'none'),
     createdAt: snapshot.exists ? snapshot.data().createdAt || FieldValue.serverTimestamp() : FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   };
@@ -181,6 +184,15 @@ exports.submitDealerVerification = functions.https.onCall(async (data, context) 
     );
   }
 
+  const userSnap = await db.collection('users').doc(uid).get();
+  const existingRole = userSnap.exists ? normalizeRole(userSnap.data().role || userSnap.data().accountType) : '';
+  if (existingRole !== 'dealer') {
+    throw new functions.https.HttpsError(
+      'permission-denied',
+      'Only registered store/dealer accounts are eligible to submit business verification.'
+    );
+  }
+
   const doc = {
     uid,
     storeName: payload.storeName || '',
@@ -201,8 +213,6 @@ exports.submitDealerVerification = functions.https.onCall(async (data, context) 
     createdAt: FieldValue.serverTimestamp()
   });
   await db.collection('users').doc(uid).set({
-    role: 'dealer',
-    accountType: 'dealer',
     verificationStatus: 'pending',
     updatedAt: FieldValue.serverTimestamp()
   }, { merge: true });

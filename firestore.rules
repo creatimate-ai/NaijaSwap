@@ -44,11 +44,9 @@ service cloud.firestore {
       allow create: if isOwner(uid)
         && request.resource.data.uid == uid
         && request.resource.data.email == request.auth.token.email
-        && (!('role' in request.resource.data) || request.resource.data.role == 'customer')
-        && (!('accountType' in request.resource.data) || request.resource.data.accountType == 'customer')
-        && (!('verificationStatus' in request.resource.data) || request.resource.data.verificationStatus == 'none')
-        && !('admin' in request.resource.data)
-        && !('isAdmin' in request.resource.data);
+        && (!('role' in request.resource.data) || request.resource.data.role in ['customer', 'dealer'])
+        && (!('accountType' in request.resource.data) || request.resource.data.accountType in ['customer', 'dealer'])
+        && (!('verificationStatus' in request.resource.data) || request.resource.data.verificationStatus in ['none', 'pending']);
       allow read: if isOwner(uid) || isAdmin();
       allow update: if isAdmin()
         || (isOwner(uid)
