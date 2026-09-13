@@ -3,6 +3,8 @@
 
 User-agent: *
 Allow: /
+Allow: /sitemap.xml
+Allow: /robots.txt
 Allow: /about.html
 Allow: /faq.html
 Allow: /store.html
