@@ -1536,6 +1536,14 @@
     // Initial render
     renderPhoneListings();
     updateMySwapsBadge();
+
+    // Check URL parameters for auto-opening swap modal
+    const dashParams = new URLSearchParams(window.location.search);
+    if (dashParams.get('action') === 'new') {
+      setTimeout(() => {
+        if (openConsumerSwapModalBtn) openConsumerSwapModalBtn.click();
+      }, 300);
+    }
   </script>
 </body>
 </html>

@@ -209,58 +209,36 @@ function getSwapperStepsHTML() {
       </div>
     </div>
 
-    <!-- STEP 3: CURRENT PHONE & LIVE VALUATION (FINAL STEP) -->
+    <!-- STEP 3: EXPLORE OR LIST PHONE (FINAL STEP) -->
     <div class="onboarding-step-panel" data-step="3">
-      <div class="onboarding-badge">📱 Step 3 of 3 &bull; Your Current Device</div>
-      <h2 class="onboarding-title">What phone do you currently use?</h2>
-      <p class="onboarding-subtitle">Select your Apple iPhone or Samsung Galaxy to calculate your trade-in value and view matching swaps.</p>
+      <div class="onboarding-badge">🚀 Step 3 of 3 &bull; Ready to Swap</div>
+      <h2 class="onboarding-title">How would you like to start?</h2>
+      <p class="onboarding-subtitle">Your contact details are saved! Choose whether to explore available phones or list your device to receive direct trade offers.</p>
 
-      <div class="onboarding-device-grid">
-        <div class="onboarding-form-group">
-          <label class="onboarding-label" for="obDeviceBrand">Brand</label>
-          <select class="onboarding-select" id="obDeviceBrand">
-            <option value="Apple">Apple (iPhone)</option>
-            <option value="Samsung">Samsung Galaxy</option>
-          </select>
-        </div>
+      <div class="onboarding-choice-container" style="display: flex; flex-direction: column; gap: 14px; margin: 22px 0 24px 0;">
+        <!-- Option 1: Let us know the phone you have (Redirects to proper listing page) -->
+        <button type="button" class="launch-card-btn highlight" id="btnStep3ListPhone">
+          <div class="launch-icon">📱</div>
+          <div class="launch-info">
+            <strong>Let us know the phone you have</strong>
+            <span>Upload photos, specs & condition to list your phone properly &rarr;</span>
+          </div>
+          <div class="launch-arrow">&rarr;</div>
+        </button>
 
-        <div class="onboarding-form-group">
-          <label class="onboarding-label" for="obDeviceModel">Model</label>
-          <select class="onboarding-select" id="obDeviceModel">
-            <!-- Populated dynamically: iPhone or Samsung -->
-          </select>
-        </div>
-
-        <div class="onboarding-form-group">
-          <label class="onboarding-label" for="obDeviceStorage">Storage</label>
-          <select class="onboarding-select" id="obDeviceStorage">
-            <option value="64GB">64GB</option>
-            <option value="128GB" selected>128GB</option>
-            <option value="256GB">256GB</option>
-            <option value="512GB">512GB</option>
-            <option value="1TB">1TB</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Live Valuation Preview Card -->
-      <div class="onboarding-valuation-card" id="obValuationCard">
-        <div class="val-header">
-          <span class="val-tag">Estimated Trade-In Value</span>
-          <span class="val-grade">Grade A / Excellent</span>
-        </div>
-        <div class="val-amount" id="obValuationAmount">₦270,000</div>
-        <div class="val-teaser" id="obValuationTeaser">
-          💡 You can upgrade to a verified <strong>iPhone 13 (128GB)</strong> for approx. <strong>₦230,000</strong> top-up!
-        </div>
+        <!-- Option 2: Explore phones -->
+        <button type="button" class="launch-card-btn" id="btnStep3Explore">
+          <div class="launch-icon">🔍</div>
+          <div class="launch-info">
+            <strong>Explore Phones</strong>
+            <span>Browse available iPhones and Samsung devices on the marketplace</span>
+          </div>
+          <div class="launch-arrow">&rarr;</div>
+        </button>
       </div>
 
       <div class="onboarding-actions-row">
         <button type="button" class="btn-onboarding-secondary" id="btnStep3Back">&larr; Back</button>
-        <button type="button" class="btn-onboarding-primary" id="btnStep3Next">
-          <span>Let us know the phone you have</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-        </button>
       </div>
     </div>
   `;
@@ -473,70 +451,17 @@ function setupOnboardingWizardLogic(modal, user, role) {
     const btnStep2Back = modal.querySelector('#btnStep2Back');
     const btnStep2Next = modal.querySelector('#btnStep2Next');
     const btnStep3Back = modal.querySelector('#btnStep3Back');
-    const btnStep3Next = modal.querySelector('#btnStep3Next');
+    const btnStep3ListPhone = modal.querySelector('#btnStep3ListPhone');
+    const btnStep3Explore = modal.querySelector('#btnStep3Explore');
 
     const inputName = modal.querySelector('#obFullName');
     const inputWhatsApp = modal.querySelector('#obWhatsApp');
-
-    const selectBrand = modal.querySelector('#obDeviceBrand');
-    const selectModel = modal.querySelector('#obDeviceModel');
-    const selectStorage = modal.querySelector('#obDeviceStorage');
-
-    const valAmount = modal.querySelector('#obValuationAmount');
-    const valTeaser = modal.querySelector('#obValuationTeaser');
 
     // Pre-fill existing user info
     if (inputName && user && user.displayName) inputName.value = user.displayName;
     if (inputWhatsApp && user && user.phoneNumber) {
       inputWhatsApp.value = user.phoneNumber.replace(/^\+234/, '').replace(/^0/, '');
     }
-
-    // Populate Models for selected Brand (Apple and Samsung only)
-    function updateModelsList() {
-      if (!selectBrand || !selectModel) return;
-      const brand = selectBrand.value;
-      const models = BRANDS_AND_MODELS[brand] || (brand === 'Apple' ? [
-        'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15',
-        'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14',
-        'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13', 'iPhone 13 mini',
-        'iPhone 12 Pro Max', 'iPhone 12 Pro', 'iPhone 12', 'iPhone 12 mini',
-        'iPhone 11 Pro Max', 'iPhone 11 Pro', 'iPhone 11',
-        'iPhone XS Max', 'iPhone XS', 'iPhone XR', 'iPhone X'
-      ] : [
-        'Galaxy S24 Ultra', 'Galaxy S24+', 'Galaxy S24',
-        'Galaxy S23 Ultra', 'Galaxy S23+', 'Galaxy S23',
-        'Galaxy S22 Ultra', 'Galaxy S22+', 'Galaxy S22',
-        'Galaxy S21 Ultra', 'Galaxy S21+', 'Galaxy S21',
-        'Galaxy Z Fold 5', 'Galaxy Z Flip 5',
-        'Galaxy Note 20 Ultra'
-      ]);
-      selectModel.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
-      updateValuationPreview();
-    }
-
-    function updateValuationPreview() {
-      if (!selectBrand || !selectModel || !selectStorage || !valAmount) return;
-      const brand = selectBrand.value;
-      const model = selectModel.value;
-      const storage = selectStorage.value;
-
-      const price = NaijaSwapData.calculateMarketPrice(brand, model, storage, 'Grade A - Pristine', 'Pre-Owned');
-      valAmount.textContent = `₦${price.toLocaleString()}`;
-
-      // Calculate sample upgrade teaser
-      const targetModel = brand === 'Apple' ? 'iPhone 13 (128GB)' : 'Galaxy S23 (128GB)';
-      const targetPrice = brand === 'Apple' ? 500000 : 540000;
-      const topUpDiff = Math.max(30000, targetPrice - price);
-
-      if (valTeaser) {
-        valTeaser.innerHTML = `💡 You can upgrade to a verified <strong>${targetModel}</strong> for approx. <strong>₦${topUpDiff.toLocaleString()}</strong> top-up!`;
-      }
-    }
-
-    if (selectBrand) selectBrand.addEventListener('change', updateModelsList);
-    if (selectModel) selectModel.addEventListener('change', updateValuationPreview);
-    if (selectStorage) selectStorage.addEventListener('change', updateValuationPreview);
-    updateModelsList();
 
     // Step 1 -> Step 2
     if (btnStep1Next) {
@@ -546,47 +471,20 @@ function setupOnboardingWizardLogic(modal, user, role) {
     // Step 2 -> Back & Next
     if (btnStep2Back) btnStep2Back.addEventListener('click', () => goToStep(1));
     if (btnStep2Next) {
-      btnStep2Next.addEventListener('click', () => {
+      btnStep2Next.addEventListener('click', async () => {
         const rawPhone = (inputWhatsApp?.value || '').replace(/\D/g, '');
         if (rawPhone.length < 10) {
           alert('Please enter a valid Nigerian WhatsApp number (at least 10 digits).');
           inputWhatsApp?.focus();
           return;
         }
-        goToStep(3);
-      });
-    }
 
-    // Step 3 -> Final Step ("Let us know the phone you have" -> redirects to main phone listings)
-    if (btnStep3Back) btnStep3Back.addEventListener('click', () => goToStep(2));
-    if (btnStep3Next) {
-      btnStep3Next.addEventListener('click', async () => {
-        const brand = selectBrand?.value || 'Apple';
-        const model = selectModel?.value || 'iPhone 11';
-        const storage = selectStorage?.value || '128GB';
         const fullName = inputName?.value.trim() || (user && user.displayName) || 'Swapper';
-        const rawPhone = (inputWhatsApp?.value || '').replace(/\D/g, '');
         const phone = rawPhone.startsWith('234') ? `+${rawPhone}` : `+234${rawPhone.replace(/^0/, '')}`;
-        const price = NaijaSwapData.calculateMarketPrice(brand, model, storage, 'Grade A - Pristine', 'Pre-Owned');
 
-        // Save locally
+        // Save contact info locally
         localStorage.setItem('naijaswap_user_whatsapp_' + uid, phone);
-        localStorage.setItem('naijaswap_user_device_' + uid, JSON.stringify({ brand, model, storage, estimatedValue: price }));
-
-        // Register device in NaijaSwapData so trade-in calculators on phone-details.html pick it up immediately
-        if (window.NaijaSwapData && typeof NaijaSwapData.addUserDevice === 'function') {
-          try {
-            NaijaSwapData.addUserDevice(uid, {
-              brand,
-              model,
-              storageCapacity: storage,
-              condition: 'Grade A - Pristine',
-              batteryHealth: '88%+',
-              estimatedValue: price,
-              contactPhone: phone
-            });
-          } catch (_) {}
-        }
+        localStorage.setItem('naijaswap_phone_' + uid, phone);
 
         // Update profile in local cache
         try {
@@ -596,14 +494,12 @@ function setupOnboardingWizardLogic(modal, user, role) {
           localStorage.setItem('naijaswap_user', JSON.stringify(userObj));
         } catch (_) {}
 
-        // Asynchronously sync with Firestore
+        // Asynchronously sync contact with Firestore
         if (uid) {
           try {
-            await setDoc(doc(db, 'users', uid), {
+            setDoc(doc(db, 'users', uid), {
               displayName: fullName,
               phoneNumber: phone,
-              currentDevice: { brand, model, storage, estimatedValue: price },
-              onboardingCompleted: true,
               updatedAt: new Date().toISOString()
             }, { merge: true });
           } catch (err) {
@@ -611,11 +507,47 @@ function setupOnboardingWizardLogic(modal, user, role) {
           }
         }
 
-        setOnboardingStatus(uid, true);
-        closeOnboardingModal();
-        renderGettingStartedWidget(user, role);
+        goToStep(3);
+      });
+    }
 
-        // Redirect / scroll to main phone listing page
+    // Step 3 Actions
+    if (btnStep3Back) btnStep3Back.addEventListener('click', () => goToStep(2));
+
+    async function finishSwapperOnboarding() {
+      setOnboardingStatus(uid, true);
+      closeOnboardingModal();
+      renderGettingStartedWidget(user, role);
+
+      if (uid) {
+        try {
+          await setDoc(doc(db, 'users', uid), {
+            onboardingCompleted: true,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        } catch (err) {
+          console.warn('[NaijaSwap Onboarding] Firestore completion note:', err.message);
+        }
+      }
+    }
+
+    // Button: "Let us know the phone you have" -> Redirect to proper listing page
+    if (btnStep3ListPhone) {
+      btnStep3ListPhone.addEventListener('click', async () => {
+        await finishSwapperOnboarding();
+        if (window.location.pathname.toLowerCase().includes('my-swaps')) {
+          const consumerModal = document.getElementById('consumerSwapModal');
+          if (consumerModal) consumerModal.classList.add('active');
+        } else {
+          window.location.href = 'my-swaps.html?action=new';
+        }
+      });
+    }
+
+    // Button: "Explore Phones" -> Scroll to phonesGrid or redirect to dashboard.html#phonesGrid
+    if (btnStep3Explore) {
+      btnStep3Explore.addEventListener('click', async () => {
+        await finishSwapperOnboarding();
         if (window.location.pathname.toLowerCase().includes('dashboard')) {
           const phonesSection = document.getElementById('phonesGrid') || document.querySelector('.phones-grid') || document.querySelector('.search-container');
           if (phonesSection) {
@@ -804,8 +736,8 @@ export function renderGettingStartedWidget(user, role = 'customer') {
           <div class="gs-task-item ${hasDevice ? 'done' : 'pending'}" id="taskItemDevice">
             <div class="gs-task-check">${hasDevice ? '✓' : '3'}</div>
             <div class="gs-task-info">
-              <span class="gs-task-label">Set Your Current Device</span>
-              <span class="gs-task-sub">${hasDevice ? 'Device saved for trade-in' : 'Click to calculate valuation'}</span>
+              <span class="gs-task-label">List Your Phone to Swap</span>
+              <span class="gs-task-sub">${hasDevice ? 'Phone listed for swap' : 'Click to list phone with photos & specs'}</span>
             </div>
           </div>
 
@@ -835,7 +767,7 @@ export function renderGettingStartedWidget(user, role = 'customer') {
     });
 
     container.querySelector('#taskItemDevice')?.addEventListener('click', () => {
-      openOnboardingModal(user, 'customer');
+      window.location.href = 'my-swaps.html?action=new';
     });
 
     container.querySelector('#taskItemFirstSwap')?.addEventListener('click', () => {
