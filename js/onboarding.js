@@ -119,8 +119,10 @@ function createOnboardingModalDOM(role = 'customer') {
           <span class="step-dot" data-step="2">2</span>
           <span class="step-line"></span>
           <span class="step-dot" data-step="3">3</span>
+          ${isDealer ? `
           <span class="step-line"></span>
           <span class="step-dot" data-step="4">4</span>
+          ` : ''}
         </div>
         <button type="button" class="onboarding-close-btn" id="closeOnboardingBtn" aria-label="Close guide">&times;</button>
       </div>
@@ -139,23 +141,19 @@ function createOnboardingModalDOM(role = 'customer') {
  * HTML Templates for Swapper Steps
  */
 function getSwapperStepsHTML() {
-  const hubOptions = TRADING_HUBS.map(h => 
-    `<option value="${h.id}">${h.label}</option>`
-  ).join('');
-
   return `
     <!-- STEP 1: WELCOME & TRUST PROMISE -->
     <div class="onboarding-step-panel active" data-step="1">
       <div class="onboarding-badge">🇳🇬 Nigeria's Verified Smartphone Exchange</div>
       <h2 class="onboarding-title">Welcome to <span class="brand-text">Naija<span>Swap</span></span></h2>
-      <p class="onboarding-subtitle">Upgrade your phone safely without fear of scams, fake devices, or unfair valuations.</p>
+      <p class="onboarding-subtitle">Upgrade your iPhone or Samsung Galaxy safely with verified stores across Nigeria without fear of scams or unfair valuations.</p>
 
       <div class="onboarding-features-list">
         <div class="feature-item">
           <div class="feature-icon icon-emerald">🏬</div>
           <div class="feature-text">
-            <strong>Verified Store Hubs Only</strong>
-            <p>Every swap partner is vetted with physical stalls at Computer Village, Banex, and Garrison.</p>
+            <strong>Verified Store Partners Only</strong>
+            <p>Every swap partner is vetted with physical stores and verified device inventory.</p>
           </div>
         </div>
         <div class="feature-item">
@@ -169,7 +167,7 @@ function getSwapperStepsHTML() {
           <div class="feature-icon icon-gold">🛡️</div>
           <div class="feature-text">
             <strong>Safe In-Person Inspection</strong>
-            <p>Test batteries, verify IMEI & iCloud/Google lock removal, and complete the exchange face-to-face.</p>
+            <p>Test batteries, verify IMEI & iCloud/Google lock removal, and complete the exchange safely.</p>
           </div>
         </div>
       </div>
@@ -182,19 +180,11 @@ function getSwapperStepsHTML() {
       </div>
     </div>
 
-    <!-- STEP 2: LOCATION & WHATSAPP CONTACT -->
+    <!-- STEP 2: NAME & WHATSAPP CONTACT -->
     <div class="onboarding-step-panel" data-step="2">
-      <div class="onboarding-badge">📍 Step 2 of 4 &bull; Location & Hub</div>
-      <h2 class="onboarding-title">Where do you want to swap?</h2>
-      <p class="onboarding-subtitle">Pick your closest trading hub and provide your WhatsApp contact so verified dealers can coordinate device viewings.</p>
-
-      <div class="onboarding-form-group">
-        <label class="onboarding-label" for="obPreferredHub">Your Preferred Trading Hub</label>
-        <select class="onboarding-select" id="obPreferredHub">
-          ${hubOptions}
-        </select>
-        <span class="onboarding-hint">Marketplace listings will automatically filter to verified stores in this area.</span>
-      </div>
+      <div class="onboarding-badge">👤 Step 2 of 3 &bull; Contact Info</div>
+      <h2 class="onboarding-title">Let's connect your WhatsApp</h2>
+      <p class="onboarding-subtitle">Provide your WhatsApp contact so verified stores can coordinate swap trade offers and appointments with you.</p>
 
       <div class="onboarding-form-group">
         <label class="onboarding-label" for="obFullName">Your Full Name</label>
@@ -219,11 +209,11 @@ function getSwapperStepsHTML() {
       </div>
     </div>
 
-    <!-- STEP 3: CURRENT PHONE & LIVE VALUATION -->
+    <!-- STEP 3: CURRENT PHONE & LIVE VALUATION (FINAL STEP) -->
     <div class="onboarding-step-panel" data-step="3">
-      <div class="onboarding-badge">📱 Step 3 of 4 &bull; Your Current Device</div>
+      <div class="onboarding-badge">📱 Step 3 of 3 &bull; Your Current Device</div>
       <h2 class="onboarding-title">What phone do you currently use?</h2>
-      <p class="onboarding-subtitle">Tell us what you have so we can calculate your trade-in power and show instant upgrade options.</p>
+      <p class="onboarding-subtitle">Select your Apple iPhone or Samsung Galaxy to calculate your trade-in value and view matching swaps.</p>
 
       <div class="onboarding-device-grid">
         <div class="onboarding-form-group">
@@ -231,17 +221,13 @@ function getSwapperStepsHTML() {
           <select class="onboarding-select" id="obDeviceBrand">
             <option value="Apple">Apple (iPhone)</option>
             <option value="Samsung">Samsung Galaxy</option>
-            <option value="Google">Google Pixel</option>
-            <option value="Tecno">Tecno</option>
-            <option value="Infinix">Infinix</option>
-            <option value="Xiaomi">Xiaomi / Redmi</option>
           </select>
         </div>
 
         <div class="onboarding-form-group">
           <label class="onboarding-label" for="obDeviceModel">Model</label>
           <select class="onboarding-select" id="obDeviceModel">
-            <!-- Populated dynamically based on brand -->
+            <!-- Populated dynamically: iPhone or Samsung -->
           </select>
         </div>
 
@@ -265,45 +251,14 @@ function getSwapperStepsHTML() {
         </div>
         <div class="val-amount" id="obValuationAmount">₦270,000</div>
         <div class="val-teaser" id="obValuationTeaser">
-          💡 You can upgrade to an <strong>iPhone 13 (128GB)</strong> for approx. <strong>₦230,000</strong> top-up!
+          💡 You can upgrade to a verified <strong>iPhone 13 (128GB)</strong> for approx. <strong>₦230,000</strong> top-up!
         </div>
       </div>
 
       <div class="onboarding-actions-row">
         <button type="button" class="btn-onboarding-secondary" id="btnStep3Back">&larr; Back</button>
         <button type="button" class="btn-onboarding-primary" id="btnStep3Next">
-          <span>Save & Complete</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- STEP 4: ALL SET CELEBRATION -->
-    <div class="onboarding-step-panel" data-step="4">
-      <div class="onboarding-success-icon">🎉</div>
-      <h2 class="onboarding-title">You're ready to swap!</h2>
-      <p class="onboarding-subtitle" id="obSuccessSummary">
-        Your profile is all set with your preferred hub and saved device. When you propose a swap, your device details will be pre-filled automatically.
-      </p>
-
-      <div class="onboarding-summary-box">
-        <div class="summary-row">
-          <span class="summary-lbl">Trading Hub:</span>
-          <span class="summary-val" id="sumHub">Lagos — Ikeja (Computer Village)</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-lbl">Saved Device:</span>
-          <span class="summary-val" id="sumDevice">Apple iPhone 11 (128GB)</span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-lbl">Est. Trade-In Value:</span>
-          <span class="summary-val text-emerald" id="sumValue">₦270,000</span>
-        </div>
-      </div>
-
-      <div class="onboarding-actions-row">
-        <button type="button" class="btn-onboarding-primary full-width" id="btnFinishOnboarding">
-          <span>Explore Verified Swaps Now</span>
+          <span>Let us know the phone you have</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </button>
       </div>
@@ -519,11 +474,9 @@ function setupOnboardingWizardLogic(modal, user, role) {
     const btnStep2Next = modal.querySelector('#btnStep2Next');
     const btnStep3Back = modal.querySelector('#btnStep3Back');
     const btnStep3Next = modal.querySelector('#btnStep3Next');
-    const btnFinish = modal.querySelector('#btnFinishOnboarding');
 
     const inputName = modal.querySelector('#obFullName');
     const inputWhatsApp = modal.querySelector('#obWhatsApp');
-    const selectHub = modal.querySelector('#obPreferredHub');
 
     const selectBrand = modal.querySelector('#obDeviceBrand');
     const selectModel = modal.querySelector('#obDeviceModel');
@@ -538,13 +491,25 @@ function setupOnboardingWizardLogic(modal, user, role) {
       inputWhatsApp.value = user.phoneNumber.replace(/^\+234/, '').replace(/^0/, '');
     }
 
-    // Populate Models for selected Brand
+    // Populate Models for selected Brand (Apple and Samsung only)
     function updateModelsList() {
       if (!selectBrand || !selectModel) return;
       const brand = selectBrand.value;
-      const models = BRANDS_AND_MODELS[brand] || [
-        'iPhone 15 Pro Max', 'iPhone 15', 'iPhone 14 Pro', 'iPhone 13', 'iPhone 12', 'iPhone 11'
-      ];
+      const models = BRANDS_AND_MODELS[brand] || (brand === 'Apple' ? [
+        'iPhone 15 Pro Max', 'iPhone 15 Pro', 'iPhone 15 Plus', 'iPhone 15',
+        'iPhone 14 Pro Max', 'iPhone 14 Pro', 'iPhone 14 Plus', 'iPhone 14',
+        'iPhone 13 Pro Max', 'iPhone 13 Pro', 'iPhone 13', 'iPhone 13 mini',
+        'iPhone 12 Pro Max', 'iPhone 12 Pro', 'iPhone 12', 'iPhone 12 mini',
+        'iPhone 11 Pro Max', 'iPhone 11 Pro', 'iPhone 11',
+        'iPhone XS Max', 'iPhone XS', 'iPhone XR', 'iPhone X'
+      ] : [
+        'Galaxy S24 Ultra', 'Galaxy S24+', 'Galaxy S24',
+        'Galaxy S23 Ultra', 'Galaxy S23+', 'Galaxy S23',
+        'Galaxy S22 Ultra', 'Galaxy S22+', 'Galaxy S22',
+        'Galaxy S21 Ultra', 'Galaxy S21+', 'Galaxy S21',
+        'Galaxy Z Fold 5', 'Galaxy Z Flip 5',
+        'Galaxy Note 20 Ultra'
+      ]);
       selectModel.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
       updateValuationPreview();
     }
@@ -592,11 +557,10 @@ function setupOnboardingWizardLogic(modal, user, role) {
       });
     }
 
-    // Step 3 -> Back & Next (Save Data)
+    // Step 3 -> Final Step ("Let us know the phone you have" -> redirects to main phone listings)
     if (btnStep3Back) btnStep3Back.addEventListener('click', () => goToStep(2));
     if (btnStep3Next) {
       btnStep3Next.addEventListener('click', async () => {
-        const hub = selectHub?.value || 'Ikeja, Lagos';
         const brand = selectBrand?.value || 'Apple';
         const model = selectModel?.value || 'iPhone 11';
         const storage = selectStorage?.value || '128GB';
@@ -606,7 +570,6 @@ function setupOnboardingWizardLogic(modal, user, role) {
         const price = NaijaSwapData.calculateMarketPrice(brand, model, storage, 'Grade A - Pristine', 'Pre-Owned');
 
         // Save locally
-        localStorage.setItem('naijaswap_default_location', hub);
         localStorage.setItem('naijaswap_user_whatsapp_' + uid, phone);
         localStorage.setItem('naijaswap_user_device_' + uid, JSON.stringify({ brand, model, storage, estimatedValue: price }));
 
@@ -618,21 +581,12 @@ function setupOnboardingWizardLogic(modal, user, role) {
           localStorage.setItem('naijaswap_user', JSON.stringify(userObj));
         } catch (_) {}
 
-        // Populate summary box in Step 4
-        const sumHub = modal.querySelector('#sumHub');
-        const sumDevice = modal.querySelector('#sumDevice');
-        const sumValue = modal.querySelector('#sumValue');
-        if (sumHub) sumHub.textContent = selectHub?.selectedOptions[0]?.text || hub;
-        if (sumDevice) sumDevice.textContent = `${brand} ${model} (${storage})`;
-        if (sumValue) sumValue.textContent = `₦${price.toLocaleString()}`;
-
         // Asynchronously sync with Firestore
         if (uid) {
           try {
             await setDoc(doc(db, 'users', uid), {
               displayName: fullName,
               phoneNumber: phone,
-              preferredHub: hub,
               currentDevice: { brand, model, storage, estimatedValue: price },
               onboardingCompleted: true,
               updatedAt: new Date().toISOString()
@@ -643,25 +597,18 @@ function setupOnboardingWizardLogic(modal, user, role) {
         }
 
         setOnboardingStatus(uid, true);
-        goToStep(4);
-      });
-    }
-
-    // Step 4 -> Finish & Apply to Dashboard
-    if (btnFinish) {
-      btnFinish.addEventListener('click', () => {
         closeOnboardingModal();
-        setOnboardingStatus(uid, true);
-
-        // Auto-select location on marketplace if filter exists
-        const locSelect = document.getElementById('filterLocation');
-        const chosenHub = selectHub?.value || 'Ikeja, Lagos';
-        if (locSelect) {
-          locSelect.value = chosenHub;
-          locSelect.dispatchEvent(new Event('change'));
-        }
-
         renderGettingStartedWidget(user, role);
+
+        // Redirect / scroll to main phone listing page
+        if (window.location.pathname.toLowerCase().includes('dashboard')) {
+          const phonesSection = document.getElementById('phonesGrid') || document.querySelector('.phones-grid') || document.querySelector('.search-container');
+          if (phonesSection) {
+            phonesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        } else {
+          window.location.href = 'dashboard.html#phonesGrid';
+        }
       });
     }
 
@@ -805,7 +752,7 @@ export function renderGettingStartedWidget(user, role = 'customer') {
               <span class="gs-badge">⚡ Quick Start</span>
               <h3 class="gs-title">Setup your Swapper Profile (${completedTasks}/${totalTasks} completed)</h3>
             </div>
-            <p class="gs-subtitle">Complete these quick steps to get verified swap proposals from stores in your city.</p>
+            <p class="gs-subtitle">Complete these quick steps to get verified swap proposals from stores.</p>
           </div>
           <div class="gs-actions-right">
             <button type="button" class="btn-gs-tour" id="btnRestartSwapperGuide">
@@ -834,8 +781,8 @@ export function renderGettingStartedWidget(user, role = 'customer') {
           <div class="gs-task-item ${hasPhone ? 'done' : 'pending'}" id="taskItemWhatsApp">
             <div class="gs-task-check">${hasPhone ? '✓' : '2'}</div>
             <div class="gs-task-info">
-              <span class="gs-task-label">Trading Hub & WhatsApp</span>
-              <span class="gs-task-sub">${hasPhone ? 'Connected' : 'Click to add location & contact'}</span>
+              <span class="gs-task-label">Add WhatsApp Contact</span>
+              <span class="gs-task-sub">${hasPhone ? 'Connected' : 'Click to add WhatsApp number'}</span>
             </div>
           </div>
 

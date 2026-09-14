@@ -1061,13 +1061,6 @@
 
         // Initialize User Onboarding & Getting Started Checklist
         initOnboarding(user, 'customer');
-
-        // Apply saved preferred location to filter if present
-        const savedLocation = localStorage.getItem('naijaswap_default_location');
-        if (savedLocation && filterLocation && filterLocation.value === 'All') {
-          filterLocation.value = savedLocation;
-          renderPhoneListings();
-        }
       }
     };
 
