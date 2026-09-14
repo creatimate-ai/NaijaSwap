@@ -100,103 +100,24 @@
       </div>
     </div>
 
-    <!-- Horizontally Scrollable Brand Filters -->
+    <!-- Horizontally Scrollable Brand Filters & Filter Trigger -->
     <div class="brand-chips-row" role="tablist" aria-label="Filter by brand">
       <button type="button" class="brand-chip active" data-brand="All">Apple & Samsung</button>
       <button type="button" class="brand-chip" data-brand="iPhone">iPhone</button>
       <button type="button" class="brand-chip" data-brand="Samsung">Samsung</button>
-      <button type="button" class="brand-chip" id="toggleFilterPanelBtn" style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+
+      <!-- Quick Reset Pill (Shows when non-brand filters are applied) -->
+      <button type="button" class="brand-chip quick-reset-chip" id="quickResetChip" style="display: none;" title="Reset all filters">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <span>Reset</span>
+      </button>
+
+      <!-- Filter Modal Trigger Button -->
+      <button type="button" class="brand-chip brand-chip-filter" id="toggleFilterPanelBtn" aria-label="Open filter settings" style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
         <span>Filter</span>
+        <span class="filter-count-badge" id="filterCountBadge" style="display: none;">0</span>
       </button>
-    </div>
-
-    <!-- Collapsible Advanced Filter Panel -->
-    <div id="advancedFilterPanel" style="display: none; padding: 20px; margin-bottom: 20px; background: rgba(7, 12, 17, 0.7); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); transition: max-height 0.3s ease-out; overflow: hidden;">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
-        <div class="form-group">
-          <label class="form-label" for="panelSearchInput">Model Search</label>
-          <input type="text" id="panelSearchInput" class="form-input" placeholder="Search models...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Price Range (₦)</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="number" id="panelMinPrice" class="form-input" placeholder="Min" min="0">
-            <input type="number" id="panelMaxPrice" class="form-input" placeholder="Max" min="0">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="panelCondition">Condition</label>
-          <select id="panelCondition" class="form-select">
-            <option value="Any">Any</option>
-            <option value="Brand New">Brand New</option>
-            <option value="Like New">Like New / Excellent</option>
-            <option value="Grade A">Grade A</option>
-            <option value="Grade B">Grade B / Good</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="panelStorage">Storage</label>
-          <select id="panelStorage" class="form-select">
-            <option value="Any">Any</option>
-            <option value="64GB">64GB</option>
-            <option value="128GB">128GB</option>
-            <option value="256GB">256GB</option>
-            <option value="512GB">512GB</option>
-            <option value="1TB">1TB</option>
-          </select>
-        </div>
-        <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 24px;">
-          <input type="checkbox" id="panelSwapAllowed" style="width: 18px; height: 18px;">
-          <label class="form-label" for="panelSwapAllowed" style="margin-bottom: 0;">Swap Allowed</label>
-        </div>
-      </div>
-      <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
-        <button type="button" class="btn-reset-filters" id="panelClearFiltersBtn">
-          Clear Filters
-        </button>
-      </div>
-    </div>
-
-    <!-- Basic Clean Filter Controls -->
-    <div class="filter-bar">
-      <div class="filter-selects-group">
-        <select class="filter-select" id="filterBrand" aria-label="Filter by brand select">
-          <option value="All">Apple & Samsung</option>
-          <option value="Apple">Apple iPhone</option>
-          <option value="Samsung">Samsung Galaxy</option>
-        </select>
-
-        <select class="filter-select" id="filterStorage" aria-label="Filter by storage">
-          <option value="All">All Storage</option>
-          <option value="64GB">64GB</option>
-          <option value="128GB">128GB</option>
-          <option value="256GB">256GB</option>
-          <option value="512GB">512GB</option>
-          <option value="1TB">1TB</option>
-        </select>
-
-        <select class="filter-select" id="filterCondition" aria-label="Filter by condition">
-          <option value="All">All Conditions</option>
-          <option value="Brand New">Brand New Sealed</option>
-          <option value="Excellent">Excellent (Grade A)</option>
-          <option value="Very Good">Very Good</option>
-          <option value="Good">Good (Grade B)</option>
-        </select>
-
-        <select class="filter-select" id="filterLocation" aria-label="Filter by location">
-          <option value="All">All Locations</option>
-          <option value="Ikeja, Lagos">Ikeja (Computer Village)</option>
-          <option value="Lekki, Lagos">Lekki / Victoria Island</option>
-          <option value="Abuja">Abuja (Banex Plaza)</option>
-          <option value="Port Harcourt">Port Harcourt (Garrison)</option>
-        </select>
-
-        <button type="button" class="btn-reset-filters" id="resetFiltersBtn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-          <span>Reset</span>
-        </button>
-      </div>
     </div>
 
     <!-- Phone Listings Grid (Main Focus of Swapper Dashboard) -->
@@ -557,6 +478,99 @@
   </div>
 
   <!-- ==========================================================================
+       MODAL: FILTERS BOTTOM SHEET / DIALOG
+       ========================================================================== -->
+  <div class="modal-backdrop" id="filterModal" role="dialog" aria-modal="true" aria-labelledby="filterModalTitle">
+    <div class="modal-card modal-card-filter">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2.2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+          <h2 class="modal-title" id="filterModalTitle">Filter Listings</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeFilterModal" aria-label="Close filters">&times;</button>
+      </div>
+
+      <div class="modal-filter-scroll-body">
+        <!-- Brand -->
+        <div class="form-group">
+          <label class="form-label" for="filterBrand">Brand</label>
+          <select class="form-select" id="filterBrand" aria-label="Filter by brand select">
+            <option value="All">All Brands (Apple & Samsung)</option>
+            <option value="Apple">Apple iPhone</option>
+            <option value="Samsung">Samsung Galaxy</option>
+          </select>
+        </div>
+
+        <!-- Storage & Condition in 2 columns -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="filterStorage">Storage Capacity</label>
+            <select class="form-select" id="filterStorage" aria-label="Filter by storage">
+              <option value="All">All Storage</option>
+              <option value="64GB">64GB</option>
+              <option value="128GB">128GB</option>
+              <option value="256GB">256GB</option>
+              <option value="512GB">512GB</option>
+              <option value="1TB">1TB</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="filterCondition">Condition</label>
+            <select class="form-select" id="filterCondition" aria-label="Filter by condition">
+              <option value="All">All Conditions</option>
+              <option value="Brand New">Brand New Sealed</option>
+              <option value="Excellent">Excellent (Grade A)</option>
+              <option value="Very Good">Very Good</option>
+              <option value="Good">Good (Grade B)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="form-group">
+          <label class="form-label" for="filterLocation">Location</label>
+          <select class="form-select" id="filterLocation" aria-label="Filter by location">
+            <option value="All">All Locations</option>
+            <option value="Ikeja, Lagos">Ikeja (Computer Village)</option>
+            <option value="Lekki, Lagos">Lekki / Victoria Island</option>
+            <option value="Abuja">Abuja (Banex Plaza)</option>
+            <option value="Port Harcourt">Port Harcourt (Garrison)</option>
+          </select>
+        </div>
+
+        <!-- Price Range -->
+        <div class="form-group">
+          <label class="form-label">Price Range (₦)</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="number" id="panelMinPrice" class="form-input" placeholder="Min ₦" min="0">
+            <input type="number" id="panelMaxPrice" class="form-input" placeholder="Max ₦" min="0">
+          </div>
+        </div>
+
+        <!-- Swap Allowed Toggle -->
+        <div class="form-group" style="margin-top: 4px;">
+          <label class="swap-toggle-card" for="panelSwapAllowed">
+            <input type="checkbox" id="panelSwapAllowed" style="width: 18px; height: 18px; accent-color: var(--emerald-400); cursor: pointer;">
+            <span style="font-size: 0.88rem; font-weight: 500; color: var(--text-white); cursor: pointer;">Direct Swap Allowed Only</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Modal Footer Actions -->
+      <div class="modal-filter-footer">
+        <button type="button" class="btn-reset-filters" id="resetFiltersBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+          <span>Reset All</span>
+        </button>
+        <button type="button" class="btn-primary-action" id="applyFiltersBtn" style="padding: 10px 22px; font-size: 0.88rem; font-weight: 600; justify-content: center;">
+          <span>Apply Filters</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
        MODAL: MY SWAPS TRACKER
        ========================================================================== -->
   <div class="modal-backdrop" id="mySwapsModal" role="dialog" aria-modal="true" aria-labelledby="mySwapsTitle">
@@ -697,18 +711,11 @@
         listings = listings.filter(phone => (phone.model || '').toLowerCase().includes(q));
       }
 
-      // New Panel Filters
-      const panelSearch = document.getElementById('panelSearchInput');
+      // Additional Modal Filters (Price Range & Swap Allowed)
       const panelMinPrice = document.getElementById('panelMinPrice');
       const panelMaxPrice = document.getElementById('panelMaxPrice');
-      const panelCondition = document.getElementById('panelCondition');
-      const panelStorage = document.getElementById('panelStorage');
       const panelSwapAllowed = document.getElementById('panelSwapAllowed');
 
-      if (panelSearch && panelSearch.value.trim()) {
-        const q = panelSearch.value.trim().toLowerCase();
-        listings = listings.filter(phone => (phone.model || '').toLowerCase().includes(q));
-      }
       if (panelMinPrice && panelMinPrice.value) {
         const min = parseInt(panelMinPrice.value);
         listings = listings.filter(phone => {
@@ -722,12 +729,6 @@
           const price = phone.cashOutrightPrice || phone.marketValue || 0;
           return price <= max;
         });
-      }
-      if (panelCondition && panelCondition.value !== 'Any') {
-        listings = listings.filter(phone => (phone.condition || '').toLowerCase().includes(panelCondition.value.toLowerCase()));
-      }
-      if (panelStorage && panelStorage.value !== 'Any') {
-        listings = listings.filter(phone => phone.storage === panelStorage.value);
       }
       if (panelSwapAllowed && panelSwapAllowed.checked) {
         listings = listings.filter(phone => phone.isSwapAllowed);
@@ -885,52 +886,100 @@
       }
     }
 
-    // Filter Listeners
-    const toggleFilterPanelBtn = document.getElementById('toggleFilterPanelBtn');
-    const advancedFilterPanel = document.getElementById('advancedFilterPanel');
-    if (toggleFilterPanelBtn && advancedFilterPanel) {
-      toggleFilterPanelBtn.addEventListener('click', () => {
-        if (advancedFilterPanel.style.display === 'none') {
-          advancedFilterPanel.style.display = 'block';
-          // Small delay for smooth slide if we had max-height, but block is fine for now
+    // Filter UI Synchronization & Listeners
+    function getActiveFilterCount() {
+      let count = 0;
+      if (activeBrand !== 'All') count++;
+      if (filterStorage && filterStorage.value !== 'All') count++;
+      if (filterCondition && filterCondition.value !== 'All') count++;
+      if (filterLocation && filterLocation.value !== 'All') count++;
+      const minP = document.getElementById('panelMinPrice');
+      const maxP = document.getElementById('panelMaxPrice');
+      const swapAll = document.getElementById('panelSwapAllowed');
+      if (minP && minP.value) count++;
+      if (maxP && maxP.value) count++;
+      if (swapAll && swapAll.checked) count++;
+      return count;
+    }
+
+    function syncFilterUI() {
+      const count = getActiveFilterCount();
+      const badge = document.getElementById('filterCountBadge');
+      const filterBtn = document.getElementById('toggleFilterPanelBtn');
+      const resetChip = document.getElementById('quickResetChip');
+
+      if (badge) {
+        if (count > 0) {
+          badge.textContent = count;
+          badge.style.display = 'inline-flex';
         } else {
-          advancedFilterPanel.style.display = 'none';
+          badge.style.display = 'none';
         }
+      }
+
+      if (filterBtn) {
+        filterBtn.classList.toggle('has-active-filters', count > 0);
+      }
+
+      if (resetChip) {
+        resetChip.style.display = count > 0 ? 'inline-flex' : 'none';
+      }
+    }
+
+    const toggleFilterPanelBtn = document.getElementById('toggleFilterPanelBtn');
+    const filterModal = document.getElementById('filterModal');
+    const closeFilterModal = document.getElementById('closeFilterModal');
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+    const quickResetChip = document.getElementById('quickResetChip');
+
+    if (toggleFilterPanelBtn && filterModal) {
+      toggleFilterPanelBtn.addEventListener('click', () => {
+        filterModal.classList.add('active');
       });
     }
 
-    const panelSearch = document.getElementById('panelSearchInput');
-    const panelMinPrice = document.getElementById('panelMinPrice');
-    const panelMaxPrice = document.getElementById('panelMaxPrice');
-    const panelCondition = document.getElementById('panelCondition');
-    const panelStorage = document.getElementById('panelStorage');
-    const panelSwapAllowed = document.getElementById('panelSwapAllowed');
-    const panelClearFiltersBtn = document.getElementById('panelClearFiltersBtn');
+    if (closeFilterModal && filterModal) {
+      closeFilterModal.addEventListener('click', () => {
+        filterModal.classList.remove('active');
+      });
+    }
 
-    [panelSearch, panelMinPrice, panelMaxPrice].forEach(el => {
-      if (el) el.addEventListener('input', renderPhoneListings);
-    });
-    [panelCondition, panelStorage, panelSwapAllowed].forEach(el => {
-      if (el) el.addEventListener('change', renderPhoneListings);
-    });
-
-    if (panelClearFiltersBtn) {
-      panelClearFiltersBtn.addEventListener('click', () => {
-        if (panelSearch) panelSearch.value = '';
-        if (panelMinPrice) panelMinPrice.value = '';
-        if (panelMaxPrice) panelMaxPrice.value = '';
-        if (panelCondition) panelCondition.value = 'Any';
-        if (panelStorage) panelStorage.value = 'Any';
-        if (panelSwapAllowed) panelSwapAllowed.checked = false;
+    if (applyFiltersBtn && filterModal) {
+      applyFiltersBtn.addEventListener('click', () => {
+        filterModal.classList.remove('active');
         renderPhoneListings();
       });
     }
+
+    if (quickResetChip) {
+      quickResetChip.addEventListener('click', resetAllFilters);
+    }
+
+    const panelMinPrice = document.getElementById('panelMinPrice');
+    const panelMaxPrice = document.getElementById('panelMaxPrice');
+    const panelSwapAllowed = document.getElementById('panelSwapAllowed');
+
+    [panelMinPrice, panelMaxPrice].forEach(el => {
+      if (el) el.addEventListener('input', () => {
+        syncFilterUI();
+        renderPhoneListings();
+      });
+    });
+
+    if (panelSwapAllowed) {
+      panelSwapAllowed.addEventListener('change', () => {
+        syncFilterUI();
+        renderPhoneListings();
+      });
+    }
+
     brandChips.forEach(chip => {
       chip.addEventListener('click', () => {
         brandChips.forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         activeBrand = chip.dataset.brand;
         if (filterBrand) filterBrand.value = activeBrand === 'All' ? 'All' : activeBrand;
+        syncFilterUI();
         renderPhoneListings();
       });
     });
@@ -941,12 +990,16 @@
         brandChips.forEach(c => {
           c.classList.toggle('active', c.dataset.brand.toLowerCase() === activeBrand.toLowerCase());
         });
+        syncFilterUI();
         renderPhoneListings();
       });
     }
 
     [filterStorage, filterCondition, filterLocation].forEach(el => {
-      if (el) el.addEventListener('change', renderPhoneListings);
+      if (el) el.addEventListener('change', () => {
+        syncFilterUI();
+        renderPhoneListings();
+      });
     });
 
     if (searchInput) {
@@ -971,8 +1024,15 @@
       if (filterStorage) filterStorage.value = 'All';
       if (filterCondition) filterCondition.value = 'All';
       if (filterLocation) filterLocation.value = 'All';
+      const minP = document.getElementById('panelMinPrice');
+      const maxP = document.getElementById('panelMaxPrice');
+      const swapAll = document.getElementById('panelSwapAllowed');
+      if (minP) minP.value = '';
+      if (maxP) maxP.value = '';
+      if (swapAll) swapAll.checked = false;
       if (searchInput) searchInput.value = '';
       if (searchClearBtn) searchClearBtn.style.display = 'none';
+      syncFilterUI();
       renderPhoneListings();
     }
 
@@ -981,6 +1041,7 @@
 
     // Modal close bindings
     [
+      { btn: closeFilterModal, modal: filterModal },
       { btn: closeMySwapsModal, modal: mySwapsModal },
       { btn: closeNotifModal, modal: notifModal }
     ].forEach(({ btn, modal }) => {

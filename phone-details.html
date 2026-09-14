@@ -364,7 +364,7 @@
 
     @media (max-width: 640px) {
       .details-page-container {
-        padding: 16px 14px 110px 14px;
+        padding: 16px 14px max(115px, calc(92px + env(safe-area-inset-bottom, 24px))) 14px;
       }
       .details-model-title {
         font-size: 1.5rem;

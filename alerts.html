@@ -26,13 +26,27 @@
       border-color: rgba(0, 210, 106, 0.45);
     }
 
-    .alerts-filter-bar {
+    .alerts-header-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
+      margin-bottom: 12px;
+    }
+
+    .alerts-page-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #FFF;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .alerts-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
     }
 
     .alerts-pills-group {
@@ -42,6 +56,7 @@
       overflow-x: auto;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
     }
     .alerts-pills-group::-webkit-scrollbar {
       display: none;
@@ -50,18 +65,19 @@
     .alert-filter-pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
+      gap: 6px;
+      padding: 6px 14px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--glass-border);
       border-radius: var(--radius-full);
       color: var(--text-muted);
-      font-size: 0.84rem;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
       transition: all var(--spring-fast);
       box-shadow: var(--glass-specular-soft);
+      flex-shrink: 0;
     }
     .alert-filter-pill:hover {
       background: rgba(255, 255, 255, 0.06);
@@ -76,9 +92,9 @@
     }
     .alert-filter-pill .count-badge {
       background: rgba(255, 255, 255, 0.1);
-      padding: 1px 7px;
+      padding: 1px 6px;
       border-radius: 10px;
-      font-size: 0.74rem;
+      font-size: 0.7rem;
     }
     .alert-filter-pill.active .count-badge {
       background: var(--emerald-500);
@@ -89,12 +105,12 @@
     .alerts-action-btns {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn-alert-ctrl {
-      padding: 7px 14px;
-      font-size: 0.8rem;
+      padding: 6px 12px;
+      font-size: 0.76rem;
       font-weight: 600;
       color: var(--text-muted);
       background: rgba(255, 255, 255, 0.03);
@@ -104,12 +120,47 @@
       transition: all var(--spring-fast);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
+      white-space: nowrap;
     }
     .btn-alert-ctrl:hover {
       background: rgba(255, 255, 255, 0.08);
       color: #FFF;
       border-color: rgba(255, 255, 255, 0.18);
+    }
+    .btn-alert-danger {
+      color: var(--rose-400);
+    }
+    .btn-alert-danger:hover {
+      background: var(--rose-subtle);
+      border-color: rgba(248, 113, 113, 0.35);
+      color: var(--rose-400);
+    }
+
+    @media (max-width: 640px) {
+      .dash-main {
+        padding: 12px 12px max(115px, calc(92px + env(safe-area-inset-bottom, 24px))) 12px !important;
+      }
+      .alerts-header-row {
+        margin-bottom: 8px;
+        gap: 8px;
+      }
+      .alerts-page-title {
+        font-size: 1.18rem;
+      }
+      .btn-alert-ctrl {
+        padding: 5px 9px;
+        font-size: 0.72rem;
+        gap: 4px;
+      }
+      .alert-filter-pill {
+        padding: 5px 11px;
+        font-size: 0.74rem;
+        gap: 5px;
+      }
+      .alerts-filter-bar {
+        margin-bottom: 10px;
+      }
     }
 
     /* Stack of Notification Cards */
@@ -297,20 +348,25 @@
   </header>
 
   <!-- Main Alerts Container -->
-  <main class="dash-main" style="max-width: 980px; margin: 0 auto; padding: 24px 20px 120px;">
+  <main class="dash-main alerts-page-main">
 
-    <!-- Breadcrumb & Page Heading -->
-    <div class="page-heading-section" style="margin-bottom: 22px;">
-      <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-faint); margin-bottom: 8px;">
-        <a href="dashboard.html" style="color: var(--text-muted); text-decoration: none;">Dashboard</a>
-        <span>/</span>
-        <span style="color: var(--emerald-400); font-weight: 700;">Alerts</span>
+    <!-- Compact Page Heading & Action Controls -->
+    <div class="alerts-header-row">
+      <h1 class="alerts-page-title">Alerts</h1>
+
+      <div class="alerts-action-btns">
+        <button type="button" class="btn-alert-ctrl" id="markAllReadBtn" title="Mark all notifications as read">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Mark read</span>
+        </button>
+        <button type="button" class="btn-alert-ctrl btn-alert-danger" id="clearAllAlertsBtn" title="Clear all notifications">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span>Clear all</span>
+        </button>
       </div>
-      <h1 style="font-size: 1.65rem; font-weight: 800; color: #FFF; margin: 0 0 6px 0; letter-spacing: -0.02em;">Alerts</h1>
-      <p style="font-size: 0.86rem; color: var(--text-muted); margin: 0;">Stay updated on your phone trade-in proposals, store responses, and verification slots</p>
     </div>
 
-    <!-- Filter & Controls Bar -->
+    <!-- Filter Pills Row -->
     <div class="alerts-filter-bar">
       <div class="alerts-pills-group" id="alertsFilterPills" role="tablist">
         <button type="button" class="alert-filter-pill active" data-filter="all">
@@ -324,17 +380,6 @@
         <button type="button" class="alert-filter-pill" data-filter="swaps">
           <span>Swaps</span>
           <span class="count-badge" id="countSwapAlerts">0</span>
-        </button>
-      </div>
-
-      <div class="alerts-action-btns">
-        <button type="button" class="btn-alert-ctrl" id="markAllReadBtn" title="Mark all notifications as read">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          <span>Mark all as read</span>
-        </button>
-        <button type="button" class="btn-alert-ctrl" id="clearAllAlertsBtn" title="Clear all notifications" style="color: var(--rose-400);">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-          <span>Clear all</span>
         </button>
       </div>
     </div>

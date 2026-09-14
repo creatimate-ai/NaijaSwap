@@ -13,14 +13,35 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/dashboard.css">
   <style>
-    /* Custom Styling for My Swaps Cards and Visual Exchange */
+    .swaps-page-main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 16px 20px 120px;
+    }
+
+    .swaps-page-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .swaps-page-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #FFF;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
     .swap-filter-bar {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       overflow-x: auto;
-      padding-bottom: 8px;
-      margin-bottom: 24px;
+      padding-bottom: 2px;
+      margin-bottom: 16px;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
@@ -31,18 +52,19 @@
     .swap-filter-pill {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
+      gap: 6px;
+      padding: 6px 14px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--glass-border);
       border-radius: var(--radius-full);
       color: var(--text-muted);
-      font-size: 0.84rem;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
       transition: all var(--spring-fast);
       box-shadow: var(--glass-specular-soft);
+      flex-shrink: 0;
     }
     .swap-filter-pill:hover {
       background: rgba(255, 255, 255, 0.06);
@@ -380,15 +402,21 @@
         font-size: 0.76rem !important;
         border-radius: var(--radius-sm) !important;
       }
+      .swaps-page-main {
+        padding: 10px 12px max(115px, calc(92px + env(safe-area-inset-bottom, 24px))) 12px !important;
+      }
+      .swaps-page-header-row {
+        margin-bottom: 10px;
+      }
       .swap-filter-bar {
         gap: 6px;
-        padding-bottom: 6px;
-        margin-bottom: 16px;
+        padding-bottom: 2px;
+        margin-bottom: 12px;
       }
       .swap-filter-pill {
-        padding: 6px 12px;
-        font-size: 0.76rem;
-        gap: 6px;
+        padding: 5px 11px;
+        font-size: 0.74rem;
+        gap: 5px;
       }
     }
 
@@ -485,21 +513,14 @@
   </header>
 
   <!-- Main Swapper Dashboard Content -->
-  <main class="dash-main" style="max-width: 1080px; margin: 0 auto; padding: 24px 20px 120px;">
+  <main class="dash-main swaps-page-main">
 
-    <!-- Page Header with Breadcrumbs & Simple Plus Action Button -->
-    <div class="swaps-page-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; gap: 14px; flex-wrap: wrap;">
-      <div>
-        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-faint); margin-bottom: 6px;">
-          <a href="dashboard.html" style="color: var(--text-muted); text-decoration: none;">Dashboard</a>
-          <span>/</span>
-          <span style="color: var(--emerald-400); font-weight: 700;">My Swaps</span>
-        </div>
-        <h1 style="font-size: 1.55rem; font-weight: 800; color: #FFF; margin: 0; letter-spacing: -0.02em;">My Swap Requests</h1>
-      </div>
+    <!-- Compact Page Header with Simple Plus Action Button -->
+    <div class="swaps-page-header-row">
+      <h1 class="swaps-page-title">My Swap Requests</h1>
 
-      <button type="button" class="btn-primary-action btn-add-swap-plus" id="openSwapModalBtn" title="Propose a Swap" aria-label="Propose a Swap" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 18px var(--emerald-glow);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <button type="button" class="btn-primary-action btn-add-swap-plus" id="openSwapModalBtn" title="Propose a Swap" aria-label="Propose a Swap" style="padding: 8px 18px; font-size: 0.86rem; font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 4px 18px var(--emerald-glow);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         <span class="btn-swap-text">Propose a Swap</span>
       </button>
     </div>
@@ -898,6 +919,7 @@
           Submit Dispute
         </button>
       </form>
+    </div>
   </div>
 
   <!-- ==========================================================================
