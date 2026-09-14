@@ -297,7 +297,7 @@ export function getStoreMetrics(storeId) {
   try {
     const rawListings = JSON.parse(localStorage.getItem('naijaswap_marketplace_listings') || '[]');
     if (Array.isArray(rawListings)) {
-      listings = rawListings.filter(item => !storeId || item.storeId === storeId || item.storeId === 'store_prime').length;
+      listings = rawListings.filter(item => !storeId || item.storeId === storeId).length;
     }
   } catch (_) {}
   try {

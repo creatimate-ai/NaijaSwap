@@ -1163,8 +1163,8 @@
 
       inputDealerStoreName.value = profile.businessName || (uid ? localStorage.getItem('naijaswap_shop_' + uid) : '') || currentUser?.displayName || '';
       inputDealerContactPerson.value = currentUser?.displayName || profile.contactPerson || '';
-      inputDealerPhone.value = currentUser?.phoneNumber || profile.phone || (uid ? localStorage.getItem('naijaswap_phone_' + uid) : '') || '';
-      inputDealerShopAddress.value = profile.shopAddress || '';
+      inputDealerPhone.value = currentUser?.phoneNumber || profile.phone || (uid ? localStorage.getItem('naijaswap_phone_' + uid) : '') || (uid ? localStorage.getItem('naijaswap_dealer_phone_' + uid) : '') || '';
+      inputDealerShopAddress.value = profile.shopAddress || (uid ? localStorage.getItem('naijaswap_dealer_address_' + uid) : '') || '';
       inputDealerBankName.value = profile.bankName || '';
       inputDealerBankAccount.value = profile.bankAccountNumber || '';
 

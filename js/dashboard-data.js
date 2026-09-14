@@ -671,7 +671,7 @@ export const NaijaSwapData = {
         brand.includes('samsung') || model.includes('galaxy');
     });
     if (!storeId) return items;
-    return items.filter(x => x.storeId === storeId || x.storeId === 'store_prime');
+    return items.filter(x => x.storeId === storeId);
   },
 
   addListing(storeId, storeName, phoneData) {
@@ -1012,7 +1012,7 @@ export const NaijaSwapData = {
       requests = [];
     }
     if (!storeId) return requests;
-    return requests.filter(r => r.storeId === storeId || r.storeId === 'store_prime');
+    return requests.filter(r => r.storeId === storeId);
   },
 
   async getStoreSwapRequestsRemote(storeId) {
@@ -1375,7 +1375,7 @@ export const NaijaSwapData = {
     }
     if (!Array.isArray(logs)) logs = [];
     if (!storeId) return logs;
-    return logs.filter(l => l.storeId === storeId || l.storeId === 'store_prime');
+    return logs.filter(l => l.storeId === storeId);
   },
 
   clearStoreActivity(storeId) {
