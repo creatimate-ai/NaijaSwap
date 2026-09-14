@@ -398,6 +398,97 @@
       padding: 2px 6px;
       border-radius: var(--radius-sm);
     }
+
+    /* Mobile Responsive Balance for Physical Phones */
+    @media (max-width: 640px) {
+      .dealer-page-header-row {
+        margin-bottom: 14px !important;
+        gap: 8px !important;
+      }
+      .dealer-page-header-row h1 {
+        font-size: 1.22rem !important;
+      }
+      .requests-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .req-stat-card {
+        padding: 8px 10px;
+        gap: 8px;
+        border-radius: 12px;
+      }
+      .req-stat-number {
+        font-size: 1.1rem;
+      }
+      .req-stat-label {
+        font-size: 0.68rem;
+      }
+      .requests-tabs-row {
+        gap: 6px;
+        padding-bottom: 4px;
+        margin-bottom: 14px;
+      }
+      .req-tab-btn {
+        padding: 6px 10px;
+        font-size: 0.76rem;
+      }
+      .dealer-req-card {
+        padding: 12px 10px;
+        border-radius: 14px;
+        margin-bottom: 12px;
+      }
+      .dealer-req-card-header {
+        padding-bottom: 8px;
+        margin-bottom: 10px;
+      }
+      .req-customer-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 0.9rem;
+      }
+      .req-customer-name {
+        font-size: 0.9rem;
+      }
+      .req-device-comparison-grid {
+        padding: 10px 8px;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .req-device-title {
+        font-size: 0.88rem;
+      }
+      .req-device-specs {
+        font-size: 0.74rem;
+        gap: 4px;
+      }
+      .req-financial-summary {
+        padding: 8px 10px;
+        margin-bottom: 10px;
+        font-size: 0.76rem;
+      }
+      .dealer-req-card-footer {
+        gap: 6px;
+        padding-top: 8px;
+      }
+      .dealer-req-card-footer .btn-action-sm {
+        padding: 6px 10px !important;
+        font-size: 0.74rem !important;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .dealer-page-header-row h1 {
+        font-size: 1.12rem !important;
+      }
+      .req-stat-card {
+        padding: 6px 8px;
+        gap: 6px;
+      }
+      .req-stat-number {
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -465,7 +556,7 @@
   </header>
 
   <!-- Main Store Requests Content -->
-  <main class="dash-main" style="max-width: 1120px; margin: 0 auto; padding: 24px 20px 120px;">
+  <main class="dash-main" style="max-width: 1120px; margin: 0 auto;">
 
     <!-- Page Header & Breadcrumb -->
     <div class="dealer-page-header-row" style="margin-bottom: 22px;">

@@ -1885,10 +1885,39 @@ body {
   }
 
   .dealer-page-header-row .btn-primary-action,
-  .swaps-page-header-row .btn-primary-action {
+  .swaps-page-header-row .btn-primary-action,
+  .btn-add-phone-plus,
+  .btn-add-swap-plus {
     width: auto !important;
     padding: 7px 14px !important;
     font-size: 0.8rem !important;
+  }
+
+  /* Store Inventory Listings */
+  .store-listings-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .store-listing-card {
+    border-radius: 14px !important;
+  }
+
+  .listing-card-media {
+    height: 160px !important;
+  }
+
+  .listing-card-body {
+    padding: 12px 12px !important;
+    gap: 6px !important;
+  }
+
+  .listing-title {
+    font-size: 0.94rem !important;
+  }
+
+  .listing-price-row {
+    font-size: 0.88rem !important;
   }
 
   .store-welcome-card {
@@ -2042,6 +2071,31 @@ body {
 
   .more-item-sub {
     font-size: 0.72rem !important;
+  }
+
+  .account-profile-card {
+    padding: 16px 14px !important;
+    border-radius: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .account-avatar-wrapper {
+    width: 68px !important;
+    height: 68px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .account-avatar-placeholder {
+    font-size: 1.5rem !important;
+  }
+
+  .account-name-heading {
+    font-size: 1.15rem !important;
+  }
+
+  .account-detail-row {
+    padding: 10px 0 !important;
+    font-size: 0.82rem !important;
   }
 
   /* Modals & Dialogs (Native iOS Sheet Feel) */
@@ -6229,6 +6283,11 @@ button.is-loading, .btn-primary-action.is-loading, .btn-action-sm.is-loading {
 }
 
 @media (max-width: 440px) {
+  .dealer-page-header-row h1,
+  .swaps-page-header-row h1,
+  .page-heading-section h1 {
+    font-size: 1.12rem !important;
+  }
   .dash-header {
     padding: 8px 10px;
   }
@@ -6239,17 +6298,28 @@ button.is-loading, .btn-primary-action.is-loading, .btn-action-sm.is-loading {
     padding: 2px 5px;
   }
   .floating-swap-plus-btn {
-    bottom: 62px;
+    bottom: calc(60px + env(safe-area-inset-bottom, 8px));
     right: 12px;
     width: 42px;
     height: 42px;
   }
   .phone-card-media {
-    height: 160px;
+    height: 155px;
+  }
+  .listing-card-media {
+    height: 145px !important;
+  }
+  .details-image-frame {
+    height: 190px !important;
   }
 }
 
 @media (max-width: 380px) {
+  .dealer-page-header-row h1,
+  .swaps-page-header-row h1,
+  .page-heading-section h1 {
+    font-size: 1.05rem !important;
+  }
   .dash-header {
     padding: 6px 8px;
   }
@@ -6273,7 +6343,13 @@ button.is-loading, .btn-primary-action.is-loading, .btn-action-sm.is-loading {
     font-size: 0.9rem;
   }
   .phone-card-media {
-    height: 150px;
+    height: 145px;
+  }
+  .listing-card-media {
+    height: 135px !important;
+  }
+  .details-image-frame {
+    height: 170px !important;
   }
 }
 

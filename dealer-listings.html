@@ -57,6 +57,91 @@
       gap: 10px;
       flex-wrap: wrap;
     }
+
+    /* Mobile Responsive Balance for Physical Phones */
+    @media (max-width: 640px) {
+      .dealer-page-header-row {
+        margin-bottom: 14px !important;
+        gap: 8px !important;
+      }
+      .dealer-page-header-row h1 {
+        font-size: 1.22rem !important;
+      }
+      .btn-add-phone-plus {
+        padding: 7px 12px !important;
+        font-size: 0.78rem !important;
+      }
+      .listings-toolbar {
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .listings-search-box {
+        min-width: 100%;
+      }
+      .listings-search-box input {
+        padding: 8px 12px 8px 36px;
+        font-size: 0.82rem;
+        height: 38px;
+      }
+      .listings-filters-row {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+      }
+      .listings-filters-row .filter-select {
+        flex: 1;
+        min-width: 0;
+        padding: 6px 8px;
+        font-size: 0.74rem;
+      }
+      .btn-reset-filters {
+        padding: 6px 10px;
+        font-size: 0.74rem;
+      }
+      .store-listings-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .store-listing-card {
+        border-radius: 14px;
+      }
+      .listing-card-media {
+        height: 160px;
+      }
+      .listing-card-body {
+        padding: 12px 12px;
+        gap: 6px;
+      }
+      .listing-title {
+        font-size: 0.94rem;
+      }
+      .listing-price-row {
+        font-size: 0.88rem;
+      }
+      .listing-actions {
+        gap: 6px;
+        padding-top: 8px;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .dealer-page-header-row h1 {
+        font-size: 1.12rem !important;
+      }
+      .btn-add-phone-plus span {
+        display: none;
+      }
+      .btn-add-phone-plus {
+        width: 34px !important;
+        height: 34px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        justify-content: center !important;
+      }
+      .listing-card-media {
+        height: 145px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -124,7 +209,7 @@
   </header>
 
   <!-- Main Store Listings Content -->
-  <main class="dash-main" style="max-width: 1100px; margin: 0 auto; padding: 24px 20px 120px;">
+  <main class="dash-main" style="max-width: 1100px; margin: 0 auto;">
 
     <!-- Breadcrumb -->
     <!-- Page Header & Simple Plus Action Button -->

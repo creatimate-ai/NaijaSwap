@@ -278,6 +278,145 @@
       padding-top: 14px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
+
+    /* Mobile Responsive Balance for Physical Phones */
+    @media (max-width: 640px) {
+      .swaps-page-header-row {
+        margin-bottom: 14px !important;
+        gap: 8px !important;
+      }
+      .swaps-page-header-row h1 {
+        font-size: 1.22rem !important;
+      }
+      .swap-tracker-card {
+        padding: 13px 11px !important;
+        border-radius: 14px !important;
+        margin-bottom: 12px;
+      }
+      .swap-card-topbar {
+        padding-bottom: 8px !important;
+        margin-bottom: 10px !important;
+      }
+      .swap-id-tag {
+        font-size: 0.72rem;
+      }
+      .swap-date-text {
+        font-size: 0.7rem;
+        margin-left: 4px;
+      }
+      .swap-exchange-layout {
+        grid-template-columns: 1fr auto 1fr !important;
+        text-align: left !important;
+        padding: 10px 8px !important;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+      }
+      .swap-exchange-layout .device-box:last-child {
+        text-align: right;
+      }
+      .device-box {
+        gap: 3px !important;
+      }
+      .device-box-role {
+        font-size: 0.64rem !important;
+      }
+      .device-box-title {
+        font-size: 0.84rem !important;
+        line-height: 1.25 !important;
+        word-break: break-word;
+      }
+      .device-box-specs {
+        font-size: 0.7rem !important;
+      }
+      .swap-arrow-divider {
+        padding: 0 2px !important;
+      }
+      .swap-arrow-circle {
+        width: 28px !important;
+        height: 28px !important;
+      }
+      .swap-arrow-circle svg {
+        width: 14px !important;
+        height: 14px !important;
+      }
+      .swap-financials-bar {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        padding: 8px 10px !important;
+        margin-bottom: 10px !important;
+      }
+      .swap-financial-item {
+        gap: 2px !important;
+      }
+      .financial-label {
+        font-size: 0.65rem !important;
+      }
+      .financial-value {
+        font-size: 0.86rem !important;
+      }
+      .swap-hub-info-box {
+        padding: 8px 10px !important;
+        margin-bottom: 10px !important;
+        font-size: 0.75rem !important;
+        gap: 6px !important;
+      }
+      .hub-meta-text {
+        font-size: 0.72rem !important;
+      }
+      .swap-thumbnails-row {
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+      }
+      .swap-thumb-item {
+        width: 44px !important;
+        height: 44px !important;
+      }
+      .swap-actions-footer {
+        padding-top: 8px !important;
+        gap: 6px !important;
+      }
+      .swap-actions-footer .btn-action-sm {
+        padding: 6px 11px !important;
+        font-size: 0.76rem !important;
+        border-radius: var(--radius-sm) !important;
+      }
+      .swap-filter-bar {
+        gap: 6px;
+        padding-bottom: 6px;
+        margin-bottom: 16px;
+      }
+      .swap-filter-pill {
+        padding: 6px 12px;
+        font-size: 0.76rem;
+        gap: 6px;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .swaps-page-header-row h1 {
+        font-size: 1.12rem !important;
+      }
+      .btn-swap-text {
+        display: none !important;
+      }
+      .btn-add-swap-plus {
+        width: 34px !important;
+        height: 34px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        justify-content: center !important;
+      }
+      .btn-add-swap-plus svg {
+        width: 18px;
+        height: 18px;
+      }
+      .device-box-title {
+        font-size: 0.78rem !important;
+      }
+      .financial-value {
+        font-size: 0.8rem !important;
+      }
+    }
   </style>
 </head>
 <body>
