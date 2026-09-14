@@ -1235,6 +1235,30 @@ export const NaijaSwapData = {
       });
     }
 
+    // If still no devices found, also check onboarding device cache for this user
+    if (userDevs.length === 0) {
+      try {
+        const obDevRaw = localStorage.getItem('naijaswap_user_device_' + userId) || localStorage.getItem('naijaswap_user_device');
+        if (obDevRaw) {
+          const obDev = JSON.parse(obDevRaw);
+          if (obDev && obDev.model) {
+            userDevs.push({
+              id: 'dev_onboard_' + (userId || 'user'),
+              userId: userId,
+              brand: obDev.brand || 'Apple',
+              model: obDev.model,
+              storageCapacity: obDev.storage || '128GB',
+              condition: 'Grade A - Pristine',
+              batteryHealth: '88%+',
+              estimatedValue: obDev.estimatedValue || 0,
+              contactPhone: localStorage.getItem('naijaswap_user_whatsapp_' + userId) || '',
+              createdAt: new Date().toISOString()
+            });
+          }
+        }
+      } catch (_) {}
+    }
+
     return userDevs;
   },
 

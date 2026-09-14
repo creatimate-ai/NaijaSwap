@@ -271,18 +271,18 @@
           <div class="account-detail-row">
             <span class="account-detail-label">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-              <span>Phone Number</span>
+              <span>Phone / WhatsApp</span>
             </span>
             <span class="account-detail-value" id="detailPhone">Loading...</span>
           </div>
 
-          <!-- Preferred Inspection Hub -->
+          <!-- Current Trade-In Phone -->
           <div class="account-detail-row">
             <span class="account-detail-label">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-              <span>Preferred Hub</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              <span>Trade-In Phone</span>
             </span>
-            <span class="account-detail-value" id="detailPreferredHub">Computer Village, Lagos</span>
+            <span class="account-detail-value" id="detailCurrentDevice">Not registered</span>
           </div>
         </div>
 
@@ -683,6 +683,7 @@
     const detailFullName = document.getElementById('detailFullName');
     const detailEmail = document.getElementById('detailEmail');
     const detailPhone = document.getElementById('detailPhone');
+    const detailCurrentDevice = document.getElementById('detailCurrentDevice');
     const detailPreferredHub = document.getElementById('detailPreferredHub');
     const passwordTargetEmailDisplay = document.getElementById('passwordTargetEmailDisplay');
 
@@ -887,8 +888,28 @@
       const phone = user?.phoneNumber || (uid ? (localStorage.getItem('naijaswap_user_whatsapp_' + uid) || localStorage.getItem('naijaswap_phone_' + uid)) : '') || '';
       detailPhone.textContent = phone || 'Not linked';
 
+      // Current Trade-in Device from onboarding or profile
+      const savedDeviceRaw = uid ? (localStorage.getItem('naijaswap_user_device_' + uid) || localStorage.getItem('naijaswap_user_device')) : null;
+      let deviceText = 'None registered';
+      if (savedDeviceRaw) {
+        try {
+          const dev = JSON.parse(savedDeviceRaw);
+          if (dev.model) {
+            const valStr = dev.estimatedValue ? ` (~₦${Number(dev.estimatedValue).toLocaleString()})` : '';
+            deviceText = `${dev.brand || ''} ${dev.model} (${dev.storage || '128GB'})${valStr}`;
+          }
+        } catch (_) {}
+      } else if (profile.currentDevice && profile.currentDevice.model) {
+        const d = profile.currentDevice;
+        const valStr = d.estimatedValue ? ` (~₦${Number(d.estimatedValue).toLocaleString()})` : '';
+        deviceText = `${d.brand || ''} ${d.model} (${d.storage || '128GB'})${valStr}`;
+      }
+      if (detailCurrentDevice) {
+        detailCurrentDevice.textContent = deviceText;
+      }
+
       const hub = (uid ? localStorage.getItem('naijaswap_default_location') : '') || profile.preferredHub || 'Computer Village, Ikeja, Lagos';
-      detailPreferredHub.textContent = hub;
+      if (detailPreferredHub) detailPreferredHub.textContent = hub;
 
       // Photo
       const photo = (uid ? localStorage.getItem('naijaswap_photo_' + uid) : null) || user?.photoURL;
@@ -1088,6 +1109,12 @@
         }
         if (newPhone) {
           localStorage.setItem('naijaswap_phone_' + currentUser.uid, newPhone);
+          localStorage.setItem('naijaswap_user_whatsapp_' + currentUser.uid, newPhone);
+          try {
+            const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
+            u.phoneNumber = newPhone;
+            localStorage.setItem('naijaswap_user', JSON.stringify(u));
+          } catch (_) {}
         }
 
         if (pendingPhotoFile) {

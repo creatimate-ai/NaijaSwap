@@ -573,6 +573,21 @@ function setupOnboardingWizardLogic(modal, user, role) {
         localStorage.setItem('naijaswap_user_whatsapp_' + uid, phone);
         localStorage.setItem('naijaswap_user_device_' + uid, JSON.stringify({ brand, model, storage, estimatedValue: price }));
 
+        // Register device in NaijaSwapData so trade-in calculators on phone-details.html pick it up immediately
+        if (window.NaijaSwapData && typeof NaijaSwapData.addUserDevice === 'function') {
+          try {
+            NaijaSwapData.addUserDevice(uid, {
+              brand,
+              model,
+              storageCapacity: storage,
+              condition: 'Grade A - Pristine',
+              batteryHealth: '88%+',
+              estimatedValue: price,
+              contactPhone: phone
+            });
+          } catch (_) {}
+        }
+
         // Update profile in local cache
         try {
           const userObj = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
