@@ -664,9 +664,11 @@ export function renderGettingStartedWidget(user, role = 'customer') {
 
     container = document.createElement('div');
     container.id = 'gettingStartedChecklistContainer';
-    container.className = 'getting-started-banner';
     targetParent.insertBefore(container, targetParent.firstChild);
   }
+
+  container.classList.add('getting-started-banner');
+  container.style.display = 'block';
 
   const isDealer = role === 'dealer';
 

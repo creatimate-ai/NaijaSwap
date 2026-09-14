@@ -3453,14 +3453,25 @@ body {
 
 /* Spinner Animation for Buttons and Overlays */
 .btn-spinner {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.25);
-  border-top-color: var(--emerald-400);
+  border-top-color: currentColor;
   border-radius: 50%;
   animation: authSpin 0.7s infinite linear;
   display: inline-block;
   vertical-align: middle;
+  flex-shrink: 0;
+}
+
+button.is-loading, .btn-primary-action.is-loading, .btn-action-sm.is-loading {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  pointer-events: none !important;
+  opacity: 0.85;
+  cursor: not-allowed !important;
 }
 
 @keyframes authSpin {
@@ -5707,6 +5718,42 @@ body {
 .gs-task-sub {
   font-size: 0.72rem;
   color: var(--text-muted, #94a3b8);
+}
+
+/* Mobile responsiveness for Getting Started Widget */
+@media (max-width: 768px) {
+  .getting-started-banner {
+    margin-bottom: 16px;
+  }
+  .gs-card {
+    padding: 14px 14px;
+    border-radius: 16px;
+    gap: 12px;
+  }
+  .gs-top-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .gs-actions-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+  }
+  .gs-title {
+    font-size: 0.94rem;
+  }
+  .gs-subtitle {
+    font-size: 0.76rem;
+  }
+  .gs-tasks-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .gs-task-item {
+    padding: 9px 12px;
+  }
 }
 
 

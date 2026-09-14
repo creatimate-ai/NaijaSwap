@@ -608,7 +608,8 @@
     import { requireCompleteProfile } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { createSwapRequestBackend } from './js/backend-api.js';
-    import { initOnboarding, openOnboardingModal } from './js/onboarding.js';
+    import { initOnboarding, openOnboardingModal, renderGettingStartedWidget } from './js/onboarding.js';
+    import { setButtonLoading } from './js/auth.js';
 
     let currentUserId = 'user_guest';
     let currentUserName = 'Swapper';
@@ -616,7 +617,7 @@
 
     // Synchronous initial cache read from localStorage
     try {
-      const stored = localStorage.getItem('naijaswap_user') || localStorage.getItem('naijaswap_user');
+      const stored = localStorage.getItem('naijaswap_user');
       if (stored) {
         const u = JSON.parse(stored);
         currentUserId = u.uid || 'user_guest';
@@ -634,6 +635,13 @@
           } else {
             avatarEl.textContent = currentUserName.charAt(0).toUpperCase();
           }
+        }
+
+        // Render checklist immediately without waiting for Firebase network roundtrip
+        if (u.uid && u.uid !== 'user_guest') {
+          try {
+            renderGettingStartedWidget(u, 'customer');
+          } catch (_) {}
         }
       }
     } catch (e) {}
@@ -1296,6 +1304,9 @@
             carrierLock
           };
 
+          const submitBtn = document.getElementById('submitConsumerSwapBtn');
+          setButtonLoading(submitBtn, true, 'Submitting Swap Request...');
+
           const newReq = NaijaSwapData.createSwapRequest({
             brand,
             model,
@@ -1324,6 +1335,7 @@
             });
             NaijaSwapData.attachFirestoreRequestId(newReq.id, backendResult.data.requestId);
           } catch (error) {
+            setButtonLoading(submitBtn, false);
             NaijaSwapData.removeSwapRequest(newReq.id);
             console.error('[NaijaSwap] Swap request backend sync failed:', error);
             alert('Your swap request could not reach the dealer. Please try again.');
@@ -1331,6 +1343,7 @@
           }
 
           // Reset & close
+          setButtonLoading(submitBtn, false);
           consumerSwapForm.reset();
           consumerUploadedFiles = [];
           if (consumerPreviewsGrid) consumerPreviewsGrid.innerHTML = '';
