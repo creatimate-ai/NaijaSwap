@@ -57,6 +57,10 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
             <span>Activity &amp; Audit Log</span>
           </a>
+          <button type="button" class="dropdown-item" id="openDealerTourBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Store Setup Guide</span>
+          </button>
           <a href="account.html" class="dropdown-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span>Profile</span>
@@ -76,6 +80,9 @@
 
   <!-- Main Store Dashboard Content -->
   <main class="dash-main">
+
+    <!-- Store Setup Checklist Widget (Populated dynamically by onboarding.js) -->
+    <div id="gettingStartedChecklistContainer"></div>
 
     <!-- Dynamic Verification Status Alert Banner -->
     <div id="dealerVerificationBanner" style="display:none;margin-bottom:20px;border-radius:var(--radius-lg);padding:14px 18px;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
@@ -388,6 +395,7 @@
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { logNaijaSwap } from './js/auth.js';
     import { db, doc, getDoc } from './js/firebase-config.js';
+    import { initOnboarding, openOnboardingModal } from './js/onboarding.js';
 
     let currentStoreId = '';
     let currentStoreName = 'Store Portal';
@@ -437,8 +445,19 @@
         }
 
         refreshDashboard();
+
+        // Initialize Partner Store Onboarding & Launchpad Checklist
+        initOnboarding(user, 'dealer');
       }
     };
+
+    // Store Setup Guide manual trigger from dropdown
+    const openDealerTourBtn = document.getElementById('openDealerTourBtn');
+    if (openDealerTourBtn) {
+      openDealerTourBtn.addEventListener('click', () => {
+        openOnboardingModal(dealerAuthUser || { uid: currentStoreId, displayName: currentStoreName }, 'dealer');
+      });
+    }
 
     // Elements
     const statActiveListings = document.getElementById('statActiveListings');

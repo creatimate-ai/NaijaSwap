@@ -884,10 +884,11 @@
         passwordTargetEmailDisplay.textContent = user?.email || 'No email associated with account';
       }
 
-      const phone = user?.phoneNumber || (uid ? localStorage.getItem('naijaswap_phone_' + uid) : '') || '';
+      const phone = user?.phoneNumber || (uid ? (localStorage.getItem('naijaswap_user_whatsapp_' + uid) || localStorage.getItem('naijaswap_phone_' + uid)) : '') || '';
       detailPhone.textContent = phone || 'Not linked';
 
-      detailPreferredHub.textContent = profile.preferredHub || 'Computer Village, Ikeja, Lagos';
+      const hub = (uid ? localStorage.getItem('naijaswap_default_location') : '') || profile.preferredHub || 'Computer Village, Ikeja, Lagos';
+      detailPreferredHub.textContent = hub;
 
       // Photo
       const photo = (uid ? localStorage.getItem('naijaswap_photo_' + uid) : null) || user?.photoURL;

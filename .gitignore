@@ -8,3 +8,4 @@ functions/.runtimeconfig.json
 node_modules/
 *.log
 .DS_Store
+.vscode/

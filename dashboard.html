@@ -49,6 +49,10 @@
         </button>
 
         <div class="user-dropdown" id="userDropdown">
+          <button type="button" class="dropdown-item" id="openOnboardingTourBtn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Getting Started Guide</span>
+          </button>
           <a href="account.html" class="dropdown-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span>Profile</span>
@@ -72,6 +76,9 @@
 
   <!-- Main Swapper Dashboard Content -->
   <main class="dash-main">
+
+    <!-- Getting Started Checklist Widget (Populated dynamically by onboarding.js) -->
+    <div id="gettingStartedChecklistContainer"></div>
 
     <!-- Swapper Welcome & Swap Proposal Action Card -->
     <div class="store-welcome-card" style="margin-bottom: 22px;">
@@ -601,6 +608,7 @@
     import { requireCompleteProfile } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { createSwapRequestBackend } from './js/backend-api.js';
+    import { initOnboarding, openOnboardingModal } from './js/onboarding.js';
 
     let currentUserId = 'user_guest';
     let currentUserName = 'Swapper';
@@ -1050,6 +1058,16 @@
         }
 
         updateMySwapsBadge();
+
+        // Initialize User Onboarding & Getting Started Checklist
+        initOnboarding(user, 'customer');
+
+        // Apply saved preferred location to filter if present
+        const savedLocation = localStorage.getItem('naijaswap_default_location');
+        if (savedLocation && filterLocation && filterLocation.value === 'All') {
+          filterLocation.value = savedLocation;
+          renderPhoneListings();
+        }
       }
     };
 
@@ -1475,6 +1493,36 @@
       openConsumerSwapModalBtn.addEventListener('click', () => {
         if (!requireCompleteProfile(window.naijaswapAuthUser, 'customer', 'submit a swap')) return;
         consumerSwapModal.classList.add('active');
+
+        // Pre-fill user's current device from onboarding if fields are empty
+        try {
+          const savedDeviceRaw = localStorage.getItem('naijaswap_user_device_' + currentUserId);
+          if (savedDeviceRaw && consumerBrand && !consumerBrand.value) {
+            const dev = JSON.parse(savedDeviceRaw);
+            if (dev.brand) {
+              consumerBrand.value = dev.brand;
+              consumerBrand.dispatchEvent(new Event('change'));
+              setTimeout(() => {
+                if (dev.model && consumerModel) {
+                  consumerModel.value = dev.model;
+                  consumerModel.dispatchEvent(new Event('change'));
+                }
+                if (dev.storage && consumerStorage) {
+                  consumerStorage.value = dev.storage;
+                  consumerStorage.dispatchEvent(new Event('change'));
+                }
+              }, 50);
+            }
+          }
+        } catch (_) {}
+      });
+    }
+
+    // Getting Started Guide manual trigger from dropdown
+    const openTourBtn = document.getElementById('openOnboardingTourBtn');
+    if (openTourBtn) {
+      openTourBtn.addEventListener('click', () => {
+        openOnboardingModal(window.naijaswapAuthUser || { uid: currentUserId, displayName: currentUserName }, 'customer');
       });
     }
 

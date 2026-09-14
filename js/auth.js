@@ -640,6 +640,7 @@ export function initSignupForm() {
         setButtonLoading(submitBtn, true, "Creating account...");
         // Set this before Firebase emits auth state so the observer cannot default a dealer to customer.
         localStorage.setItem("naijaswap_role_pending", selectedRole);
+        sessionStorage.setItem("naijaswap_first_signup", "true");
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCred.user;
 
@@ -679,6 +680,7 @@ export function initSignupForm() {
         setButtonLoading(googleBtn, true, "Connecting to Google...");
         // Set this before Firebase emits auth state so the observer cannot default a dealer to customer.
         localStorage.setItem("naijaswap_role_pending", selectedRole);
+        sessionStorage.setItem("naijaswap_first_signup", "true");
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
 
