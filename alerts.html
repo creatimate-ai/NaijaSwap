@@ -405,6 +405,7 @@
   <script type="module">
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { db, collection, auth } from './js/firebase-config.js';
+    import { setButtonLoading } from './js/auth.js';
     import {
       onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, limit
     } from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -675,17 +676,27 @@
 
     // Mark all as read
     if (markAllReadBtn) {
-      markAllReadBtn.addEventListener('click', async () => {
-        if (currentUserId !== 'user_guest') await markAllReadInFirestore(currentUserId);
+      markAllReadBtn.addEventListener('click', async (e) => {
+        setButtonLoading(e.currentTarget, true, 'Updating...');
+        try {
+          if (currentUserId !== 'user_guest') await markAllReadInFirestore(currentUserId);
+        } finally {
+          setButtonLoading(e.currentTarget, false);
+        }
       });
     }
 
     // Clear all
     if (clearAllAlertsBtn) {
-      clearAllAlertsBtn.addEventListener('click', async () => {
+      clearAllAlertsBtn.addEventListener('click', async (e) => {
         if (!confirm('Clear all notifications?')) return;
-        if (currentUserId !== 'user_guest') {
-          await Promise.all(liveNotifications.map(n => deleteInFirestore(currentUserId, n.id)));
+        setButtonLoading(e.currentTarget, true, 'Clearing...');
+        try {
+          if (currentUserId !== 'user_guest') {
+            await Promise.all(liveNotifications.map(n => deleteInFirestore(currentUserId, n.id)));
+          }
+        } finally {
+          setButtonLoading(e.currentTarget, false);
         }
       });
     }

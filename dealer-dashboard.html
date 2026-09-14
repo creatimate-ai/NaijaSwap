@@ -81,8 +81,6 @@
   <!-- Main Store Dashboard Content -->
   <main class="dash-main">
 
-    <!-- Store Setup Checklist Widget (Populated dynamically by onboarding.js) -->
-    <div id="gettingStartedChecklistContainer"></div>
 
     <!-- Dynamic Verification Status Alert Banner -->
     <div id="dealerVerificationBanner" style="display:none;margin-bottom:20px;border-radius:var(--radius-lg);padding:14px 18px;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
@@ -98,16 +96,15 @@
       </a>
     </div>
 
-    <!-- Welcome Section -->
-    <div class="store-welcome-card">
-      <div class="welcome-title-wrap">
-        <h1 id="welcomeGreeting">Good morning, <span id="storeNameGreeting">Partner Store</span></h1>
-        <p class="welcome-subtitle">Manage phone inventory, review incoming swap trade-ins, and connect with verified buyers.</p>
+    <!-- Welcome Header Row -->
+    <div class="dealer-page-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; gap: 14px; flex-wrap: wrap;">
+      <div>
+        <h1 id="welcomeGreeting" style="font-size: 1.55rem; font-weight: 800; color: #FFF; margin: 0; letter-spacing: -0.02em;">Good morning, <span id="storeNameGreeting">Partner Store</span></h1>
       </div>
       <div class="store-header-actions">
-        <a href="dealer-listings.html" class="btn-primary-action" style="text-decoration: none;">
-          <span>Manage Listings</span>
+        <a href="dealer-listings.html" class="btn-primary-action" style="text-decoration: none; padding: 10px 18px; font-size: 0.88rem; font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 8px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          <span>Manage Listings</span>
         </a>
       </div>
     </div>
@@ -393,7 +390,7 @@
   <script type="module">
     import { requireCompleteProfile, isProfileComplete, resolveMedia } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { logNaijaSwap } from './js/auth.js';
+    import { logNaijaSwap, setButtonLoading } from './js/auth.js';
     import { db, doc, getDoc } from './js/firebase-config.js';
     import { initOnboarding, openOnboardingModal } from './js/onboarding.js';
 
@@ -586,8 +583,8 @@
 
         // Action button event bindings
         card.querySelector('.btn-view-req')?.addEventListener('click', () => openRequestDetails(req));
-        card.querySelector('.btn-accept')?.addEventListener('click', () => handleAcceptRequest(req.id));
-        card.querySelector('.btn-decline')?.addEventListener('click', () => handleDeclineRequest(req.id));
+        card.querySelector('.btn-accept')?.addEventListener('click', (e) => handleAcceptRequest(req.id, e.currentTarget));
+        card.querySelector('.btn-decline')?.addEventListener('click', (e) => handleDeclineRequest(req.id, e.currentTarget));
 
         swapRequestsContainer.appendChild(card);
       });
@@ -604,14 +601,26 @@
       swapRequestsContainer.appendChild(footerLinkBox);
     }
 
-    function handleAcceptRequest(reqId) {
-      NaijaSwapData.updateSwapRequestStatus(reqId, 'Accepted', currentStoreId);
-      refreshDashboard();
+    async function handleAcceptRequest(reqId, triggerBtn = null) {
+      if (triggerBtn) setButtonLoading(triggerBtn, true, 'Accepting...');
+      try {
+        NaijaSwapData.updateSwapRequestStatus(reqId, 'Accepted', currentStoreId);
+        await refreshDashboard();
+      } finally {
+        if (triggerBtn) setButtonLoading(triggerBtn, false);
+      }
     }
 
-    function handleDeclineRequest(reqId) {
-      NaijaSwapData.updateSwapRequestStatus(reqId, 'Declined', currentStoreId);
-      refreshDashboard();
+    async function handleDeclineRequest(reqId, triggerBtn = null) {
+      if (confirm('Decline this customer swap request?')) {
+        if (triggerBtn) setButtonLoading(triggerBtn, true, 'Declining...');
+        try {
+          NaijaSwapData.updateSwapRequestStatus(reqId, 'Declined', currentStoreId);
+          await refreshDashboard();
+        } finally {
+          if (triggerBtn) setButtonLoading(triggerBtn, false);
+        }
+      }
     }
 
     // Open Request Details Modal
@@ -635,16 +644,16 @@
       viewRequestModal.classList.add('active');
     }
 
-    document.getElementById('modalAcceptBtn')?.addEventListener('click', () => {
+    document.getElementById('modalAcceptBtn')?.addEventListener('click', (e) => {
       if (activeInspectedReq) {
-        handleAcceptRequest(activeInspectedReq.id);
+        handleAcceptRequest(activeInspectedReq.id, e.currentTarget);
         viewRequestModal.classList.remove('active');
       }
     });
 
-    document.getElementById('modalDeclineBtn')?.addEventListener('click', () => {
+    document.getElementById('modalDeclineBtn')?.addEventListener('click', (e) => {
       if (activeInspectedReq) {
-        handleDeclineRequest(activeInspectedReq.id);
+        handleDeclineRequest(activeInspectedReq.id, e.currentTarget);
         viewRequestModal.classList.remove('active');
       }
     });

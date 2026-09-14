@@ -127,25 +127,21 @@
   <main class="dash-main" style="max-width: 1100px; margin: 0 auto; padding: 24px 20px 120px;">
 
     <!-- Breadcrumb -->
-    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-faint); margin-bottom: 16px;">
-      <a href="dealer-dashboard.html" style="color: var(--text-muted); text-decoration: none;">Dashboard</a>
-      <span>/</span>
-      <span style="color: var(--cyan-400); font-weight: 700;">Store Listings</span>
-    </div>
+    <!-- Page Header & Simple Plus Action Button -->
+    <div class="dealer-page-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; gap: 14px; flex-wrap: wrap;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-faint); margin-bottom: 6px;">
+          <a href="dealer-dashboard.html" style="color: var(--text-muted); text-decoration: none;">Dashboard</a>
+          <span>/</span>
+          <span style="color: var(--cyan-400); font-weight: 700;">Store Listings</span>
+        </div>
+        <h1 id="storeListingsHeading" style="font-size: 1.55rem; font-weight: 800; color: #FFF; margin: 0; letter-spacing: -0.02em;">My Phone Listings</h1>
+      </div>
 
-    <!-- Store Welcome & Action Banner -->
-    <div class="store-welcome-card" style="margin-bottom: 24px;">
-      <div class="welcome-title-wrap">
-        <span class="welcome-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border-color: var(--cyan-border);">📦 Verified Store Inventory</span>
-        <h1 id="storeListingsHeading">My Phone Listings</h1>
-        <p class="welcome-subtitle">Manage available smartphones listed for swap or trade-in at your hub store. Track pricing, edit conditions, and publish new stock.</p>
-      </div>
-      <div class="store-header-actions">
-        <button type="button" class="btn-primary-action" id="openAddPhoneModalBtn" style="background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400)); border: none; box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3);">
-          <span>+ Add Phone</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </button>
-      </div>
+      <button type="button" class="btn-primary-action btn-add-phone-plus" id="openAddPhoneModalBtn" title="Add Phone" aria-label="Add Phone" style="background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400)); border: none; box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3); padding: 10px 20px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>+ Add Phone</span>
+      </button>
     </div>
 
     <!-- Search & Filter Controls -->
@@ -208,6 +204,11 @@
     </div>
 
   </main>
+
+  <!-- Floating Action Plus Button for Quick Phone Listing -->
+  <button type="button" class="floating-swap-plus-btn floating-dealer-btn" id="floatingAddPhoneBtn" title="Add Phone" aria-label="Add Phone" style="background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400)); box-shadow: 0 6px 24px rgba(6, 182, 212, 0.45);">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+  </button>
 
   <!-- ==========================================================================
        STORE / DEALER MOBILE BOTTOM NAVIGATION (GLASS EFFECT)
@@ -545,6 +546,7 @@
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { createListingBackend } from './js/backend-api.js';
     import { db, doc, getDoc, auth } from './js/firebase-config.js';
+    import { setButtonLoading } from './js/auth.js';
 
     let currentStoreId = 'store_hub_1';
     let currentStoreName = 'My Phone Store';
@@ -997,6 +999,9 @@
         }
         const quantity = parseInt(document.getElementById('dealerQuantityInStock')?.value, 10) || 1;
 
+        const submitBtn = document.getElementById('submitAddPhoneBtn');
+        setButtonLoading(submitBtn, true, 'Uploading & Publishing...');
+
         // Store media to Cloud or IndexedDB so raw base64 is NEVER saved into localStorage
         const processedMedia = [];
         for (let i = 0; i < dealerUploadedMedia.length; i++) {
@@ -1062,11 +1067,14 @@
           });
           newListing.firestoreId = backendResult.data.listingId;
         } catch (error) {
+          setButtonLoading(submitBtn, false);
           NaijaSwapData.deleteListing(newListing.id, currentStoreId);
-          throw new Error(error.message || 'The listing could not be published.');
+          alert(error.message || 'The listing could not be published.');
+          return;
         }
 
         // Reset
+        setButtonLoading(submitBtn, false);
         addPhoneForm.reset();
         dealerUploadedMedia = [];
         if (dealerPreviewsGrid) dealerPreviewsGrid.innerHTML = '';
@@ -1126,7 +1134,8 @@
     }
 
     // Modal triggers
-    [openAddPhoneModalBtn, emptyAddPhoneBtn].forEach(btn => {
+    const floatingAddPhoneBtn = document.getElementById('floatingAddPhoneBtn');
+    [openAddPhoneModalBtn, emptyAddPhoneBtn, floatingAddPhoneBtn].forEach(btn => {
       if (btn) btn.addEventListener('click', handleAddPhoneClick);
     });
 

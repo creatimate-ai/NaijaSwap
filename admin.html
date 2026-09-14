@@ -508,6 +508,7 @@
   <script type="module">
     import { auth, db, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, limit, onAuthStateChanged } from './js/firebase-config.js';
     import { apiGet, apiPost } from './js/backend-api.js';
+    import { setButtonLoading } from './js/auth.js';
 
     let currentAdminUid = null;
     let currentUserData = null;
@@ -552,8 +553,9 @@
 
     // Dev Role Setup (Development / Test accounts)
     btnMakeAdmin?.addEventListener('click', async () => {
+      if (!currentAdminUid) return alert('Please log in first.');
+      setButtonLoading(btnMakeAdmin, true, 'Setting Role...');
       try {
-        if (!currentAdminUid) return alert('Please log in first.');
         await apiPost('/api/admin/setup-role', { role: 'admin' });
         alert('✓ Granted Admin role! Page will now reload with full administrative privileges.');
         window.location.reload();
@@ -562,12 +564,15 @@
         await setDoc(doc(db, 'users', currentAdminUid), { role: 'admin', accountType: 'admin' }, { merge: true });
         alert('✓ Granted Admin role directly. Reloading...');
         window.location.reload();
+      } finally {
+        setButtonLoading(btnMakeAdmin, false);
       }
     });
 
     btnMakeTech?.addEventListener('click', async () => {
+      if (!currentAdminUid) return alert('Please log in first.');
+      setButtonLoading(btnMakeTech, true, 'Setting Role...');
       try {
-        if (!currentAdminUid) return alert('Please log in first.');
         await apiPost('/api/admin/setup-role', { role: 'technician' });
         alert('✓ Granted Hub Technician role! You can now conduct inspections.');
         window.location.reload();
@@ -575,6 +580,8 @@
         await setDoc(doc(db, 'users', currentAdminUid), { role: 'technician', accountType: 'technician', isTechnician: true }, { merge: true });
         alert('✓ Granted Technician role directly. Reloading...');
         window.location.reload();
+      } finally {
+        setButtonLoading(btnMakeTech, false);
       }
     });
 
@@ -628,7 +635,14 @@
       });
     });
 
-    document.getElementById('btnRefreshVerifs')?.addEventListener('click', loadVerifications);
+    document.getElementById('btnRefreshVerifs')?.addEventListener('click', async (e) => {
+      setButtonLoading(e.currentTarget, true, 'Refreshing...');
+      try {
+        await loadVerifications();
+      } finally {
+        setButtonLoading(e.currentTarget, false);
+      }
+    });
 
     async function loadVerifications() {
       verificationsList.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Fetching dealer verification queue...</div>';
@@ -764,11 +778,10 @@
 
       // Wire up approval buttons
       document.querySelectorAll('.btn-approve-dealer').forEach(btn => {
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', async (e) => {
           const uid = btn.dataset.uid;
           if (!confirm('Approve this store dealer? They will be granted dealer role and allowed to publish listings.')) return;
-          btn.disabled = true;
-          btn.textContent = 'Approving...';
+          setButtonLoading(e.currentTarget, true, 'Approving...');
           try {
             await apiPost('/api/admin/verification-status', { uid, status: 'approved' });
             alert('✓ Dealer successfully approved and notified!');
@@ -779,17 +792,19 @@
             await setDoc(doc(db, 'users', uid), { role: 'dealer', accountType: 'dealer', verificationStatus: 'approved' }, { merge: true });
             alert('✓ Dealer approved directly in database!');
             loadVerifications();
+          } finally {
+            setButtonLoading(e.currentTarget, false);
           }
         });
       });
 
       // Wire up rejection buttons
       document.querySelectorAll('.btn-reject-dealer').forEach(btn => {
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', async (e) => {
           const uid = btn.dataset.uid;
           const reason = prompt('Please enter the reason for rejection (e.g. Blurry ID, CAC registration mismatch):');
           if (!reason) return;
-          btn.disabled = true;
+          setButtonLoading(e.currentTarget, true, 'Rejecting...');
           try {
             await apiPost('/api/admin/verification-status', { uid, status: 'rejected', reason });
             alert('Dealer verification marked rejected.');
@@ -799,6 +814,8 @@
             await setDoc(doc(db, 'users', uid), { verificationStatus: 'rejected' }, { merge: true });
             alert('Dealer rejected directly in database.');
             loadVerifications();
+          } finally {
+            setButtonLoading(e.currentTarget, false);
           }
         });
       });
@@ -870,8 +887,7 @@
 
     btnRecordPass?.addEventListener('click', async () => {
       if (!selectedInspectSwap) return;
-      btnRecordPass.disabled = true;
-      btnRecordPass.textContent = 'Generating Certificate...';
+      setButtonLoading(btnRecordPass, true, 'Issuing Certificate...');
 
       const diagnostics = {
         screenPassed: document.getElementById('chkScreen').checked,
@@ -915,8 +931,7 @@
         btnViewCertLink.href = `certificate.html?id=${selectedInspectSwap.id}`;
         loadSwaps();
       } finally {
-        btnRecordPass.disabled = false;
-        btnRecordPass.textContent = '✓ Pass & Issue Digital Certificate';
+        setButtonLoading(btnRecordPass, false);
       }
     });
 
@@ -925,7 +940,7 @@
       const reason = prompt('Please specify why this device failed inspection (e.g. Replaced non-genuine LCD, active iCloud lock):');
       if (!reason) return;
 
-      btnRecordFail.disabled = true;
+      setButtonLoading(btnRecordFail, true, 'Recording Failure...');
       try {
         await apiPost('/api/swap/inspection', {
           requestId: selectedInspectSwap.id,
@@ -944,7 +959,7 @@
         alert('Inspection failed recorded.');
         loadSwaps();
       } finally {
-        btnRecordFail.disabled = false;
+        setButtonLoading(btnRecordFail, false);
       }
     });
 
@@ -961,7 +976,14 @@
       });
     });
 
-    document.getElementById('btnRefreshSwaps')?.addEventListener('click', loadSwaps);
+    document.getElementById('btnRefreshSwaps')?.addEventListener('click', async (e) => {
+      setButtonLoading(e.currentTarget, true, 'Refreshing...');
+      try {
+        await loadSwaps();
+      } finally {
+        setButtonLoading(e.currentTarget, false);
+      }
+    });
 
     async function loadSwaps() {
       try {

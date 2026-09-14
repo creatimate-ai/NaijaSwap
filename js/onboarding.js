@@ -6,6 +6,7 @@
 
 import { db, doc, getDoc, setDoc } from './firebase-config.js';
 import { NaijaSwapData, BRANDS_AND_MODELS } from './dashboard-data.js';
+import { setButtonLoading } from './auth.js';
 
 const ONBOARDING_VERSION = 'v2';
 const KEY_PREFIX_DONE = `naijaswap_onboarded_${ONBOARDING_VERSION}_`;
@@ -51,8 +52,6 @@ export async function initOnboarding(user, role = 'customer') {
     } catch (_) {}
   }
 
-  // Render the Getting Started Checklist on the dashboard
-  renderGettingStartedWidget(user, role);
 
   // If first-time user, automatically pop up the onboarding wizard
   if (!isDone || isFirstSignup) {
@@ -433,7 +432,6 @@ function setupOnboardingWizardLogic(modal, user, role) {
     closeBtn.addEventListener('click', () => {
       setOnboardingStatus(uid, true);
       closeOnboardingModal();
-      renderGettingStartedWidget(user, role);
     });
   }
 
@@ -479,35 +477,40 @@ function setupOnboardingWizardLogic(modal, user, role) {
           return;
         }
 
-        const fullName = inputName?.value.trim() || (user && user.displayName) || 'Swapper';
-        const phone = rawPhone.startsWith('234') ? `+${rawPhone}` : `+234${rawPhone.replace(/^0/, '')}`;
-
-        // Save contact info locally
-        localStorage.setItem('naijaswap_user_whatsapp_' + uid, phone);
-        localStorage.setItem('naijaswap_phone_' + uid, phone);
-
-        // Update profile in local cache
+        setButtonLoading(btnStep2Next, true, 'Saving...');
         try {
-          const userObj = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
-          userObj.displayName = fullName;
-          userObj.phoneNumber = phone;
-          localStorage.setItem('naijaswap_user', JSON.stringify(userObj));
-        } catch (_) {}
+          const fullName = inputName?.value.trim() || (user && user.displayName) || 'Swapper';
+          const phone = rawPhone.startsWith('234') ? `+${rawPhone}` : `+234${rawPhone.replace(/^0/, '')}`;
 
-        // Asynchronously sync contact with Firestore
-        if (uid) {
+          // Save contact info locally
+          localStorage.setItem('naijaswap_user_whatsapp_' + uid, phone);
+          localStorage.setItem('naijaswap_phone_' + uid, phone);
+
+          // Update profile in local cache
           try {
-            setDoc(doc(db, 'users', uid), {
-              displayName: fullName,
-              phoneNumber: phone,
-              updatedAt: new Date().toISOString()
-            }, { merge: true });
-          } catch (err) {
-            console.warn('[NaijaSwap Onboarding] Firestore sync note:', err.message);
-          }
-        }
+            const userObj = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
+            userObj.displayName = fullName;
+            userObj.phoneNumber = phone;
+            localStorage.setItem('naijaswap_user', JSON.stringify(userObj));
+          } catch (_) {}
 
-        goToStep(3);
+          // Asynchronously sync contact with Firestore
+          if (uid) {
+            try {
+              setDoc(doc(db, 'users', uid), {
+                displayName: fullName,
+                phoneNumber: phone,
+                updatedAt: new Date().toISOString()
+              }, { merge: true });
+            } catch (err) {
+              console.warn('[NaijaSwap Onboarding] Firestore sync note:', err.message);
+            }
+          }
+
+          goToStep(3);
+        } finally {
+          setButtonLoading(btnStep2Next, false);
+        }
       });
     }
 
@@ -517,7 +520,6 @@ function setupOnboardingWizardLogic(modal, user, role) {
     async function finishSwapperOnboarding() {
       setOnboardingStatus(uid, true);
       closeOnboardingModal();
-      renderGettingStartedWidget(user, role);
 
       if (uid) {
         try {
@@ -534,12 +536,17 @@ function setupOnboardingWizardLogic(modal, user, role) {
     // Button: "Let us know the phone you have" -> Redirect to proper listing page
     if (btnStep3ListPhone) {
       btnStep3ListPhone.addEventListener('click', async () => {
-        await finishSwapperOnboarding();
-        if (window.location.pathname.toLowerCase().includes('my-swaps')) {
-          const consumerModal = document.getElementById('consumerSwapModal');
-          if (consumerModal) consumerModal.classList.add('active');
-        } else {
-          window.location.href = 'my-swaps.html?action=new';
+        setButtonLoading(btnStep3ListPhone, true, 'Loading...');
+        try {
+          await finishSwapperOnboarding();
+          if (window.location.pathname.toLowerCase().includes('my-swaps')) {
+            const consumerModal = document.getElementById('consumerSwapModal');
+            if (consumerModal) consumerModal.classList.add('active');
+          } else {
+            window.location.href = 'my-swaps.html?action=new';
+          }
+        } finally {
+          setButtonLoading(btnStep3ListPhone, false);
         }
       });
     }
@@ -547,14 +554,19 @@ function setupOnboardingWizardLogic(modal, user, role) {
     // Button: "Explore Phones" -> Scroll to phonesGrid or redirect to dashboard.html#phonesGrid
     if (btnStep3Explore) {
       btnStep3Explore.addEventListener('click', async () => {
-        await finishSwapperOnboarding();
-        if (window.location.pathname.toLowerCase().includes('dashboard')) {
-          const phonesSection = document.getElementById('phonesGrid') || document.querySelector('.phones-grid') || document.querySelector('.search-container');
-          if (phonesSection) {
-            phonesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setButtonLoading(btnStep3Explore, true, 'Loading...');
+        try {
+          await finishSwapperOnboarding();
+          if (window.location.pathname.toLowerCase().includes('dashboard')) {
+            const phonesSection = document.getElementById('phonesGrid') || document.querySelector('.phones-grid') || document.querySelector('.search-container');
+            if (phonesSection) {
+              phonesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          } else {
+            window.location.href = 'dashboard.html#phonesGrid';
           }
-        } else {
-          window.location.href = 'dashboard.html#phonesGrid';
+        } finally {
+          setButtonLoading(btnStep3Explore, false);
         }
       });
     }
@@ -594,33 +606,38 @@ function setupOnboardingWizardLogic(modal, user, role) {
           return;
         }
 
-        // Save store details locally
-        localStorage.setItem('naijaswap_shop_' + uid, shopName);
-        localStorage.setItem('naijaswap_dealer_hub_' + uid, hub);
-        if (address) localStorage.setItem('naijaswap_dealer_address_' + uid, address);
-        if (rawPhone) {
-          const phone = rawPhone.startsWith('234') ? `+${rawPhone}` : `+234${rawPhone.replace(/^0/, '')}`;
-          localStorage.setItem('naijaswap_dealer_phone_' + uid, phone);
-        }
-
-        // Asynchronously sync with Firestore
-        if (uid) {
-          try {
-            await setDoc(doc(db, 'dealers', uid), {
-              shopName,
-              hub,
-              shopAddress: address || '',
-              hotline: rawPhone ? `+234${rawPhone.replace(/^0/, '')}` : '',
-              onboardingCompleted: true,
-              updatedAt: new Date().toISOString()
-            }, { merge: true });
-          } catch (err) {
-            console.warn('[NaijaSwap Onboarding] Dealer sync note:', err.message);
+        setButtonLoading(btnDStep2Next, true, 'Saving details...');
+        try {
+          // Save store details locally
+          localStorage.setItem('naijaswap_shop_' + uid, shopName);
+          localStorage.setItem('naijaswap_dealer_hub_' + uid, hub);
+          if (address) localStorage.setItem('naijaswap_dealer_address_' + uid, address);
+          if (rawPhone) {
+            const phone = rawPhone.startsWith('234') ? `+${rawPhone}` : `+234${rawPhone.replace(/^0/, '')}`;
+            localStorage.setItem('naijaswap_dealer_phone_' + uid, phone);
           }
-        }
 
-        setOnboardingStatus(uid, true);
-        goToStep(3);
+          // Asynchronously sync with Firestore
+          if (uid) {
+            try {
+              await setDoc(doc(db, 'dealers', uid), {
+                shopName,
+                hub,
+                shopAddress: address || '',
+                hotline: rawPhone ? `+234${rawPhone.replace(/^0/, '')}` : '',
+                onboardingCompleted: true,
+                updatedAt: new Date().toISOString()
+              }, { merge: true });
+            } catch (err) {
+              console.warn('[NaijaSwap Onboarding] Dealer sync note:', err.message);
+            }
+          }
+
+          setOnboardingStatus(uid, true);
+          goToStep(3);
+        } finally {
+          setButtonLoading(btnDStep2Next, false);
+        }
       });
     }
 
@@ -638,7 +655,6 @@ function setupOnboardingWizardLogic(modal, user, role) {
       btnLaunchDash.addEventListener('click', () => {
         setOnboardingStatus(uid, true);
         closeOnboardingModal();
-        renderGettingStartedWidget(user, role);
       });
     }
   }
@@ -646,237 +662,14 @@ function setupOnboardingWizardLogic(modal, user, role) {
 
 /**
  * Render Interactive "Getting Started" Checklist Banner on the Dashboard
+ * (Banner has been completely disabled across all pages per user request; removes any residual DOM elements)
  */
 export function renderGettingStartedWidget(user, role = 'customer') {
-  if (!user || !user.uid) return;
-  const uid = user.uid;
-
-  // Check if user dismissed the widget
-  if (localStorage.getItem(KEY_PREFIX_DISMISSED + uid) === 'true') {
-    return;
+  const container = document.getElementById('gettingStartedChecklistContainer');
+  if (container) {
+    container.remove();
   }
-
-  // Find widget container or insert before main content
-  let container = document.getElementById('gettingStartedChecklistContainer');
-  if (!container) {
-    const targetParent = document.querySelector('.dash-main') || document.querySelector('main');
-    if (!targetParent) return;
-
-    container = document.createElement('div');
-    container.id = 'gettingStartedChecklistContainer';
-    targetParent.insertBefore(container, targetParent.firstChild);
-  }
-
-  container.classList.add('getting-started-banner');
-  container.style.display = 'block';
-
-  const isDealer = role === 'dealer';
-
-  if (!isDealer) {
-    // --- SWAPPER CHECKLIST ---
-    const hasPhone = Boolean(localStorage.getItem('naijaswap_user_whatsapp_' + uid) || (user && user.phoneNumber));
-    const hasDevice = Boolean(localStorage.getItem('naijaswap_user_device_' + uid));
-    const swapReqs = JSON.parse(localStorage.getItem('naijaswap_swap_requests') || '[]');
-    const hasMadeSwap = Array.isArray(swapReqs) && swapReqs.some(r => r.customerUid === uid);
-
-    let completedTasks = 1; // Account created
-    if (hasPhone) completedTasks++;
-    if (hasDevice) completedTasks++;
-    if (hasMadeSwap) completedTasks++;
-
-    const totalTasks = 4;
-    const progressPercent = Math.round((completedTasks / totalTasks) * 100);
-
-    // If 100% completed, don't overwhelm user
-    if (progressPercent === 100) {
-      container.style.display = 'none';
-      return;
-    }
-
-    container.innerHTML = `
-      <div class="gs-card">
-        <div class="gs-top-row">
-          <div class="gs-header-info">
-            <div class="gs-title-wrap">
-              <span class="gs-badge">⚡ Quick Start</span>
-              <h3 class="gs-title">Setup your Swapper Profile (${completedTasks}/${totalTasks} completed)</h3>
-            </div>
-            <p class="gs-subtitle">Complete these quick steps to get verified swap proposals from stores.</p>
-          </div>
-          <div class="gs-actions-right">
-            <button type="button" class="btn-gs-tour" id="btnRestartSwapperGuide">
-              <span>Restart Guide</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </button>
-            <button type="button" class="btn-gs-dismiss" id="btnDismissGettingStarted" aria-label="Dismiss checklist">&times;</button>
-          </div>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="gs-progress-bar-wrap">
-          <div class="gs-progress-fill" style="width: ${progressPercent}%;"></div>
-        </div>
-
-        <!-- Task Checklist Grid -->
-        <div class="gs-tasks-grid">
-          <div class="gs-task-item done">
-            <div class="gs-task-check">✓</div>
-            <div class="gs-task-info">
-              <span class="gs-task-label">Create Account</span>
-              <span class="gs-task-sub">Account is active</span>
-            </div>
-          </div>
-
-          <div class="gs-task-item ${hasPhone ? 'done' : 'pending'}" id="taskItemWhatsApp">
-            <div class="gs-task-check">${hasPhone ? '✓' : '2'}</div>
-            <div class="gs-task-info">
-              <span class="gs-task-label">Add WhatsApp Contact</span>
-              <span class="gs-task-sub">${hasPhone ? 'Connected' : 'Click to add WhatsApp number'}</span>
-            </div>
-          </div>
-
-          <div class="gs-task-item ${hasDevice ? 'done' : 'pending'}" id="taskItemDevice">
-            <div class="gs-task-check">${hasDevice ? '✓' : '3'}</div>
-            <div class="gs-task-info">
-              <span class="gs-task-label">List Your Phone to Swap</span>
-              <span class="gs-task-sub">${hasDevice ? 'Phone listed for swap' : 'Click to list phone with photos & specs'}</span>
-            </div>
-          </div>
-
-          <div class="gs-task-item ${hasMadeSwap ? 'done' : 'pending'}" id="taskItemFirstSwap">
-            <div class="gs-task-check">${hasMadeSwap ? '✓' : '4'}</div>
-            <div class="gs-task-info">
-              <span class="gs-task-label">Propose a Phone Swap</span>
-              <span class="gs-task-sub">${hasMadeSwap ? 'Swap request sent' : 'Find a phone and submit a proposal'}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    // Bind event clicks
-    container.querySelector('#btnRestartSwapperGuide')?.addEventListener('click', () => {
-      openOnboardingModal(user, 'customer');
-    });
-
-    container.querySelector('#btnDismissGettingStarted')?.addEventListener('click', () => {
-      localStorage.setItem(KEY_PREFIX_DISMISSED + uid, 'true');
-      container.style.display = 'none';
-    });
-
-    container.querySelector('#taskItemWhatsApp')?.addEventListener('click', () => {
-      openOnboardingModal(user, 'customer');
-    });
-
-    container.querySelector('#taskItemDevice')?.addEventListener('click', () => {
-      window.location.href = 'my-swaps.html?action=new';
-    });
-
-    container.querySelector('#taskItemFirstSwap')?.addEventListener('click', () => {
-      const openModalBtn = document.getElementById('openConsumerSwapModalBtn');
-      if (openModalBtn) openModalBtn.click();
-    });
-
-  } else {
-    // --- DEALER CHECKLIST ---
-    const hasShop = Boolean(localStorage.getItem('naijaswap_shop_' + uid));
-    const isVerified = localStorage.getItem('naijaswap_dealer_verified_' + uid) === 'true';
-    const listings = JSON.parse(localStorage.getItem('naijaswap_marketplace_listings') || '[]');
-    const hasListing = Array.isArray(listings) && listings.some(l => l.storeId === uid || l.storeId === 'store_prime');
-
-    let completedTasks = 1; // Dealer account created
-    if (hasShop) completedTasks++;
-    if (isVerified) completedTasks++;
-    if (hasListing) completedTasks++;
-
-    const totalTasks = 4;
-    const progressPercent = Math.round((completedTasks / totalTasks) * 100);
-
-    if (progressPercent === 100) {
-      container.style.display = 'none';
-      return;
-    }
-
-    container.innerHTML = `
-      <div class="gs-card gs-card-dealer">
-        <div class="gs-top-row">
-          <div class="gs-header-info">
-            <div class="gs-title-wrap">
-              <span class="gs-badge gs-badge-cyan">🏬 Store Activation</span>
-              <h3 class="gs-title">Partner Store Launchpad (${completedTasks}/${totalTasks} steps)</h3>
-            </div>
-            <p class="gs-subtitle">Complete your partner store profile to unlock verified badge and receive buyer swap inquiries.</p>
-          </div>
-          <div class="gs-actions-right">
-            <button type="button" class="btn-gs-tour" id="btnRestartDealerGuide">
-              <span>Setup Guide</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </button>
-            <button type="button" class="btn-gs-dismiss" id="btnDismissGettingStarted" aria-label="Dismiss checklist">&times;</button>
-          </div>
-        </div>
-
-        <div class="gs-progress-bar-wrap">
-          <div class="gs-progress-fill gs-fill-cyan" style="width: ${progressPercent}%;"></div>
-        </div>
-
-        <div class="gs-tasks-grid">
-          <div class="gs-task-item done">
-            <div class="gs-task-check">✓</div>
-            <div class="gs-task-info">
-              <span class="gs-task-label">Store Account</span>
-              <span class="gs-task-sub">Partner account ready</span>
-            </div>
-          </div>
-
-          <div class="gs-task-item ${hasShop ? 'done' : 'pending'}" id="dealerTaskShop">
-            <div class="gs-task-check">${hasShop ? '✓' : '2'}</div>
-            <div class="gs-task-info">
-              <span class="gs-task-label">Physical Stall & Hub</span>
-              <span class="gs-task-sub">${hasShop ? 'Configured' : 'Add shop address & hotline'}</span>
-            </div>
-          </div>
-
-          <div class="gs-task-item ${isVerified ? 'done' : 'pending'}" id="dealerTaskVerif">
-            <div class="gs-task-check">${isVerified ? '✓' : '3'}</div>
-            <div class="gs-task-info">
-              <span class="gs-task-label">KYC Verification</span>
-              <span class="gs-task-sub">${isVerified ? 'Verified Partner' : 'Submit ID & shop proof'}</span>
-            </div>
-          </div>
-
-          <div class="gs-task-item ${hasListing ? 'done' : 'pending'}" id="dealerTaskListing">
-            <div class="gs-task-check">${hasListing ? '✓' : '4'}</div>
-            <div class="gs-task-info">
-              <span class="gs-task-label">Publish Phone Listing</span>
-              <span class="gs-task-sub">${hasListing ? 'Stock listed' : 'Add your first phone for swap'}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    container.querySelector('#btnRestartDealerGuide')?.addEventListener('click', () => {
-      openOnboardingModal(user, 'dealer');
-    });
-
-    container.querySelector('#btnDismissGettingStarted')?.addEventListener('click', () => {
-      localStorage.setItem(KEY_PREFIX_DISMISSED + uid, 'true');
-      container.style.display = 'none';
-    });
-
-    container.querySelector('#dealerTaskShop')?.addEventListener('click', () => {
-      openOnboardingModal(user, 'dealer');
-    });
-
-    container.querySelector('#dealerTaskVerif')?.addEventListener('click', () => {
-      window.location.href = 'dealer-verification.html';
-    });
-
-    container.querySelector('#dealerTaskListing')?.addEventListener('click', () => {
-      window.location.href = 'dealer-listings.html?action=new';
-    });
-  }
+  document.querySelectorAll('.getting-started-banner, .gs-card').forEach(el => el.remove());
 }
 
 // Expose globally on window for manual triggers and menu dropdowns

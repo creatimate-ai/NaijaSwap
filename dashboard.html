@@ -40,6 +40,11 @@
     </div>
 
     <div class="dash-header-right">
+      <button type="button" class="btn-primary-action" id="openConsumerSwapModalBtn" title="Propose a Swap" aria-label="Propose a Swap" style="padding: 8px 16px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span class="header-swap-btn-text">Propose Swap</span>
+      </button>
+
       <!-- User Menu -->
       <div class="user-menu-wrapper">
         <button type="button" class="user-profile-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
@@ -76,24 +81,6 @@
 
   <!-- Main Swapper Dashboard Content -->
   <main class="dash-main">
-
-    <!-- Getting Started Checklist Widget (Populated dynamically by onboarding.js) -->
-    <div id="gettingStartedChecklistContainer"></div>
-
-    <!-- Swapper Welcome & Swap Proposal Action Card -->
-    <div class="store-welcome-card" style="margin-bottom: 22px;">
-      <div class="store-welcome-text">
-        <span class="welcome-badge">🔄 Verified Nigeria Phone Exchange</span>
-        <h1>Swap Your Current Phone For An Upgrade</h1>
-        <p>Trade in your iPhone for a verified device with instant top-up valuation at Computer Village or Banex hubs.</p>
-      </div>
-      <div class="store-header-actions">
-        <button type="button" class="btn-primary-action" id="openConsumerSwapModalBtn">
-          <span>+ Propose a Swap</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </button>
-      </div>
-    </div>
 
     <!-- Search Area -->
     <div class="search-container">
@@ -608,7 +595,7 @@
     import { requireCompleteProfile } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { createSwapRequestBackend } from './js/backend-api.js';
-    import { initOnboarding, openOnboardingModal, renderGettingStartedWidget } from './js/onboarding.js';
+    import { initOnboarding, openOnboardingModal } from './js/onboarding.js';
     import { setButtonLoading } from './js/auth.js';
 
     let currentUserId = 'user_guest';
@@ -635,13 +622,6 @@
           } else {
             avatarEl.textContent = currentUserName.charAt(0).toUpperCase();
           }
-        }
-
-        // Render checklist immediately without waiting for Firebase network roundtrip
-        if (u.uid && u.uid !== 'user_guest') {
-          try {
-            renderGettingStartedWidget(u, 'customer');
-          } catch (_) {}
         }
       }
     } catch (e) {}

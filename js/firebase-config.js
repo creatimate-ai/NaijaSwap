@@ -11,7 +11,23 @@ if (typeof window !== "undefined" && window.location && window.location.hostname
 }
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  getDoc, 
+  getDocs, 
+  setDoc, 
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query, 
+  where, 
+  orderBy, 
+  limit,
+  onSnapshot,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { 
   getAuth, 
   signInWithEmailAndPassword,
@@ -93,10 +109,15 @@ export {
   getDoc,
   getDocs,
   setDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
   limit,
+  onSnapshot,
+  serverTimestamp,
   auth,
   googleProvider,
   signInWithEmailAndPassword,

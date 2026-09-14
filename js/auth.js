@@ -361,7 +361,9 @@ export function setButtonLoading(button, isLoading, loadingText = "Processing...
   if (!button) return;
   if (isLoading) {
     button.disabled = true;
-    button.dataset.originalHtml = button.innerHTML;
+    if (!button.dataset.originalHtml) {
+      button.dataset.originalHtml = button.innerHTML;
+    }
     button.classList.add("is-loading");
     button.innerHTML = `
       <span class="btn-spinner" aria-hidden="true"></span>
@@ -372,8 +374,12 @@ export function setButtonLoading(button, isLoading, loadingText = "Processing...
     button.classList.remove("is-loading");
     if (button.dataset.originalHtml) {
       button.innerHTML = button.dataset.originalHtml;
+      delete button.dataset.originalHtml;
     }
   }
+}
+if (typeof window !== 'undefined') {
+  window.setButtonLoading = setButtonLoading;
 }
 
 export function showAuthAlert(containerId, message, type = "error") {
@@ -1105,8 +1111,14 @@ function updateLandingNavbar(user) {
     const navSignOut = document.getElementById("navSignOutBtn");
     if (navSignOut) {
       navSignOut.addEventListener("click", async () => {
-        await signOut(auth);
-        window.location.reload();
+        setButtonLoading(navSignOut, true, "Signing out...");
+        try {
+          await signOut(auth);
+          window.location.reload();
+        } catch (err) {
+          setButtonLoading(navSignOut, false);
+          console.error("Sign out error:", err);
+        }
       });
     }
   } else {

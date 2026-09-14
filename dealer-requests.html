@@ -467,20 +467,14 @@
   <!-- Main Store Requests Content -->
   <main class="dash-main" style="max-width: 1120px; margin: 0 auto; padding: 24px 20px 120px;">
 
-    <!-- Breadcrumb -->
-    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-faint); margin-bottom: 16px;">
-      <a href="dealer-dashboard.html" style="color: var(--text-muted); text-decoration: none;">Dashboard</a>
-      <span>/</span>
-      <span style="color: var(--cyan-400); font-weight: 700;">Swap Requests</span>
-    </div>
-
-    <!-- Hero Banner -->
-    <div class="store-welcome-card" style="margin-bottom: 22px;">
-      <div class="welcome-title-wrap">
-        <span class="welcome-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border-color: var(--cyan-border);">💬 Real-time Trade-in Center</span>
-        <h1 id="requestsPageHeading">Swap Trade-in Requests</h1>
-        <p class="welcome-subtitle">Inspect customer trade-in devices, review condition triage reports, verify battery health, and accept or decline top-up valuations.</p>
+    <!-- Page Header & Breadcrumb -->
+    <div class="dealer-page-header-row" style="margin-bottom: 22px;">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-faint); margin-bottom: 6px;">
+        <a href="dealer-dashboard.html" style="color: var(--text-muted); text-decoration: none;">Dashboard</a>
+        <span>/</span>
+        <span style="color: var(--cyan-400); font-weight: 700;">Swap Requests</span>
       </div>
+      <h1 id="requestsPageHeading" style="font-size: 1.55rem; font-weight: 800; color: #FFF; margin: 0; letter-spacing: -0.02em;">Swap Trade-in Requests</h1>
     </div>
 
     <!-- Overview Stats Metrics Cards -->
@@ -806,6 +800,7 @@
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { resolveMedia } from './js/profile.js';
     import { updateSwapRequestStatusBackend, confirmSwapHandoverBackend } from './js/backend-api.js';
+    import { setButtonLoading } from './js/auth.js';
 
     let currentStoreId = 'store_hub_1';
     let currentStoreName = 'My Phone Store';
@@ -839,9 +834,6 @@
             if (src && storeAvatarFallback) {
               storeAvatarFallback.innerHTML = `<img src="${src}" alt="${storeName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
             }
-          });
-          inspectCounterBtn?.addEventListener('click', () => {
-            if (activeInspectedReq) handleCounterRequest(activeInspectedReq.id);
           });
         } else {
           storeAvatarFallback.textContent = storeName.charAt(0).toUpperCase();
@@ -1079,11 +1071,11 @@
         // Card button event bindings
         card.querySelector('.btn-card-chat')?.addEventListener('click', () => openDealerChat(req.id, req.customerName));
         card.querySelector('.btn-inspect')?.addEventListener('click', () => openInspectionModal(req));
-        card.querySelector('.btn-accept')?.addEventListener('click', () => handleAcceptRequest(req.id));
-        card.querySelector('.btn-decline')?.addEventListener('click', () => handleDeclineRequest(req.id));
-        card.querySelector('.btn-start-inspection')?.addEventListener('click', () => handleStartInspection(req.id));
-        card.querySelector('.btn-confirm-handover')?.addEventListener('click', () => handleConfirmHandover(req.id));
-        card.querySelector('.btn-dispute')?.addEventListener('click', () => handleDispute(req.id));
+        card.querySelector('.btn-accept')?.addEventListener('click', (e) => handleAcceptRequest(req.id, e.currentTarget));
+        card.querySelector('.btn-decline')?.addEventListener('click', (e) => handleDeclineRequest(req.id, e.currentTarget));
+        card.querySelector('.btn-start-inspection')?.addEventListener('click', (e) => handleStartInspection(req.id, e.currentTarget));
+        card.querySelector('.btn-confirm-handover')?.addEventListener('click', (e) => handleConfirmHandover(req.id, e.currentTarget));
+        card.querySelector('.btn-dispute')?.addEventListener('click', (e) => handleDispute(req.id, e.currentTarget));
 
         requestsContainer.appendChild(card);
       });
@@ -1109,31 +1101,47 @@
       }
     }
 
-    async function handleAcceptRequest(reqId) {
-      await syncSwapStatus(reqId, 'Accepted');
-      NaijaSwapData.updateSwapRequestStatus(reqId, 'Accepted', currentStoreId);
-      renderRequests();
+    async function handleAcceptRequest(reqId, triggerBtn = null) {
+      if (triggerBtn) setButtonLoading(triggerBtn, true, 'Accepting...');
+      try {
+        await syncSwapStatus(reqId, 'Accepted');
+        NaijaSwapData.updateSwapRequestStatus(reqId, 'Accepted', currentStoreId);
+        renderRequests();
+      } finally {
+        if (triggerBtn) setButtonLoading(triggerBtn, false);
+      }
     }
 
-    async function handleDeclineRequest(reqId) {
+    async function handleDeclineRequest(reqId, triggerBtn = null) {
       if (confirm('Decline this customer swap request?')) {
-        await syncSwapStatus(reqId, 'Declined');
-        NaijaSwapData.updateSwapRequestStatus(reqId, 'Declined', currentStoreId);
-        renderRequests();
+        if (triggerBtn) setButtonLoading(triggerBtn, true, 'Declining...');
+        try {
+          await syncSwapStatus(reqId, 'Declined');
+          NaijaSwapData.updateSwapRequestStatus(reqId, 'Declined', currentStoreId);
+          renderRequests();
+        } finally {
+          if (triggerBtn) setButtonLoading(triggerBtn, false);
+        }
       }
     }
 
-    async function handleStartInspection(reqId) {
+    async function handleStartInspection(reqId, triggerBtn = null) {
       if (confirm('Start the authorized hub inspection for this swap?')) {
-        await syncSwapStatus(reqId, 'under_inspection');
-        NaijaSwapData.updateSwapRequestStatus(reqId, 'under_inspection', currentStoreId);
-        renderRequests();
+        if (triggerBtn) setButtonLoading(triggerBtn, true, 'Starting...');
+        try {
+          await syncSwapStatus(reqId, 'under_inspection');
+          NaijaSwapData.updateSwapRequestStatus(reqId, 'under_inspection', currentStoreId);
+          renderRequests();
+        } finally {
+          if (triggerBtn) setButtonLoading(triggerBtn, false);
+        }
       }
     }
 
-    async function handleConfirmHandover(reqId) {
+    async function handleConfirmHandover(reqId, triggerBtn = null) {
       const req = NaijaSwapData.getStoreSwapRequests(currentStoreId).find(item => item.id === reqId);
       if (!req?.firestoreId || !confirm('Confirm that the inspected devices and any agreed top-up were handed over at the authorized hub?')) return;
+      if (triggerBtn) setButtonLoading(triggerBtn, true, 'Confirming...');
       try {
         const token = await auth.currentUser.getIdToken();
         const r = await fetch('/api/swap/confirm-handover', {
@@ -1144,20 +1152,23 @@
         const d = await r.json();
         if (!r.ok) throw new Error(d.error || 'Failed to confirm handover');
         alert('Your confirmation was recorded. The swapper must also confirm before completion.');
-        req.status = 'inspection_passed'; // wait, it might stay or advance, just trigger re-render
+        req.status = 'inspection_passed';
         renderRequests();
       } catch (err) {
         console.error(err);
         alert('Error: ' + err.message);
+      } finally {
+        if (triggerBtn) setButtonLoading(triggerBtn, false);
       }
     }
 
-    async function handleDispute(reqId) {
+    async function handleDispute(reqId, triggerBtn = null) {
       const req = NaijaSwapData.getStoreSwapRequests(currentStoreId).find(item => item.id === reqId);
       if (!req?.firestoreId) return;
       const reason = prompt('Please enter a reason for the dispute:');
       if (!reason) return;
       
+      if (triggerBtn) setButtonLoading(triggerBtn, true, 'Filing Dispute...');
       try {
         const token = await auth.currentUser.getIdToken();
         const r = await fetch('/api/swap/dispute', {
@@ -1175,17 +1186,24 @@
       } catch (err) {
         console.error(err);
         alert('Error: ' + err.message);
+      } finally {
+        if (triggerBtn) setButtonLoading(triggerBtn, false);
       }
     }
 
-    async function handleCounterRequest(reqId) {
+    async function handleCounterRequest(reqId, triggerBtn = null) {
       const amount = prompt('Enter your revised top-up amount:', activeInspectedReq?.topupOffered || '');
       if (amount === null) return;
       const message = prompt('Add a message for the customer (optional):', '') || '';
-      await syncSwapStatus(reqId, 'Countered', { counterOffer: amount.trim(), counterMessage: message });
-      NaijaSwapData.updateSwapRequestStatus(reqId, 'Countered', currentStoreId);
-      renderRequests();
-      requestInspectionModal?.classList.remove('active');
+      if (triggerBtn) setButtonLoading(triggerBtn, true, 'Sending Offer...');
+      try {
+        await syncSwapStatus(reqId, 'Countered', { counterOffer: amount.trim(), counterMessage: message });
+        NaijaSwapData.updateSwapRequestStatus(reqId, 'Countered', currentStoreId);
+        renderRequests();
+        requestInspectionModal?.classList.remove('active');
+      } finally {
+        if (triggerBtn) setButtonLoading(triggerBtn, false);
+      }
     }
 
     // Inspection Modal Logic
@@ -1331,37 +1349,33 @@
     }
 
     // Modal action handlers
-    document.getElementById('inspectConfirmHandoverBtn')?.addEventListener('click', () => {
+    document.getElementById('inspectConfirmHandoverBtn')?.addEventListener('click', (e) => {
       if (activeInspectedReq) {
-        handleConfirmHandover(activeInspectedReq.id);
-        requestInspectionModal.classList.remove('active');
+        handleConfirmHandover(activeInspectedReq.id, e.currentTarget);
       }
     });
 
-    document.getElementById('inspectDisputeBtn')?.addEventListener('click', () => {
+    document.getElementById('inspectDisputeBtn')?.addEventListener('click', (e) => {
       if (activeInspectedReq) {
-        handleDispute(activeInspectedReq.id);
+        handleDispute(activeInspectedReq.id, e.currentTarget);
       }
     });
 
-    inspectAcceptBtn?.addEventListener('click', () => {
+    inspectAcceptBtn?.addEventListener('click', (e) => {
       if (activeInspectedReq) {
-        handleAcceptRequest(activeInspectedReq.id);
-        requestInspectionModal.classList.remove('active');
+        handleAcceptRequest(activeInspectedReq.id, e.currentTarget);
       }
     });
 
-    inspectDeclineBtn?.addEventListener('click', () => {
+    inspectDeclineBtn?.addEventListener('click', (e) => {
       if (activeInspectedReq) {
-        handleDeclineRequest(activeInspectedReq.id);
-        requestInspectionModal.classList.remove('active');
+        handleDeclineRequest(activeInspectedReq.id, e.currentTarget);
       }
     });
 
-    inspectCompleteBtn?.addEventListener('click', () => {
+    inspectCounterBtn?.addEventListener('click', (e) => {
       if (activeInspectedReq) {
-        handleCompleteRequest(activeInspectedReq.id);
-        requestInspectionModal.classList.remove('active');
+        handleCounterRequest(activeInspectedReq.id, e.currentTarget);
       }
     });
 
@@ -1529,6 +1543,8 @@
       e.preventDefault();
       const text = (chatInputText.value || '').trim();
       if (!text || !activeChatRequestId) return;
+      const sendBtn = chatMessageForm.querySelector('button[type="submit"]');
+      if (sendBtn) setButtonLoading(sendBtn, true, 'Sending...');
       chatInputText.value = '';
 
       try {
@@ -1556,6 +1572,8 @@
         } catch (apiErr) {
           alert('Could not send message: ' + (apiErr.message || err.message));
         }
+      } finally {
+        if (sendBtn) setButtonLoading(sendBtn, false);
       }
     });
 

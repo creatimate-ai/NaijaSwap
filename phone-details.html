@@ -996,6 +996,7 @@
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { createSwapRequestBackend } from './js/backend-api.js';
     import { db, doc, getDoc } from './js/firebase-config.js';
+    import { setButtonLoading } from './js/auth.js';
 
     let currentUserId = 'user_guest';
     let currentUserName = 'Swapper';
@@ -1078,7 +1079,7 @@
     const navMoreBtn = document.getElementById('navMoreBtn');
 
     // Initialize Page
-    function init() {
+    async function init() {
       targetPhone = NaijaSwapData.getListingById(phoneId);
 
       if (!targetPhone) {
@@ -1386,6 +1387,8 @@
         const currentDev = userDevices.find(d => d.id === devId) || userDevices[0];
         if (!currentDev) return;
 
+        setButtonLoading(submitBtn, true, 'Sending Proposal...');
+
         const calc = NaijaSwapData.calculateTopUpForDevice(targetPhone.id, currentDev);
 
         const newReq = NaijaSwapData.createSwapRequest({
@@ -1423,12 +1426,14 @@
           });
           NaijaSwapData.attachFirestoreRequestId(newReq.id, backendResult.data.requestId);
         } catch (error) {
+          setButtonLoading(submitBtn, false);
           console.error('[NaijaSwap] Swap request backend sync failed:', error);
           alert('Your swap request could not reach the dealer. Please try again.');
           return;
         }
 
         // Show success state
+        setButtonLoading(submitBtn, false);
         container.style.display = 'none';
         const successCard = document.getElementById('proposalSuccessCard');
         const successMsg = document.getElementById('successCardMsg');
@@ -2005,6 +2010,9 @@
             carrierLock
           };
 
+          const submitBtn = document.getElementById('submitConsumerSwapBtn');
+          setButtonLoading(submitBtn, true, 'Submitting Request...');
+
           const newReq = NaijaSwapData.createSwapRequest({
             targetPhoneId: targetPhone ? targetPhone.id : '',
             brand,
@@ -2026,6 +2034,7 @@
           });
 
           // Reset & close
+          setButtonLoading(submitBtn, false);
           consumerSwapForm.reset();
           consumerUploadedFiles = [];
           if (consumerPreviewsGrid) consumerPreviewsGrid.innerHTML = '';

@@ -1376,18 +1376,18 @@ body {
    ========================================================================== */
 .mobile-bottom-nav {
   position: fixed;
-  bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  bottom: max(10px, env(safe-area-inset-bottom, 10px));
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 440px;
-  background: rgba(10, 16, 23, 0.82);
+  width: calc(100% - 24px);
+  max-width: 390px;
+  background: rgba(10, 16, 23, 0.85);
   backdrop-filter: blur(36px) saturate(220%);
   -webkit-backdrop-filter: blur(36px) saturate(220%);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75), 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 1px 1.5px rgba(255, 255, 255, 0.22);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 3px 10px rgba(0, 0, 0, 0.35), inset 0 1px 1.5px rgba(255, 255, 255, 0.22);
   border-radius: var(--radius-full);
-  padding: 8px 10px;
+  padding: 4px 6px;
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -1400,26 +1400,28 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 7px 12px;
+  gap: 2px;
+  padding: 5px 6px;
   border-radius: var(--radius-full);
   color: var(--text-muted);
   text-decoration: none;
   font-family: inherit;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 600;
   position: relative;
   transition: all var(--spring-fast);
   background: transparent;
   border: none;
   cursor: pointer;
-  min-width: 60px;
+  min-width: 44px;
+  flex: 1;
+  max-width: 74px;
 }
 
 .bottom-nav-item svg {
-  width: 21px;
-  height: 21px;
-  stroke-width: 2.2;
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.1;
   transition: transform var(--spring-fast);
 }
 
@@ -1435,25 +1437,52 @@ body {
   color: var(--emerald-400);
   background: linear-gradient(135deg, rgba(0, 210, 106, 0.2), rgba(0, 210, 106, 0.08));
   border: 1px solid rgba(0, 210, 106, 0.28);
-  box-shadow: 0 2px 12px rgba(0, 210, 106, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 10px rgba(0, 210, 106, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.22);
+  padding: 5px 8px;
 }
 
 .bottom-nav-item.active svg {
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 .bottom-nav-badge {
   position: absolute;
-  top: 3px;
-  right: 10px;
-  padding: 2px 6px;
+  top: 1px;
+  right: 6px;
+  padding: 1.5px 4.5px;
   border-radius: var(--radius-full);
   background: var(--rose-400);
   color: #FFF;
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   font-weight: 800;
   line-height: 1;
-  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.5);
+  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.5);
+  min-width: 15px;
+  text-align: center;
+}
+
+@media (max-width: 380px) {
+  .mobile-bottom-nav {
+    width: calc(100% - 16px);
+    padding: 3px 4px;
+    bottom: max(8px, env(safe-area-inset-bottom, 8px));
+  }
+  .bottom-nav-item {
+    padding: 4px 3px;
+    min-width: 36px;
+    font-size: 0.58rem;
+    gap: 1.5px;
+  }
+  .bottom-nav-item svg {
+    width: 16px;
+    height: 16px;
+  }
+  .bottom-nav-badge {
+    right: 3px;
+    top: 0;
+    font-size: 0.52rem;
+    padding: 1px 3.5px;
+  }
 }
 
 /* ==========================================================================
@@ -1609,83 +1638,415 @@ body {
 }
 
 @media (max-width: 640px) {
+  /* Header & Logo */
   .dash-header {
-    padding: 12px 16px;
+    padding: 8px 12px;
+  }
+
+  .dash-header-left {
+    gap: 8px;
+  }
+
+  .dash-header-right {
+    gap: 8px;
   }
 
   .brand-name {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
   }
 
-  .dash-main {
-    padding: 16px 14px max(110px, calc(90px + env(safe-area-inset-bottom, 20px))) 14px;
+  .logo-mark {
+    width: 30px;
+    height: 30px;
   }
 
-  .search-input {
-    padding: 14px 44px 14px 46px;
-    font-size: 0.94rem;
+  .logo-mark svg {
+    width: 16px;
+    height: 16px;
   }
 
-  .brand-chip {
-    padding: 8px 16px;
-    font-size: 0.82rem;
+  .role-tag {
+    padding: 2px 7px;
+    font-size: 0.65rem;
   }
 
-  .filter-bar {
-    padding: 10px 12px;
+  /* Compact header user profile on mobile */
+  .user-name-text {
+    display: none !important;
   }
 
-  .filter-select {
-    padding: 7px 10px;
+  .user-profile-btn {
+    padding: 2px;
+    gap: 0;
+    border-radius: 50%;
+    min-width: 34px;
+    width: 34px;
+    height: 34px;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  .user-profile-btn svg {
+    display: none;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
     font-size: 0.78rem;
   }
 
+  /* Header action button: keep compact and avoid 100% width blowout */
+  .dash-header .btn-primary-action {
+    width: auto !important;
+    padding: 6px 12px !important;
+    font-size: 0.78rem !important;
+    height: 34px !important;
+    border-radius: var(--radius-full) !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Main containers padding */
+  .dash-main {
+    padding: 12px 12px max(74px, calc(62px + env(safe-area-inset-bottom, 16px))) 12px !important;
+  }
+
+  .more-page-container,
+  .account-page-container {
+    padding: 14px 12px max(74px, calc(62px + env(safe-area-inset-bottom, 16px))) 12px !important;
+  }
+
+  /* Search & Filter Controls */
+  .search-input {
+    padding: 9px 36px 9px 38px;
+    font-size: 0.85rem;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .search-icon {
+    left: 12px;
+    width: 15px;
+    height: 15px;
+  }
+
+  .search-clear-btn {
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    font-size: 0.85rem;
+  }
+
+  .brand-chips-row {
+    gap: 6px;
+    padding: 2px 2px 10px 2px;
+    margin-bottom: 12px;
+  }
+
+  .brand-chip {
+    padding: 6px 13px;
+    font-size: 0.76rem;
+  }
+
+  .filter-bar {
+    padding: 8px 10px;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+  }
+
+  .filter-select {
+    padding: 6px 8px;
+    font-size: 0.74rem;
+  }
+
+  /* Phone Cards (Marketplace) */
   .phones-grid {
-    grid-template-columns: 1fr; /* Clean single-column layout on mobile */
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .phone-card {
+    border-radius: 16px;
   }
 
   .phone-card-media {
-    height: 210px;
+    height: 175px;
   }
 
+  .phone-tags-floating {
+    top: 8px;
+    left: 8px;
+    gap: 4px;
+  }
+
+  .tag-badge {
+    font-size: 0.62rem;
+    padding: 3px 8px;
+  }
+
+  .phone-card-body {
+    padding: 12px 14px;
+    gap: 6px;
+  }
+
+  .phone-title-block h3 {
+    font-size: 0.98rem;
+  }
+
+  .phone-specs-line {
+    font-size: 0.72rem;
+    gap: 4px;
+  }
+
+  .phone-specs-line span:not(:nth-child(2)) {
+    padding: 2px 7px;
+    font-size: 0.68rem;
+  }
+
+  .phone-location-line {
+    font-size: 0.74rem;
+  }
+
+  .phone-topup-badge {
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-top: 4px;
+  }
+
+  .topup-label {
+    font-size: 0.68rem;
+  }
+
+  .topup-amount {
+    font-size: 0.98rem;
+  }
+
+  .phone-card-footer {
+    padding: 0 14px 12px 14px;
+  }
+
+  .btn-view-details {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    border-radius: 10px;
+  }
+
+  /* Dealer Overview Grid & Cards */
   .overview-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 18px;
   }
 
   .overview-card {
-    padding: 16px 14px;
-    gap: 12px;
+    padding: 10px 10px;
+    gap: 8px;
+    border-radius: 12px;
   }
 
   .overview-icon-box {
-    width: 42px;
-    height: 42px;
-    font-size: 1.25rem;
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+    border-radius: 10px;
   }
 
   .overview-number {
-    font-size: 1.4rem;
+    font-size: 1.15rem;
   }
 
-  .form-row-2 {
-    grid-template-columns: 1fr;
+  .overview-label {
+    font-size: 0.7rem;
+  }
+
+  /* Section Titles & Page Header Rows */
+  .section-title {
+    font-size: 1.08rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.76rem;
+  }
+
+  .dealer-page-header-row,
+  .swaps-page-header-row,
+  .page-heading-section {
+    margin-bottom: 16px !important;
+    gap: 10px !important;
+  }
+
+  .dealer-page-header-row h1,
+  .swaps-page-header-row h1,
+  .page-heading-section h1 {
+    font-size: 1.22rem !important;
+  }
+
+  .dealer-page-header-row .btn-primary-action,
+  .swaps-page-header-row .btn-primary-action {
+    width: auto !important;
+    padding: 7px 14px !important;
+    font-size: 0.8rem !important;
   }
 
   .store-welcome-card {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px 18px;
+    padding: 14px 12px;
+    border-radius: 14px;
+    gap: 10px;
   }
 
-  .store-header-actions {
-    width: 100%;
+  /* Dealer Requests & Activities */
+  .request-card {
+    padding: 12px 12px;
+    gap: 8px;
+    border-radius: 12px;
   }
 
-  .btn-primary-action {
-    width: 100%;
-    justify-content: center;
+  .request-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.82rem;
+  }
+
+  .request-customer-name {
+    font-size: 0.88rem;
+  }
+
+  .request-timestamp {
+    font-size: 0.68rem;
+  }
+
+  .status-badge {
+    font-size: 0.65rem;
+    padding: 2.5px 8px;
+  }
+
+  .request-swap-body {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .swap-phone-desc {
+    font-size: 0.78rem;
+  }
+
+  .swap-topup-value {
+    font-size: 0.9rem;
+  }
+
+  .request-actions-row {
+    gap: 6px;
+  }
+
+  .btn-action-sm {
+    padding: 6px 12px;
+    font-size: 0.74rem;
+  }
+
+  .activity-timeline {
+    padding: 14px;
+    gap: 10px;
+    border-radius: 14px;
+  }
+
+  .activity-item {
+    gap: 10px;
+    padding-bottom: 10px;
+    font-size: 0.8rem;
+  }
+
+  .activity-icon-node {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
+
+  /* My Swaps & Alerts Cards */
+  .swap-tracker-card {
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .swap-card-topbar {
+    padding-bottom: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .swap-exchange-layout {
+    padding: 10px 10px !important;
+    gap: 8px !important;
+    border-radius: 10px !important;
+  }
+
+  .swap-filter-pill,
+  .alert-filter-pill {
+    padding: 6px 12px !important;
+    font-size: 0.76rem !important;
+    gap: 6px !important;
+  }
+
+  .alert-card-item {
+    padding: 12px 12px !important;
+    gap: 10px !important;
+    border-radius: 12px !important;
+  }
+
+  /* More & Account Pages */
+  .more-title {
+    font-size: 1.35rem !important;
+  }
+
+  .more-subtitle {
+    font-size: 0.78rem !important;
+  }
+
+  .more-back-btn {
+    padding: 6px 12px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .more-user-card {
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+    gap: 12px !important;
+  }
+
+  .more-user-avatar-placeholder {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1rem !important;
+  }
+
+  .more-user-name {
+    font-size: 0.98rem !important;
+  }
+
+  .more-menu-item {
+    padding: 11px 13px !important;
+    border-radius: 14px !important;
+  }
+
+  .more-item-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+  }
+
+  .more-item-title {
+    font-size: 0.86rem !important;
+  }
+
+  .more-item-sub {
+    font-size: 0.72rem !important;
+  }
+
+  /* Modals & Dialogs (Native iOS Sheet Feel) */
+  .form-row-2 {
+    grid-template-columns: 1fr;
   }
 
   .modal-backdrop {
@@ -1697,9 +2058,9 @@ body {
     max-width: 100%;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    border-top-left-radius: 28px;
-    border-top-right-radius: 28px;
-    padding: 30px 20px calc(24px + env(safe-area-inset-bottom, 20px)) 20px;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    padding: 22px 16px calc(20px + env(safe-area-inset-bottom, 20px)) 16px;
     transform: translateY(100%);
     max-height: 88vh;
     box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.8), var(--glass-specular);
@@ -1708,17 +2069,66 @@ body {
   .modal-card::before {
     content: '';
     position: absolute;
-    top: 10px;
+    top: 8px;
     left: 50%;
     transform: translateX(-50%);
-    width: 38px;
-    height: 4.5px;
+    width: 36px;
+    height: 4px;
     border-radius: var(--radius-full);
     background: rgba(255, 255, 255, 0.22);
   }
 
+  .modal-header {
+    margin-bottom: 16px;
+  }
+
+  .modal-title {
+    font-size: 1.15rem;
+  }
+
+  .modal-close-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 1.2rem;
+  }
+
   .modal-backdrop.active .modal-card {
     transform: translateY(0);
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-label {
+    font-size: 0.78rem;
+    margin-bottom: 5px;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    border-radius: 10px;
+  }
+
+  /* Phone Details Page */
+  .details-image-frame {
+    height: 220px !important;
+  }
+
+  .details-model-title {
+    font-size: 1.25rem !important;
+  }
+
+  .calculator-panel {
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .topup-final-amount {
+    font-size: 1.25rem !important;
   }
 }
 
@@ -5505,8 +5915,10 @@ button.is-loading, .btn-primary-action.is-loading, .btn-action-sm.is-loading {
 /* ==========================================================================
    GETTING STARTED CHECKLIST WIDGET ON DASHBOARD
    ========================================================================== */
-.getting-started-banner {
-  margin-bottom: 24px;
+.getting-started-banner,
+#gettingStartedChecklistContainer,
+.gs-card {
+  display: none !important;
 }
 
 .gs-card {
@@ -5756,10 +6168,112 @@ button.is-loading, .btn-primary-action.is-loading, .btn-action-sm.is-loading {
   }
 }
 
+/* Floating Action Plus Button for Quick Swaps */
+.floating-swap-plus-btn {
+  position: fixed;
+  bottom: 68px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--emerald-400);
+  color: #05080B;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 99;
+  box-shadow: 0 6px 20px var(--emerald-glow), 0 4px 12px rgba(0, 0, 0, 0.5);
+  transition: all var(--spring-fast);
+}
 
+.floating-swap-plus-btn:hover {
+  background: var(--emerald-500);
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0, 210, 106, 0.45);
+}
 
+.floating-swap-plus-btn:active {
+  transform: scale(0.92);
+}
 
+@media (min-width: 900px) {
+  .floating-swap-plus-btn {
+    bottom: 32px;
+    right: 32px;
+    width: 56px;
+    height: 56px;
+  }
+}
 
+@media (max-width: 560px) {
+  .header-swap-btn-text,
+  .btn-swap-text {
+    display: none;
+  }
+}
 
+@media (max-width: 480px) {
+  .dash-header .btn-primary-action {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    min-width: 32px !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+  }
+  .header-swap-btn-text {
+    display: none !important;
+  }
+}
 
+@media (max-width: 440px) {
+  .dash-header {
+    padding: 8px 10px;
+  }
+  .role-tag span:last-child {
+    display: none;
+  }
+  .role-tag {
+    padding: 2px 5px;
+  }
+  .floating-swap-plus-btn {
+    bottom: 62px;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+  }
+  .phone-card-media {
+    height: 160px;
+  }
+}
+
+@media (max-width: 380px) {
+  .dash-header {
+    padding: 6px 8px;
+  }
+  .brand-name {
+    font-size: 0.98rem;
+  }
+  .logo-mark {
+    width: 28px;
+    height: 28px;
+  }
+  .logo-mark svg {
+    width: 14px;
+    height: 14px;
+  }
+  .overview-number {
+    font-size: 1.05rem;
+  }
+  .overview-icon-box {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+  .phone-card-media {
+    height: 150px;
+  }
+}
 
