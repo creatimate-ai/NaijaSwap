@@ -194,13 +194,30 @@ const STORAGE_MULTIPLIERS = {
   '1TB': 1.30
 };
 
+function isTestListing(item) {
+  if (!item) return true;
+  const id = String(item.id || '');
+  const storeId = String(item.storeId || item.storeOwnerUid || '');
+  const storeName = String(item.storeName || '').toLowerCase();
+  const desc = String(item.description || '').toLowerCase();
+  const img = String(item.image || '');
+
+  const testIds = ['phone_101', 'phone_102', 'phone_103', 'phone_104', 'phone_105', 'phone_106',
+                   '1To9pQ5sPNDjXSzR9V0W', 'iNEyHXMdonH5FoqPZqVY', 'wvsvo88NH4Y20lVaGd7m', 'l9lrdRtCiIWuuHhRXBBI'];
+  if (id.startsWith('phone_10') || testIds.includes(id)) return true;
+  if (storeId === '0c26oL2FDZWFiAPEg3KeeWY4X503' || storeName.includes("isreal")) return true;
+  if (img.includes('jra2fgxo') || desc.includes('checked by certified hub technicians')) return true;
+
+  return false;
+}
+
 function initDatabase() {
   if (typeof localStorage !== 'undefined') {
-    // Purge legacy mock listings starting with phone_10
+    // Purge legacy mock listings
     try {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.LISTINGS) || '[]');
       if (Array.isArray(stored)) {
-        const cleaned = stored.filter(item => !String(item.id || '').startsWith('phone_10'));
+        const cleaned = stored.filter(item => !isTestListing(item));
         localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(cleaned));
       }
     } catch (_) {}
@@ -235,7 +252,7 @@ export const NaijaSwapData = {
         orderBy('createdAt', 'desc'),
         limit(100)
       ));
-      const remoteListings = snapshot.docs.map(mapRemoteListing).filter(item => !String(item.id || '').startsWith('phone_10'));
+      const remoteListings = snapshot.docs.map(mapRemoteListing).filter(item => !isTestListing(item));
       localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(remoteListings));
       return this.filterListings(remoteListings, filters);
     } catch (e) {
@@ -247,6 +264,7 @@ export const NaijaSwapData = {
   filterListings(items, filters = {}) {
     const { brand, storage, condition, location, query: searchQuery } = filters;
     return items.filter(item => {
+      if (isTestListing(item)) return false;
       const itemBrand = String(item.brand || '').toLowerCase();
       const itemModel = String(item.model || '').toLowerCase();
       const isApple = itemBrand.includes('apple') || itemModel.includes('iphone');
@@ -274,8 +292,8 @@ export const NaijaSwapData = {
     } catch {
       items = [];
     }
-    // Clean legacy test listings starting with phone_10
-    items = items.filter(item => !String(item.id || '').startsWith('phone_10'));
+    // Clean legacy test listings
+    items = items.filter(item => !isTestListing(item));
 
     const { brand, storage, condition, location, query } = filters;
 
@@ -577,9 +595,9 @@ export const NaijaSwapData = {
     try {
       items = JSON.parse(localStorage.getItem(STORAGE_KEYS.LISTINGS)) || [];
     } catch {
-      items = DEFAULT_LISTINGS;
+      items = [];
     }
-    if (!items || items.length === 0) items = DEFAULT_LISTINGS;
+    items = items.filter(x => !isTestListing(x));
     items = items.filter(x => {
       const brand = String(x.brand || '').toLowerCase();
       const model = String(x.model || '').toLowerCase();
