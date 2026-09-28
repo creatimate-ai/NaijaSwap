@@ -555,11 +555,11 @@
             <!-- Upload Progress Bar -->
             <div class="upload-progress-container" id="dealerUploadProgress" style="display: none;">
               <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 4px;">
-                <span style="color: var(--text-muted);">Attaching media...</span>
-                <span id="dealerProgressPct" style="color: var(--cyan-400);">100%</span>
+                <span id="dealerProgressLabel" style="color: var(--text-muted);">Uploading media...</span>
+                <span id="dealerProgressPct" style="color: var(--cyan-400);">0%</span>
               </div>
-              <div style="height: 4px; width: 100%; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                <div id="dealerProgressFill" style="height: 100%; width: 100%; background: var(--cyan-400); transition: width 0.2s;"></div>
+              <div id="dealerUploadProgressTrack" role="progressbar" aria-label="Media upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="height: 4px; width: 100%; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                <div id="dealerProgressFill" style="height: 100%; width: 0%; background: var(--cyan-400); transition: width 0.2s;"></div>
               </div>
             </div>
 
@@ -621,9 +621,10 @@
   <!-- Scripts -->
   <script type="module" src="js/auth.js"></script>
   <script type="module">
-    import { requireCompleteProfile, isProfileComplete, compressImageFile, storeMedia, resolveMedia, syncDealerVerificationStatus } from './js/profile.js';
+    import { requireCompleteProfile, isProfileComplete, compressImageFile, resolveMedia, syncDealerVerificationStatus } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { createListingBackend } from './js/backend-api.js';
+    import { uploadToCloudinary } from './js/cloudinary-config.js';
     import { db, doc, getDoc, auth } from './js/firebase-config.js';
     import { setButtonLoading } from './js/auth.js';
 
@@ -820,8 +821,12 @@
     const dealerMediaInput = document.getElementById('dealerMediaInput');
     const dealerUploadProgress = document.getElementById('dealerUploadProgress');
     const dealerProgressFill = document.getElementById('dealerProgressFill');
+    const dealerProgressPct = document.getElementById('dealerProgressPct');
+    const dealerProgressLabel = document.getElementById('dealerProgressLabel');
+    const dealerUploadProgressTrack = document.getElementById('dealerUploadProgressTrack');
     const dealerPreviewsGrid = document.getElementById('dealerPreviewsGrid');
     const dealerMediaCounter = document.getElementById('dealerMediaCounter');
+    let isPublishingListing = false;
 
     function getEffectiveDealerSpecs() {
       const brand = (dealerDeviceBrand.value === 'Other' && dealerCustomBrand?.value.trim()) 
@@ -943,7 +948,7 @@
       });
     }
 
-    function handleDealerMediaFiles(fileList) {
+    async function handleDealerMediaFiles(fileList) {
       if (!fileList || fileList.length === 0) return;
 
       const remainingSlots = 5 - dealerUploadedMedia.length;
@@ -957,47 +962,51 @@
         alert(`You can only add up to 5 items. Adding the first ${remainingSlots} selected.`);
       }
 
-      if (dealerUploadProgress) {
-        dealerUploadProgress.style.display = 'block';
-        if (dealerProgressFill) dealerProgressFill.style.width = '0%';
-        setTimeout(() => {
-          if (dealerProgressFill) dealerProgressFill.style.width = '100%';
-        }, 50);
-      }
-
-      let loadedCount = 0;
-      filesToAdd.forEach(async (file) => {
-        const isVideo = file.type && file.type.startsWith('video/');
-        let dataUrl = '';
-
-        if (isVideo) {
-          dataUrl = await new Promise((res) => {
+      try {
+        const preparedMedia = await Promise.all(filesToAdd.map(async (file) => {
+          const isVideo = file.type && file.type.startsWith('video/');
+          const dataUrl = isVideo
+            ? await new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = (e) => res(e.target.result);
-            reader.onerror = () => res('');
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
             reader.readAsDataURL(file);
-          });
-        } else {
-          dataUrl = await compressImageFile(file, 800, 800, 0.72);
-        }
+          })
+            : await compressImageFile(file, 800, 800, 0.72);
 
-        dealerUploadedMedia.push({
-          name: file.name,
-          size: isVideo ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : '~100 KB (Optimized)',
-          type: file.type,
-          isVideo: isVideo,
-          dataUrl: dataUrl
-        });
+          if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
+            throw new Error(`Could not prepare ${file.name} for upload.`);
+          }
 
-        loadedCount++;
-        if (loadedCount === filesToAdd.length) {
-          setTimeout(() => {
-            if (dealerUploadProgress) dealerUploadProgress.style.display = 'none';
-            updateDealerMediaPreviews();
-            updateDealerMediaCounter();
-          }, 200);
-        }
-      });
+          return {
+            name: file.name,
+            size: isVideo ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : '~100 KB (Optimized)',
+            type: file.type,
+            isVideo,
+            dataUrl
+          };
+        }));
+
+        dealerUploadedMedia.push(...preparedMedia);
+        updateDealerMediaPreviews();
+        updateDealerMediaCounter();
+      } catch (error) {
+        console.error('[NaijaSwap] Dealer media preparation failed:', error);
+        alert(error.message || 'One or more files could not be prepared. Please try again.');
+      } finally {
+        if (dealerUploadProgress) dealerUploadProgress.style.display = 'none';
+      }
+    }
+
+    function updateDealerUploadProgress(fileIndex, fileCount, fileName, loaded, total) {
+      const percent = Math.min(100, Math.round((loaded / total) * 100));
+      if (dealerUploadProgress) dealerUploadProgress.style.display = 'block';
+      if (dealerProgressLabel) {
+        dealerProgressLabel.textContent = `Uploading ${fileIndex} of ${fileCount}: ${fileName}`;
+      }
+      if (dealerProgressPct) dealerProgressPct.textContent = `${percent}%`;
+      if (dealerProgressFill) dealerProgressFill.style.width = `${percent}%`;
+      if (dealerUploadProgressTrack) dealerUploadProgressTrack.setAttribute('aria-valuenow', String(percent));
     }
 
     function updateDealerMediaPreviews() {
@@ -1014,13 +1023,13 @@
               <span class="preview-video-icon">🎬</span>
               <span class="preview-video-title">${escapeHtml(fileData.name)}</span>
             </div>
-            <button type="button" class="preview-remove-btn" title="Remove">&times;</button>
+            <button type="button" class="preview-remove-btn" title="Remove" aria-label="Remove ${escapeHtml(fileData.name)}">&times;</button>
             <span class="preview-size-badge">${fileData.size}</span>
           `;
         } else {
           card.innerHTML = `
             <img src="${fileData.dataUrl}" class="preview-thumb-img" alt="${escapeHtml(fileData.name)}">
-            <button type="button" class="preview-remove-btn" title="Remove">&times;</button>
+            <button type="button" class="preview-remove-btn" title="Remove" aria-label="Remove ${escapeHtml(fileData.name)}">&times;</button>
             <span class="preview-size-badge">${fileData.size}</span>
           `;
         }
@@ -1056,6 +1065,7 @@
     if (addPhoneForm) {
       addPhoneForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isPublishingListing) return;
         const { brand, model, storage, conditionGrade, deviceStatus } = getEffectiveDealerSpecs();
 
         if (!brand || !model) {
@@ -1079,53 +1089,64 @@
         const quantity = parseInt(document.getElementById('dealerQuantityInStock')?.value, 10) || 1;
 
         const submitBtn = document.getElementById('submitAddPhoneBtn');
-        setButtonLoading(submitBtn, true, 'Uploading & Publishing...');
+        isPublishingListing = true;
+        const hasMediaToUpload = dealerUploadedMedia.some(item => !item.uploadedUrl);
+        setButtonLoading(submitBtn, true, hasMediaToUpload ? 'Uploading & Publishing...' : 'Publishing Listing...');
 
-        // Store media to Cloud or IndexedDB so raw base64 is NEVER saved into localStorage
-        const processedMedia = [];
-        for (let i = 0; i < dealerUploadedMedia.length; i++) {
-          const item = dealerUploadedMedia[i];
-          let token = item.dataUrl;
-          if (token && token.startsWith('data:')) {
-            token = await storeMedia(`listing_${Date.now()}_m${i}`, item.dataUrl, { folder: 'listing_media' });
-          }
-          processedMedia.push({
-            name: item.name,
-            size: item.size,
-            type: item.type,
-            isVideo: item.isVideo,
-            dataUrl: token
-          });
-        }
-
-        const primaryPhoto = processedMedia.find(m => !m.isVideo)?.dataUrl;
-        const videoMedia = processedMedia.find(m => m.isVideo)?.dataUrl;
-
-        const newListing = NaijaSwapData.addListing(currentStoreId, currentStoreName, {
-          brand: brand,
-          deviceBrand: brand,
-          model: model,
-          deviceModel: model,
-          storage: storage,
-          storageCapacity: storage,
-          ram: (dealerRamGroup && dealerRamGroup.style.display !== 'none') ? dealerRam.value : '',
-          color: color,
-          deviceStatus: deviceStatus,
-          conditionGrade: conditionGrade,
-          batteryHealth: batteryHealth,
-          inclusions: inclusions,
-          warranty: warranty,
-          isSwapAllowed: isSwapAllowed,
-          minTradeInTier: minTradeInTier,
-          quantity: quantity,
-          quantityInStock: quantity,
-          image: primaryPhoto || null,
-          uploadedImage: primaryPhoto || null,
-          uploadedVideo: videoMedia || null,
-          mediaFiles: processedMedia,
-          allMedia: processedMedia
-        });
+        let newListing = null;
         try {
+          const processedMedia = [];
+          for (let index = 0; index < dealerUploadedMedia.length; index += 1) {
+            const item = dealerUploadedMedia[index];
+            let url = item.uploadedUrl;
+            if (!url) {
+              url = await uploadToCloudinary(
+                item.dataUrl,
+                `naijaswap/${currentStoreId}/listings`,
+                (loaded, total) => updateDealerUploadProgress(index + 1, dealerUploadedMedia.length, item.name, loaded, total)
+              );
+              if (typeof url !== 'string' || !url.startsWith('https://')) {
+                throw new Error(`The upload for ${item.name} did not return a public media URL.`);
+              }
+              item.uploadedUrl = url;
+            }
+            processedMedia.push({
+              name: item.name,
+              size: item.size,
+              type: item.type,
+              isVideo: item.isVideo,
+              dataUrl: url
+            });
+          }
+
+          const primaryPhoto = processedMedia.find(m => !m.isVideo)?.dataUrl;
+          const videoMedia = processedMedia.find(m => m.isVideo)?.dataUrl;
+
+          newListing = NaijaSwapData.addListing(currentStoreId, currentStoreName, {
+            brand: brand,
+            deviceBrand: brand,
+            model: model,
+            deviceModel: model,
+            storage: storage,
+            storageCapacity: storage,
+            ram: (dealerRamGroup && dealerRamGroup.style.display !== 'none') ? dealerRam.value : '',
+            color: color,
+            deviceStatus: deviceStatus,
+            conditionGrade: conditionGrade,
+            batteryHealth: batteryHealth,
+            inclusions: inclusions,
+            warranty: warranty,
+            isSwapAllowed: isSwapAllowed,
+            minTradeInTier: minTradeInTier,
+            quantity: quantity,
+            quantityInStock: quantity,
+            image: primaryPhoto || null,
+            uploadedImage: primaryPhoto || null,
+            uploadedVideo: videoMedia || null,
+            mediaFiles: processedMedia,
+            allMedia: processedMedia
+          });
+
           const backendResult = await createListingBackend({
             storeId: currentStoreId,
             storeName: currentStoreName,
@@ -1146,14 +1167,17 @@
           });
           newListing.firestoreId = backendResult.data.listingId;
         } catch (error) {
-          setButtonLoading(submitBtn, false);
-          NaijaSwapData.deleteListing(newListing.id, currentStoreId);
-          alert(error.message || 'The listing could not be published.');
+          if (newListing) NaijaSwapData.deleteListing(newListing.id, currentStoreId);
+          console.error('[NaijaSwap] Dealer listing publish failed:', error);
+          alert(`${error.message || 'The listing could not be published.'} Your form and selected files are still here; submit again to retry.`);
           return;
+        } finally {
+          isPublishingListing = false;
+          setButtonLoading(submitBtn, false);
+          if (dealerUploadProgress) dealerUploadProgress.style.display = 'none';
         }
 
         // Reset
-        setButtonLoading(submitBtn, false);
         addPhoneForm.reset();
         dealerUploadedMedia = [];
         if (dealerPreviewsGrid) dealerPreviewsGrid.innerHTML = '';
@@ -1163,7 +1187,7 @@
         updateDealerMediaCounter();
         addPhoneModal.classList.remove('active');
         renderStoreListings();
-        alert(`Success! ${model} (${storage}) has been added to your store listings.`);
+        alert(`Published! ${model} (${storage}) is now live and visible in the marketplace.`);
       });
     }
 
