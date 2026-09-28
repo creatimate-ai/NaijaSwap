@@ -594,9 +594,10 @@
 
       // Also update swaps badge in bottom nav
       const mySwaps = NaijaSwapData.getUserSwapRequests(currentUserId);
+      const unreadSwapsCount = (mySwaps || []).filter(r => r.status === 'pending' || r.status === 'countered' || r.isUnread === true).length;
       if (mobileSwapsBadge) {
-        if (mySwaps.length > 0) {
-          mobileSwapsBadge.textContent = mySwaps.length;
+        if (unreadSwapsCount > 0) {
+          mobileSwapsBadge.textContent = unreadSwapsCount;
           mobileSwapsBadge.style.display = 'inline-block';
         } else {
           mobileSwapsBadge.style.display = 'none';

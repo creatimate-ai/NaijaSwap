@@ -939,7 +939,7 @@
             <span>Listings</span>
           </a>
           <a href="dealer-dashboard.html#requestsSection" class="bottom-nav-item" id="navRequestsBtn" title="Swap Requests">
-            ${metrics.requests > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${metrics.requests}</span>` : ''}
+            ${metrics.pendingRequests > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${metrics.pendingRequests}</span>` : ''}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             <span>Requests</span>
           </a>
@@ -956,10 +956,19 @@
     }
 
     function renderSwapperBottomNav() {
-      let swapCount = 0;
+      let unreadSwapsCount = 0;
+      let unreadAlertsCount = 0;
       try {
         const stored = JSON.parse(localStorage.getItem('naijaswap_swap_requests') || '[]');
-        if (Array.isArray(stored)) swapCount = stored.length;
+        if (Array.isArray(stored)) {
+          unreadSwapsCount = stored.filter(r => r.status === 'pending' || r.status === 'countered' || r.isUnread === true).length;
+        }
+      } catch (_) {}
+      try {
+        const storedNotifs = JSON.parse(localStorage.getItem('naijaswap_user_notifications') || '[]');
+        if (Array.isArray(storedNotifs)) {
+          unreadAlertsCount = storedNotifs.filter(n => !n.isRead).length;
+        }
       } catch (_) {}
 
       accountBottomNavContainer.innerHTML = `
@@ -969,11 +978,12 @@
             <span>Home</span>
           </a>
           <a href="my-swaps.html" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
-            ${swapCount > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${swapCount}</span>` : ''}
+            ${unreadSwapsCount > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${unreadSwapsCount}</span>` : ''}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
             <span>My Swaps</span>
           </a>
           <a href="alerts.html" class="bottom-nav-item" id="navNotifBtn" title="Alerts">
+            ${unreadAlertsCount > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${unreadAlertsCount}</span>` : ''}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span>Alerts</span>
           </a>

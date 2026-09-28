@@ -585,8 +585,37 @@
       }
     }
 
+    function updateNavBadges() {
+      try {
+        const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
+        const uid = u.uid || 'user_guest';
+        const mySwaps = NaijaSwapData.getUserSwapRequests(uid);
+        const unreadSwapsCount = (mySwaps || []).filter(r => r.status === 'pending' || r.status === 'countered' || r.isUnread === true).length;
+        const mobileSwapsBadge = document.getElementById('mobileSwapsBadge');
+        if (mobileSwapsBadge) {
+          if (unreadSwapsCount > 0) {
+            mobileSwapsBadge.textContent = unreadSwapsCount;
+            mobileSwapsBadge.style.display = 'inline-block';
+          } else {
+            mobileSwapsBadge.style.display = 'none';
+          }
+        }
+        const mobileAlertsBadge = document.getElementById('mobileAlertsBadge');
+        const unreadAlertsCount = NaijaSwapData.getUnreadNotificationsCount(uid);
+        if (mobileAlertsBadge) {
+          if (unreadAlertsCount > 0) {
+            mobileAlertsBadge.textContent = unreadAlertsCount;
+            mobileAlertsBadge.style.display = 'inline-block';
+          } else {
+            mobileAlertsBadge.style.display = 'none';
+          }
+        }
+      } catch (_) {}
+    }
+
     // Initialize
     loadStoreProfile();
+    updateNavBadges();
   </script>
 </body>
 </html>

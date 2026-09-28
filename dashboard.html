@@ -861,9 +861,10 @@
       } catch (error) {
         myRequests = NaijaSwapData.getUserSwapRequests(currentUserId);
       }
+      const unreadSwapsCount = (myRequests || []).filter(r => r.status === 'pending' || r.status === 'countered' || r.isUnread === true).length;
       if (mobileSwapsBadge) {
-        if (myRequests.length > 0) {
-          mobileSwapsBadge.textContent = myRequests.length;
+        if (unreadSwapsCount > 0) {
+          mobileSwapsBadge.textContent = unreadSwapsCount;
           mobileSwapsBadge.style.display = 'inline-block';
         } else {
           mobileSwapsBadge.style.display = 'none';

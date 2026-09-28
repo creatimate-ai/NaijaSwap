@@ -104,177 +104,8 @@ function mapRemoteRequest(snapshot) {
   };
 }
 
-// Initial verified marketplace inventory using real assets and rich Nigerian marketplace details
-const DEFAULT_LISTINGS = [
-  {
-    id: 'phone_101',
-    brand: 'Apple',
-    model: 'iPhone 15 Pro Max',
-    storage: '256GB',
-    condition: 'Brand New Sealed',
-    color: 'Natural Titanium',
-    battery: '100%',
-    marketValue: 1450000,
-    screen: '6.7-inch Super Retina XDR OLED, 120Hz ProMotion',
-    chipset: 'Apple A17 Pro (3nm)',
-    camera: '48MP Main + 12MP Ultra-wide + 12MP 5x Telephoto',
-    sim: 'Nano-SIM + eSIM (Global Unlocked)',
-    boxIncludes: 'Original Apple Sealed Box, USB-C Woven Cable (1m), Hub Verification Certificate',
-    warranty: '1 Year Apple International Warranty + 30-Day Hub Replacement Guarantee',
-    description: 'Pristine, factory-sealed iPhone 15 Pro Max in high-demand Natural Titanium finish. Tested & authenticated at Computer Village Verification Hub. Clean IMEI, unassigned iCloud, ready for immediate activation on MTN, Airtel, Glo & 9mobile.',
-    location: 'Ikeja, Lagos',
-    hubAddress: 'Shop B14, Digital Complex, Otigba Street, Computer Village, Ikeja, Lagos',
-    whatsappNumber: '2348023456789',
-    acceptedTradeIn: 'iPhone 13 Pro Max / 14 Pro / 14 Pro Max',
-    storeId: 'store_prime',
-    storeName: 'Computer Village Hub',
-    storeVerified: true,
-    tags: ['Recently Listed', 'Verified Store', 'Hub Inspected'],
-    image: 'assets/iPhone 15 Pro Max (256GB).jpg',
-    status: 'Active',
-    createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
-  },
-  {
-    id: 'phone_102',
-    brand: 'Apple',
-    model: 'iPhone 15 Pro',
-    storage: '128GB',
-    condition: 'Excellent',
-    color: 'Blue Titanium',
-    battery: '99%',
-    marketValue: 1150000,
-    screen: '6.1-inch Super Retina XDR OLED, 120Hz ProMotion',
-    chipset: 'Apple A17 Pro (3nm)',
-    camera: '48MP Main + 12MP Ultra-wide + 12MP 3x Telephoto',
-    sim: 'Nano-SIM + eSIM (Factory Unlocked)',
-    boxIncludes: 'Original Box, USB-C Cable, Transparent MagSafe Case',
-    warranty: '7-Day Full Return Guarantee + 30-Day Hub Hardware Warranty',
-    description: 'Mint condition iPhone 15 Pro in elegant Blue Titanium. Screen is completely scratch-free with tempered glass pre-installed. TrueTone, FaceID, Action Button, and all cameras verified 100% operational by senior hub technicians.',
-    location: 'Ikeja, Lagos',
-    hubAddress: 'Shop B14, Digital Complex, Otigba Street, Computer Village, Ikeja, Lagos',
-    whatsappNumber: '2348023456789',
-    acceptedTradeIn: 'iPhone 12 Pro / 13 Pro / 14',
-    storeId: 'store_prime',
-    storeName: 'Computer Village Hub',
-    storeVerified: true,
-    tags: ['Recently Listed', 'Verified Store'],
-    image: 'assets/iPhone 15 Pro.jpg',
-    status: 'Active',
-    createdAt: new Date(Date.now() - 3600000 * 5).toISOString()
-  },
-  {
-    id: 'phone_103',
-    brand: 'Samsung',
-    model: 'Galaxy S24 Ultra',
-    storage: '256GB',
-    condition: 'Brand New Sealed',
-    color: 'Titanium Gray',
-    battery: '100%',
-    marketValue: 1380000,
-    screen: '6.8-inch Dynamic AMOLED 2X, 120Hz',
-    chipset: 'Qualcomm Snapdragon 8 Gen 3 for Galaxy',
-    camera: '200MP Main + 50MP Periscope + 10MP Telephoto + 12MP Ultrawide',
-    sim: 'Dual Nano-SIM + eSIM',
-    boxIncludes: 'Original Samsung Sealed Box, S-Pen, USB-C Cable',
-    warranty: '24 Months Samsung Warranty + Hub Replacement Guarantee',
-    description: 'Brand new Samsung Galaxy S24 Ultra, factory unlocked and verified at the partner hub.',
-    location: 'Wuse 2, Abuja',
-    hubAddress: 'Suite 204, Banex Plaza, Aminu Kano Crescent, Wuse 2, Abuja',
-    whatsappNumber: '2348034567890',
-    acceptedTradeIn: 'Galaxy S22 Ultra / S23 Ultra / iPhone 14 Pro',
-    storeId: 'store_abuja',
-    storeName: 'Banex Exchange Hub',
-    storeVerified: true,
-    tags: ['Recently Listed', 'Verified Store'],
-    image: 'assets/Samsung Galaxy S24 Ultra (256GB).jpg',
-    status: 'Active',
-    createdAt: new Date(Date.now() - 3600000 * 8).toISOString()
-  },
-  {
-    id: 'phone_104',
-    brand: 'Apple',
-    model: 'iPhone 14 Pro',
-    storage: '128GB',
-    condition: 'Excellent',
-    color: 'Deep Purple',
-    battery: '94%',
-    marketValue: 850000,
-    screen: '6.1-inch Super Retina XDR OLED with Dynamic Island, 120Hz',
-    chipset: 'Apple A16 Bionic (4nm)',
-    camera: '48MP Main + 12MP Ultra-wide + 12MP 3x Telephoto',
-    sim: 'Nano-SIM + eSIM',
-    boxIncludes: 'Original Apple Box, USB-C to Lightning Braided Cable, Hub Purchase Receipt',
-    warranty: '14-Day Hub Exchange Guarantee + 30-Day Technical Support',
-    description: 'Sought-after Deep Purple iPhone 14 Pro. Flawless ceramic shield front glass, 94% original battery health with all-day endurance. Dynamic Island, 48MP ProRAW photos, and Always-on display fully verified.',
-    location: 'Ikeja, Lagos',
-    hubAddress: 'Shop B14, Digital Complex, Otigba Street, Computer Village, Ikeja, Lagos',
-    whatsappNumber: '2348023456789',
-    acceptedTradeIn: 'iPhone 11 Pro Max / 12 Pro / 13',
-    storeId: 'store_prime',
-    storeName: 'Computer Village Hub',
-    storeVerified: true,
-    tags: ['Verified Store'],
-    image: 'assets/iPhone 14 Pro (128GB).jpg',
-    status: 'Active',
-    createdAt: new Date(Date.now() - 3600000 * 24).toISOString()
-  },
-  {
-    id: 'phone_105',
-    brand: 'Apple',
-    model: 'iPhone 13',
-    storage: '128GB',
-    condition: 'Very Good',
-    color: 'Starlight White',
-    battery: '91%',
-    marketValue: 540000,
-    screen: '6.1-inch Super Retina XDR OLED, HDR10, TrueTone',
-    chipset: 'Apple A15 Bionic (5nm)',
-    camera: 'Dual 12MP Main + 12MP Ultra-Wide with Sensor-shift OIS',
-    sim: 'Physical Nano-SIM + eSIM',
-    boxIncludes: 'Charging Cable, 20W Fast Charging Adapter, Hub Receipt',
-    warranty: '7-Day Return Guarantee + 30-Day Hardware Support',
-    description: 'Clean Apple iPhone 13 in clean Starlight White. Excellent body condition with minimal micro-signs of gentle use. FaceID, cinematic mode video, stereo speakers, and 5G connectivity running flawlessly.',
-    location: 'Garrison, Port Harcourt',
-    hubAddress: 'Plot 18, Aba Road by Garrison Roundabout, Port Harcourt, Rivers State',
-    whatsappNumber: '2348045678901',
-    acceptedTradeIn: 'iPhone 11 / XR',
-    storeId: 'store_ph',
-    storeName: 'Garrison Tech Hub',
-    storeVerified: true,
-    tags: ['Verified Store'],
-    image: 'assets/iPhone 13 (128GB).jpg',
-    status: 'Active',
-    createdAt: new Date(Date.now() - 3600000 * 36).toISOString()
-  },
-  {
-    id: 'phone_106',
-    brand: 'Apple',
-    model: 'iPhone 12 Pro',
-    storage: '128GB',
-    condition: 'Good',
-    color: 'Pacific Blue',
-    battery: '88%',
-    marketValue: 450000,
-    screen: '6.1-inch Super Retina XDR OLED, Ceramic Shield front',
-    chipset: 'Apple A14 Bionic (5nm)',
-    camera: 'Triple 12MP (Wide, Ultrawide, Telephoto) with LiDAR Scanner',
-    sim: 'Nano-SIM + eSIM (Global)',
-    boxIncludes: 'Lightning Cable, Silicon Bumper Case, Hub Receipt',
-    warranty: '7-Day Hub Exchange Guarantee',
-    description: 'Classic Pacific Blue iPhone 12 Pro stainless steel design. 88% original battery, LiDAR scanner for night portrait photography, 4K Dolby Vision HDR video recording. Tested and verified 100% functional.',
-    location: 'Ikeja, Lagos',
-    hubAddress: 'Shop B14, Digital Complex, Otigba Street, Computer Village, Ikeja, Lagos',
-    whatsappNumber: '2348023456789',
-    acceptedTradeIn: 'iPhone XS Max / iPhone 11',
-    storeId: 'store_prime',
-    storeName: 'Computer Village Hub',
-    storeVerified: true,
-    tags: ['Verified Store'],
-    image: 'assets/iPhone 12 Pro.jpg',
-    status: 'Active',
-    createdAt: new Date(Date.now() - 3600000 * 48).toISOString()
-  }
-];
+// Default marketplace inventory array (empty so only real data from database/dealers show)
+const DEFAULT_LISTINGS = [];
 
 // Standardized Brand and Model Hierarchy for Nigerian Smartphone Marketplace
 export const BRANDS_AND_MODELS = {
@@ -365,9 +196,20 @@ const STORAGE_MULTIPLIERS = {
 
 function initDatabase() {
   if (typeof localStorage !== 'undefined') {
+    // Purge legacy mock listings starting with phone_10
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.LISTINGS) || '[]');
+      if (Array.isArray(stored)) {
+        const cleaned = stored.filter(item => !String(item.id || '').startsWith('phone_10'));
+        localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(cleaned));
+      }
+    } catch (_) {}
+
     const initialized = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
     if (!initialized) {
-      localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(DEFAULT_LISTINGS));
+      if (!localStorage.getItem(STORAGE_KEYS.LISTINGS)) {
+        localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify([]));
+      }
       if (!localStorage.getItem(STORAGE_KEYS.SWAP_REQUESTS)) {
         localStorage.setItem(STORAGE_KEYS.SWAP_REQUESTS, JSON.stringify([]));
       }
@@ -386,17 +228,20 @@ if (typeof window !== 'undefined') {
 export const NaijaSwapData = {
   // --- MARKETPLACE LISTINGS ---
   async getListingsRemote(filters = {}) {
-    const snapshot = await getDocs(query(
-      collection(db, 'listings'),
-      where('status', 'in', ['active', 'Active']),
-      orderBy('createdAt', 'desc'),
-      limit(100)
-    ));
-    const remoteListings = snapshot.docs.map(mapRemoteListing);
-    if (remoteListings.length) {
+    try {
+      const snapshot = await getDocs(query(
+        collection(db, 'listings'),
+        where('status', 'in', ['active', 'Active']),
+        orderBy('createdAt', 'desc'),
+        limit(100)
+      ));
+      const remoteListings = snapshot.docs.map(mapRemoteListing).filter(item => !String(item.id || '').startsWith('phone_10'));
       localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(remoteListings));
+      return this.filterListings(remoteListings, filters);
+    } catch (e) {
+      console.warn('[NaijaSwapData] getListingsRemote error:', e);
+      return this.getListings(filters);
     }
-    return this.filterListings(remoteListings, filters);
   },
 
   filterListings(items, filters = {}) {
@@ -427,12 +272,10 @@ export const NaijaSwapData = {
     try {
       items = JSON.parse(localStorage.getItem(STORAGE_KEYS.LISTINGS)) || [];
     } catch {
-      items = DEFAULT_LISTINGS;
+      items = [];
     }
-    if (!items || items.length === 0) {
-      items = DEFAULT_LISTINGS;
-      try { localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(items)); } catch(e){}
-    }
+    // Clean legacy test listings starting with phone_10
+    items = items.filter(item => !String(item.id || '').startsWith('phone_10'));
 
     const { brand, storage, condition, location, query } = filters;
 

@@ -1181,12 +1181,24 @@
       if (countAccepted) countAccepted.textContent = acceptedCount;
       if (countCompleted) countCompleted.textContent = completedCount;
 
+      const unreadSwapsCount = allRequests.filter(r => r.status === 'pending' || r.status === 'countered' || r.isUnread === true).length;
       if (mobileSwapsBadge) {
-        if (allRequests.length > 0) {
-          mobileSwapsBadge.textContent = allRequests.length;
+        if (unreadSwapsCount > 0) {
+          mobileSwapsBadge.textContent = unreadSwapsCount;
           mobileSwapsBadge.style.display = 'inline-block';
         } else {
           mobileSwapsBadge.style.display = 'none';
+        }
+      }
+
+      const mobileAlertsBadge = document.getElementById('mobileAlertsBadge');
+      const unreadAlertsCount = NaijaSwapData.getUnreadNotificationsCount(currentUserId);
+      if (mobileAlertsBadge) {
+        if (unreadAlertsCount > 0) {
+          mobileAlertsBadge.textContent = unreadAlertsCount;
+          mobileAlertsBadge.style.display = 'inline-block';
+        } else {
+          mobileAlertsBadge.style.display = 'none';
         }
       }
 
