@@ -763,6 +763,13 @@
           const phoneDigits = String(listing.contactPhone || '').replace(/\D/g, '');
           const whatsappNumber = phoneDigits.startsWith('0') ? `234${phoneDigits.slice(1)}` : phoneDigits;
           const message = encodeURIComponent(`Hi ${listing.sellerName || 'there'}, I saw your ${listing.brand} ${listing.model} on NaijaSwap and would like to discuss it.`);
+          const triage = listing.conditionTriage || {};
+          const conditionIssues = [
+            triage.powerAndScreen === false ? 'Power/touch issue' : '',
+            triage.screenGlass === true ? 'Screen damage' : '',
+            triage.bodyAndHousing === true ? 'Body damage' : '',
+            triage.hardwareFunctionality === false ? 'Hardware issue' : ''
+          ].filter(Boolean);
           card.innerHTML = `
             <div class="listing-card-media">
               <img src="${image}" alt="${escapeHtml(`${listing.brand || ''} ${listing.model || ''}`)}" class="listing-card-img" loading="lazy">
@@ -777,6 +784,8 @@
                 ${listing.color ? `<span>${escapeHtml(listing.color)}</span><span>•</span>` : ''}
                 <span>Battery ${escapeHtml(listing.battery || 'N/A')}</span>
               </div>
+              ${(listing.ram || listing.carrierLock) ? `<div class="phone-specs-line">${listing.ram ? `<span>RAM ${escapeHtml(listing.ram)}</span>` : ''}${listing.ram && listing.carrierLock ? '<span>•</span>' : ''}${listing.carrierLock ? `<span>${escapeHtml(listing.carrierLock)}</span>` : ''}</div>` : ''}
+              ${conditionIssues.length ? `<div class="phone-specs-line"><span>${escapeHtml(conditionIssues.join(' · '))}</span></div>` : ''}
               <div class="phone-location-line"><span>${escapeHtml(listing.location || 'Location not provided')}</span></div>
               <div style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;">Listed by ${escapeHtml(listing.sellerName || 'Swapper')}</div>
             </div>

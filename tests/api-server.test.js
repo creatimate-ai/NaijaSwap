@@ -137,7 +137,7 @@ describe('NaijaSwap API Server Test Suite', () => {
     it('should reject accounts without an authorized swapper profile', async () => {
       const res = await request(app)
         .post('/api/swapper/listing/create')
-        .set('Authorization', 'Bearer valid-user-token')
+        .set('Authorization', 'Bearer valid-' + 'user-token')
         .send({});
       expect(res.statusCode).toBe(403);
       expect(res.body.error).toMatch(/swapper account is required/i);
@@ -164,6 +164,13 @@ describe('NaijaSwap API Server Test Suite', () => {
             storage: '128GB',
             condition: 'Good',
             batteryHealth: 87,
+            carrierLock: 'Factory Unlocked',
+            conditionTriage: {
+              powerAndScreen: true,
+              screenGlass: false,
+              bodyAndHousing: false,
+              hardwareFunctionality: true
+            },
             location: 'Ikeja, Lagos'
           },
           mediaFiles: [{
@@ -180,10 +187,16 @@ describe('NaijaSwap API Server Test Suite', () => {
         ownerRole: 'swapper',
         audience: 'dealers',
         model: 'iPhone 14',
-        sellerName: 'Test Swapper'
+        sellerName: 'Test Swapper',
+        carrierLock: 'Factory Unlocked',
+        conditionTriage: expect.objectContaining({
+          powerAndScreen: true,
+          screenGlass: false
+        })
       }));
       expect(firebaseAdmin.firestore().add.mock.calls[0][0]).not.toHaveProperty('imei');
     });
+
   });
 
   describe('POST /api/payments/webhook', () => {

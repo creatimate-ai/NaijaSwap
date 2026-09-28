@@ -819,6 +819,14 @@ router.post('/api/swapper/listing/create', authenticate, async (request, respons
     if (!Number.isInteger(batteryHealth) || batteryHealth < 1 || batteryHealth > 100) {
       return response.status(400).json({ error: 'Battery health must be between 1 and 100%.' });
     }
+    const carrierLock = String(device.carrierLock || '').trim();
+    const supportedCarrierLockStatuses = ['Factory Unlocked', 'Network Locked', 'CHIP Unlocked'];
+    if (carrierLock && !supportedCarrierLockStatuses.includes(carrierLock)) {
+      return response.status(400).json({ error: 'Choose a supported carrier lock status.' });
+    }
+    const conditionTriageInput = device.conditionTriage && typeof device.conditionTriage === 'object'
+      ? device.conditionTriage
+      : {};
     const profile = userSnapshot.data();
     const listing = {
       ownerUid: uid,
@@ -832,6 +840,14 @@ router.post('/api/swapper/listing/create', authenticate, async (request, respons
       condition: requireString(device.condition, 'condition', 60),
       conditionGrade: String(device.conditionGrade || '').trim().slice(0, 60),
       color: String(device.color || '').trim().slice(0, 50),
+      ram: String(device.ram || '').trim().slice(0, 30),
+      carrierLock,
+      conditionTriage: {
+        powerAndScreen: conditionTriageInput.powerAndScreen === true,
+        screenGlass: conditionTriageInput.screenGlass === true,
+        bodyAndHousing: conditionTriageInput.bodyAndHousing === true,
+        hardwareFunctionality: conditionTriageInput.hardwareFunctionality === true
+      },
       battery: `${batteryHealth}%`,
       location: requireString(device.location, 'location', 120),
       image: mediaFiles.find((media) => !media.isVideo)?.dataUrl || '',
