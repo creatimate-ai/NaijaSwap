@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "NaijaSwap static web application",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "jest --runInBand --detectOpenHandles"
   },
   "engines": {
     "node": "20.x"
@@ -13,5 +14,9 @@
     "cloudinary": "^2.11.0",
     "express": "^5.2.1",
     "firebase-admin": "^14.4.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }

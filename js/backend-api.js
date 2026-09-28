@@ -88,3 +88,14 @@ export function adminGetSwaps(status = 'all') {
 export function adminUpdateVerificationStatus(payload = {}) {
   return apiPost('/api/admin/verification-status', payload);
 }
+
+export function verifyDeviceIMEIBackend(imei) {
+  return apiPost('/api/device/verify-imei', { imei });
+}
+
+export async function getPublicCertificate(id) {
+  const response = await fetch(`/api/certificate?id=${encodeURIComponent(id)}`);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Certificate not found.');
+  return data;
+}

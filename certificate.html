@@ -398,7 +398,7 @@
 
   <script type="module">
     import { db, doc, getDoc } from './js/firebase-config.js';
-    import { apiGet } from './js/backend-api.js';
+    import { getPublicCertificate } from './js/backend-api.js';
 
     const urlParams = new URLSearchParams(window.location.search);
     const lookupId = urlParams.get('id') || 'demo';
@@ -412,9 +412,9 @@
     async function loadCertificate() {
       let data = null;
 
-      // Try Backend API lookup
+      // Try Backend API lookup (public)
       try {
-        const res = await apiGet(`/api/certificate?id=${encodeURIComponent(lookupId)}`);
+        const res = await getPublicCertificate(lookupId);
         if (res?.ok && res.certificate) {
           data = res.certificate;
         }

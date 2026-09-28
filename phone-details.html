@@ -1706,7 +1706,7 @@
         const item = document.createElement('div');
         item.className = 'more-phone-slide-item';
 
-        const tagsHtml = phone.tags.map(t => {
+        const tagsHtml = (phone.tags || []).map(t => {
           let cls = 'tag-badge';
           if (t === 'Verified Hub' || t.includes('Verified')) cls += ' tag-verified';
           else if (t.includes('Fast') || t.includes('Hot')) cls += ' tag-hot';

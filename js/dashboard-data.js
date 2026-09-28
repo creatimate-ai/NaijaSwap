@@ -30,6 +30,35 @@ function normalizeSwapStatus(status) {
   return SWAP_STATUS_ALIASES[normalized] || 'pending';
 }
 
+function safeSetItem(key, value) {
+  const str = typeof value === 'string' ? value : JSON.stringify(value);
+  try {
+    localStorage.setItem(key, str);
+  } catch (err) {
+    if (err && (err.name === 'QuotaExceededError' || err.code === 22 || err.code === 1014)) {
+      console.warn(`[LocalStorage QuotaExceeded] Safe fallback active for key: ${key}`);
+      try {
+        if (Array.isArray(value)) {
+          const trimmed = value.map(item => {
+            if (typeof item === 'object' && item !== null) {
+              const { deviceMedia, mediaFiles, backImage, accessoriesImage, damageDisclosure, ...rest } = item;
+              return rest;
+            }
+            return item;
+          }).slice(0, 30);
+          localStorage.setItem(key, JSON.stringify(trimmed));
+        } else {
+          localStorage.removeItem(STORAGE_KEYS.ACTIVITY_LOG);
+          localStorage.removeItem(STORAGE_KEYS.NOTIFICATIONS);
+          localStorage.setItem(key, str);
+        }
+      } catch (_) {
+        console.warn(`[LocalStorage QuotaExceeded] Could not write to local storage key: ${key}`);
+      }
+    }
+  }
+}
+
 function mapRemoteListing(snapshot) {
   return { id: snapshot.id, ...snapshot.data(), status: String(snapshot.data().status || 'active').toLowerCase() };
 }
@@ -481,7 +510,15 @@ export const NaijaSwapData = {
     }
 
     const targetVal = target.marketValue || 1200000;
-    const { brand = '', model = '', storage = '128GB', condition = 'Excellent', customValue } = swapperPhoneData;
+    const { 
+      brand = '', 
+      model = '', 
+      storage = '128GB', 
+      condition = 'Excellent', 
+      customValue,
+      batteryHealth,
+      conditionTriage = {}
+    } = swapperPhoneData;
 
     let baseCredit = 0;
     const key = (model || '').toLowerCase().trim();
@@ -516,7 +553,42 @@ export const NaijaSwapData = {
     const condFactor = CONDITION_MULTIPLIERS[condition] || 0.88;
     const storFactor = STORAGE_MULTIPLIERS[storage] || 1.0;
 
-    const userValuation = Math.round(baseCredit * condFactor * storFactor);
+    let userValuation = Math.round(baseCredit * condFactor * storFactor);
+
+    // Dynamic Defect & Battery Deductions
+    const deductions = [];
+    
+    // Battery health deduction (if <80%)
+    if (batteryHealth) {
+      const batVal = parseInt(String(batteryHealth).replace(/\D/g, ''), 10);
+      if (!isNaN(batVal) && batVal < 80) {
+        const batDeduction = 35000;
+        userValuation = Math.max(20000, userValuation - batDeduction);
+        deductions.push(`Low Battery Health (${batVal}%): -₦${batDeduction.toLocaleString()}`);
+      }
+    }
+
+    // Screen Glass or Display Damage
+    if (conditionTriage.screenGlass || conditionTriage.powerAndScreen === false) {
+      const screenDeduction = Math.round(userValuation * 0.18);
+      userValuation = Math.max(20000, userValuation - screenDeduction);
+      deductions.push(`Screen Glass Damage: -₦${screenDeduction.toLocaleString()}`);
+    }
+
+    // Heavy Body / Housing Scratches & Dents
+    if (conditionTriage.bodyAndHousing) {
+      const bodyDeduction = Math.round(userValuation * 0.08);
+      userValuation = Math.max(20000, userValuation - bodyDeduction);
+      deductions.push(`Body / Housing Wear: -₦${bodyDeduction.toLocaleString()}`);
+    }
+
+    // Biometrics / FaceID / TouchID issue
+    if (conditionTriage.biometrics === false || conditionTriage.faceIdFault) {
+      const bioDeduction = 30000;
+      userValuation = Math.max(20000, userValuation - bioDeduction);
+      deductions.push(`Biometric / FaceID Fault: -₦${bioDeduction.toLocaleString()}`);
+    }
+
     const diff = targetVal - userValuation;
 
     let estTopUp = 0;
@@ -545,7 +617,8 @@ export const NaijaSwapData = {
       estRangeFormatted: estTopUp === 0 ? 'Direct Swap' : '₦' + minRange.toLocaleString() + ' - ₦' + maxRange.toLocaleString(),
       isStraightSwapOrPayout,
       conditionApplied: condition,
-      storageApplied: storage
+      storageApplied: storage,
+      deductionsApplied: deductions
     };
   },
 
@@ -972,7 +1045,7 @@ export const NaijaSwapData = {
 
     newRequest.status = normalizeSwapStatus(newRequest.status);
     requests.unshift(newRequest);
-    localStorage.setItem(STORAGE_KEYS.SWAP_REQUESTS, JSON.stringify(requests));
+    safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
 
     this.logActivity(newRequest.storeId, {
       type: 'swap_received',
@@ -1024,7 +1097,7 @@ export const NaijaSwapData = {
       limit(100)
     ));
     const requests = snapshot.docs.map(mapRemoteRequest);
-    if (requests.length) localStorage.setItem(STORAGE_KEYS.SWAP_REQUESTS, JSON.stringify(requests));
+    if (requests.length) safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
     return requests;
   },
 
@@ -1048,7 +1121,7 @@ export const NaijaSwapData = {
       limit(100)
     ));
     const requests = snapshot.docs.map(mapRemoteRequest);
-    if (requests.length) localStorage.setItem(STORAGE_KEYS.SWAP_REQUESTS, JSON.stringify(requests));
+    if (requests.length) safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
     return requests;
   },
 
@@ -1073,7 +1146,7 @@ export const NaijaSwapData = {
     const request = requests.find(item => item.id === requestId);
     if (request) {
       request.firestoreId = firestoreId;
-      localStorage.setItem(STORAGE_KEYS.SWAP_REQUESTS, JSON.stringify(requests));
+      safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
     }
   },
 
@@ -1085,7 +1158,7 @@ export const NaijaSwapData = {
       requests = [];
     }
     const remaining = requests.filter(request => request.id !== requestId);
-    localStorage.setItem(STORAGE_KEYS.SWAP_REQUESTS, JSON.stringify(remaining));
+    safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, remaining);
     return remaining.length !== requests.length;
   },
 
@@ -1107,7 +1180,7 @@ export const NaijaSwapData = {
       return r;
     });
 
-    localStorage.setItem(STORAGE_KEYS.SWAP_REQUESTS, JSON.stringify(requests));
+    safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
 
     if (updated) {
       if (normalizedStatus === 'completed') {
@@ -1332,8 +1405,38 @@ export const NaijaSwapData = {
       brand: userDevice.brand,
       model: userDevice.model,
       storage: userDevice.storageCapacity || userDevice.storage || '128GB',
-      condition: userDevice.condition || 'Excellent'
+      condition: userDevice.condition || 'Excellent',
+      batteryHealth: userDevice.batteryHealth,
+      conditionTriage: userDevice.conditionTriage || {}
     });
+  },
+
+  verifyDealerPrice(brand, model, storage, conditionGrade, deviceStatus, proposedPrice) {
+    const marketPrice = this.calculateMarketPrice(brand, model, storage, conditionGrade, deviceStatus);
+    const priceNum = Number(proposedPrice);
+    if (isNaN(priceNum) || priceNum <= 0) {
+      return { valid: false, reason: 'Price must be a positive number.' };
+    }
+    const ratio = priceNum / marketPrice;
+    if (ratio < 0.65) {
+      return { 
+        valid: false, 
+        isWarning: true, 
+        marketPrice,
+        marketPriceFormatted: '₦' + marketPrice.toLocaleString(),
+        reason: `Price (₦${priceNum.toLocaleString()}) is unusually low (>35% below estimated market value of ₦${marketPrice.toLocaleString()}). Please double-check.` 
+      };
+    }
+    if (ratio > 1.45) {
+      return { 
+        valid: false, 
+        isWarning: true, 
+        marketPrice,
+        marketPriceFormatted: '₦' + marketPrice.toLocaleString(),
+        reason: `Price (₦${priceNum.toLocaleString()}) is unusually high (>45% above estimated market value of ₦${marketPrice.toLocaleString()}).` 
+      };
+    }
+    return { valid: true, marketPrice, marketPriceFormatted: '₦' + marketPrice.toLocaleString() };
   },
 
   // --- ACTIVITY AUDIT LOG ---

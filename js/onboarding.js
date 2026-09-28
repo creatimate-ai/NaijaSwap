@@ -21,6 +21,47 @@ export const TRADING_HUBS = [
   { id: 'Other', label: 'Other Locations across Nigeria', state: 'Other' }
 ];
 
+export const NIGERIAN_STATES_CITIES = {
+  'Abia': ['Aba', 'Umuahia', 'Ohafia'],
+  'Adamawa': ['Yola', 'Mubi', 'Jimeta'],
+  'Akwa Ibom': ['Uyo', 'Eket', 'Ikot Ekpene'],
+  'Anambra': ['Awka', 'Onitsha', 'Nnewi'],
+  'Bauchi': ['Bauchi', 'Azare', 'Misau'],
+  'Bayelsa': ['Yenagoa', 'Brass', 'Ogbia'],
+  'Benue': ['Makurdi', 'Gboko', 'Otukpo'],
+  'Borno': ['Maiduguri', 'Biu'],
+  'Cross River': ['Calabar', 'Ikom', 'Ogoja'],
+  'Delta': ['Asaba', 'Warri', 'Ughelli', 'Sapele'],
+  'Ebonyi': ['Abakaliki', 'Afikpo'],
+  'Edo': ['Benin City', 'Uromi', 'Auchi'],
+  'Ekiti': ['Ado-Ekiti', 'Ikere-Ekiti'],
+  'Enugu': ['Enugu', 'Nsukka'],
+  'FCT - Abuja': ['Abuja Central', 'Gwarinpa', 'Wuse', 'Maitama', 'Garki', 'Kubwa', 'Lugbe', 'Utako'],
+  'Gombe': ['Gombe', 'Dukku'],
+  'Imo': ['Owerri', 'Orlu', 'Okigwe'],
+  'Jigawa': ['Dutse', 'Hadejia'],
+  'Kaduna': ['Kaduna', 'Zaria', 'Kafanchan'],
+  'Kano': ['Kano', 'Wudil'],
+  'Katsina': ['Katsina', 'Daura'],
+  'Kebbi': ['Birnin Kebbi', 'Argungu'],
+  'Kogi': ['Lokoja', 'Okene', 'Kabba'],
+  'Kwara': ['Ilorin', 'Offa'],
+  'Lagos': ['Ikeja', 'Computer Village', 'Lekki', 'Victoria Island', 'Yaba', 'Surulere', 'Ikorodu', 'Ajah', 'Festac', 'Epe'],
+  'Nasarawa': ['Lafia', 'Karu', 'Keffi'],
+  'Niger': ['Minna', 'Bida', 'Suleja'],
+  'Ogun': ['Abeokuta', 'Ijebu Ode', 'Sagamu', 'Ota'],
+  'Ondo': ['Akure', 'Ondo Town', 'Owo'],
+  'Osun': ['Osogbo', 'Ife', 'Ilesa'],
+  'Oyo': ['Ibadan', 'Ogbomoso', 'Oyo Town'],
+  'Plateau': ['Jos', 'Bukuru'],
+  'Rivers': ['Port Harcourt', 'Garrison', 'Obio-Akpor', 'Bonny'],
+  'Sokoto': ['Sokoto'],
+  'Taraba': ['Jalingo', 'Wukari'],
+  'Yobe': ['Damaturu', 'Gashua'],
+  'Zamfara': ['Gusau']
+};
+
+
 export function getOnboardingStatus(uid) {
   if (!uid) return false;
   return localStorage.getItem(KEY_PREFIX_DONE + uid) === 'true';
@@ -247,8 +288,8 @@ function getSwapperStepsHTML() {
  * HTML Templates for Dealer Steps
  */
 function getDealerStepsHTML() {
-  const hubOptions = TRADING_HUBS.map(h => 
-    `<option value="${h.id}">${h.label}</option>`
+  const stateOptions = Object.keys(NIGERIAN_STATES_CITIES).map(st =>
+    `<option value="${st}">${st}</option>`
   ).join('');
 
   return `
@@ -301,9 +342,17 @@ function getDealerStepsHTML() {
       </div>
 
       <div class="onboarding-form-group">
-        <label class="onboarding-label" for="obDealerHub">Tech Market Hub</label>
-        <select class="onboarding-select" id="obDealerHub">
-          ${hubOptions}
+        <label class="onboarding-label" for="obDealerState">State</label>
+        <select class="onboarding-select" id="obDealerState">
+          <option value="">— Select State —</option>
+          ${stateOptions}
+        </select>
+      </div>
+
+      <div class="onboarding-form-group">
+        <label class="onboarding-label" for="obDealerCity">City / Location</label>
+        <select class="onboarding-select" id="obDealerCity">
+          <option value="">— Select City / Location —</option>
         </select>
       </div>
 
@@ -582,13 +631,50 @@ function setupOnboardingWizardLogic(modal, user, role) {
     const btnLaunchDash = modal.querySelector('#btnLaunchDashboard');
 
     const inputShop = modal.querySelector('#obDealerShopName');
-    const selectHub = modal.querySelector('#obDealerHub');
+    const selectState = modal.querySelector('#obDealerState');
+    const selectCity = modal.querySelector('#obDealerCity');
     const inputAddress = modal.querySelector('#obDealerAddress');
     const inputWhatsApp = modal.querySelector('#obDealerWhatsApp');
 
-    // Pre-fill existing stored shop
+    // Populate cities dropdown dynamically based on selected state
+    function populateCities(selectedState, selectedCity = '') {
+      if (!selectCity) return;
+      selectCity.innerHTML = '<option value="">— Select City / Location —</option>';
+      if (selectedState && NIGERIAN_STATES_CITIES[selectedState]) {
+        NIGERIAN_STATES_CITIES[selectedState].forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          if (c === selectedCity) opt.selected = true;
+          selectCity.appendChild(opt);
+        });
+      }
+    }
+
+    if (selectState) {
+      selectState.addEventListener('change', () => {
+        populateCities(selectState.value);
+      });
+    }
+
+    // Pre-fill existing stored shop, state, city & phone
     const cachedShop = localStorage.getItem('naijaswap_shop_' + uid) || '';
     if (inputShop && cachedShop) inputShop.value = cachedShop;
+
+    const cachedState = localStorage.getItem('naijaswap_dealer_state_' + uid) || '';
+    const cachedCity = localStorage.getItem('naijaswap_dealer_city_' + uid) || '';
+    if (selectState && cachedState) {
+      selectState.value = cachedState;
+      populateCities(cachedState, cachedCity);
+    }
+
+    const cachedAddress = localStorage.getItem('naijaswap_dealer_address_' + uid) || '';
+    if (inputAddress && cachedAddress) inputAddress.value = cachedAddress;
+
+    const cachedPhone = localStorage.getItem('naijaswap_dealer_phone_' + uid) || localStorage.getItem('naijaswap_phone_' + uid) || '';
+    if (inputWhatsApp && cachedPhone) {
+      inputWhatsApp.value = cachedPhone.replace(/^\+234/, '').replace(/^0/, '');
+    }
 
     if (btnDStep1Next) btnDStep1Next.addEventListener('click', () => goToStep(2));
     if (btnDStep2Back) btnDStep2Back.addEventListener('click', () => goToStep(1));
@@ -596,7 +682,9 @@ function setupOnboardingWizardLogic(modal, user, role) {
     if (btnDStep2Next) {
       btnDStep2Next.addEventListener('click', async () => {
         const shopName = inputShop?.value.trim();
-        const hub = selectHub?.value || 'Ikeja, Lagos';
+        const state = selectState?.value || '';
+        const city = selectCity?.value || '';
+        const hub = state && city ? `${city}, ${state}` : (state || city || '');
         const address = inputAddress?.value.trim();
         const rawPhone = (inputWhatsApp?.value || '').replace(/\D/g, '');
 
@@ -606,15 +694,39 @@ function setupOnboardingWizardLogic(modal, user, role) {
           return;
         }
 
+        if (!state) {
+          alert('Please select your state.');
+          selectState?.focus();
+          return;
+        }
+
         setButtonLoading(btnDStep2Next, true, 'Saving details...');
         try {
+          const phone = rawPhone ? (rawPhone.startsWith('234') ? `+${rawPhone}` : `+234${rawPhone.replace(/^0/, '')}`) : '';
+
           // Save store details locally
           localStorage.setItem('naijaswap_shop_' + uid, shopName);
+          localStorage.setItem('naijaswap_dealer_state_' + uid, state);
+          localStorage.setItem('naijaswap_dealer_city_' + uid, city);
           localStorage.setItem('naijaswap_dealer_hub_' + uid, hub);
           if (address) localStorage.setItem('naijaswap_dealer_address_' + uid, address);
-          if (rawPhone) {
-            const phone = rawPhone.startsWith('234') ? `+${rawPhone}` : `+234${rawPhone.replace(/^0/, '')}`;
+          if (phone) {
             localStorage.setItem('naijaswap_dealer_phone_' + uid, phone);
+            localStorage.setItem('naijaswap_phone_' + uid, phone);
+          }
+
+          // Also update stored profile object for Edit Profile compatibility
+          if (uid) {
+            try {
+              const profileKey = 'naijaswap_profile_' + uid;
+              const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
+              profile.businessName = shopName;
+              if (address) profile.shopAddress = address;
+              if (phone) profile.phone = phone;
+              profile.state = state;
+              profile.city = city;
+              localStorage.setItem(profileKey, JSON.stringify(profile));
+            } catch (_) {}
           }
 
           // Asynchronously sync with Firestore
@@ -622,9 +734,12 @@ function setupOnboardingWizardLogic(modal, user, role) {
             try {
               await setDoc(doc(db, 'dealers', uid), {
                 shopName,
+                state,
+                city,
                 hub,
                 shopAddress: address || '',
-                hotline: rawPhone ? `+234${rawPhone.replace(/^0/, '')}` : '',
+                hotline: phone,
+                phoneNumber: phone,
                 onboardingCompleted: true,
                 updatedAt: new Date().toISOString()
               }, { merge: true });

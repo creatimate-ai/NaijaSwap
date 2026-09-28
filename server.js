@@ -37,7 +37,12 @@ app.use((request, response, next) => {
   }
   return next();
 });
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({
+  limit: '1mb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 app.use(apiRouter);
 app.use(express.static(publicRoot, {
   index: 'index.html',

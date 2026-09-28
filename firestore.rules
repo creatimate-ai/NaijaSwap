@@ -185,5 +185,15 @@ service cloud.firestore {
       allow create: if isAdmin();
       allow delete: if isSignedIn() && request.auth.uid == uid;
     }
+
+    match /inspectionCertificates/{certificateId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /stolenDevices/{imei} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
   }
 }

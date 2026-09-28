@@ -1012,7 +1012,7 @@
   <script type="module">
     import { auth, db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from './js/firebase-config.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { updateSwapRequestStatusBackend } from './js/backend-api.js';
+    import { updateSwapRequestStatusBackend, createSwapRequestBackend } from './js/backend-api.js';
     import { setButtonLoading } from './js/auth.js';
 
     async function apiPost(path, body) {
@@ -2158,7 +2158,7 @@
 
     // Form Submission
     if (consumerSwapForm) {
-      consumerSwapForm.addEventListener('submit', (e) => {
+      consumerSwapForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const effectiveBrand = consumerBrand.value === 'Other' ? consumerCustomBrand.value.trim() : consumerBrand.value;
@@ -2202,6 +2202,32 @@
         if (submitBtn) setButtonLoading(submitBtn, true, 'Submitting Request...');
 
         NaijaSwapData.createSwapRequest(requestData);
+
+        if (auth.currentUser) {
+          try {
+            await createSwapRequestBackend({
+              storeUid: requestData.storeId || 'store_prime',
+              currentDevice: {
+                brand: requestData.brand,
+                model: requestData.model,
+                storage: requestData.storageCapacity,
+                imeiNumber: requestData.imeiNumber,
+                condition: requestData.conditionTriage?.carrierLock || 'Unlocked'
+              },
+              targetDevice: {
+                brand: requestData.targetBrand,
+                model: requestData.targetModel,
+                storage: requestData.targetStorage,
+                color: requestData.preferredColor
+              },
+              offeredPrice: 0,
+              topupAmount: parseInt(String(requestData.topupOffered || '0').replace(/\D/g, '') || '0', 10),
+              message: 'Swap request submitted via Swapper Portal'
+            });
+          } catch (err) {
+            console.warn('[Backend Sync Warning] Remote swap save:', err.message);
+          }
+        }
 
         // Reset
         if (submitBtn) setButtonLoading(submitBtn, false);

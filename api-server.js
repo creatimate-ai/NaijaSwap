@@ -65,14 +65,19 @@ function validateCloudinaryAsset(value, uid) {
     && value.length < 300;
 }
 
-function validateAmount(value) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount) || amount < 0 || amount > MAX_SWAP_AMOUNT_NAIRA) {
-    const error = new Error('Invalid amount.');
-    error.statusCode = 400;
-    throw error;
+function verifyLuhnChecksum(imeiStr) {
+  const digits = String(imeiStr || '').replace(/\D/g, '');
+  if (digits.length !== 15) return false;
+  let sum = 0;
+  for (let i = 0; i < 15; i++) {
+    let digit = parseInt(digits.charAt(i), 10);
+    if (i % 2 === 1) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+    sum += digit;
   }
-  return Math.round(amount);
+  return sum % 10 === 0;
 }
 
 router.get('/health', (request, response) => {
@@ -83,6 +88,139 @@ router.get('/health', (request, response) => {
     firebaseConfigured: Boolean(process.env.FIREBASE_SERVICE_ACCOUNT),
     paystackConfigured: Boolean(process.env.PAYSTACK_SECRET_KEY)
   });
+});
+
+router.post('/api/device/verify-imei', authenticate, async (request, response) => {
+  try {
+    const rawImei = String(request.body.imei || '').trim();
+    const cleanImei = rawImei.replace(/[\s-]/g, '').toUpperCase();
+    if (!cleanImei || cleanImei.length < 8 || cleanImei.length > 32) {
+      return response.status(400).json({ valid: false, error: 'IMEI or Serial Number must be 8-32 alphanumeric characters.' });
+    }
+
+    const isDigits15 = /^\d{15}$/.test(cleanImei);
+    let luhnValid = true;
+    if (isDigits15) {
+      luhnValid = verifyLuhnChecksum(cleanImei);
+    }
+
+    if (isDigits15 && !luhnValid) {
+      return response.status(422).json({
+        valid: false,
+        error: 'Invalid IMEI checksum. Please verify the 15-digit IMEI number on your device (*#06#).'
+      });
+    }
+
+    const firebase = getFirebaseAdmin();
+    const db = firebase.firestore();
+
+    const activeDupe = await db.collection('swapRequests')
+      .where('currentDevice.imeiNumber', '==', cleanImei)
+      .where('status', 'in', ['pending', 'reviewed', 'countered', 'accepted', 'under_inspection'])
+      .limit(1).get();
+
+    if (!activeDupe.empty) {
+      return response.status(409).json({
+        valid: false,
+        activeSwap: true,
+        error: 'This device (IMEI/Serial) is currently listed in an active pending swap.'
+      });
+    }
+
+    const blacklist = await db.collection('stolenDevices').doc(cleanImei).get();
+    if (blacklist.exists && blacklist.data().status === 'blacklisted') {
+      return response.status(403).json({
+        valid: false,
+        blacklisted: true,
+        error: 'ALERT: This device has been flagged in the registry.'
+      });
+    }
+
+    return response.json({
+      valid: true,
+      clean: true,
+      imei: cleanImei,
+      format: isDigits15 ? 'IMEI-15' : 'SERIAL',
+      luhnVerified: isDigits15 ? luhnValid : null
+    });
+  } catch (error) {
+    console.error('[API] IMEI verification failed:', error);
+    return response.status(error.statusCode || 500).json({ error: error.message });
+  }
+});
+
+router.post('/api/payments/webhook', async (request, response) => {
+  try {
+    const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
+    if (!paystackSecret) {
+      console.warn('[API Webhook] PAYSTACK_SECRET_KEY not configured.');
+      return response.status(400).send('Webhook secret not configured');
+    }
+
+    const signature = request.headers['x-paystack-signature'];
+    if (!signature) {
+      return response.status(401).send('Missing Paystack signature header');
+    }
+
+    const bodyContent = request.rawBody ? request.rawBody : Buffer.from(JSON.stringify(request.body || {}));
+    const expectedHash = crypto.createHmac('sha512', paystackSecret).update(bodyContent).digest('hex');
+
+    if (signature !== expectedHash) {
+      console.error('[API Webhook] Paystack signature mismatch');
+      return response.status(401).send('Invalid webhook signature');
+    }
+
+    const payload = request.body || {};
+    const event = payload.event;
+    const data = payload.data || {};
+
+    if (event === 'charge.success') {
+      const reference = data.reference;
+      const metadata = data.metadata || {};
+      const requestId = metadata.requestId;
+
+      if (requestId) {
+        const firebase = getFirebaseAdmin();
+        const db = firebase.firestore();
+        const swapRef = db.collection('swapRequests').doc(requestId);
+        const snap = await swapRef.get();
+
+        if (snap.exists) {
+          const swapData = snap.data();
+          await swapRef.set({
+            paymentStatus: 'paid',
+            escrowStatus: 'held_in_escrow',
+            paymentReference: reference,
+            paidAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+
+          for (const recipientUid of [swapData.customerUid, swapData.dealerUid].filter(Boolean)) {
+            await sendNotification(db, recipientUid, {
+              type: 'payment_success',
+              requestId,
+              reference,
+              title: '💰 Top-Up Payment Secured in Escrow',
+              message: `Top-up payment of ₦${((data.amount || 0) / 100).toLocaleString()} has been safely locked in escrow.`
+            });
+          }
+
+          await db.collection('auditLogs').add({
+            action: 'paystack_webhook_charge_success',
+            requestId,
+            reference,
+            amountKobo: data.amount,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      }
+    }
+
+    return response.status(200).json({ status: 'success' });
+  } catch (error) {
+    console.error('[API Webhook] Error processing webhook:', error);
+    return response.status(500).send('Internal Server Error');
+  }
 });
 
 router.post('/api/cloudinary/sign-upload', authenticate, (request, response) => {

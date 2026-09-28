@@ -1,0 +1,456 @@
+/* NigerSwap Customer Pages Styling */
+@import url('./variables.css');
+
+/* Customer Page Layout */
+.customer-page {
+  padding: 3.5rem 0 5rem;
+  background-color: var(--bg-page);
+  min-height: calc(100vh - 150px);
+}
+
+/* Page Header */
+.page-header-clean {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 2.5rem;
+}
+
+.page-title {
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--slate-900);
+  margin-bottom: 0.45rem;
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: var(--slate-600);
+  line-height: 1.5;
+}
+
+/* Multi-Step Wizard Container */
+.wizard-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem;
+  box-shadow: var(--shadow-md);
+}
+
+/* Progress Step Indicator */
+.wizard-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 2.5rem;
+  padding: 0 1rem;
+}
+
+.wizard-progress::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 3rem;
+  right: 3rem;
+  height: 2px;
+  background-color: var(--slate-200);
+  z-index: 1;
+}
+
+.progress-line-fill {
+  position: absolute;
+  top: 18px;
+  left: 3rem;
+  height: 2px;
+  background-color: var(--brand-primary);
+  z-index: 2;
+  transition: width var(--transition-smooth);
+}
+
+.progress-step {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background-color: #ffffff;
+  border: 2px solid var(--slate-300);
+  color: var(--slate-500);
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-smooth);
+}
+
+.progress-step.active .step-circle {
+  border-color: var(--brand-primary);
+  background-color: var(--brand-primary);
+  color: #ffffff;
+  box-shadow: 0 0 0 4px var(--brand-emerald-soft);
+}
+
+.progress-step.completed .step-circle {
+  border-color: var(--brand-primary);
+  background-color: var(--brand-emerald-soft);
+  color: var(--brand-primary);
+}
+
+.step-label {
+  font-size: 0.775rem;
+  font-weight: 700;
+  color: var(--slate-500);
+  white-space: nowrap;
+}
+
+.progress-step.active .step-label {
+  color: var(--brand-primary);
+}
+
+/* Wizard Step Panes */
+.wizard-pane {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.wizard-pane.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pane-heading {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--slate-900);
+  margin-bottom: 0.25rem;
+}
+
+.pane-desc {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  margin-bottom: 1.5rem;
+}
+
+/* Selection Cards & Chips */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.chip-option {
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--slate-700);
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chip-option:hover {
+  border-color: var(--slate-400);
+  background-color: var(--slate-50);
+}
+
+.chip-option.selected {
+  border-color: var(--brand-primary);
+  background-color: var(--brand-emerald-soft);
+  color: var(--brand-dark);
+  font-weight: 700;
+}
+
+/* Condition Grade Cards */
+.condition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.condition-card {
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background-color: #ffffff;
+}
+
+.condition-card:hover {
+  border-color: var(--slate-400);
+}
+
+.condition-card.selected {
+  border-color: var(--brand-primary);
+  background-color: var(--brand-emerald-soft);
+}
+
+.condition-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin-bottom: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.condition-desc {
+  font-size: 0.8rem;
+  color: var(--slate-500);
+  line-height: 1.4;
+}
+
+/* Battery Health Input */
+.battery-input-card {
+  background-color: var(--slate-50);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.battery-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.battery-percentage {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--brand-primary);
+}
+
+/* Wizard Navigation Bar */
+.wizard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Matched Results Card */
+.match-summary-card {
+  background: linear-gradient(135deg, #071910 0%, var(--slate-900) 100%);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  margin-bottom: 1.75rem;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.summary-route {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.summary-device {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.summary-estimate-box {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.estimate-label {
+  font-size: 0.825rem;
+  color: #a7f3d0;
+  font-weight: 600;
+}
+
+.estimate-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* Dealer Match List */
+.matched-dealer-item {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background-color: #ffffff;
+  transition: all var(--transition-fast);
+}
+
+.matched-dealer-item:hover {
+  border-color: var(--brand-emerald-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.dealer-match-info h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dealer-match-address {
+  font-size: 0.8rem;
+  color: var(--slate-500);
+  margin-top: 0.2rem;
+}
+
+/* Details Page Layout */
+.offer-details-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  max-width: 1050px;
+  margin: 0 auto;
+}
+
+.details-card {
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.details-sticky-sidebar {
+  position: sticky;
+  top: 90px;
+}
+
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.specs-table td {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--slate-100);
+  font-size: 0.875rem;
+}
+
+.specs-table td:first-child {
+  color: var(--slate-500);
+  font-weight: 500;
+  width: 40%;
+}
+
+.specs-table td:last-child {
+  color: var(--slate-900);
+  font-weight: 700;
+}
+
+/* Form Grid Utilities */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 600px) {
+  .form-grid-2,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  
+  .wizard-progress {
+    padding: 0;
+    margin-bottom: 1.75rem;
+  }
+  
+  .wizard-progress::before,
+  .progress-line-fill {
+    left: 1.5rem;
+    right: 1.5rem;
+  }
+
+  .step-label {
+    font-size: 0.68rem;
+  }
+
+  .step-circle {
+    width: 30px;
+    height: 30px;
+    font-size: 0.775rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .wizard-container {
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-lg);
+  }
+  .condition-grid {
+    grid-template-columns: 1fr;
+  }
+  .summary-route {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  .matched-dealer-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .offer-details-grid {
+    grid-template-columns: 1fr;
+  }
+  .details-card {
+    padding: 1.25rem;
+  }
+}
+

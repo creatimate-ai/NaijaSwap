@@ -1,0 +1,93 @@
+/* NigerSwap Design Tokens & Modern Theme */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Brand Colors - Nigerian Heritage Emerald & Vibrant Accent */
+  --brand-primary: #008751;
+  --brand-dark: #005c37;
+  --brand-light: #059669;
+  --brand-accent: #10b981;
+  --brand-emerald-soft: #ecfdf5;
+  --brand-emerald-border: #a7f3d0;
+  --brand-glow: rgba(16, 185, 129, 0.16);
+  --brand-gradient: linear-gradient(135deg, #008751 0%, #059669 50%, #10b981 100%);
+  --brand-dark-gradient: linear-gradient(135deg, #070D18 0%, #005c37 100%);
+
+  /* WhatsApp Official Brand */
+  --brand-whatsapp: #25d366;
+  --brand-whatsapp-hover: #1eb956;
+  --brand-whatsapp-soft: #f0fdf4;
+
+  /* Neutral Slate Palette */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+  --slate-950: #080d1a;
+
+  /* Surfaces & Backgrounds */
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-glass: rgba(255, 255, 255, 0.85);
+  --bg-hero: radial-gradient(circle at 50% -10%, #0d281a 0%, #09111e 60%, #050811 100%);
+  --bg-card-dark: rgba(15, 23, 42, 0.85);
+  --bg-card-glass-dark: rgba(15, 23, 42, 0.65);
+
+  /* Text Colors */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --text-white: #ffffff;
+
+  /* Functional Status */
+  --color-danger: #ef4444;
+  --color-danger-soft: #fef2f2;
+  --color-danger-border: #fecaca;
+  --color-warning: #f59e0b;
+  --color-warning-soft: #fffbeb;
+  --color-warning-border: #fde68a;
+  --color-success: #15803d;
+  --color-success-soft: #dcfce7;
+  --color-info: #0284c7;
+  --color-info-soft: #e0f2fe;
+
+  /* Borders */
+  --border-subtle: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-glass: rgba(255, 255, 255, 0.2);
+  --border-dark-subtle: rgba(255, 255, 255, 0.08);
+  --border-dark-hover: rgba(16, 185, 129, 0.4);
+
+  /* Elevation Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 32px -6px rgba(0, 0, 0, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 22px 35px -10px rgba(0, 135, 81, 0.12), 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+
+  /* Border Radii */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 9999px;
+
+  /* Typography */
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  
+  /* Transitions */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 150ms ease;
+  --transition-smooth: 250ms var(--ease-spring);
+  --transition-slow: 400ms var(--ease-spring);
+}
