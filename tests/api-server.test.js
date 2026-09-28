@@ -33,11 +33,14 @@ jest.mock('firebase-admin', () => {
         return Promise.reject(new Error('Invalid token'));
       })
     }),
-    firestore: jest.fn().mockReturnValue(mockFirestore)
+    firestore: Object.assign(jest.fn().mockReturnValue(mockFirestore), {
+      FieldValue: { serverTimestamp: jest.fn(() => 'SERVER_TIMESTAMP') }
+    })
   };
 });
 
 const apiRouter = require('../api-server');
+const firebaseAdmin = require('firebase-admin');
 
 const app = express();
 app.use(express.json({
@@ -54,6 +57,12 @@ describe('NaijaSwap API Server Test Suite', () => {
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...OLD_ENV, PAYSTACK_SECRET_KEY: 'sk_test_secret_key_123' };
+    firebaseAdmin.firestore().get.mockReset().mockResolvedValue({
+      empty: true,
+      exists: false,
+      docs: []
+    });
+    firebaseAdmin.firestore().add.mockClear();
   });
 
   afterAll(() => {
@@ -114,6 +123,66 @@ describe('NaijaSwap API Server Test Suite', () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.valid).toBe(true);
       expect(res.body.format).toBe('SERIAL');
+    });
+  });
+
+  describe('POST /api/swapper/listing/create', () => {
+    it('should reject requests without authentication', async () => {
+      const res = await request(app)
+        .post('/api/swapper/listing/create')
+        .send({});
+      expect(res.statusCode).toBe(401);
+    });
+
+    it('should reject accounts without an authorized swapper profile', async () => {
+      const res = await request(app)
+        .post('/api/swapper/listing/create')
+        .set('Authorization', 'Bearer valid-user-token')
+        .send({});
+      expect(res.statusCode).toBe(403);
+      expect(res.body.error).toMatch(/swapper account is required/i);
+    });
+
+    it('should publish verified swapper phones to the dealer-only collection without saving the IMEI', async () => {
+      firebaseAdmin.firestore().get
+        .mockResolvedValueOnce({
+          exists: true,
+          data: () => ({ accountType: 'customer', displayName: 'Test Swapper' })
+        })
+        .mockResolvedValueOnce({ exists: false })
+        .mockResolvedValueOnce({ empty: true });
+
+      const res = await request(app)
+        .post('/api/swapper/listing/create')
+        .set('Authorization', 'Bearer valid-user-token')
+        .send({
+          imei: '356938035643809',
+          contactPhone: '08012345678',
+          device: {
+            brand: 'Apple',
+            model: 'iPhone 14',
+            storage: '128GB',
+            condition: 'Good',
+            batteryHealth: 87,
+            location: 'Ikeja, Lagos'
+          },
+          mediaFiles: [{
+            name: 'front.jpg',
+            type: 'image/jpeg',
+            isVideo: false,
+            dataUrl: 'https://res.cloudinary.com/example/image/upload/front.jpg'
+          }]
+        });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.body.status).toBe('active');
+      expect(firebaseAdmin.firestore().add).toHaveBeenCalledWith(expect.objectContaining({
+        ownerRole: 'swapper',
+        audience: 'dealers',
+        model: 'iPhone 14',
+        sellerName: 'Test Swapper'
+      }));
+      expect(firebaseAdmin.firestore().add.mock.calls[0][0]).not.toHaveProperty('imei');
     });
   });
 

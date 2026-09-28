@@ -214,6 +214,22 @@
 
     </div>
 
+    <!-- Swapper Listings Section (Dealer-only marketplace feed) -->
+    <section id="swapperListingsSection" style="margin-top: 28px;">
+      <div class="section-header-row">
+        <div>
+          <h2 class="section-title">Phones Listed by Swappers</h2>
+          <p class="section-subtitle">These phones are visible only to dealer accounts. Contact owners directly to discuss a trade.</p>
+        </div>
+      </div>
+      <div class="store-listings-grid" id="swapperListingsContainer"></div>
+      <div class="empty-state-box" id="emptySwapperListingsBox" style="display: none;">
+        <div class="empty-state-icon">📱</div>
+        <h3 class="empty-state-title">No swapper phones listed yet</h3>
+        <p class="empty-state-desc">New swapper phone listings will appear here as soon as they are verified and published.</p>
+      </div>
+    </section>
+
     <!-- My Listings Section (Store Inventory) -->
     <section id="listingsSection" style="margin-top: 10px;">
       <div class="section-header-row">
@@ -391,7 +407,7 @@
     import { requireCompleteProfile, isProfileComplete, resolveMedia } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { logNaijaSwap, setButtonLoading } from './js/auth.js';
-    import { db, doc, getDoc } from './js/firebase-config.js';
+    import { db, collection, getDocs, query, where, orderBy, limit, doc, getDoc } from './js/firebase-config.js';
     import { initOnboarding, openOnboardingModal } from './js/onboarding.js';
 
     let currentStoreId = '';
@@ -466,6 +482,8 @@
     const emptyRequestsBox = document.getElementById('emptyRequestsBox');
     const storeListingsContainer = document.getElementById('storeListingsContainer');
     const emptyListingsBox = document.getElementById('emptyListingsBox');
+    const swapperListingsContainer = document.getElementById('swapperListingsContainer');
+    const emptySwapperListingsBox = document.getElementById('emptySwapperListingsBox');
     const activityTimelineContainer = document.getElementById('activityTimelineContainer');
     const emptyActivityBox = document.getElementById('emptyActivityBox');
     const mobileRequestsBadge = document.getElementById('mobileRequestsBadge');
@@ -721,6 +739,62 @@
       });
     }
 
+    async function renderSwapperListings() {
+      if (!swapperListingsContainer || !currentStoreId) return;
+      try {
+        const snapshot = await getDocs(query(
+          collection(db, 'swapperListings'),
+          where('status', '==', 'active'),
+          orderBy('createdAt', 'desc'),
+          limit(50)
+        ));
+        const listings = snapshot.docs
+          .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+
+        swapperListingsContainer.innerHTML = '';
+        if (emptySwapperListingsBox) emptySwapperListingsBox.style.display = listings.length ? 'none' : 'flex';
+        listings.forEach(listing => {
+          const card = document.createElement('article');
+          card.className = 'store-listing-card';
+          const firstPhoto = Array.isArray(listing.mediaFiles)
+            ? listing.mediaFiles.find(media => !media.isVideo)?.dataUrl
+            : '';
+          const image = escapeHtml(listing.image || firstPhoto || 'assets/iPhone 15 Pro.jpg');
+          const phoneDigits = String(listing.contactPhone || '').replace(/\D/g, '');
+          const whatsappNumber = phoneDigits.startsWith('0') ? `234${phoneDigits.slice(1)}` : phoneDigits;
+          const message = encodeURIComponent(`Hi ${listing.sellerName || 'there'}, I saw your ${listing.brand} ${listing.model} on NaijaSwap and would like to discuss it.`);
+          card.innerHTML = `
+            <div class="listing-card-media">
+              <img src="${image}" alt="${escapeHtml(`${listing.brand || ''} ${listing.model || ''}`)}" class="listing-card-img" loading="lazy">
+              <div class="phone-tags-floating"><span class="tag-badge tag-verified">Swapper listing</span></div>
+            </div>
+            <div class="listing-card-body">
+              <span class="listing-title">${escapeHtml(`${listing.brand || ''} ${listing.model || ''}`.trim())}</span>
+              <div class="phone-specs-line">
+                <span>${escapeHtml(listing.storage || '')}</span><span>•</span><span>${escapeHtml(listing.condition || '')}</span>
+              </div>
+              <div class="phone-specs-line">
+                ${listing.color ? `<span>${escapeHtml(listing.color)}</span><span>•</span>` : ''}
+                <span>Battery ${escapeHtml(listing.battery || 'N/A')}</span>
+              </div>
+              <div class="phone-location-line"><span>${escapeHtml(listing.location || 'Location not provided')}</span></div>
+              <div style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;">Listed by ${escapeHtml(listing.sellerName || 'Swapper')}</div>
+            </div>
+            <div class="listing-actions-row">
+              <a class="btn-primary-action" href="https://wa.me/${encodeURIComponent(whatsappNumber)}?text=${message}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;justify-content:center;">
+                Contact Swapper
+              </a>
+            </div>
+          `;
+          swapperListingsContainer.appendChild(card);
+        });
+      } catch (error) {
+        console.error('[NaijaSwap Dealer] Could not load swapper phone listings:', error);
+        swapperListingsContainer.innerHTML = '<div class="empty-state-desc">Swapper listings could not be loaded. Please refresh and try again.</div>';
+        if (emptySwapperListingsBox) emptySwapperListingsBox.style.display = 'none';
+      }
+    }
+
     // Render Recent Activity
     function renderActivityTimeline() {
       const activities = NaijaSwapData.getStoreActivity(currentStoreId);
@@ -771,6 +845,7 @@
         refreshStats();
         renderSwapRequests();
         renderStoreListings();
+        renderSwapperListings();
         renderActivityTimeline();
         const uid = dealerAuthUser?.uid || currentStoreId || localStorage.getItem('naijaswap_last_uid');
         if (uid) await renderVerificationBanner(uid);

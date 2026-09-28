@@ -761,6 +761,98 @@ router.post('/api/listing/create', authenticate, async (request, response) => {
   }
 });
 
+router.post('/api/swapper/listing/create', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const firebase = getFirebaseAdmin();
+    const db = firebase.firestore();
+    const userSnapshot = await db.collection('users').doc(uid).get();
+    if (!userSnapshot.exists || !['customer', 'swapper'].includes(
+      String(userSnapshot.data().accountType || userSnapshot.data().role || '').toLowerCase()
+    )) {
+      return response.status(403).json({ error: 'A swapper account is required to list a phone for dealers.' });
+    }
+
+    const payload = request.body || {};
+    const device = payload.device && typeof payload.device === 'object' ? payload.device : {};
+    const brand = requireString(device.brand, 'brand', 40);
+    const model = requireString(device.model, 'model', 100);
+    if (!['Apple', 'Samsung'].includes(brand)) {
+      return response.status(400).json({ error: 'Only Apple and Samsung phones can be listed.' });
+    }
+    const imei = String(payload.imei || '').replace(/[\s-]/g, '').toUpperCase();
+    if (!/^[0-9A-Z]{8,32}$/.test(imei) || (/^\d{15}$/.test(imei) && !verifyLuhnChecksum(imei))) {
+      return response.status(422).json({ error: 'Enter a valid IMEI or serial number before listing your phone.' });
+    }
+
+    const blacklist = await db.collection('stolenDevices').doc(imei).get();
+    if (blacklist.exists && blacklist.data().status === 'blacklisted') {
+      return response.status(403).json({ error: 'This phone has been flagged in the device registry and cannot be listed.' });
+    }
+    const duplicateSwap = await db.collection('swapRequests')
+      .where('currentDevice.imeiNumber', '==', imei)
+      .where('status', 'in', ['pending', 'reviewed', 'countered', 'accepted', 'under_inspection'])
+      .limit(1).get();
+    if (!duplicateSwap.empty) {
+      return response.status(409).json({ error: 'This phone is already part of an active swap request.' });
+    }
+
+    const mediaFiles = Array.isArray(payload.mediaFiles) ? payload.mediaFiles.slice(0, 5) : [];
+    if (mediaFiles.length === 0 || mediaFiles.some((media) => (
+      !media || typeof media.dataUrl !== 'string'
+      || !media.dataUrl.startsWith('https://res.cloudinary.com/')
+      || typeof media.isVideo !== 'boolean'
+      || !/^(image|video)\//.test(String(media.type || ''))
+      || media.isVideo !== String(media.type || '').startsWith('video/')
+    ))) {
+      return response.status(400).json({ error: 'Upload at least one phone photo before publishing.' });
+    }
+    if (!mediaFiles.some((media) => !media.isVideo)) {
+      return response.status(400).json({ error: 'Upload at least one phone photo before publishing.' });
+    }
+    const contactPhone = requireString(payload.contactPhone, 'contact phone', 32);
+    const cleanPhone = contactPhone.replace(/[^\d+]/g, '');
+    if (!/^\+?\d{10,15}$/.test(cleanPhone)) {
+      return response.status(400).json({ error: 'Enter a valid phone or WhatsApp number.' });
+    }
+    const batteryHealth = Number(device.batteryHealth);
+    if (!Number.isInteger(batteryHealth) || batteryHealth < 1 || batteryHealth > 100) {
+      return response.status(400).json({ error: 'Battery health must be between 1 and 100%.' });
+    }
+    const profile = userSnapshot.data();
+    const listing = {
+      ownerUid: uid,
+      ownerRole: 'swapper',
+      audience: 'dealers',
+      sellerName: String(profile.displayName || profile.name || request.user.name || 'Swapper').slice(0, 100),
+      contactPhone: cleanPhone,
+      brand,
+      model,
+      storage: requireString(device.storage, 'storage', 30),
+      condition: requireString(device.condition, 'condition', 60),
+      conditionGrade: String(device.conditionGrade || '').trim().slice(0, 60),
+      color: String(device.color || '').trim().slice(0, 50),
+      battery: `${batteryHealth}%`,
+      location: requireString(device.location, 'location', 120),
+      image: mediaFiles.find((media) => !media.isVideo)?.dataUrl || '',
+      mediaFiles: mediaFiles.map((media) => ({
+        name: String(media.name || 'Phone media').slice(0, 120),
+        type: String(media.type || '').slice(0, 80),
+        isVideo: media.isVideo,
+        dataUrl: media.dataUrl
+      })),
+      status: 'active',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    const ref = await db.collection('swapperListings').add(listing);
+    return response.json({ ok: true, listingId: ref.id, status: 'active' });
+  } catch (error) {
+    console.error('[API] Swapper listing create failed:', error);
+    return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
 // POST /api/admin/verification-status  (admin only)
 router.post('/api/admin/verification-status', authenticate, async (request, response) => {
   try {

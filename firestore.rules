@@ -40,6 +40,15 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    function isDealer() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && (
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'dealer'
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountType == 'dealer'
+        );
+    }
+
     match /users/{uid} {
       allow create: if isOwner(uid)
         && request.resource.data.uid == uid
@@ -125,6 +134,12 @@ service cloud.firestore {
            'description', 'location', 'updatedAt', 'status'])
         && request.resource.data.status in ['active', 'out_of_stock', 'archived'];
       allow delete: if isSignedIn() && resource.data.storeOwnerUid == request.auth.uid;
+    }
+
+    match /swapperListings/{listingId} {
+      allow read: if isOwner(resource.data.ownerUid)
+        || (isDealer() && resource.data.status == 'active');
+      allow create, update, delete: if false;
     }
 
     // Legacy collection used by older admin dashboard builds.

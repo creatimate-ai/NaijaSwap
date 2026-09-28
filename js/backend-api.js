@@ -5,7 +5,11 @@
  */
 import { auth } from './firebase-config.js';
 
-const API_BASE = '';
+const API_BASE = globalThis.NAIJASWAP_API_BASE
+  || (typeof window !== 'undefined'
+    && (window.location.hostname.endsWith('.web.app') || window.location.hostname.endsWith('.firebaseapp.com'))
+    ? 'https://naijaswap.onrender.com'
+    : '');
 
 async function apiPost(path, body = {}) {
   const user = auth.currentUser;
@@ -51,6 +55,10 @@ export function createSwapRequestBackend(payload = {}) {
 
 export function createListingBackend(payload = {}) {
   return apiPost('/api/listing/create', payload);
+}
+
+export function createSwapperListingBackend(payload = {}) {
+  return apiPost('/api/swapper/listing/create', payload);
 }
 
 export function updateSwapRequestStatusBackend(payload = {}) {
