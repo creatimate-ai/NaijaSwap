@@ -1,26 +1,28 @@
 const express = require('express');
 const crypto = require('crypto');
 const { v2: cloudinary } = require('cloudinary');
-const admin = require('firebase-admin');
+const { cert, getApps, initializeApp } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
+const { FieldValue, getFirestore } = require('firebase-admin/firestore');
 
 const router = express.Router();
 const MAX_SWAP_AMOUNT_NAIRA = 5000000;
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'naijaswap1';
 
 function getFirebaseAdmin() {
-  if (admin.apps.length) return admin;
+  const existingApp = getApps().find((app) => app.name === '[DEFAULT]');
+  if (existingApp) return existingApp;
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
   if (!serviceAccount.project_id || !serviceAccount.client_email || !serviceAccount.private_key) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT is not configured on the Render service.');
   }
-  admin.initializeApp({
-    credential: admin.credential.cert({
+  return initializeApp({
+    credential: cert({
       ...serviceAccount,
       private_key: serviceAccount.private_key.replace(/\\n/g, '\n')
     }),
     projectId: FIREBASE_PROJECT_ID
   });
-  return admin;
 }
 
 function configureCloudinary() {
@@ -49,7 +51,7 @@ async function authenticate(request, response, next) {
     return response.status(503).json({ error: 'Authentication service is temporarily unavailable.' });
   }
   try {
-    request.user = await firebase.auth().verifyIdToken(token);
+    request.user = await getAuth(firebase).verifyIdToken(token);
     return next();
   } catch (error) {
     console.error(`[API] Firebase ID token rejected for project ${FIREBASE_PROJECT_ID}:`, error.code || error.message);
@@ -65,6 +67,16 @@ function requireString(value, field, maxLength = 500) {
     throw error;
   }
   return result;
+}
+
+function validateAmount(value) {
+  const amount = Number(String(value ?? '').replace(/[₦,\s]/g, ''));
+  if (!Number.isFinite(amount) || amount < 0 || amount > MAX_SWAP_AMOUNT_NAIRA) {
+    const error = new Error(`Amount must be between 0 and ${MAX_SWAP_AMOUNT_NAIRA} naira.`);
+    error.statusCode = 400;
+    throw error;
+  }
+  return Math.round(amount);
 }
 
 function validateCloudinaryAsset(value, uid) {
@@ -121,7 +133,7 @@ router.post('/api/device/verify-imei', authenticate, async (request, response) =
     }
 
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
 
     const activeDupe = await db.collection('swapRequests')
       .where('currentDevice.imeiNumber', '==', cleanImei)
@@ -190,7 +202,7 @@ router.post('/api/payments/webhook', async (request, response) => {
 
       if (requestId) {
         const firebase = getFirebaseAdmin();
-        const db = firebase.firestore();
+        const db = getFirestore(firebase);
         const swapRef = db.collection('swapRequests').doc(requestId);
         const snap = await swapRef.get();
 
@@ -200,8 +212,8 @@ router.post('/api/payments/webhook', async (request, response) => {
             paymentStatus: 'paid',
             escrowStatus: 'held_in_escrow',
             paymentReference: reference,
-            paidAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            paidAt: FieldValue.serverTimestamp(),
+            updatedAt: FieldValue.serverTimestamp()
           }, { merge: true });
 
           for (const recipientUid of [swapData.customerUid, swapData.dealerUid].filter(Boolean)) {
@@ -219,7 +231,7 @@ router.post('/api/payments/webhook', async (request, response) => {
             requestId,
             reference,
             amountKobo: data.amount,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: FieldValue.serverTimestamp()
           });
         }
       }
@@ -269,7 +281,7 @@ router.post('/api/dealer-verification', authenticate, async (request, response) 
       return response.status(400).json({ error: 'Verification documents must be private Cloudinary assets.' });
     }
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     await db.collection('dealerVerification').doc(uid).set({
       uid,
       storeName: String(request.body.storeName || '').trim(),
@@ -279,14 +291,14 @@ router.post('/api/dealer-verification', authenticate, async (request, response) 
       governmentIdData: governmentIdUrl,
       proofOfAddressData: proofOfAddressUrl,
       status: 'pending',
-      submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      submittedAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
     await db.collection('users').doc(uid).set({
       role: 'dealer',
       accountType: 'dealer',
       verificationStatus: 'pending',
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
     return response.json({ ok: true, uid, status: 'pending' });
   } catch (error) {
@@ -302,7 +314,7 @@ router.post('/api/payments/initialize', authenticate, async (request, response) 
     const amountNaira = validateAmount(request.body.amountNaira);
     if (amountNaira <= 0) return response.status(400).json({ error: 'Amount must be positive.' });
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const swap = await db.collection('swapRequests').doc(requestId).get();
     if (!swap.exists || swap.data().customerUid !== request.user.uid) {
       return response.status(403).json({ error: 'You cannot pay for this swap.' });
@@ -332,7 +344,7 @@ router.post('/api/payments/initialize', authenticate, async (request, response) 
       paymentStatus: 'initialized',
       paymentReference: result.data.reference,
       paymentAmountKobo: expected,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
     return response.json({
       authorizationUrl: result.data.authorization_url,
@@ -358,7 +370,7 @@ router.post('/api/payments/verify', authenticate, async (request, response) => {
     }
     const requestId = requireString(transaction.metadata?.requestId, 'requestId', 128);
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const swapRef = db.collection('swapRequests').doc(requestId);
     const swap = await swapRef.get();
     if (!swap.exists || swap.data().customerUid !== request.user.uid) {
@@ -371,8 +383,8 @@ router.post('/api/payments/verify', authenticate, async (request, response) => {
     await swapRef.set({
       paymentStatus: 'paid',
       paymentReference: reference,
-      paidAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      paidAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
     return response.json({ ok: true, requestId, reference, status: 'paid' });
   } catch (error) {
@@ -387,7 +399,7 @@ async function sendNotification(db, recipientUid, notification) {
     await db.collection('users').doc(recipientUid).collection('notifications').add({
       ...notification,
       isRead: false,
-      createdAt: admin.firestore.FieldValue.serverTimestamp()
+      createdAt: FieldValue.serverTimestamp()
     });
   } catch (e) {
     console.warn('[API] Could not send notification:', e.message);
@@ -417,16 +429,58 @@ router.post('/api/swap/create', authenticate, async (request, response) => {
     const payload = request.body || {};
     const storeUid = requireString(payload.storeUid, 'storeUid', 128);
     const currentDevice = typeof payload.currentDevice === 'object' && payload.currentDevice ? payload.currentDevice : null;
-    const targetDevice = typeof payload.targetDevice === 'object' && payload.targetDevice ? payload.targetDevice : null;
-    if (!currentDevice || !targetDevice) {
+    const targetDeviceInput = typeof payload.targetDevice === 'object' && payload.targetDevice ? payload.targetDevice : null;
+    if (!currentDevice || !targetDeviceInput) {
       return response.status(400).json({ error: 'Device details must be objects.' });
     }
-    const imeiNumber = String(currentDevice.imeiNumber || '').trim().slice(0, 32);
-    if (!/^[0-9A-Za-z-]{8,32}$/.test(imeiNumber)) {
+    const targetListingId = requireString(payload.targetListingId, 'targetListingId', 128);
+    const imeiNumber = String(currentDevice.imeiNumber || '').replace(/[\s-]/g, '').toUpperCase();
+    if (!/^[0-9A-Z]{8,32}$/.test(imeiNumber) || (/^\d{15}$/.test(imeiNumber) && !verifyLuhnChecksum(imeiNumber))) {
       return response.status(400).json({ error: 'A valid device IMEI or serial number is required.' });
     }
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
+    const listingSnapshot = await db.collection('listings').doc(targetListingId).get();
+    if (!listingSnapshot.exists) {
+      return response.status(404).json({ error: 'This dealer listing is no longer available.' });
+    }
+    const listing = listingSnapshot.data();
+    if (listing.storeOwnerUid !== storeUid) {
+      return response.status(403).json({ error: 'Swap requests must target a phone listed by this dealer.' });
+    }
+    if (String(listing.status || '').toLowerCase() !== 'active'
+      || Number(listing.quantityInStock || 0) < 1
+      || listing.isSwapAllowed === false) {
+      return response.status(409).json({ error: 'This dealer phone is not currently accepting swap requests.' });
+    }
+    const targetDevice = {
+      listingId: targetListingId,
+      brand: String(listing.brand || ''),
+      model: String(listing.model || ''),
+      storage: String(listing.storage || ''),
+      color: String(listing.color || ''),
+      image: String(listing.image || ''),
+      marketValue: Number(listing.marketValue || 0)
+    };
+    const validatedCurrentDevice = {
+      brand: requireString(currentDevice.brand, 'currentDevice.brand', 40),
+      model: requireString(currentDevice.model, 'currentDevice.model', 100),
+      storage: requireString(currentDevice.storage || currentDevice.storageCapacity, 'currentDevice.storage', 30),
+      ram: String(currentDevice.ram || '').slice(0, 30),
+      condition: String(currentDevice.condition || '').slice(0, 60),
+      batteryHealth: Number(currentDevice.batteryHealth || 0),
+      carrierLock: String(currentDevice.carrierLock || '').slice(0, 40),
+      color: String(currentDevice.color || '').slice(0, 50),
+      conditionTriage: currentDevice.conditionTriage && typeof currentDevice.conditionTriage === 'object'
+        ? {
+          powerAndScreen: currentDevice.conditionTriage.powerAndScreen === true,
+          screenGlass: currentDevice.conditionTriage.screenGlass === true,
+          bodyAndHousing: currentDevice.conditionTriage.bodyAndHousing === true,
+          hardwareFunctionality: currentDevice.conditionTriage.hardwareFunctionality === true
+        }
+        : {},
+      imeiNumber
+    };
     // Check IMEI uniqueness
     const dupe = await db.collection('swapRequests')
       .where('currentDevice.imeiNumber', '==', imeiNumber)
@@ -440,8 +494,13 @@ router.post('/api/swap/create', authenticate, async (request, response) => {
     const doc = {
       customerUid: uid,
       dealerUid: storeUid,
+      customerName: String(request.user.name || payload.customerName || '').trim().slice(0, 100),
+      customerEmail: String(request.user.email || payload.customerEmail || '').trim().slice(0, 320),
+      customerPhone: String(payload.customerPhone || '').replace(/[^\d+]/g, '').slice(0, 16),
+      storeName: String(listing.storeName || '').slice(0, 120),
       status: 'pending',
-      currentDevice: { ...currentDevice, imeiNumber },
+      currentDevice: validatedCurrentDevice,
+      targetListingId,
       targetDevice,
       offeredPrice,
       topupAmount,
@@ -449,8 +508,8 @@ router.post('/api/swap/create', authenticate, async (request, response) => {
       deviceMedia: Array.isArray(payload.deviceMedia) ? payload.deviceMedia.slice(0, 5) : [],
       disputeStatus: 'none',
       paymentStatus: topupAmount > 0 ? 'unpaid' : 'not_required',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
     };
     const ref = await db.collection('swapRequests').add(doc);
     await sendNotification(db, storeUid, {
@@ -462,7 +521,7 @@ router.post('/api/swap/create', authenticate, async (request, response) => {
     });
     await db.collection('auditLogs').add({
       uid, action: 'swap_request_created', requestId: ref.id,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: FieldValue.serverTimestamp()
     });
     return response.json({ ok: true, requestId: ref.id, status: 'pending' });
   } catch (error) {
@@ -478,7 +537,7 @@ router.post('/api/swap/status', authenticate, async (request, response) => {
     const requestId = requireString(request.body.requestId, 'requestId', 128);
     const status = String(request.body.status || '').trim().toLowerCase();
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const requestRef = db.collection('swapRequests').doc(requestId);
     const snap = await requestRef.get();
     if (!snap.exists) return response.status(404).json({ error: 'Swap request not found.' });
@@ -532,7 +591,7 @@ router.post('/api/swap/status', authenticate, async (request, response) => {
           await listingRef.set({
             quantityInStock: newQty,
             status: newQty === 0 ? 'out_of_stock' : 'active',
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            updatedAt: FieldValue.serverTimestamp()
           }, { merge: true });
         }
       } catch (stockErr) {
@@ -542,7 +601,7 @@ router.post('/api/swap/status', authenticate, async (request, response) => {
     const update = {
       status,
       lastUpdatedBy: uid,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: FieldValue.serverTimestamp()
     };
     if (request.body.counterOffer) update.counterOffer = validateAmount(request.body.counterOffer);
     if (request.body.counterMessage) update.counterMessage = String(request.body.counterMessage).trim().slice(0, 500);
@@ -557,7 +616,7 @@ router.post('/api/swap/status', authenticate, async (request, response) => {
     }
     await db.collection('auditLogs').add({
       uid, action: 'swap_status_updated', requestId, status,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: FieldValue.serverTimestamp()
     });
     return response.json({ ok: true, requestId, status });
   } catch (error) {
@@ -575,7 +634,7 @@ router.post('/api/swap/confirm-handover', authenticate, async (request, response
       return response.status(400).json({ error: 'Explicit confirmation required.' });
     }
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const requestRef = db.collection('swapRequests').doc(requestId);
     const snap = await requestRef.get();
     if (!snap.exists) return response.status(404).json({ error: 'Swap request not found.' });
@@ -586,7 +645,7 @@ router.post('/api/swap/confirm-handover', authenticate, async (request, response
     const update = uid === data.customerUid
       ? { customerConfirmed: true }
       : { dealerConfirmed: true };
-    update.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+    update.updatedAt = FieldValue.serverTimestamp();
     await requestRef.set(update, { merge: true });
     const recipientUid = uid === data.customerUid ? data.dealerUid : data.customerUid;
     if (recipientUid) {
@@ -611,7 +670,7 @@ router.post('/api/swap/dispute', authenticate, async (request, response) => {
     const requestId = requireString(request.body.requestId, 'requestId', 128);
     const reason = requireString(request.body.reason, 'reason', 2000);
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const requestRef = db.collection('swapRequests').doc(requestId);
     const snap = await requestRef.get();
     if (!snap.exists) return response.status(404).json({ error: 'Swap request not found.' });
@@ -626,8 +685,8 @@ router.post('/api/swap/dispute', authenticate, async (request, response) => {
       disputeStatus: 'open',
       disputeOpenedBy: uid,
       disputeReason: reason,
-      disputeOpenedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      disputeOpenedAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
     const recipientUid = uid === data.customerUid ? data.dealerUid : data.customerUid;
     if (recipientUid) {
@@ -640,7 +699,7 @@ router.post('/api/swap/dispute', authenticate, async (request, response) => {
     }
     await db.collection('auditLogs').add({
       uid, action: 'swap_dispute_opened', requestId,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: FieldValue.serverTimestamp()
     });
     return response.json({ ok: true, requestId, disputeStatus: 'open' });
   } catch (error) {
@@ -654,7 +713,7 @@ router.post('/api/swap/inspection', authenticate, async (request, response) => {
   try {
     const uid = request.user.uid;
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     // Verify admin or technician
     let isAuthorized = request.user.admin === true || request.user.role === 'technician' || request.user.role === 'admin';
     if (!isAuthorized) {
@@ -693,8 +752,8 @@ router.post('/api/swap/inspection', authenticate, async (request, response) => {
         imeiClean: diagnostics.imeiClean !== false,
         physicalGrade: String(diagnostics.physicalGrade || 'Grade A')
       },
-      inspectedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      inspectedAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
     };
 
     // If passed and swap is currently accepted or under_inspection, transition to inspection_passed
@@ -730,7 +789,7 @@ router.post('/api/listing/create', authenticate, async (request, response) => {
   try {
     const uid = request.user.uid;
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const verification = await db.collection('dealerVerification').doc(uid).get();
     if (!verification.exists || verification.data().status !== 'approved') {
       return response.status(403).json({ error: 'Dealer verification must be approved before creating listings.' });
@@ -758,124 +817,22 @@ router.post('/api/listing/create', authenticate, async (request, response) => {
       mediaFiles: Array.isArray(request.body.mediaFiles) ? request.body.mediaFiles.slice(0, 5) : [],
       description: String(request.body.description || '').trim().slice(0, 2000),
       location: String(request.body.location || '').trim().slice(0, 200),
+      hubAddress: String(request.body.hubAddress || '').trim().slice(0, 240),
+      whatsappNumber: String(request.body.whatsappNumber || '').replace(/[^\d+]/g, '').slice(0, 16),
       status: 'active',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
     };
     const ref = await db.collection('listings').add(listing);
-    return response.json({ ok: true, listingId: ref.id, listing: { ...listing, id: ref.id } });
+    return response.json({ ok: true, listingId: ref.id, status: listing.status });
   } catch (error) {
     console.error('[API] Listing create failed:', error);
     return response.status(error.statusCode || 503).json({ error: error.message });
   }
 });
 
-router.post('/api/swapper/listing/create', authenticate, async (request, response) => {
-  try {
-    const uid = request.user.uid;
-    const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
-    const userSnapshot = await db.collection('users').doc(uid).get();
-    if (!userSnapshot.exists || !['customer', 'swapper'].includes(
-      String(userSnapshot.data().accountType || userSnapshot.data().role || '').toLowerCase()
-    )) {
-      return response.status(403).json({ error: 'A swapper account is required to list a phone for dealers.' });
-    }
-
-    const payload = request.body || {};
-    const device = payload.device && typeof payload.device === 'object' ? payload.device : {};
-    const brand = requireString(device.brand, 'brand', 40);
-    const model = requireString(device.model, 'model', 100);
-    if (!['Apple', 'Samsung'].includes(brand)) {
-      return response.status(400).json({ error: 'Only Apple and Samsung phones can be listed.' });
-    }
-    const imei = String(payload.imei || '').replace(/[\s-]/g, '').toUpperCase();
-    if (!/^[0-9A-Z]{8,32}$/.test(imei) || (/^\d{15}$/.test(imei) && !verifyLuhnChecksum(imei))) {
-      return response.status(422).json({ error: 'Enter a valid IMEI or serial number before listing your phone.' });
-    }
-
-    const blacklist = await db.collection('stolenDevices').doc(imei).get();
-    if (blacklist.exists && blacklist.data().status === 'blacklisted') {
-      return response.status(403).json({ error: 'This phone has been flagged in the device registry and cannot be listed.' });
-    }
-    const duplicateSwap = await db.collection('swapRequests')
-      .where('currentDevice.imeiNumber', '==', imei)
-      .where('status', 'in', ['pending', 'reviewed', 'countered', 'accepted', 'under_inspection'])
-      .limit(1).get();
-    if (!duplicateSwap.empty) {
-      return response.status(409).json({ error: 'This phone is already part of an active swap request.' });
-    }
-
-    const mediaFiles = Array.isArray(payload.mediaFiles) ? payload.mediaFiles.slice(0, 5) : [];
-    if (mediaFiles.length === 0 || mediaFiles.some((media) => (
-      !media || typeof media.dataUrl !== 'string'
-      || !media.dataUrl.startsWith('https://res.cloudinary.com/')
-      || typeof media.isVideo !== 'boolean'
-      || !/^(image|video)\//.test(String(media.type || ''))
-      || media.isVideo !== String(media.type || '').startsWith('video/')
-    ))) {
-      return response.status(400).json({ error: 'Upload at least one phone photo before publishing.' });
-    }
-    if (!mediaFiles.some((media) => !media.isVideo)) {
-      return response.status(400).json({ error: 'Upload at least one phone photo before publishing.' });
-    }
-    const contactPhone = requireString(payload.contactPhone, 'contact phone', 32);
-    const cleanPhone = contactPhone.replace(/[^\d+]/g, '');
-    if (!/^\+?\d{10,15}$/.test(cleanPhone)) {
-      return response.status(400).json({ error: 'Enter a valid phone or WhatsApp number.' });
-    }
-    const batteryHealth = Number(device.batteryHealth);
-    if (!Number.isInteger(batteryHealth) || batteryHealth < 1 || batteryHealth > 100) {
-      return response.status(400).json({ error: 'Battery health must be between 1 and 100%.' });
-    }
-    const carrierLock = String(device.carrierLock || '').trim();
-    const supportedCarrierLockStatuses = ['Factory Unlocked', 'Network Locked', 'CHIP Unlocked'];
-    if (carrierLock && !supportedCarrierLockStatuses.includes(carrierLock)) {
-      return response.status(400).json({ error: 'Choose a supported carrier lock status.' });
-    }
-    const conditionTriageInput = device.conditionTriage && typeof device.conditionTriage === 'object'
-      ? device.conditionTriage
-      : {};
-    const profile = userSnapshot.data();
-    const listing = {
-      ownerUid: uid,
-      ownerRole: 'swapper',
-      audience: 'dealers',
-      sellerName: String(profile.displayName || profile.name || request.user.name || 'Swapper').slice(0, 100),
-      contactPhone: cleanPhone,
-      brand,
-      model,
-      storage: requireString(device.storage, 'storage', 30),
-      condition: requireString(device.condition, 'condition', 60),
-      conditionGrade: String(device.conditionGrade || '').trim().slice(0, 60),
-      color: String(device.color || '').trim().slice(0, 50),
-      ram: String(device.ram || '').trim().slice(0, 30),
-      carrierLock,
-      conditionTriage: {
-        powerAndScreen: conditionTriageInput.powerAndScreen === true,
-        screenGlass: conditionTriageInput.screenGlass === true,
-        bodyAndHousing: conditionTriageInput.bodyAndHousing === true,
-        hardwareFunctionality: conditionTriageInput.hardwareFunctionality === true
-      },
-      battery: `${batteryHealth}%`,
-      location: requireString(device.location, 'location', 120),
-      image: mediaFiles.find((media) => !media.isVideo)?.dataUrl || '',
-      mediaFiles: mediaFiles.map((media) => ({
-        name: String(media.name || 'Phone media').slice(0, 120),
-        type: String(media.type || '').slice(0, 80),
-        isVideo: media.isVideo,
-        dataUrl: media.dataUrl
-      })),
-      status: 'active',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    const ref = await db.collection('swapperListings').add(listing);
-    return response.json({ ok: true, listingId: ref.id, status: 'active' });
-  } catch (error) {
-    console.error('[API] Swapper listing create failed:', error);
-    return response.status(error.statusCode || 503).json({ error: error.message });
-  }
+router.post('/api/swapper/listing/create', (request, response) => {
+  return response.status(410).json({ error: 'Only dealers can list phones. Browse dealer listings to request a swap.' });
 });
 
 // POST /api/admin/verification-status  (admin only)
@@ -883,7 +840,7 @@ router.post('/api/admin/verification-status', authenticate, async (request, resp
   try {
     const uid = request.user.uid;
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     let isAdminUser = request.user.admin === true;
     if (!isAdminUser) {
       const userSnap = await db.collection('users').doc(uid).get();
@@ -898,14 +855,14 @@ router.post('/api/admin/verification-status', authenticate, async (request, resp
     await db.collection('dealerVerification').doc(targetUid).set({
       status,
       reviewedBy: uid,
-      reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      reviewedAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
     await db.collection('users').doc(targetUid).set({
       role: 'dealer',
       accountType: 'dealer',
       verificationStatus: status,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
     await sendNotification(db, targetUid, {
       type: `verification_${status}`,
@@ -926,7 +883,7 @@ router.get('/api/admin/verifications', authenticate, async (request, response) =
   try {
     const uid = request.user.uid;
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     let isAdminUser = request.user.admin === true;
     if (!isAdminUser) {
       const userSnap = await db.collection('users').doc(uid).get();
@@ -951,7 +908,7 @@ router.get('/api/admin/swaps', authenticate, async (request, response) => {
   try {
     const uid = request.user.uid;
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     let isAdminUser = request.user.admin === true;
     if (!isAdminUser) {
       const userSnap = await db.collection('users').doc(uid).get();
@@ -979,7 +936,7 @@ router.post('/api/swap/messages', authenticate, async (request, response) => {
     const requestId = requireString(request.body.requestId, 'requestId', 128);
     const text = requireString(request.body.text, 'text', 2000);
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const requestRef = db.collection('swapRequests').doc(requestId);
     const snap = await requestRef.get();
     if (!snap.exists) return response.status(404).json({ error: 'Swap request not found.' });
@@ -997,7 +954,7 @@ router.post('/api/swap/messages', authenticate, async (request, response) => {
       senderName,
       text,
       type: String(request.body.type || 'text').slice(0, 30),
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: FieldValue.serverTimestamp()
     };
     const ref = await requestRef.collection('messages').add(messageDoc);
     // Notify counterparty
@@ -1023,7 +980,7 @@ router.get('/api/swap/messages', authenticate, async (request, response) => {
     const uid = request.user.uid;
     const requestId = requireString(request.query.requestId, 'requestId', 128);
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const snap = await db.collection('swapRequests').doc(requestId).get();
     if (!snap.exists) return response.status(404).json({ error: 'Swap not found.' });
     const data = snap.data();
@@ -1048,7 +1005,7 @@ router.post('/api/reviews', authenticate, async (request, response) => {
     const rating = Math.min(5, Math.max(1, parseInt(request.body.rating || 5, 10)));
     const reviewText = requireString(request.body.comment || request.body.reviewText, 'review', 1000);
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const swapSnap = await db.collection('swapRequests').doc(requestId).get();
     if (!swapSnap.exists) return response.status(404).json({ error: 'Swap not found.' });
     const swap = swapSnap.data();
@@ -1065,7 +1022,7 @@ router.post('/api/reviews', authenticate, async (request, response) => {
       rating,
       comment: reviewText,
       targetDeviceModel: swap.targetDevice?.model || 'Device',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: FieldValue.serverTimestamp()
     };
     const ref = await db.collection('reviews').add(reviewDoc);
     return response.json({ ok: true, reviewId: ref.id, review: reviewDoc });
@@ -1080,7 +1037,7 @@ router.get('/api/reviews', async (request, response) => {
   try {
     const storeId = String(request.query.storeId || '').trim();
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     let q = db.collection('reviews');
     if (storeId) {
       q = q.where('storeId', '==', storeId);
@@ -1103,7 +1060,7 @@ router.get('/api/certificate', async (request, response) => {
     const id = String(request.query.id || '').trim();
     if (!id) return response.status(400).json({ error: 'Certificate/Request ID is required.' });
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     let swapDoc = null;
     if (id.startsWith('NS-CERT-')) {
       const q = await db.collection('swapRequests').where('inspectionReportId', '==', id).limit(1).get();
@@ -1154,7 +1111,7 @@ router.post('/api/admin/setup-role', authenticate, async (request, response) => 
     }
     const isDev = process.env.NODE_ENV !== 'production';
     const firebase = getFirebaseAdmin();
-    const db = firebase.firestore();
+    const db = getFirestore(firebase);
     const callerDoc = await db.collection('users').doc(uid).get();
     const isAlreadyAdmin = callerDoc.exists && callerDoc.data().role === 'admin' && callerDoc.data().accountType === 'admin';
     if (!isDev && !isAlreadyAdmin) {
@@ -1164,7 +1121,7 @@ router.post('/api/admin/setup-role', authenticate, async (request, response) => 
       role: targetRole,
       accountType: targetRole === 'technician' ? 'technician' : targetRole,
       isTechnician: targetRole === 'technician' || targetRole === 'admin',
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
     return response.json({ ok: true, uid, role: targetRole });
   } catch (error) {
