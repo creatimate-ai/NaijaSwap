@@ -11,33 +11,42 @@ const API_BASE = globalThis.NAIJASWAP_API_BASE
     ? 'https://naijaswap.onrender.com'
     : '');
 
-async function apiPost(path, body = {}) {
+async function apiRequest(path, options = {}) {
   const user = auth.currentUser;
   if (!user) throw new Error('You must be signed in to perform this action.');
-  const token = await user.getIdToken();
-  const response = await fetch(API_BASE + path, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(body)
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+  let token = await user.getIdToken();
+  const requestOptions = {
+    method: options.method || 'GET',
+    headers: { 'Authorization': `Bearer ${token}` }
+  };
+  if (options.body !== undefined) {
+    requestOptions.headers['Content-Type'] = 'application/json';
+    requestOptions.body = JSON.stringify(options.body);
+  }
+
+  let response = await fetch(API_BASE + path, requestOptions);
+  let data = await response.json();
+  if (response.status === 401 && data.error === 'Invalid authentication token.') {
+    token = await user.getIdToken(true);
+    requestOptions.headers['Authorization'] = `Bearer ${token}`;
+    response = await fetch(API_BASE + path, requestOptions);
+    data = await response.json();
+  }
+  if (!response.ok) {
+    if (response.status === 401 && data.error === 'Invalid authentication token.') {
+      throw new Error('Your sign-in could not be verified. Refresh the page; if it still fails, sign out and back in.');
+    }
+    throw new Error(data.error || `Request failed (${response.status})`);
+  }
   return data;
 }
 
+function apiPost(path, body = {}) {
+  return apiRequest(path, { method: 'POST', body });
+}
+
 async function apiGet(path) {
-  const user = auth.currentUser;
-  if (!user) throw new Error('You must be signed in to perform this action.');
-  const token = await user.getIdToken();
-  const response = await fetch(API_BASE + path, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
-  return data;
+  return apiRequest(path);
 }
 
 export function syncUserProfileBackend(payload = {}) {

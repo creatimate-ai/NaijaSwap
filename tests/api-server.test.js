@@ -75,6 +75,7 @@ describe('NaijaSwap API Server Test Suite', () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.ok).toBe(true);
       expect(res.body.service).toBe('naijaswap-api');
+      expect(res.body.firebaseProjectId).toBe('naijaswap1');
       expect(res.body.paystackConfigured).toBe(true);
     });
   });

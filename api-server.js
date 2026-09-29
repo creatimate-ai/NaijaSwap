@@ -5,6 +5,7 @@ const admin = require('firebase-admin');
 
 const router = express.Router();
 const MAX_SWAP_AMOUNT_NAIRA = 5000000;
+const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'naijaswap1';
 
 function getFirebaseAdmin() {
   if (admin.apps.length) return admin;
@@ -16,7 +17,8 @@ function getFirebaseAdmin() {
     credential: admin.credential.cert({
       ...serviceAccount,
       private_key: serviceAccount.private_key.replace(/\\n/g, '\n')
-    })
+    }),
+    projectId: FIREBASE_PROJECT_ID
   });
   return admin;
 }
@@ -39,12 +41,18 @@ async function authenticate(request, response, next) {
   const header = request.get('authorization') || '';
   const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
   if (!token) return response.status(401).json({ error: 'Authentication is required.' });
+  let firebase;
   try {
-    const firebase = getFirebaseAdmin();
+    firebase = getFirebaseAdmin();
+  } catch (error) {
+    console.error('[API] Firebase Admin initialization failed:', error.message);
+    return response.status(503).json({ error: 'Authentication service is temporarily unavailable.' });
+  }
+  try {
     request.user = await firebase.auth().verifyIdToken(token);
     return next();
   } catch (error) {
-    console.error('[API] Authentication failed:', error.message);
+    console.error(`[API] Firebase ID token rejected for project ${FIREBASE_PROJECT_ID}:`, error.code || error.message);
     return response.status(401).json({ error: 'Invalid authentication token.' });
   }
 }
@@ -84,6 +92,7 @@ router.get('/health', (request, response) => {
   response.json({
     ok: true,
     service: 'naijaswap-api',
+    firebaseProjectId: FIREBASE_PROJECT_ID,
     cloudinaryConfigured: Boolean(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET),
     firebaseConfigured: Boolean(process.env.FIREBASE_SERVICE_ACCOUNT),
     paystackConfigured: Boolean(process.env.PAYSTACK_SECRET_KEY)
