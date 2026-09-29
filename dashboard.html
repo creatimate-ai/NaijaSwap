@@ -40,11 +40,6 @@
     </div>
 
     <div class="dash-header-right">
-      <button type="button" class="btn-primary-action" id="openConsumerSwapModalBtn" title="List your phone for dealers" aria-label="List your phone for dealers" style="padding: 8px 16px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        <span class="header-swap-btn-text">List My Phone</span>
-      </button>
-
       <!-- User Menu -->
       <div class="user-menu-wrapper">
         <button type="button" class="user-profile-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
@@ -1577,13 +1572,6 @@
     renderPhoneListings();
     updateMySwapsBadge();
 
-    // Check URL parameters for auto-opening swap modal
-    const dashParams = new URLSearchParams(window.location.search);
-    if (dashParams.get('action') === 'new') {
-      setTimeout(() => {
-        if (openConsumerSwapModalBtn) openConsumerSwapModalBtn.click();
-      }, 300);
-    }
   </script>
 </body>
 </html>
