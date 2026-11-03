@@ -74,6 +74,20 @@
         <p class="auth-subtitle">Access verified dealer swaps and manage your requests</p>
       </div>
 
+      <!-- Testing Mode Notice & Quick Destination Route Selector -->
+      <div class="testing-mode-bar" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:0.82rem;color:#FFF;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span>🧪</span>
+          <span style="font-weight:700;color:var(--emerald-400,#10b981);">Testing Mode Active</span>
+          <span style="color:var(--text-muted,#94a3b8);font-size:0.75rem;">(All registered accounts allowed)</span>
+        </div>
+        <div style="display:flex;gap:6px;font-size:0.75rem;flex-wrap:wrap;">
+          <a href="login.html?redirect=admin.html" style="color:#FFF;text-decoration:none;background:rgba(255,255,255,0.06);padding:4px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.12);font-weight:600;">Admin Desk &rarr;</a>
+          <a href="login.html?redirect=dealer-dashboard.html" style="color:#FFF;text-decoration:none;background:rgba(255,255,255,0.06);padding:4px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.12);font-weight:600;">Store Portal &rarr;</a>
+          <a href="login.html?redirect=dashboard.html" style="color:#FFF;text-decoration:none;background:rgba(255,255,255,0.06);padding:4px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.12);font-weight:600;">Marketplace &rarr;</a>
+        </div>
+      </div>
+
       <!-- Alert Notification Banner -->
       <div class="auth-alert" id="loginAlert" role="alert"></div>
 

@@ -5,17 +5,9 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Testing Mode: All signed-in authenticated accounts with credentials are authorized
     function isAdmin() {
-      return isSignedIn() && (
-        request.auth.token.admin == true
-        || (
-          exists(/databases/$(database)/documents/users/$(request.auth.uid))
-          && (
-            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
-            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountType == 'admin'
-          )
-        )
-      );
+      return isSignedIn();
     }
 
     function isOwner(uid) {
@@ -23,14 +15,7 @@ service cloud.firestore {
     }
 
     function isTechnician() {
-      return isSignedIn()
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'technician'
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountType == 'technician'
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTechnician == true
-          || isAdmin()
-        );
+      return isSignedIn();
     }
 
     function isSwapParticipant() {

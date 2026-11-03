@@ -46,12 +46,21 @@ app.use(express.json({
 app.use(apiRouter);
 app.use(express.static(publicRoot, {
   index: 'index.html',
+  extensions: ['html'],
   setHeaders(response, filePath) {
     if (/\.(html|js)$/.test(filePath)) {
       response.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
   }
 }));
+
+// Route aliases for clean URLs
+app.get('/admin', (req, res) => res.sendFile(path.join(publicRoot, 'admin.html')));
+app.get('/dashboard', (req, res) => res.sendFile(path.join(publicRoot, 'dashboard.html')));
+app.get('/dealer-dashboard', (req, res) => res.sendFile(path.join(publicRoot, 'dealer-dashboard.html')));
+app.get('/login', (req, res) => res.sendFile(path.join(publicRoot, 'login.html')));
+app.get('/signup', (req, res) => res.sendFile(path.join(publicRoot, 'signup.html')));
+
 app.get(/.*/, (request, response) => {
   response.sendFile(path.join(publicRoot, 'index.html'));
 });

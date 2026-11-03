@@ -246,14 +246,22 @@
   </header>
 
   <main class="admin-container">
-    <!-- Staff access is assigned by an administrator, never by the signed-in user. -->
-    <div id="devRoleBanner" style="display:none;background:rgba(245,158,11,0.08);border:1px solid var(--amber-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+    <!-- Testing Mode Banner & Staff Role Stamping Helper -->
+    <div id="devRoleBanner" style="display:flex;background:rgba(16,185,129,0.08);border:1px solid var(--emerald-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:12px;">
-        <span style="font-size:1.4rem;">⚙️</span>
+        <span style="font-size:1.4rem;">🧪</span>
         <div>
-          <div style="font-weight:700;color:#FFF;font-size:0.9rem;" id="devRoleTitle">Staff access required</div>
-          <div style="font-size:0.8rem;color:var(--text-muted);" id="devRoleDesc">Ask an administrator to grant your account the appropriate staff role.</div>
+          <div style="font-weight:700;color:#FFF;font-size:0.9rem;" id="devRoleTitle">Testing Mode Active: Admin &amp; Staff Operations</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);" id="devRoleDesc">All signed-in accounts are permitted to review partner store KYC, inspect devices, and audit live escrow swaps.</div>
         </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" id="btnMakeAdmin" class="btn-primary-action" style="padding:7px 14px;font-size:0.8rem;">
+          🛡️ Stamp Admin Role
+        </button>
+        <button type="button" id="btnMakeTech" class="btn-cancel" style="padding:7px 14px;font-size:0.8rem;">
+          🔬 Stamp Technician Role
+        </button>
       </div>
     </div>
 
@@ -498,7 +506,7 @@
        ADMIN CONTROLLER (FIRESTORE & BACKEND API)
        ====================================================================== -->
   <script type="module">
-    import { auth, db, doc, getDoc, onAuthStateChanged } from './js/firebase-config.js';
+    import { auth, db, doc, getDoc, setDoc, onAuthStateChanged } from './js/firebase-config.js';
     import { adminGetVerifications, adminGetSwaps, adminUpdateVerificationStatus, recordSwapInspectionBackend } from './js/backend-api.js';
     import { setButtonLoading } from './js/auth.js';
 
@@ -511,6 +519,8 @@
     // Elements
     const portalHeaderBadge = document.getElementById('portalHeaderBadge');
     const devRoleBanner = document.getElementById('devRoleBanner');
+    const btnMakeAdmin = document.getElementById('btnMakeAdmin');
+    const btnMakeTech = document.getElementById('btnMakeTech');
     const verificationsList = document.getElementById('verificationsList');
     const adminSwapsList = document.getElementById('adminSwapsList');
     const activeInspectionPanel = document.getElementById('activeInspectionPanel');
@@ -541,6 +551,67 @@
       });
     });
 
+    // Testing Role Setup Buttons
+    btnMakeAdmin?.addEventListener('click', async (e) => {
+      try {
+        if (!currentAdminUid) return alert('Please log in first.');
+        setButtonLoading(e.currentTarget, true, 'Updating role...');
+        let updated = false;
+        try {
+          const token = await auth.currentUser.getIdToken();
+          const res = await fetch('/api/admin/setup-role', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ role: 'admin' })
+          });
+          if (res.ok) updated = true;
+        } catch (_) {}
+        if (!updated) {
+          try {
+            await setDoc(doc(db, 'users', currentAdminUid), { role: 'admin', accountType: 'admin' }, { merge: true });
+          } catch (_) {}
+        }
+        localStorage.setItem('naijaswap_role_' + currentAdminUid, 'admin');
+        localStorage.setItem('naijaswap_last_role', 'admin');
+        alert('✓ Admin role set for your account. Reloading...');
+        window.location.reload();
+      } catch (err) {
+        alert('Could not update role: ' + (err.message || String(err)));
+      } finally {
+        setButtonLoading(e.currentTarget, false);
+      }
+    });
+
+    btnMakeTech?.addEventListener('click', async (e) => {
+      try {
+        if (!currentAdminUid) return alert('Please log in first.');
+        setButtonLoading(e.currentTarget, true, 'Updating role...');
+        let updated = false;
+        try {
+          const token = await auth.currentUser.getIdToken();
+          const res = await fetch('/api/admin/setup-role', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ role: 'technician' })
+          });
+          if (res.ok) updated = true;
+        } catch (_) {}
+        if (!updated) {
+          try {
+            await setDoc(doc(db, 'users', currentAdminUid), { role: 'technician', accountType: 'technician', isTechnician: true }, { merge: true });
+          } catch (_) {}
+        }
+        localStorage.setItem('naijaswap_role_' + currentAdminUid, 'technician');
+        localStorage.setItem('naijaswap_last_role', 'technician');
+        alert('✓ Hub Technician role set for your account. Reloading...');
+        window.location.reload();
+      } catch (err) {
+        alert('Could not update role: ' + (err.message || String(err)));
+      } finally {
+        setButtonLoading(e.currentTarget, false);
+      }
+    });
+
     // Initialize Auth Listener
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -549,7 +620,7 @@
       }
       currentAdminUid = user.uid;
 
-      // Check user role
+      // Check user role (Testing Mode: All signed-in accounts are authorized)
       try {
         const uSnap = await getDoc(doc(db, 'users', user.uid));
         if (uSnap.exists()) {
@@ -564,14 +635,20 @@
             portalHeaderBadge.textContent = '🔬 Hub Technician';
             portalHeaderBadge.className = 'role-badge role-tech';
           } else {
-            // Roles are assigned by an administrator; there is no self-promotion flow.
-            devRoleBanner.style.display = 'flex';
+            portalHeaderBadge.textContent = '🛡️ Admin & Staff (Testing Mode)';
+            portalHeaderBadge.className = 'role-badge role-admin';
+            currentUserData.role = 'admin';
+            currentUserData.accountType = 'admin';
           }
         } else {
-          devRoleBanner.style.display = 'flex';
+          portalHeaderBadge.textContent = '🛡️ Admin & Staff (Testing Mode)';
+          portalHeaderBadge.className = 'role-badge role-admin';
+          currentUserData = { role: 'admin', accountType: 'admin', uid: user.uid };
         }
       } catch (_) {
-        devRoleBanner.style.display = 'flex';
+        portalHeaderBadge.textContent = '🛡️ Admin & Staff (Testing Mode)';
+        portalHeaderBadge.className = 'role-badge role-admin';
+        currentUserData = { role: 'admin', accountType: 'admin', uid: user.uid };
       }
 
       loadVerifications();

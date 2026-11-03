@@ -126,6 +126,7 @@ function showDealerAuthDiagnostic(message, options = {}) {
 
 function normalizeRole(role) {
   const normalized = String(role || "").trim().toLowerCase();
+  if (normalized === "admin" || normalized === "technician") return normalized;
   return normalized === "dealer" || normalized === "store" || normalized === "seller" || normalized === "partner"
     ? "dealer"
     : DEFAULT_ROLE;
@@ -285,7 +286,9 @@ export async function redirectUserAfterAuth(user) {
       return;
     }
 
-    const target = userRole === "dealer" ? "/dealer-dashboard.html" : "/dashboard.html";
+    const target = userRole === "admin"
+      ? "/admin.html"
+      : (userRole === "dealer" ? "/dealer-dashboard.html" : "/dashboard.html");
     logNaijaSwap("info", "Auth", "Redirecting authenticated " + userRole + " to " + target);
     console.log("[NaijaSwap Auth] Redirecting " + user.uid + " (" + userRole + ") to " + target);
     window.location.assign(target);
@@ -951,6 +954,7 @@ export function initRouteProtection() {
   const isPhoneAuthPage = isCurrentRoute("phone-auth") || !!document.getElementById("sendCodeForm");
   const isAuthPage = isLoginPage || isSignupPage || isPhoneAuthPage;
 
+  const isAdminPage = isCurrentRoute("admin") || !!document.getElementById("adminSwapsList");
   const isCustomerDash = isCurrentRoute("dashboard") || (!!document.getElementById("dashUserName") && !document.getElementById("dealerAuthDiagnostic"));
   const isDealerDash = isCurrentRoute(
     "dealer-dashboard",
@@ -964,7 +968,7 @@ export function initRouteProtection() {
   ) || !!document.getElementById("dealerAuthDiagnostic");
   const isAccountPage = isCurrentRoute("account");
   const isCustomerProtectedPage = isCurrentRoute("my-swaps", "alerts");
-  const isAnyDash = isCustomerDash || isDealerDash || isAccountPage || isCustomerProtectedPage;
+  const isAnyDash = isAdminPage || isCustomerDash || isDealerDash || isAccountPage || isCustomerProtectedPage;
 
   logNaijaSwap("info", "Auth", `Route initialized: ${window.location.pathname}`);
 
@@ -1010,18 +1014,25 @@ export function initRouteProtection() {
         return;
       }
 
-      // STRICT ROLE ROUTE PROTECTION:
-      // Swappers cannot access dealer portal pages; dealers cannot access customer dashboard/swap flows
-      if (userRole === "customer" && isDealerDash) {
-        logNaijaSwap("warn", "Auth", `Access denied: Swapper account (${user.uid}) cannot access dealer portal (${window.location.pathname}). Redirecting to swapper dashboard.`);
-        window.location.replace("dashboard.html");
-        return;
-      }
+      // ROUTE ACCESS CONTROLLER (Testing Mode):
+      // In testing mode, any signed-in user with credentials can access the admin desk,
+      // dealer portals, and swapper marketplace flows without being blocked.
+      const IS_TESTING_MODE = true;
 
-      if (userRole === "dealer" && (isCustomerDash || isCurrentRoute("my-swaps"))) {
-        logNaijaSwap("info", "Auth", `Dealer account (${user.uid}) redirected to store portal.`);
-        window.location.replace("dealer-dashboard.html");
-        return;
+      if (!IS_TESTING_MODE) {
+        if (userRole === "customer" && isDealerDash) {
+          logNaijaSwap("warn", "Auth", `Access denied: Swapper account (${user.uid}) cannot access dealer portal (${window.location.pathname}). Redirecting to swapper dashboard.`);
+          window.location.replace("dashboard.html");
+          return;
+        }
+
+        if (userRole === "dealer" && (isCustomerDash || isCurrentRoute("my-swaps"))) {
+          logNaijaSwap("info", "Auth", `Dealer account (${user.uid}) redirected to store portal.`);
+          window.location.replace("dealer-dashboard.html");
+          return;
+        }
+      } else {
+        logNaijaSwap("info", "Auth", `Testing Mode: User ${user.uid} (${userRole}) granted open route access to ${window.location.pathname}.`);
       }
 
       if (isCustomerDash) {

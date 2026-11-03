@@ -825,22 +825,14 @@
 
     const cachedUid = (()=>{try{return localStorage.getItem('naijaswap_last_uid')||JSON.parse(localStorage.getItem('naijaswap_user')||'{}')?.uid;}catch(_){return null;}})();
     const cachedRole = cachedUid?(localStorage.getItem('naijaswap_role_'+cachedUid)||localStorage.getItem('naijaswap_last_role')||'customer'):'customer';
-    if (cachedRole !== 'dealer') {
-      window.location.replace('dashboard.html');
-    } else {
-      renderBottomNav(cachedRole);
-      if (cachedUid) initWizard(cachedUid);
-    }
+    renderBottomNav(cachedRole);
+    if (cachedUid) initWizard(cachedUid);
 
     onAuthStateChanged(auth, user => {
       currentUser = user;
       if (!user) { window.location.href='login.html'; return; }
       localStorage.setItem('naijaswap_last_uid', user.uid);
       const role = getStoredRole(user.uid);
-      if (role !== 'dealer') {
-        window.location.replace('dashboard.html');
-        return;
-      }
       renderBottomNav(role);
       if (!cachedUid) initWizard(user.uid);
     });

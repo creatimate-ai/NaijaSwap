@@ -8,6 +8,7 @@ const { FieldValue, getFirestore } = require('firebase-admin/firestore');
 const router = express.Router();
 const MAX_SWAP_AMOUNT_NAIRA = 5000000;
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'naijaswap1';
+const IS_TESTING_MODE = true;
 
 function getFirebaseAdmin() {
   const existingApp = getApps().find((app) => app.name === '[DEFAULT]');
@@ -714,8 +715,8 @@ router.post('/api/swap/inspection', authenticate, async (request, response) => {
     const uid = request.user.uid;
     const firebase = getFirebaseAdmin();
     const db = getFirestore(firebase);
-    // Verify admin or technician
-    let isAuthorized = request.user.admin === true || request.user.role === 'technician' || request.user.role === 'admin';
+    // Verify admin or technician (Testing Mode: Any authenticated user is authorized)
+    let isAuthorized = IS_TESTING_MODE || request.user.admin === true || request.user.role === 'technician' || request.user.role === 'admin';
     if (!isAuthorized) {
       const userSnap = await db.collection('users').doc(uid).get();
       if (userSnap.exists) {
@@ -835,13 +836,13 @@ router.post('/api/swapper/listing/create', (request, response) => {
   return response.status(410).json({ error: 'Only dealers can list phones. Browse dealer listings to request a swap.' });
 });
 
-// POST /api/admin/verification-status  (admin only)
+// POST /api/admin/verification-status  (admin only - open in testing mode)
 router.post('/api/admin/verification-status', authenticate, async (request, response) => {
   try {
     const uid = request.user.uid;
     const firebase = getFirebaseAdmin();
     const db = getFirestore(firebase);
-    let isAdminUser = request.user.admin === true;
+    let isAdminUser = IS_TESTING_MODE || request.user.admin === true;
     if (!isAdminUser) {
       const userSnap = await db.collection('users').doc(uid).get();
       isAdminUser = userSnap.exists && userSnap.data().role === 'admin' && userSnap.data().accountType === 'admin';
@@ -878,13 +879,13 @@ router.post('/api/admin/verification-status', authenticate, async (request, resp
   }
 });
 
-// GET /api/admin/verifications  (admin only — list pending verifications)
+// GET /api/admin/verifications  (admin only — list pending verifications - open in testing mode)
 router.get('/api/admin/verifications', authenticate, async (request, response) => {
   try {
     const uid = request.user.uid;
     const firebase = getFirebaseAdmin();
     const db = getFirestore(firebase);
-    let isAdminUser = request.user.admin === true;
+    let isAdminUser = IS_TESTING_MODE || request.user.admin === true;
     if (!isAdminUser) {
       const userSnap = await db.collection('users').doc(uid).get();
       isAdminUser = userSnap.exists && userSnap.data().role === 'admin' && userSnap.data().accountType === 'admin';
@@ -903,13 +904,13 @@ router.get('/api/admin/verifications', authenticate, async (request, response) =
   }
 });
 
-// GET /api/admin/swaps  (admin only — list swap requests)
+// GET /api/admin/swaps  (admin only — list swap requests - open in testing mode)
 router.get('/api/admin/swaps', authenticate, async (request, response) => {
   try {
     const uid = request.user.uid;
     const firebase = getFirebaseAdmin();
     const db = getFirestore(firebase);
-    let isAdminUser = request.user.admin === true;
+    let isAdminUser = IS_TESTING_MODE || request.user.admin === true;
     if (!isAdminUser) {
       const userSnap = await db.collection('users').doc(uid).get();
       isAdminUser = userSnap.exists && userSnap.data().role === 'admin' && userSnap.data().accountType === 'admin';
@@ -1114,7 +1115,7 @@ router.post('/api/admin/setup-role', authenticate, async (request, response) => 
     const db = getFirestore(firebase);
     const callerDoc = await db.collection('users').doc(uid).get();
     const isAlreadyAdmin = callerDoc.exists && callerDoc.data().role === 'admin' && callerDoc.data().accountType === 'admin';
-    if (!isDev && !isAlreadyAdmin) {
+    if (!IS_TESTING_MODE && !isDev && !isAlreadyAdmin) {
       return response.status(403).json({ error: 'Unauthorized to configure administrative roles.' });
     }
     await db.collection('users').doc(uid).set({
