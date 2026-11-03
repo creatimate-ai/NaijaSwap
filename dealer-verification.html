@@ -371,7 +371,7 @@
     import { auth, onAuthStateChanged, db, doc, getDoc, setDoc } from './js/firebase-config.js';
     import { getStoredProfile, saveStoredProfile, compressImageFile, getStoredRole } from './js/profile.js';
     import { showAuthAlert, clearAuthAlert, setButtonLoading } from './js/auth.js';
-    import { uploadPrivateKycDocument } from './js/private-storage.js?v=direct-cloudinary-1';
+    import { uploadPrivateKycDocument } from './js/private-storage.js?v=direct-cloudinary-2';
 
     let currentUser = null, currentStep = 1, isEditMode = false;
     const TOTAL_STEPS = 6;
@@ -548,25 +548,25 @@
       if (!uid) { showAuthAlert('verificationAlert','Session expired. Please log in again.'); return; }
       
       try {
-        // Upload Government ID to Cloudinary if it's new base64 data
+        // Upload Government ID to secure storage if it's new base64 data
         if (data.governmentIdData && data.governmentIdData.startsWith('data:')) {
-          setButtonLoading(submitBtn, true, 'Uploading Government ID to secure cloud\u2026');
-          try {
-            const cloudUrl = await uploadPrivateKycDocument(data.governmentIdData, uid, 'government_id');
-            if (cloudUrl) data.governmentIdData = cloudUrl;
-          } catch (cErr) {
-            console.warn('[DealerVerification] Cloudinary upload for ID failed, keeping local copy:', cErr);
+          setButtonLoading(submitBtn, true, 'Uploading Government ID to secure storage\u2026');
+          const cloudUrl = await uploadPrivateKycDocument(data.governmentIdData, uid, 'government_id');
+          if (cloudUrl) {
+            data.governmentIdData = cloudUrl;
+          } else {
+            throw new Error('Government ID upload failed. Please try again.');
           }
         }
 
-        // Upload Proof of Address to Cloudinary if it's new base64 data
+        // Upload Proof of Address to secure storage if it's new base64 data
         if (data.proofOfAddressData && data.proofOfAddressData.startsWith('data:')) {
-          setButtonLoading(submitBtn, true, 'Uploading Proof of Address to secure cloud\u2026');
-          try {
-            const cloudUrl = await uploadPrivateKycDocument(data.proofOfAddressData, uid, 'proof_of_address');
-            if (cloudUrl) data.proofOfAddressData = cloudUrl;
-          } catch (cErr) {
-            console.warn('[DealerVerification] Cloudinary upload for Address failed, keeping local copy:', cErr);
+          setButtonLoading(submitBtn, true, 'Uploading Proof of Address to secure storage\u2026');
+          const cloudUrl = await uploadPrivateKycDocument(data.proofOfAddressData, uid, 'proof_of_address');
+          if (cloudUrl) {
+            data.proofOfAddressData = cloudUrl;
+          } else {
+            throw new Error('Proof of Address upload failed. Please try again.');
           }
         }
 
