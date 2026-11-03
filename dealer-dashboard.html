@@ -34,13 +34,17 @@
       </a>
     </div>
 
-    <div class="dash-header-right">
+    <div class="dash-header-right" style="display: flex; align-items: center; gap: 10px;">
+      <!-- Store Activity & Audit Log Notification Icon Button -->
+      <a href="dealer-activity.html" class="header-notif-btn" id="headerActivityBtn" title="Store Activity & Audit Log" style="position: relative; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); color: #FFF; text-decoration: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      </a>
 
       <!-- Store Profile Menu -->
       <div class="user-menu-wrapper">
         <button type="button" class="user-profile-btn" id="storeMenuBtn" aria-expanded="false" aria-haspopup="true">
-          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));">S</div>
-          <span class="user-name-text" id="topStoreName">My Store</span>
+          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));"></div>
+          <span class="user-name-text" id="topStoreName"><span class="skeleton-shimmer" style="display:inline-block; width:65px; height:14px; border-radius:3px; vertical-align:middle; background:rgba(255,255,255,0.08);"></span></span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
 
@@ -99,7 +103,7 @@
     <!-- Welcome Header Row -->
     <div class="dealer-page-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; gap: 14px; flex-wrap: wrap;">
       <div>
-        <h1 id="welcomeGreeting" style="font-size: 1.55rem; font-weight: 800; color: #FFF; margin: 0; letter-spacing: -0.02em;">Good morning, <span id="storeNameGreeting">Partner Store</span></h1>
+        <h1 id="welcomeGreeting" style="font-size: 1.55rem; font-weight: 800; color: #FFF; margin: 0; letter-spacing: -0.02em;">Good morning, <span id="storeNameGreeting"><span class="skeleton-shimmer" style="display:inline-block; width:130px; height:20px; border-radius:4px; vertical-align:middle; background:rgba(255,255,255,0.08);"></span></span></h1>
       </div>
       <div class="store-header-actions">
         <a href="dealer-listings.html" class="btn-primary-action" style="text-decoration: none; padding: 10px 18px; font-size: 0.88rem; font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 8px;">
@@ -158,12 +162,6 @@
             <h2 class="section-title">Swap Requests</h2>
             <p class="section-subtitle">Recent trade-in requests submitted for your phones</p>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="status-badge status-pending" id="pendingCounterBadge">0 Pending</span>
-            <a href="dealer-requests.html" class="btn-primary-action" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none;">
-              <span>View All &rarr;</span>
-            </a>
-          </div>
         </div>
 
         <div class="swap-requests-list" id="swapRequestsContainer">
@@ -214,22 +212,6 @@
 
     </div>
 
-    <!-- Swapper Listings Section (Dealer-only marketplace feed) -->
-    <section id="swapperListingsSection" style="margin-top: 28px;">
-      <div class="section-header-row">
-        <div>
-          <h2 class="section-title">Phones Listed by Swappers</h2>
-          <p class="section-subtitle">These phones are visible only to dealer accounts. Contact owners directly to discuss a trade.</p>
-        </div>
-      </div>
-      <div class="store-listings-grid" id="swapperListingsContainer"></div>
-      <div class="empty-state-box" id="emptySwapperListingsBox" style="display: none;">
-        <div class="empty-state-icon">📱</div>
-        <h3 class="empty-state-title">No swapper phones listed yet</h3>
-        <p class="empty-state-desc">New swapper phone listings will appear here as soon as they are verified and published.</p>
-      </div>
-    </section>
-
     <!-- My Listings Section (Store Inventory) -->
     <section id="listingsSection" style="margin-top: 10px;">
       <div class="section-header-row">
@@ -237,9 +219,6 @@
           <h2 class="section-title">My Listings</h2>
           <p class="section-subtitle">Available phones currently listed for swap in your store</p>
         </div>
-        <a href="dealer-listings.html" class="btn-primary-action" style="text-decoration: none;">
-          <span>View All Listings &rarr;</span>
-        </a>
       </div>
 
       <div class="store-listings-grid" id="storeListingsContainer">
@@ -301,9 +280,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
       <span>Requests</span>
     </a>
-    <a href="dealer-activity.html" class="bottom-nav-item" id="navActivityBtn" title="Activity">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-      <span>Activity</span>
+    <a href="inbox.html" class="bottom-nav-item" id="navInboxBtn" title="Inbox & Messages">
+      <span class="bottom-nav-badge" id="mobileInboxBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Inbox</span>
     </a>
     <a href="more.html" class="bottom-nav-item" id="navStoreMoreBtn" title="More">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
@@ -403,15 +383,16 @@
 
   <!-- Scripts -->
   <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/app-enhancements.js"></script>
   <script type="module">
-    import { requireCompleteProfile, isProfileComplete, resolveMedia } from './js/profile.js';
+    import { requireCompleteProfile, isProfileComplete, resolveMedia, renderAvatarElement } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { logNaijaSwap, setButtonLoading } from './js/auth.js';
     import { db, collection, getDocs, query, where, orderBy, limit, doc, getDoc } from './js/firebase-config.js';
     import { initOnboarding, openOnboardingModal } from './js/onboarding.js';
 
     let currentStoreId = '';
-    let currentStoreName = 'Store Portal';
+    let currentStoreName = '';
     let activeInspectedReq = null;
     let dealerReady = false;
     let dealerAuthUser = null;
@@ -425,39 +406,54 @@
           currentStoreId = dealerAuthUser.uid;
           const storedShop = localStorage.getItem('naijaswap_shop_' + dealerAuthUser.uid);
           if (storedShop) currentStoreName = storedShop;
+          const avatarEl = document.getElementById('storeAvatarFallback');
+          if (avatarEl) {
+            renderAvatarElement(avatarEl, currentStoreId, currentStoreName || 'Store', dealerAuthUser);
+          }
         }
       }
     } catch (_) {}
 
     // Define user hook immediately before any auth event fires
-    window.onNaijaSwapUserReady = (user, role) => {
+    window.onNaijaSwapUserReady = async (user, role) => {
       console.info('[NaijaSwap Dealer] Dealer profile ready:', { uid: user?.uid, email: user?.email, role });
       if (user) {
         dealerAuthUser = user;
         dealerReady = true;
         currentStoreId = user.uid;
         
-        const storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
-        currentStoreName = storedShop || (user.displayName ? `${user.displayName}'s Gadgets` : 'My Gadget Store');
+        let storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
+        if (!storedShop) {
+          try {
+            const userSnap = await getDoc(doc(db, 'users', user.uid));
+            if (userSnap.exists()) {
+              const uData = userSnap.data();
+              storedShop = uData.storeName || uData.businessName || uData.shopName;
+              if (storedShop) localStorage.setItem('naijaswap_shop_' + user.uid, storedShop);
+            }
+          } catch (_) {}
+        }
+        if (!storedShop) {
+          try {
+            const verSnap = await getDoc(doc(db, 'dealerVerification', user.uid));
+            if (verSnap.exists() && verSnap.data().businessName) {
+              storedShop = verSnap.data().businessName;
+              localStorage.setItem('naijaswap_shop_' + user.uid, storedShop);
+            }
+          } catch (_) {}
+        }
+        currentStoreName = storedShop || user.displayName || (user.email ? user.email.split('@')[0] : 'My Store');
 
         const topName = document.getElementById('topStoreName');
         const avatarEl = document.getElementById('storeAvatarFallback');
         if (topName) topName.textContent = currentStoreName;
 
-        const storedPhoto = localStorage.getItem('naijaswap_photo_' + user.uid);
         if (avatarEl) {
-          if (storedPhoto) {
-            resolveMedia(storedPhoto).then(src => {
-              if (src && avatarEl) {
-                avatarEl.innerHTML = `<img src="${src}" alt="${currentStoreName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-              }
-            });
-          } else {
-            avatarEl.textContent = currentStoreName.charAt(0).toUpperCase();
-          }
+          renderAvatarElement(avatarEl, user.uid, currentStoreName, user);
         }
 
-        refreshDashboard();
+        updateGreeting();
+        await refreshDashboard();
 
         // Initialize Partner Store Onboarding & Launchpad Checklist
         initOnboarding(user, 'dealer');
@@ -482,8 +478,6 @@
     const emptyRequestsBox = document.getElementById('emptyRequestsBox');
     const storeListingsContainer = document.getElementById('storeListingsContainer');
     const emptyListingsBox = document.getElementById('emptyListingsBox');
-    const swapperListingsContainer = document.getElementById('swapperListingsContainer');
-    const emptySwapperListingsBox = document.getElementById('emptySwapperListingsBox');
     const activityTimelineContainer = document.getElementById('activityTimelineContainer');
     const emptyActivityBox = document.getElementById('emptyActivityBox');
     const mobileRequestsBadge = document.getElementById('mobileRequestsBadge');
@@ -498,7 +492,7 @@
     const navDashBtn = document.getElementById('navDashBtn');
     const navListingsBtn = document.getElementById('navListingsBtn');
     const navRequestsBtn = document.getElementById('navRequestsBtn');
-    const navActivityBtn = document.getElementById('navActivityBtn');
+    const navInboxBtn = document.getElementById('navInboxBtn');
 
     // Dynamic Time Greeting
     function updateGreeting() {
@@ -509,18 +503,21 @@
       
       const welcomeGreeting = document.getElementById('welcomeGreeting');
       if (welcomeGreeting) {
-        welcomeGreeting.innerHTML = `${greeting}, <span id="storeNameGreeting">${escapeHtml(currentStoreName)}</span>`;
+        if (currentStoreName) {
+          welcomeGreeting.innerHTML = `${greeting}, <span id="storeNameGreeting">${escapeHtml(currentStoreName)}</span>`;
+        } else {
+          welcomeGreeting.innerHTML = `${greeting}, <span id="storeNameGreeting"><span class="skeleton-shimmer" style="display:inline-block; width:130px; height:20px; border-radius:4px; vertical-align:middle; background:rgba(255,255,255,0.08);"></span></span>`;
+        }
       }
     }
 
-    // Refresh Overview Counts
-    function refreshStats() {
-      const stats = NaijaSwapData.getStoreStats(currentStoreId);
-      if (statActiveListings) statActiveListings.textContent = stats.activeListings;
-      if (statSwapRequests) statSwapRequests.textContent = stats.totalRequests;
-      if (statPendingRequests) statPendingRequests.textContent = stats.pendingRequests;
-      if (statCompletedSwaps) statCompletedSwaps.textContent = stats.completedSwaps;
-      if (pendingCounterBadge) pendingCounterBadge.textContent = `${stats.pendingRequests} Pending`;
+    function applyStatsToDom(stats) {
+      if (!stats) return;
+      if (statActiveListings) statActiveListings.textContent = stats.activeListings || 0;
+      if (statSwapRequests) statSwapRequests.textContent = stats.totalRequests || 0;
+      if (statPendingRequests) statPendingRequests.textContent = stats.pendingRequests || 0;
+      if (statCompletedSwaps) statCompletedSwaps.textContent = stats.completedSwaps || 0;
+      if (pendingCounterBadge) pendingCounterBadge.textContent = `${stats.pendingRequests || 0} Pending`;
       
       if (mobileRequestsBadge) {
         if (stats.pendingRequests > 0) {
@@ -528,6 +525,21 @@
           mobileRequestsBadge.style.display = 'inline-block';
         } else {
           mobileRequestsBadge.style.display = 'none';
+        }
+      }
+    }
+
+    // Refresh Overview Counts (Immediate local + Async live remote sync)
+    async function refreshStats() {
+      const localStats = NaijaSwapData.getStoreStats(currentStoreId);
+      applyStatsToDom(localStats);
+
+      if (currentStoreId) {
+        try {
+          const remoteStats = await NaijaSwapData.getStoreStatsRemote(currentStoreId);
+          applyStatsToDom(remoteStats);
+        } catch (err) {
+          console.warn('[NaijaSwap Dealer] Remote stats sync error:', err);
         }
       }
     }
@@ -677,11 +689,17 @@
     });
 
     // Render Store Listings
-    function renderStoreListings() {
-      const listings = NaijaSwapData.getStoreListings(currentStoreId);
+    async function renderStoreListings() {
       if (!storeListingsContainer) return;
+      let listings;
+      try {
+        listings = await NaijaSwapData.getStoreListingsRemote(currentStoreId);
+      } catch (error) {
+        console.warn('[NaijaSwap] Remote dealer listings unavailable; using cached listings.', error);
+        listings = NaijaSwapData.getStoreListings(currentStoreId);
+      }
 
-      if (listings.length === 0) {
+      if (!listings || listings.length === 0) {
         storeListingsContainer.innerHTML = '';
         emptyListingsBox.style.display = 'flex';
         return;
@@ -714,7 +732,7 @@
             </div>
             <div class="phone-location-line">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-              <span>${escapeHtml(item.location)}</span>
+              <span>${escapeHtml(item.location || 'Computer Village Hub')}</span>
             </div>
             <div class="phone-topup-badge" style="margin-top: 8px;">
               <span class="topup-label">${item.isSwapAllowed ? 'Cash / Swap Value' : 'Cash Outright'}</span>
@@ -737,71 +755,6 @@
 
         storeListingsContainer.appendChild(card);
       });
-    }
-
-    async function renderSwapperListings() {
-      if (!swapperListingsContainer || !currentStoreId) return;
-      try {
-        const snapshot = await getDocs(query(
-          collection(db, 'swapperListings'),
-          where('status', '==', 'active'),
-          orderBy('createdAt', 'desc'),
-          limit(50)
-        ));
-        const listings = snapshot.docs
-          .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
-
-        swapperListingsContainer.innerHTML = '';
-        if (emptySwapperListingsBox) emptySwapperListingsBox.style.display = listings.length ? 'none' : 'flex';
-        listings.forEach(listing => {
-          const card = document.createElement('article');
-          card.className = 'store-listing-card';
-          const firstPhoto = Array.isArray(listing.mediaFiles)
-            ? listing.mediaFiles.find(media => !media.isVideo)?.dataUrl
-            : '';
-          const image = escapeHtml(listing.image || firstPhoto || 'assets/iPhone 15 Pro.jpg');
-          const phoneDigits = String(listing.contactPhone || '').replace(/\D/g, '');
-          const whatsappNumber = phoneDigits.startsWith('0') ? `234${phoneDigits.slice(1)}` : phoneDigits;
-          const message = encodeURIComponent(`Hi ${listing.sellerName || 'there'}, I saw your ${listing.brand} ${listing.model} on NaijaSwap and would like to discuss it.`);
-          const triage = listing.conditionTriage || {};
-          const conditionIssues = [
-            triage.powerAndScreen === false ? 'Power/touch issue' : '',
-            triage.screenGlass === true ? 'Screen damage' : '',
-            triage.bodyAndHousing === true ? 'Body damage' : '',
-            triage.hardwareFunctionality === false ? 'Hardware issue' : ''
-          ].filter(Boolean);
-          card.innerHTML = `
-            <div class="listing-card-media">
-              <img src="${image}" alt="${escapeHtml(`${listing.brand || ''} ${listing.model || ''}`)}" class="listing-card-img" loading="lazy">
-              <div class="phone-tags-floating"><span class="tag-badge tag-verified">Swapper listing</span></div>
-            </div>
-            <div class="listing-card-body">
-              <span class="listing-title">${escapeHtml(`${listing.brand || ''} ${listing.model || ''}`.trim())}</span>
-              <div class="phone-specs-line">
-                <span>${escapeHtml(listing.storage || '')}</span><span>•</span><span>${escapeHtml(listing.condition || '')}</span>
-              </div>
-              <div class="phone-specs-line">
-                ${listing.color ? `<span>${escapeHtml(listing.color)}</span><span>•</span>` : ''}
-                <span>Battery ${escapeHtml(listing.battery || 'N/A')}</span>
-              </div>
-              ${(listing.ram || listing.carrierLock) ? `<div class="phone-specs-line">${listing.ram ? `<span>RAM ${escapeHtml(listing.ram)}</span>` : ''}${listing.ram && listing.carrierLock ? '<span>•</span>' : ''}${listing.carrierLock ? `<span>${escapeHtml(listing.carrierLock)}</span>` : ''}</div>` : ''}
-              ${conditionIssues.length ? `<div class="phone-specs-line"><span>${escapeHtml(conditionIssues.join(' · '))}</span></div>` : ''}
-              <div class="phone-location-line"><span>${escapeHtml(listing.location || 'Location not provided')}</span></div>
-              <div style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;">Listed by ${escapeHtml(listing.sellerName || 'Swapper')}</div>
-            </div>
-            <div class="listing-actions-row">
-              <a class="btn-primary-action" href="https://wa.me/${encodeURIComponent(whatsappNumber)}?text=${message}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;justify-content:center;">
-                Contact Swapper
-              </a>
-            </div>
-          `;
-          swapperListingsContainer.appendChild(card);
-        });
-      } catch (error) {
-        console.error('[NaijaSwap Dealer] Could not load swapper phone listings:', error);
-        swapperListingsContainer.innerHTML = '<div class="empty-state-desc">Swapper listings could not be loaded. Please refresh and try again.</div>';
-        if (emptySwapperListingsBox) emptySwapperListingsBox.style.display = 'none';
-      }
     }
 
     // Render Recent Activity
@@ -851,11 +804,13 @@
       try {
         console.info('[NaijaSwap Dealer] Refreshing dashboard components with store ID:', currentStoreId);
         updateGreeting();
-        refreshStats();
-        renderSwapRequests();
-        renderStoreListings();
-        renderSwapperListings();
+        await refreshStats();
+        await Promise.all([
+          renderSwapRequests(),
+          renderStoreListings()
+        ]);
         renderActivityTimeline();
+        await refreshStats();
         const uid = dealerAuthUser?.uid || currentStoreId || localStorage.getItem('naijaswap_last_uid');
         if (uid) await renderVerificationBanner(uid);
       } catch (error) {
@@ -1008,12 +963,7 @@
     }
 
 
-    if (navActivityBtn) {
-      navActivityBtn.addEventListener('click', () => {
-        document.getElementById('activitySection').scrollIntoView({ behavior: 'smooth' });
-        setActiveNav(navActivityBtn);
-      });
-    }
+
 
     if (navStoreMoreBtn) {
       navStoreMoreBtn.addEventListener('click', () => {

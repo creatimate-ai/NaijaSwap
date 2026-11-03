@@ -445,6 +445,154 @@
         font-size: 0.8rem !important;
       }
     }
+
+    /* ─── LIVE SAFESWAP VISUAL STEPPER ─── */
+    .safeswap-stepper-wrap {
+      margin: 14px 0 16px 0;
+      padding: 14px 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md);
+    }
+    .safeswap-stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+    .safeswap-stepper::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 1;
+    }
+    .safeswap-stepper-progress {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--emerald-400), var(--cyan-400));
+      z-index: 2;
+      transition: width 0.4s ease;
+    }
+    .stepper-step {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      text-align: center;
+    }
+    .stepper-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #0d151e;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: var(--text-faint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.76rem;
+      font-weight: 800;
+      transition: all 0.3s ease;
+    }
+    .stepper-step.completed .stepper-circle {
+      background: var(--emerald-500);
+      border-color: var(--emerald-400);
+      color: #021307;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+    }
+    .stepper-step.active .stepper-circle {
+      background: #0d151e;
+      border-color: var(--cyan-400);
+      color: var(--cyan-400);
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.5);
+      animation: pulse-ring 2s infinite;
+    }
+    .stepper-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-faint);
+      white-space: nowrap;
+    }
+    .stepper-step.completed .stepper-label {
+      color: var(--emerald-400);
+    }
+    .stepper-step.active .stepper-label {
+      color: var(--cyan-400);
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    /* ─── SAFESWAP PASSCODE CARD ─── */
+    .safeswap-pass-card {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(16, 185, 129, 0.08));
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .safeswap-pass-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .safeswap-code-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: #050b11;
+      border: 1.5px dashed var(--cyan-400);
+      border-radius: var(--radius-sm);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--cyan-400);
+      letter-spacing: 0.08em;
+    }
+    .safeswap-checklist {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .safeswap-check-item {
+      font-size: 0.72rem;
+      padding: 4px 9px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    @media (max-width: 540px) {
+      .safeswap-stepper-wrap {
+        padding: 10px 6px;
+      }
+      .stepper-label {
+        font-size: 0.58rem;
+      }
+      .stepper-circle {
+        width: 26px;
+        height: 26px;
+        font-size: 0.68rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -473,11 +621,17 @@
       </span>
     </div>
 
-    <div class="dash-header-right">
+    <div class="dash-header-right" style="display: flex; align-items: center; gap: 10px;">
+      <!-- Notification Icon Button beside profile picture -->
+      <a href="alerts.html" class="header-notif-btn" id="headerNotifBtn" title="Alerts & Notifications" style="position: relative; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); color: #FFF; text-decoration: none;">
+        <span class="header-notif-badge" id="headerNotifBadge" style="display: none; position: absolute; top: -2px; right: -2px; background: #EF4444; color: #FFF; font-size: 0.65rem; font-weight: 800; border-radius: 50%; min-width: 18px; height: 18px; line-height: 18px; text-align: center; border: 2px solid #080C0E; padding: 0 4px;">0</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </a>
+
       <!-- User Menu -->
       <div class="user-menu-wrapper">
         <button type="button" class="user-profile-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
-          <div class="user-avatar" id="headerAvatarFallback">S</div>
+          <div class="user-avatar" id="headerAvatarFallback"></div>
           <span class="user-name-text" id="headerUserName">Swapper</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
@@ -495,9 +649,13 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
             <span>My Swap Requests</span>
           </a>
+          <a href="inbox.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Inbox &amp; Messages</span>
+          </a>
           <a href="alerts.html" class="dropdown-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span>Alerts & Notifications</span>
+            <span>Alerts &amp; Notifications</span>
           </a>
           <a href="index.html" class="dropdown-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
@@ -515,86 +673,82 @@
   <!-- Main Swapper Dashboard Content -->
   <main class="dash-main swaps-page-main">
 
-    <!-- Compact Page Header with Simple Plus Action Button -->
-    <div class="swaps-page-header-row">
-      <h1 class="swaps-page-title">My Swap Requests</h1>
-
-      <button type="button" class="btn-primary-action btn-add-swap-plus" id="openSwapModalBtn" title="List your phone for dealers" aria-label="List your phone for dealers" style="padding: 8px 18px; font-size: 0.86rem; font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 7px; box-shadow: 0 4px 18px var(--emerald-glow);">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        <span class="btn-swap-text">List My Phone</span>
-      </button>
-    </div>
-
-    <!-- Filter Pills (Active when requests exist) -->
-    <div class="swap-filter-bar" id="swapFilterBar" role="tablist">
-      <button type="button" class="swap-filter-pill active" data-status="all">
-        <span>All Swaps</span>
-        <span class="count-badge" id="countAll">0</span>
-      </button>
-      <button type="button" class="swap-filter-pill" data-status="Pending">
-        <span>Pending Review</span>
-        <span class="count-badge" id="countPending">0</span>
-      </button>
-      <button type="button" class="swap-filter-pill" data-status="Accepted">
-        <span>Accepted</span>
-        <span class="count-badge" id="countAccepted">0</span>
-      </button>
-      <button type="button" class="swap-filter-pill" data-status="Completed">
-        <span>Completed</span>
-        <span class="count-badge" id="countCompleted">0</span>
-      </button>
-    </div>
-
-    <!-- Swaps Container -->
-    <div id="swapsListContainer" aria-live="polite">
-      <!-- Default Frosted Shimmer Skeleton Cards -->
-      <div class="skeleton-swap-tracker" aria-hidden="true">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
-          <div class="skeleton-box skeleton-shimmer" style="width: 140px; height: 16px;"></div>
-          <div class="skeleton-box skeleton-shimmer skeleton-pill" style="width: 90px; height: 22px;"></div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin-bottom: 16px;">
-          <div>
-            <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
-            <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
-          </div>
-          <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 40px; height: 40px;"></div>
-          <div>
-            <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
-            <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
-          </div>
-        </div>
-        <div class="skeleton-box skeleton-shimmer" style="width: 100%; height: 44px; border-radius: var(--radius-md);"></div>
+    <!-- Page Header with Tabs and Plus Action Button -->
+    <div class="swaps-page-header-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" id="tabBtnProposals" class="swap-filter-pill active" style="font-size: 0.92rem; padding: 8px 16px; font-weight: 700;">
+          <span>Swap Proposals</span>
+          <span class="count-badge" id="tabCountProposals">0</span>
+        </button>
+        <button type="button" id="tabBtnDevices" class="swap-filter-pill" style="font-size: 0.92rem; padding: 8px 16px; font-weight: 700;">
+          <span>My Trade-In Phones</span>
+          <span class="count-badge" id="tabCountDevices">0</span>
+        </button>
       </div>
-      <div class="skeleton-swap-tracker" aria-hidden="true">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
-          <div class="skeleton-box skeleton-shimmer" style="width: 140px; height: 16px;"></div>
-          <div class="skeleton-box skeleton-shimmer skeleton-pill" style="width: 90px; height: 22px;"></div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin-bottom: 16px;">
-          <div>
-            <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
-            <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
+
+      <button type="button" class="btn-primary-action" id="btnAddDeviceHeaderBtn" style="padding: 8px 16px; font-size: 0.85rem; font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>+ List a Phone</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: SWAP PROPOSALS -->
+    <div id="proposalsViewContainer">
+      <!-- Filter Pills (Active when requests exist) -->
+      <div class="swap-filter-bar" id="swapFilterBar" role="tablist">
+        <button type="button" class="swap-filter-pill active" data-status="all">
+          <span>All Swaps</span>
+          <span class="count-badge" id="countAll">0</span>
+        </button>
+        <button type="button" class="swap-filter-pill" data-status="Pending">
+          <span>Pending Review</span>
+          <span class="count-badge" id="countPending">0</span>
+        </button>
+        <button type="button" class="swap-filter-pill" data-status="Accepted">
+          <span>Accepted</span>
+          <span class="count-badge" id="countAccepted">0</span>
+        </button>
+        <button type="button" class="swap-filter-pill" data-status="Completed">
+          <span>Completed</span>
+          <span class="count-badge" id="countCompleted">0</span>
+        </button>
+      </div>
+
+      <!-- Swaps Container -->
+      <div id="swapsListContainer" aria-live="polite">
+        <!-- Default Frosted Shimmer Skeleton Cards -->
+        <div class="skeleton-swap-tracker" aria-hidden="true">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+            <div class="skeleton-box skeleton-shimmer" style="width: 140px; height: 16px;"></div>
+            <div class="skeleton-box skeleton-shimmer skeleton-pill" style="width: 90px; height: 22px;"></div>
           </div>
-          <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 40px; height: 40px;"></div>
-          <div>
-            <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
-            <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
+          <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin-bottom: 16px;">
+            <div>
+              <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
+              <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
+            </div>
+            <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 40px; height: 40px;"></div>
+            <div>
+              <div class="skeleton-box skeleton-shimmer" style="width: 80px; height: 12px;"></div>
+              <div class="skeleton-box skeleton-shimmer" style="width: 160px; height: 20px;"></div>
+            </div>
           </div>
+          <div class="skeleton-box skeleton-shimmer" style="width: 100%; height: 44px; border-radius: var(--radius-md);"></div>
         </div>
-        <div class="skeleton-box skeleton-shimmer" style="width: 100%; height: 44px; border-radius: var(--radius-md);"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: MY LISTED TRADE-IN DEVICES -->
+    <div id="devicesViewContainer" style="display: none;">
+      <div id="userDevicesListContainer" style="display: flex; flex-direction: column; gap: 14px;">
+        <!-- Populated dynamically by JS -->
       </div>
     </div>
 
   </main>
 
-  <!-- Floating shortcut to the phone listing form -->
-  <button type="button" class="floating-swap-plus-btn" id="floatingSwapBtn" title="List your phone for dealers" aria-label="List your phone for dealers">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-  </button>
-
   <!-- ==========================================================================
-       SWAPPER MOBILE BOTTOM NAVIGATION (MATCHING DASHBOARD PARITY)
+       SWAPPER MOBILE BOTTOM NAVIGATION (HOME | MY SWAPS | INBOX | MORE)
        ========================================================================== -->
   <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
     <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
@@ -606,249 +760,16 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
       <span>My Swaps</span>
     </a>
-    <a href="alerts.html" class="bottom-nav-item" id="navNotifBtn" title="Alerts">
-      <span class="bottom-nav-badge" id="mobileAlertsBadge" style="display: none;">0</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span>Alerts</span>
+    <a href="inbox.html" class="bottom-nav-item" id="navInboxBtn" title="Messages &amp; Inbox">
+      <span class="bottom-nav-badge" id="mobileInboxBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Inbox</span>
     </a>
     <a href="more.html" class="bottom-nav-item" id="navMoreBtn" title="More">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
       <span>More</span>
     </a>
   </nav>
-
-  <!-- ==========================================================================
-       MODAL: SWAPPER PHONE LISTING
-       ========================================================================== -->
-  <div class="modal-backdrop" id="consumerSwapModal" role="dialog" aria-modal="true" aria-labelledby="consumerModalTitle">
-    <div class="modal-card modal-card-xl">
-      <div class="modal-header">
-        <div>
-          <span class="tag-badge tag-verified">Visible to Dealers Only</span>
-          <h2 class="modal-title" id="consumerModalTitle" style="margin-top: 4px;">List Your Phone</h2>
-          <p class="form-helper-text">After verification, your listing is published for dealers. Your IMEI is never shown.</p>
-        </div>
-        <button type="button" class="modal-close-btn" id="closeConsumerModal" aria-label="Close modal">&times;</button>
-      </div>
-
-      <form id="consumerSwapForm" class="dash-form">
-        <div class="form-sections-wrapper">
-
-          <!-- SECTION 1: DEVICE BASICS -->
-          <div class="form-section-card">
-            <div class="form-section-header">
-              <span class="form-section-num">1</span>
-              <div>
-                <h3>Device Basics</h3>
-                <p>Phone details that verified dealers will see</p>
-              </div>
-            </div>
-
-            <div class="form-row-2">
-              <div class="form-group">
-                <label class="form-label" for="consumerBrand">Brand</label>
-                <select id="consumerBrand" class="form-select" required>
-                  <option value="" disabled selected>-- Select Brand --</option>
-                </select>
-                <div id="consumerCustomBrandGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerCustomBrand" class="form-input" placeholder="Type your phone brand (e.g. OnePlus, Motorola)...">
-                  <span class="form-helper-text">Specify brand name if not in list</span>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="consumerModel">Model</label>
-                <select id="consumerModel" class="form-select" required disabled>
-                  <option value="" disabled selected>-- Select Brand First --</option>
-                </select>
-                <div id="consumerCustomModelGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerCustomModel" class="form-input" placeholder="Type your phone model...">
-                  <span class="form-helper-text">Specify model if not in list</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-row-2" style="margin-top: 10px;">
-              <div class="form-group">
-                <label class="form-label" for="consumerStorage">Storage Capacity</label>
-                <select id="consumerStorage" class="form-select" required>
-                  <option value="64GB">64GB</option>
-                  <option value="128GB" selected>128GB</option>
-                  <option value="256GB">256GB</option>
-                  <option value="512GB">512GB</option>
-                  <option value="1TB">1TB</option>
-                  <option value="Other">Other (Type custom)</option>
-                </select>
-                <div id="consumerCustomStorageGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerCustomStorage" class="form-input" placeholder="e.g. 32GB, 2TB...">
-                </div>
-              </div>
-              <div class="form-group" id="consumerRamGroup" style="display: none;">
-                <label class="form-label" for="consumerRam">RAM</label>
-                <select id="consumerRam" class="form-select">
-                  <option value="4GB">4GB RAM</option>
-                  <option value="6GB">6GB RAM</option>
-                  <option value="8GB" selected>8GB RAM</option>
-                  <option value="12GB">12GB RAM</option>
-                  <option value="16GB">16GB RAM</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-group" style="margin-top: 10px;">
-              <label class="form-label" for="consumerColor">Phone Color (Optional)</label>
-              <input type="text" id="consumerColor" class="form-input" maxlength="50" placeholder="e.g. Black, Blue, Natural Titanium">
-            </div>
-
-            <div class="form-group" style="margin-top: 10px;">
-              <label class="form-label" for="consumerImei">IMEI or Serial Number</label>
-              <input type="text" id="consumerImei" class="form-input" placeholder="Enter your device IMEI or serial number" maxlength="32" required>
-              <span class="form-helper-text">Dial *#06# to find your IMEI. It is checked securely and never shown to dealers.</span>
-            </div>
-          </div>
-
-          <!-- SECTION 2: CONDITION TRIAGE -->
-          <div class="form-section-card">
-            <div class="form-section-header">
-              <span class="form-section-num">2</span>
-              <div>
-                <h3>Condition Triage</h3>
-                <p>Answer accurately so dealers can assess your phone</p>
-              </div>
-            </div>
-
-            <div class="triage-questions-list">
-              <div class="triage-item">
-                <div class="triage-info">
-                  <strong>Power & Touchscreen</strong>
-                  <span>Does the phone power on, and is the touchscreen fully responsive without dead spots?</span>
-                </div>
-                <div class="segmented-switch" id="triagePowerSwitch">
-                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">Yes</button>
-                  <button type="button" class="segmented-option-btn" data-val="no">No</button>
-                </div>
-              </div>
-
-              <div class="triage-item">
-                <div class="triage-info">
-                  <strong>Screen Glass & Display</strong>
-                  <span>Are there any cracks, deep scratches, or LCD ink bleeds/lines on the display?</span>
-                </div>
-                <div class="segmented-switch" id="triageScreenSwitch">
-                  <button type="button" class="segmented-option-btn" data-val="yes">Yes</button>
-                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No</button>
-                </div>
-              </div>
-
-              <div class="triage-item">
-                <div class="triage-info">
-                  <strong>Body & Housing</strong>
-                  <span>Are there any chips, dents, or bends on the frame or back glass?</span>
-                </div>
-                <div class="segmented-switch" id="triageBodySwitch">
-                  <button type="button" class="segmented-option-btn" data-val="yes">Yes</button>
-                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No</button>
-                </div>
-              </div>
-
-              <div class="triage-item">
-                <div class="triage-info">
-                  <strong>Hardware Functionality</strong>
-                  <span>Do the cameras, microphone, speakers, and FaceID/TouchID all work perfectly?</span>
-                </div>
-                <div class="segmented-switch" id="triageHardwareSwitch">
-                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">Yes</button>
-                  <button type="button" class="segmented-option-btn" data-val="no">No</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-row-2" style="margin-top: 14px;">
-              <div class="form-group">
-                <label class="form-label" for="consumerBatteryHealth">Battery Health / Estimated Capacity (%)</label>
-                <input type="number" id="consumerBatteryHealth" class="form-input" placeholder="e.g. 88" min="1" max="100" value="88" required>
-                <span class="form-helper-text">For iPhones: Check Settings > Battery > Battery Health</span>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="consumerCarrierLock">Carrier Lock Status</label>
-                <select id="consumerCarrierLock" class="form-select">
-                  <option value="Factory Unlocked" selected>Factory Unlocked (All Networks)</option>
-                  <option value="CHIP Unlocked">Chip / Gevey Unlocked</option>
-                  <option value="Network Locked">Network Locked</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION 3: UNIFIED MEDIA UPLOAD DROPZONE -->
-          <div class="form-section-card">
-            <div class="form-section-header">
-              <span class="form-section-num">3</span>
-              <div>
-                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                  <h3>Device Media (Photos & Videos)</h3>
-                  <span class="tag-badge tag-verified" id="consumerMediaCounter" style="font-size: 0.72rem; padding: 2px 8px;">0 / 5 files</span>
-                </div>
-                <p>Upload photos and short videos showing screen, back, and frame condition (up to 5 items max)</p>
-              </div>
-            </div>
-
-            <div class="media-upload-dropzone" id="consumerDropzone">
-              <input type="file" id="consumerMediaInput" multiple accept="image/*,video/*" style="display: none;">
-              <div class="dropzone-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
-              </div>
-              <p class="dropzone-prompt"><strong>Click to browse</strong> or drag & drop photos and videos here</p>
-              <span class="dropzone-helper">Supports JPG, PNG, WEBP, MP4, MOV (Max 5 items total)</span>
-            </div>
-
-            <div id="consumerUploadProgress" style="display: none; margin-top: 10px;">
-              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">
-                <span id="consumerProgressLabel">Preparing media...</span>
-                <span id="consumerProgressPct">0%</span>
-              </div>
-              <div id="consumerProgressTrack" role="progressbar" aria-label="Phone media upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="height: 4px; width: 100%; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                <div id="consumerProgressBar" style="height: 100%; width: 0%; background: var(--emerald-400); transition: width 0.2s;"></div>
-              </div>
-            </div>
-
-            <div class="previews-grid-container" id="consumerPreviewsGrid" style="margin-top: 14px;"></div>
-          </div>
-
-          <!-- SECTION 4: CONTACT DETAILS -->
-          <div class="form-section-card">
-            <div class="form-section-header">
-              <span class="form-section-num">4</span>
-              <div>
-                <h3>Contact Details</h3>
-                <p>Help dealers know where you are and how to reach you</p>
-              </div>
-            </div>
-            <div class="form-row-2">
-              <div class="form-group">
-                <label class="form-label" for="consumerListingLocation">Location</label>
-                <input type="text" id="consumerListingLocation" class="form-input" maxlength="120" placeholder="e.g. Ikeja, Lagos" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="consumerPhoneInput">Your WhatsApp / Phone Number</label>
-                <input type="tel" id="consumerPhoneInput" class="form-input" placeholder="e.g. 08012345678" required>
-                <span class="form-helper-text">Your number will be shared with verified dealers so they can contact you.</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <button type="submit" class="btn-primary-action" id="submitConsumerSwapBtn" style="justify-content: center; padding: 16px; font-size: 1.02rem; margin-top: 10px;">
-          <span>Verify &amp; List for Dealers</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </button>
-      </form>
-    </div>
-  </div>
 
   <!-- ==========================================================================
        MODAL: NOTIFICATIONS POPUP
@@ -974,22 +895,364 @@
     </div>
   </div>
 
+  <!-- ==========================================================================
+       MODAL: HUB APPOINTMENT BOOKING & SAFESWAP PASS
+       ========================================================================== -->
+  <div class="modal-backdrop" id="hubBookingModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <div>
+          <span class="role-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); margin-bottom: 6px;">📍 Verified Physical Inspection</span>
+          <h2 class="modal-title" style="margin-top: 4px;">Book Inspection Visit</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeHubBookingModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="hubBookingForm" style="padding: 20px 24px;">
+        <input type="hidden" id="bookingRequestId" />
+        
+        <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.45;">
+          Choose your arrival date and time slot. The verified store technician will inspect your phone and finalize your device exchange.
+        </p>
+
+        <!-- Dealer Inspection Location Display (Read-Only) -->
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label">Dealer / Inspection Location</label>
+          <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px 14px; display: flex; align-items: flex-start; gap: 12px;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(0, 210, 106, 0.12); border: 1px solid var(--emerald-border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; color: var(--emerald-400);">
+              📍
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <strong id="bookingStoreNameText" style="color: #FFF; font-size: 0.94rem; display: block; margin-bottom: 2px;">Verified Partner Store</strong>
+              <span id="bookingHubAddressText" style="color: var(--text-dim); font-size: 0.82rem; line-height: 1.4; display: block;">Otigba Street, Computer Village, Ikeja, Lagos</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-2" style="margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="bookingDateInput">Select Date</label>
+            <input type="date" id="bookingDateInput" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bookingTimeSlot">Preferred Time Slot</label>
+            <select id="bookingTimeSlot" class="form-select" required>
+              <option value="Morning (10:00 AM - 1:00 PM)" selected>Morning (10 AM - 1 PM)</option>
+              <option value="Afternoon (1:00 PM - 4:00 PM)">Afternoon (1 PM - 4 PM)</option>
+              <option value="Evening (4:00 PM - 6:30 PM)">Evening (4 PM - 6:30 PM)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SafeSwap Readiness Checklist -->
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 18px;">
+          <strong style="color: var(--emerald-400); font-size: 0.8rem; display: block; margin-bottom: 6px;">✓ Arrival Checklist:</strong>
+          <ul style="margin: 0; padding-left: 18px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
+            <li>Sign out Apple ID / iCloud / Google Account</li>
+            <li>Charge your phone to at least 50%</li>
+            <li>Bring your charger, cable, or original box (if declared)</li>
+            <li>Have your 6-digit SafeSwap Code ready for the dealer</li>
+          </ul>
+        </div>
+
+        <button type="submit" class="btn-primary-action" id="btnConfirmBooking" style="width: 100%; justify-content: center; padding: 14px; font-weight: 700;">
+          Confirm Inspection Slot &amp; Lock Deal
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: CUSTOMER COUNTER-OFFER / REVISION
+       ========================================================================== -->
+  <div class="modal-backdrop" id="customerCounterModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-card" style="max-width: 480px;">
+      <div class="modal-header">
+        <div>
+          <span class="role-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); margin-bottom: 6px;">🤝 Negotiate Top-Up</span>
+          <h2 class="modal-title" style="margin-top: 4px;">Propose Revised Top-Up</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeCustomerCounterModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="customerCounterForm" style="padding: 20px 24px;">
+        <input type="hidden" id="customerCounterReqId" />
+        
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="customerCounterAmount">Your Proposed Top-Up Cash (₦)</label>
+          <input type="number" id="customerCounterAmount" class="form-input" placeholder="e.g. 180000" min="0" required style="font-size: 1.1rem; font-weight: 700; color: var(--emerald-400);">
+          <span class="form-helper-text">The cash amount you are willing to pay with your phone</span>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="customerCounterNote">Message to Dealer (Optional)</label>
+          <textarea id="customerCounterNote" class="form-input" style="min-height: 80px;" placeholder="e.g. My battery is 92% with original box and receipt, can we agree on this price?"></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary-action" id="btnSubmitCustomerCounter" style="width: 100%; justify-content: center; padding: 14px; font-weight: 700;">
+          Send Counter Proposal
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: LIST TRADE-IN DEVICE FORM
+       ========================================================================== -->
+  <div class="modal-backdrop" id="addDeviceModal" role="dialog" aria-modal="true" aria-labelledby="addDeviceModalTitle" style="display: none;">
+    <div class="modal-card modal-card-xl">
+      <div class="modal-header">
+        <div>
+          <span class="tag-badge tag-verified">Private Device Inventory</span>
+          <h2 class="modal-title" id="addDeviceModalTitle" style="margin-top: 4px;">List a Phone for Trade-In</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeAddDeviceModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="addDeviceForm" class="dash-form">
+        <div class="form-sections-wrapper">
+
+          <!-- SECTION 1: DEVICE BASICS -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">1</span>
+              <div>
+                <h3>1. Your Phone Details</h3>
+                <p>Select the exact brand, model, storage, and color of the phone you want to trade in</p>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label class="form-label" for="deviceBrand">Phone Brand</label>
+                <select id="deviceBrand" class="form-select" required>
+                  <option value="" disabled selected>-- Select Brand --</option>
+                </select>
+                <div id="deviceCustomBrandGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="deviceCustomBrand" class="form-input" placeholder="Type your phone brand (e.g. OnePlus, Google)...">
+                  <span class="form-helper-text">Specify brand name if not in list</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="deviceModel">Phone Model</label>
+                <select id="deviceModel" class="form-select" required disabled>
+                  <option value="" disabled selected>-- Select Brand First --</option>
+                </select>
+                <div id="deviceCustomModelGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="deviceCustomModel" class="form-input" placeholder="Type exact phone model name...">
+                  <span class="form-helper-text">Specify model if not in list</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="deviceStorage">Storage Capacity</label>
+                <select id="deviceStorage" class="form-select" required>
+                  <option value="64GB">64GB</option>
+                  <option value="128GB" selected>128GB</option>
+                  <option value="256GB">256GB</option>
+                  <option value="512GB">512GB</option>
+                  <option value="1TB">1TB</option>
+                  <option value="Other">Other / Custom</option>
+                </select>
+                <div id="deviceCustomStorageGroup" style="display: none; margin-top: 8px;">
+                  <input type="text" id="deviceCustomStorage" class="form-input" placeholder="e.g. 32GB or 2TB">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="deviceColor">Color</label>
+                <input type="text" id="deviceColor" class="form-input" placeholder="e.g. Space Gray, Sierra Blue, Gold" required>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group" id="deviceRamGroup" style="display: none;">
+                <label class="form-label" for="deviceRam">RAM (Android)</label>
+                <select id="deviceRam" class="form-select">
+                  <option value="4GB">4GB</option>
+                  <option value="6GB">6GB</option>
+                  <option value="8GB" selected>8GB</option>
+                  <option value="12GB">12GB</option>
+                  <option value="16GB">16GB</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="deviceCarrierLock">SIM Lock Status</label>
+                <select id="deviceCarrierLock" class="form-select">
+                  <option value="Factory Unlocked" selected>Factory Unlocked (Works with all SIMs)</option>
+                  <option value="Chip / JV Unlocked">Chip / JV / Gevey Unlocked (R-SIM)</option>
+                  <option value="Network Locked">Network Locked (Foreign network only)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="form-label" for="deviceImei">IMEI Number (Optional)</label>
+              <input type="text" id="deviceImei" class="form-input" placeholder="Dial *#06# on your call keypad to view" maxlength="18">
+              <span class="form-helper-text">Helps verified dealers run pre-inspection valuation faster</span>
+            </div>
+          </div>
+
+          <!-- SECTION 2: PHYSICAL CONDITION & REPAIR TRIAGE -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">2</span>
+              <div>
+                <h3>2. Phone Condition & Checkup</h3>
+                <p>Honest condition assessment for accurate swap top-up value</p>
+              </div>
+            </div>
+
+            <div class="triage-items-list">
+              <!-- Switch 1 -->
+              <div class="triage-item">
+                <div class="triage-info">
+                  <strong>Does the phone turn on and touch smoothly?</strong>
+                  <span>Display lights up with no lines, black spots, or ghost touch</span>
+                </div>
+                <div class="segmented-switch" id="switchDevPowerScreen" data-name="powerAndScreen">
+                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes, working fine</button>
+                  <button type="button" class="segmented-option-btn" data-val="no">✕ No, has issues</button>
+                </div>
+              </div>
+
+              <!-- Switch 2 -->
+              <div class="triage-item">
+                <div class="triage-info">
+                  <strong>Is the front screen glass cracked or bleeding ink?</strong>
+                  <span>Check for cracks, deep scratches, green lines, or black ink spots</span>
+                </div>
+                <div class="segmented-switch" id="switchDevScreenGlass" data-name="screenGlass">
+                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Cracked / Line)</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean Screen)</button>
+                </div>
+              </div>
+
+              <!-- Switch 3 -->
+              <div class="triage-item">
+                <div class="triage-info">
+                  <strong>Any dents, bends, or broken back glass?</strong>
+                  <span>Bent metal frame, broken back glass, or heavy deep scuffs</span>
+                </div>
+                <div class="segmented-switch" id="switchDevBodyHousing" data-name="bodyAndHousing">
+                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Dented / Cracked)</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean Body)</button>
+                </div>
+              </div>
+
+              <!-- Switch 4 -->
+              <div class="triage-item">
+                <div class="triage-info">
+                  <strong>Do cameras, Face ID / Fingerprint & speakers work?</strong>
+                  <span>All biometric security, front/back cameras, and microphones working properly</span>
+                </div>
+                <div class="segmented-switch" id="switchDevHardware" data-name="hardwareFunctionality">
+                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes, 100% working</button>
+                  <button type="button" class="segmented-option-btn" data-val="no">✕ No, faulty / disabled</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Battery Health & Repair History -->
+            <div class="form-row-2" style="margin-top: 14px;">
+              <div class="form-group">
+                <label class="form-label" for="deviceBatteryHealth">Battery Health (%)</label>
+                <input type="number" id="deviceBatteryHealth" class="form-input" min="40" max="100" value="90" required>
+                <span class="form-helper-text" id="deviceBatteryHint">Settings &gt; Battery &gt; Battery Health (Maximum Capacity %)</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="deviceRepairHistory">Has this phone ever been opened or repaired?</label>
+                <select id="deviceRepairHistory" class="form-select">
+                  <option value="All Original (Never Repaired)" selected>First Body (Never opened / 100% original)</option>
+                  <option value="Battery Replaced (OEM / Aftermarket)">Battery replaced before</option>
+                  <option value="Screen Replaced">Screen replaced / changed</option>
+                  <option value="Back Glass / Housing Replaced">Back glass or housing replaced</option>
+                  <option value="Camera / Face ID Repaired">Camera or Face ID repaired</option>
+                  <option value="Multiple Parts Repaired">Multiple parts repaired</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Proof of Ownership & Inclusions -->
+            <div class="form-group" style="margin-top: 12px;">
+              <label class="form-label" for="deviceInclusions">What are you bringing along?</label>
+              <select id="deviceInclusions" class="form-select">
+                <option value="Device Only" selected>Phone Only</option>
+                <option value="Original Box Included">Phone + Original Box</option>
+                <option value="Original Box + Charging Cable">Phone + Original Box + Charging Cable</option>
+                <option value="Receipt / Proof of Ownership Available">Phone + Store Receipt / Proof of Ownership</option>
+                <option value="Full Complete Box & Receipt">Full Complete Box + Charger + Receipt</option>
+              </select>
+            </div>
+
+            <!-- iCloud / Google Account Cleanliness Confirmation -->
+            <div class="form-group" style="margin-top: 14px; background: rgba(0, 210, 106, 0.08); border: 1px solid var(--emerald-border); border-radius: var(--radius-md); padding: 12px 14px;">
+              <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; color: #FFF; font-size: 0.86rem; font-weight: 600; line-height: 1.45;">
+                <input type="checkbox" id="deviceAccountCleanCheck" required checked style="margin-top: 3px; accent-color: var(--emerald-400); width: 16px; height: 16px;">
+                <span>✓ I confirm that I will sign out my Apple ID / iCloud / Google Account and remove all locks before exchanging at the hub.</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- SECTION 3: MEDIA UPLOAD -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="form-section-num">3</span>
+              <div>
+                <h3>Photos of Your Phone (Up to 5)</h3>
+                <p>Upload clear photos of front, back, and sides</p>
+              </div>
+            </div>
+
+            <div class="form-dropzone" id="deviceDropzone" tabindex="0" style="cursor: pointer;">
+              <input type="file" id="deviceMediaInput" accept="image/*,video/*" multiple style="display: none;">
+              <div class="dropzone-icon" style="font-size: 2rem; margin-bottom: 8px;">📷</div>
+              <div class="dropzone-text" style="text-align: center;">
+                <strong style="color: #FFF; display: block; font-size: 0.94rem;">Click to upload or drag and drop</strong>
+                <span style="color: var(--text-muted); font-size: 0.8rem;">Clear photos of screen, back, and a short inspection video</span>
+              </div>
+              <div class="dropzone-badge" id="deviceMediaCounter" style="margin-top: 10px; font-size: 0.78rem; color: var(--emerald-400); font-weight: 700;">0 / 5 files</div>
+            </div>
+
+            <!-- Upload Progress Bar -->
+            <div class="upload-progress-wrap" id="deviceUploadProgress" style="display: none; margin-top: 12px;">
+              <div class="upload-progress-bar" style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                <div class="upload-progress-fill" id="deviceProgressFill" style="width: 0%; height: 100%; background: var(--emerald-400); transition: width 0.3s ease;"></div>
+              </div>
+            </div>
+
+            <!-- Previews Grid -->
+            <div class="previews-grid" id="devicePreviewsGrid" style="margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px;"></div>
+          </div>
+
+        </div>
+
+        <div class="form-actions-bar" style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" class="btn-action-sm" id="btnCancelAddDevice" style="background: transparent; border: 1px solid var(--glass-border); color: var(--text-muted); padding: 12px 20px; border-radius: var(--radius-md); font-weight: 600; cursor: pointer;">Cancel</button>
+          <button type="submit" class="btn-primary-action" id="btnSubmitAddDevice" style="padding: 12px 28px; font-weight: 700; border-radius: var(--radius-md);">
+            <span>+ Save & Use This Phone</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Scripts -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
   <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/app-enhancements.js"></script>
   <script type="module">
     import { auth, db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from './js/firebase-config.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { updateSwapRequestStatusBackend, createSwapperListingBackend, verifyDeviceIMEIBackend } from './js/backend-api.js';
-    import { uploadToCloudinary } from './js/cloudinary-config.js';
+    import {
+      updateSwapRequestStatusBackend, confirmSwapHandoverBackend,
+      openSwapDisputeBackend, createReviewBackend, recordSwapPaymentBackend
+    } from './js/backend-api.js';
+    import { payWithPaystack } from './js/paystack-config.js';
     import { setButtonLoading } from './js/auth.js';
-
-    async function apiPost(path, body) {
-      const token = await auth.currentUser.getIdToken();
-      const r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(body) });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error || 'Request failed');
-      return d;
-    }
+    import { getUserPhone, getUserLocation, autofillField } from './js/user-autofill.js';
+    import { renderAvatarElement } from './js/profile.js';
 
     let currentUserId = 'user_guest';
     let currentUserName = 'Swapper';
@@ -1007,9 +1270,6 @@
     const mobileSwapsBadge = document.getElementById('mobileSwapsBadge');
 
     // Modals
-    const consumerSwapModal = document.getElementById('consumerSwapModal');
-    const openSwapModalBtn = document.getElementById('openSwapModalBtn');
-    const closeConsumerModal = document.getElementById('closeConsumerModal');
     const notifModal = document.getElementById('notifModal');
     const notifBtn = document.getElementById('notifBtn');
     const navNotifBtn = document.getElementById('navNotifBtn');
@@ -1017,77 +1277,27 @@
     const userMenuBtn = document.getElementById('userMenuBtn');
     const userDropdown = document.getElementById('userDropdown');
 
-    // Consumer Form elements
-    const consumerSwapForm = document.getElementById('consumerSwapForm');
-    const consumerBrand = document.getElementById('consumerBrand');
-    const consumerModel = document.getElementById('consumerModel');
-    const consumerStorage = document.getElementById('consumerStorage');
-    const consumerRam = document.getElementById('consumerRam');
-    const consumerRamGroup = document.getElementById('consumerRamGroup');
-    const consumerImei = document.getElementById('consumerImei');
-    const consumerBatteryHealth = document.getElementById('consumerBatteryHealth');
-    const consumerCarrierLock = document.getElementById('consumerCarrierLock');
-    const consumerPhoneInput = document.getElementById('consumerPhoneInput');
-    const consumerListingLocation = document.getElementById('consumerListingLocation');
-    const consumerColorInput = document.getElementById('consumerColor');
-    const consumerUploadProgress = document.getElementById('consumerUploadProgress');
-    const consumerProgressLabel = document.getElementById('consumerProgressLabel');
-    const consumerProgressPct = document.getElementById('consumerProgressPct');
-    const consumerProgressTrack = document.getElementById('consumerProgressTrack');
-    const consumerProgressBar = document.getElementById('consumerProgressBar');
-    let isPublishingSwapperListing = false;
-
-    // Custom Type-In Elements
-    const consumerCustomBrandGroup = document.getElementById('consumerCustomBrandGroup');
-    const consumerCustomBrand = document.getElementById('consumerCustomBrand');
-    const consumerCustomModelGroup = document.getElementById('consumerCustomModelGroup');
-    const consumerCustomModel = document.getElementById('consumerCustomModel');
-    const consumerCustomStorageGroup = document.getElementById('consumerCustomStorageGroup');
-    const consumerCustomStorage = document.getElementById('consumerCustomStorage');
-
-    // Unified Media Uploads
-    const consumerDropzone = document.getElementById('consumerDropzone');
-    const consumerMediaInput = document.getElementById('consumerMediaInput');
-    const consumerPreviewsGrid = document.getElementById('consumerPreviewsGrid');
-    const consumerMediaCounter = document.getElementById('consumerMediaCounter');
-
-    let consumerUploadedFiles = [];
-    let consumerPendingFiles = 0;
-    const consumerTriage = {
-      powerAndScreen: true,
-      screenGlass: false,
-      bodyAndHousing: false,
-      hardwareFunctionality: true
-    };
+    // Update Header User UI
+    function updateHeaderUserUI(name, uid, userObj = null) {
+      const headerUserName = document.getElementById('headerUserName');
+      const headerAvatarFallback = document.getElementById('headerAvatarFallback');
+      if (headerUserName) headerUserName.textContent = name;
+      if (headerAvatarFallback) {
+        renderAvatarElement(headerAvatarFallback, uid, name || 'Swapper', userObj);
+      }
+    }
 
     // Initialize session user from synchronous local cache
     try {
-      const stored = localStorage.getItem('naijaswap_user') || localStorage.getItem('naijaswap_user');
+      const stored = localStorage.getItem('naijaswap_user');
       if (stored) {
         const u = JSON.parse(stored);
         currentUserId = u.uid || 'user_guest';
         currentUserName = u.displayName || (u.email ? u.email.split('@')[0] : 'Swapper');
         currentUserEmail = u.email || '';
+        updateHeaderUserUI(currentUserName, currentUserId, u);
       }
     } catch (e) {}
-
-    // Update Header User UI
-    function updateHeaderUserUI(name, uid, photoURL) {
-      const headerUserName = document.getElementById('headerUserName');
-      const headerAvatarFallback = document.getElementById('headerAvatarFallback');
-      if (headerUserName) headerUserName.textContent = name;
-      if (headerAvatarFallback) {
-        const storedPhoto = uid ? localStorage.getItem('naijaswap_photo_' + uid) : null;
-        const photo = storedPhoto || (photoURL && photoURL.startsWith('http') ? photoURL : null);
-        if (photo) {
-          headerAvatarFallback.innerHTML = `<img src="${photo}" alt="${escapeHtml(name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-        } else {
-          headerAvatarFallback.textContent = name.charAt(0).toUpperCase();
-        }
-      }
-    }
-
-    updateHeaderUserUI(currentUserName, currentUserId);
 
     // Hook from auth.js when Firebase user is confirmed/ready
     window.onNaijaSwapUserReady = (user, role) => {
@@ -1097,35 +1307,18 @@
         currentUserName = user.displayName || (user.email ? user.email.split('@')[0] : 'Swapper');
         currentUserEmail = user.email || '';
 
-        updateHeaderUserUI(currentUserName, user.uid, user.photoURL);
+        updateHeaderUserUI(currentUserName, user.uid, user);
 
         // Re-render user swap requests with the authenticated user ID
         renderSwaps();
         
-        // Handle Paystack Return URL
         const params = new URLSearchParams(window.location.search);
-        const reference = params.get('reference');
-        if (reference) {
-          apiPost('/api/payments/verify', { reference })
-            .then(() => {
-              alert('Payment verified successfully!');
-              window.history.replaceState({}, document.title, window.location.pathname);
-              renderSwaps();
-            })
-            .catch(err => {
-              alert('Failed to verify payment: ' + err.message);
-            });
+        if (params.has('reference')) {
+          alert('Online top-up payments are temporarily unavailable. Please contact support before arranging payment.');
+          window.history.replaceState({}, document.title, window.location.pathname);
         }
       }
     };
-
-    // Check URL parameters for toast or auto-modal
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('action') === 'new') {
-      setTimeout(() => {
-        if (consumerSwapModal) consumerSwapModal.classList.add('active');
-      }, 200);
-    }
 
     // Render Swaps
     async function renderSwaps() {
@@ -1187,13 +1380,9 @@
             </div>
             <h3 class="empty-state-title">No swap yet</h3>
             <p class="empty-state-desc">
-              You haven't initiated any phone swap requests yet. Select an upgrade from verified Computer Village or Banex stores, or propose a custom swap using your current phone.
+              You haven't initiated any phone swap requests yet. Browse phones listed by verified dealers and submit a swap request for the one you want.
             </p>
             <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
-              <button type="button" class="btn-primary-action" id="emptyStartSwapBtn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>Swap a Phone</span>
-              </button>
               <a href="dashboard.html" class="btn-reset-filters" style="text-decoration: none; padding: 12px 22px; font-weight: 700; color: #FFF; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 8px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <span>Browse Phones</span>
@@ -1202,12 +1391,6 @@
           </div>
         `;
 
-        const emptyBtn = document.getElementById('emptyStartSwapBtn');
-        if (emptyBtn) {
-          emptyBtn.addEventListener('click', () => {
-            consumerSwapModal.classList.add('active');
-          });
-        }
         return;
       }
 
@@ -1234,7 +1417,51 @@
 
         const createdDate = req.createdAt ? new Date(req.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently';
 
-        const waMsg = encodeURIComponent(`Hello ${req.storeName}, I am following up on my swap request (${req.id}) on NaijaSwap. I want to swap my ${req.swapperPhoneModel} for your ${req.targetPhoneModel}. Please let me know when to come in for inspection.`);
+        const stage = (typeof NaijaSwapData.getSafeSwapStage === 'function') 
+          ? NaijaSwapData.getSafeSwapStage(req) 
+          : (req.status === 'completed' ? 5 : req.status === 'accepted' ? 3 : 1);
+
+        const safeCode = req.safeSwapCode || ('NS-' + (req.id ? req.id.replace(/\D/g, '').slice(-6) : '849201'));
+        const isBooked = req.hubBooking && req.hubBooking.booked;
+
+        const rawTopupVal = typeof req.topupAmount === 'number' ? req.topupAmount : (parseFloat(String(req.topupOffered || '').replace(/[^0-9.]/g, '')) || 0);
+        const hasTopup = rawTopupVal > 0;
+        const isEscrowSecured = req.paymentStatus === 'escrow_secured' || Boolean(req.paymentReference);
+
+        // Visual Stepper HTML calculation
+        const progressWidth = stage === 5 ? '100%' : stage === 4 ? '75%' : stage === 3 ? '50%' : stage === 2 ? '25%' : '0%';
+        const stepperHtml = `
+          <div class="safeswap-stepper-wrap">
+            <div class="safeswap-stepper">
+              <div class="safeswap-stepper-progress" style="width: ${progressWidth};"></div>
+              
+              <div class="stepper-step ${stage >= 1 ? (stage > 1 ? 'completed' : 'active') : ''}">
+                <div class="stepper-circle">${stage > 1 ? '✓' : '1'}</div>
+                <span class="stepper-label">1. Proposal</span>
+              </div>
+
+              <div class="stepper-step ${stage >= 2 ? (stage > 2 ? 'completed' : 'active') : ''}">
+                <div class="stepper-circle">${stage > 2 ? '✓' : '2'}</div>
+                <span class="stepper-label">2. Accepted</span>
+              </div>
+
+              <div class="stepper-step ${stage >= 3 ? (stage > 3 ? 'completed' : 'active') : ''}">
+                <div class="stepper-circle">${stage > 3 ? '✓' : '3'}</div>
+                <span class="stepper-label">3. Hub Visit</span>
+              </div>
+
+              <div class="stepper-step ${stage >= 4 ? (stage > 4 ? 'completed' : 'active') : ''}">
+                <div class="stepper-circle">${stage > 4 ? '✓' : '4'}</div>
+                <span class="stepper-label">4. 10-Pt Triage</span>
+              </div>
+
+              <div class="stepper-step ${stage >= 5 ? 'completed' : ''}">
+                <div class="stepper-circle">${stage >= 5 ? '✓' : '5'}</div>
+                <span class="stepper-label">5. Certified</span>
+              </div>
+            </div>
+          </div>
+        `;
 
         html += `
           <div class="swap-tracker-card" data-req-id="${escapeHtml(req.id)}">
@@ -1244,8 +1471,65 @@
                 <span class="swap-id-tag">${escapeHtml(req.id)}</span>
                 <span class="swap-date-text">• Submitted ${createdDate}</span>
               </div>
-              <span class="status-badge ${badgeClass}">${statusLabel}</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                ${hasTopup ? `
+                  <span class="status-badge" style="font-size: 0.72rem; ${isEscrowSecured ? 'background: rgba(0,210,106,0.15); color: var(--emerald-400); border: 1px solid var(--emerald-border);' : 'background: rgba(245,158,11,0.15); color: var(--amber-400); border: 1px solid rgba(245,158,11,0.3);'}">
+                    ${isEscrowSecured ? '🔒 Escrow Paid' : '💳 Escrow Pending'}
+                  </span>
+                ` : ''}
+                <span class="status-badge ${badgeClass}">${statusLabel}</span>
+              </div>
             </div>
+
+            <!-- LIVE VISUAL STEPPER -->
+            ${stepperHtml}
+
+            <!-- SAFESWAP PASSCODE CARD (For Active Swaps) -->
+            ${['accepted', 'countered', 'hub_booked', 'inspection_passed', 'completed'].includes(req.status) || stage >= 2 ? `
+              <div class="safeswap-pass-card">
+                <div class="safeswap-pass-header">
+                  <div>
+                    <span style="font-size: 0.72rem; font-weight: 800; color: var(--cyan-400); text-transform: uppercase; letter-spacing: 0.05em; display: block;">
+                      🔒 SafeSwap Handshake Code
+                    </span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">
+                      Show this 6-digit code to the hub technician upon physical inspection.
+                    </span>
+                  </div>
+                  <div class="safeswap-code-badge" title="Click to copy SafeSwap code" onclick="navigator.clipboard.writeText('${safeCode}'); alert('SafeSwap Code copied to clipboard: ${safeCode}');" style="cursor: pointer;">
+                    <span>${safeCode}</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  </div>
+                </div>
+
+                ${isBooked ? `
+                  <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--emerald-border); border-radius: 8px; padding: 8px 12px; font-size: 0.78rem; color: #FFF; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+                    <div>
+                      <strong style="color: var(--emerald-400);">📅 Appointment Confirmed:</strong>
+                      <span>${escapeHtml(req.hubBooking.appointmentDate)} &bull; ${escapeHtml(req.hubBooking.appointmentTimeSlot)}</span>
+                    </div>
+                    <span style="color: var(--text-muted); font-size: 0.74rem;">${escapeHtml(req.hubBooking.hubName)}</span>
+                  </div>
+                ` : req.status === 'accepted' ? `
+                  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 8px 12px;">
+                    <span style="font-size: 0.78rem; color: var(--amber-400);">
+                      ⚠️ <strong>Next Step:</strong> Choose your preferred hub arrival time to lock in your slot.
+                    </span>
+                    <button type="button" class="btn-action-sm btn-open-booking" data-id="${escapeHtml(req.id)}" data-store="${escapeHtml(req.storeName || 'Store')}" style="padding: 6px 14px; background: var(--amber-400); color: #000; border: none; font-weight: 700; border-radius: 6px; cursor: pointer;">
+                      📅 Book Hub Visit
+                    </button>
+                  </div>
+                ` : ''}
+
+                <!-- SafeSwap Readiness Checklist -->
+                <div class="safeswap-checklist">
+                  <span class="safeswap-check-item">✓ Sign out iCloud / Google Lock</span>
+                  <span class="safeswap-check-item">✓ Charge to 50%+</span>
+                  <span class="safeswap-check-item">✓ Bring Box / Accessories</span>
+                  <span class="safeswap-check-item">✓ 30-Day Warranty Protected</span>
+                </div>
+              </div>
+            ` : ''}
 
             <!-- Device Exchange Layout -->
             <div class="swap-exchange-layout">
@@ -1288,10 +1572,37 @@
                 <span class="financial-value">${escapeHtml(req.tradeInCredit || 'Calculated at Hub')}</span>
               </div>
               <div class="swap-financial-item">
-                <span class="financial-label">Estimated Top-Up Required</span>
+                <span class="financial-label">Agreed Top-Up Cash</span>
                 <span class="financial-value highlight">${escapeHtml(req.topupOffered || '₦0')}</span>
               </div>
             </div>
+
+            <!-- ESCROW PAYMENT SECTION -->
+            ${hasTopup ? `
+              <div class="swap-escrow-box" style="margin-bottom: 18px; padding: 16px 20px; border-radius: var(--radius-lg); border: 1px solid ${isEscrowSecured ? 'var(--emerald-border)' : 'rgba(245, 158, 11, 0.4)'}; background: ${isEscrowSecured ? 'linear-gradient(135deg, rgba(0, 210, 106, 0.12), rgba(6, 182, 212, 0.08))' : 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(16, 26, 37, 0.6))'};">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                  <div style="flex: 1; min-width: 240px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="font-size: 1.2rem;">${isEscrowSecured ? '🔒' : '💳'}</span>
+                      <strong style="color: ${isEscrowSecured ? 'var(--emerald-400)' : 'var(--amber-400)'}; font-size: 0.95rem;">
+                        ${isEscrowSecured ? 'Escrow Secured via Paystack' : 'Top-Up Escrow Deposit Required'}
+                      </strong>
+                    </div>
+                    <p style="margin: 6px 0 0; font-size: 0.82rem; color: var(--text-muted); line-height: 1.45;">
+                      ${isEscrowSecured 
+                        ? `₦${rawTopupVal.toLocaleString()} is safely locked in NaijaSwap Escrow. (Ref: <span style="font-family: monospace; color: #FFF;">${escapeHtml(req.paymentReference || 'SECURED')}</span>). Funds will be released to dealer ONLY after 10-Point Hub Inspection is certified.`
+                        : `Deposit your top-up cash difference (₦${rawTopupVal.toLocaleString()}) into Paystack Escrow before visiting the hub to confirm and lock in your deal.`}
+                    </p>
+                  </div>
+                  ${(!isEscrowSecured && !['cancelled', 'rejected', 'completed'].includes(req.status)) ? `
+                    <button type="button" class="btn-primary-action btn-pay-escrow" data-id="${escapeHtml(req.id)}" data-amount="${rawTopupVal}" data-model="${escapeHtml(req.targetPhoneModel || 'Phone')}" style="padding: 10px 22px; font-size: 0.86rem; font-weight: 800; border-radius: var(--radius-md); background: linear-gradient(135deg, #00d26a, #06b6d4); color: #05080b; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(0,210,106,0.35); display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                      <span>Pay ₦${rawTopupVal.toLocaleString()} via Paystack</span>
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            ` : ''}
 
             <!-- Hub & Location Details -->
             <div class="swap-hub-info-box">
@@ -1301,7 +1612,7 @@
                   ${escapeHtml(req.storeName || 'Computer Village Hub')}
                 </span>
                 <span style="display: block; margin-top: 3px; font-size: 0.78rem; color: var(--text-faint);">
-                  Computer Village, Otigba Street, Ikeja, Lagos (Walk-in physical inspection open Mon-Sat)
+                  Otigba Street, Computer Village, Ikeja, Lagos (Official Partner Hub)
                 </span>
               </div>
             </div>
@@ -1327,17 +1638,21 @@
               </div>
             ` : ''}
 
+            <!-- Structured Counter-Offer Banner -->
             ${req.status === 'countered' ? `
-              <div style="width:100%;margin-bottom:12px;padding:12px 14px;border:1px solid rgba(6,182,212,0.3);border-radius:var(--radius-md);background:rgba(6,182,212,0.08);">
-                <strong style="display:block;color:var(--cyan-400);font-size:0.8rem;">Dealer counter-offer</strong>
-                <span style="font-size:0.86rem;color:#FFF;">${escapeHtml(req.counterOffer || 'Revised terms available')}</span>
-                ${req.counterMessage ? `<p style="margin:5px 0 0;color:var(--text-muted);font-size:0.8rem;">${escapeHtml(req.counterMessage)}</p>` : ''}
+              <div style="width:100%;margin-bottom:12px;padding:14px 16px;border:1px solid rgba(6,182,212,0.4);border-radius:var(--radius-md);background:linear-gradient(135deg, rgba(6,182,212,0.12), rgba(16,185,129,0.06));">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;">
+                  <strong style="color:var(--cyan-400);font-size:0.86rem;display:flex;align-items:center;gap:6px;">
+                    <span>🤝</span> Dealer Proposed Counter-Offer
+                  </strong>
+                  <span class="status-badge status-pending" style="font-size: 0.72rem;">Action Required</span>
+                </div>
+                <div style="margin-top: 6px; font-size: 1.15rem; font-weight: 800; color: #FFF;">
+                  Revised Top-Up: <span style="color: var(--emerald-400);">${escapeHtml(req.counterOffer || req.topupOffered || '₦0')}</span>
+                </div>
+                ${req.counterReason ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;"><strong>Reason:</strong> ${escapeHtml(req.counterReason)}</div>` : ''}
+                ${req.counterMessage ? `<p style="margin:6px 0 0;color:var(--text-muted);font-size:0.82rem;font-style:italic;">"${escapeHtml(req.counterMessage)}"</p>` : ''}
               </div>
-            ` : ''}
-            ${req.status === 'inspection_passed' ? `
-              <button type="button" class="btn-action-sm btn-confirm-handover" data-id="${escapeHtml(req.id)}" style="background: rgba(0,210,106,0.1); border: 1px solid var(--emerald-border); color: var(--emerald-400); padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; margin-bottom: 12px;">
-                Confirm Handover
-              </button>
             ` : ''}
 
             <!-- Card Actions Footer -->
@@ -1348,21 +1663,25 @@
                 </button>
               ` : ''}
 
-              ${req.status === 'accepted' && req.paymentStatus === 'unpaid' ? `
-                <button type="button" class="btn-action-sm btn-accept btn-pay-topup" data-id="${escapeHtml(req.id)}" data-amount="${escapeHtml(req.topupOffered || '0')}" style="padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: var(--emerald-500); color: #000;">
-                  Pay Top-up
-                </button>
-              ` : ''}
-
               ${req.status === 'pending' ? `
                 <button type="button" class="btn-action-sm btn-decline btn-cancel-request" data-id="${escapeHtml(req.id)}" style="background: rgba(244,63,94,0.1); border: 1px solid var(--rose-border); color: var(--rose-400); padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer;">
                   Cancel Proposal
                 </button>
               ` : ''}
+
               ${req.status === 'countered' ? `
-                <button type="button" class="btn-action-sm btn-accept btn-accept-counter" data-id="${escapeHtml(req.id)}">Accept Counter-offer</button>
-                <button type="button" class="btn-action-sm btn-decline btn-reject-counter" data-id="${escapeHtml(req.id)}">Reject</button>
-                <button type="button" class="btn-action-sm btn-counter-again" data-id="${escapeHtml(req.id)}">Send Counter-offer</button>
+                <button type="button" class="btn-primary-action btn-accept-counter" data-id="${escapeHtml(req.id)}" style="padding: 8px 16px; font-size: 0.86rem; border-radius: var(--radius-md); font-weight: 700;">
+                  ✓ Accept Counter-Offer
+                </button>
+                <button type="button" class="btn-action-sm btn-counter-again" data-id="${escapeHtml(req.id)}" style="padding: 8px 14px; border-color: rgba(6,182,212,0.35); color: var(--cyan-400); font-weight: 700;">
+                  Propose Revised Top-Up
+                </button>
+              ` : ''}
+
+              ${req.status === 'accepted' && !isBooked ? `
+                <button type="button" class="btn-primary-action btn-open-booking" data-id="${escapeHtml(req.id)}" data-store="${escapeHtml(req.storeName || 'Store')}" style="padding: 8px 18px; font-size: 0.86rem; border-radius: var(--radius-md); font-weight: 700;">
+                  📅 Book Hub Visit
+                </button>
               ` : ''}
 
               <button type="button" class="btn-action-sm btn-open-chat" data-id="${escapeHtml(req.id)}" data-store="${escapeHtml(req.storeName || 'Store')}" style="padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: linear-gradient(135deg, rgba(0,210,106,0.18), rgba(6,182,212,0.14)); border: 1px solid var(--emerald-border); color: #FFF; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
@@ -1370,9 +1689,9 @@
                 <span>In-App Chat</span>
               </button>
 
-              ${(req.inspectionReportId || req.inspectionStatus === 'passed' || req.status === 'inspection_passed' || req.status === 'completed') ? `
-                <a href="certificate.html?id=${escapeHtml(req.id)}" target="_blank" class="btn-action-sm" style="text-decoration: none; padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: rgba(0,210,106,0.1); border: 1px solid var(--emerald-border); color: var(--emerald-400); display: inline-flex; align-items: center; gap: 6px;">
-                  <span>📜 Certificate</span>
+              ${(req.status === 'completed' || req.status === 'inspection_passed' || stage >= 4) ? `
+                <a href="certificate.html?id=${escapeHtml(req.id)}" target="_blank" class="btn-action-sm" style="text-decoration: none; padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: rgba(0,210,106,0.15); border: 1px solid var(--emerald-border); color: var(--emerald-400); display: inline-flex; align-items: center; gap: 6px;">
+                  <span>📜 View Warranty Certificate</span>
                 </a>
               ` : ''}
 
@@ -1381,10 +1700,6 @@
                   <span>★ Rate Store</span>
                 </button>
               ` : ''}
-
-              <a href="https://wa.me/?text=${waMsg}" target="_blank" rel="noopener" class="btn-action-sm" style="text-decoration: none; padding: 8px 14px; border-radius: var(--radius-md); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; background: rgba(37,211,102,0.08); color: #25D366; border: 1px solid rgba(37,211,102,0.25);">
-                <span>WhatsApp</span>
-              </a>
 
               ${req.targetListingId || req.targetPhoneId ? `
                 <a href="phone-details.html?id=${encodeURIComponent(req.targetListingId || req.targetPhoneId)}" class="btn-action-sm" style="text-decoration: none; padding: 8px 16px; border-radius: var(--radius-md); font-weight: 700; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); color: #FFF;">
@@ -1398,6 +1713,63 @@
       html += '</div>';
 
       swapsListContainer.innerHTML = html;
+
+      // Bind Escrow Payment buttons
+      document.querySelectorAll('.btn-pay-escrow').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const reqId = e.currentTarget.dataset.id;
+          const amount = Number(e.currentTarget.dataset.amount);
+          const model = e.currentTarget.dataset.model || 'Smartphone';
+          const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === reqId || item.firestoreId === reqId);
+
+          if (!amount || amount <= 0) {
+            alert('No top-up payment is required for this straight swap.');
+            return;
+          }
+
+          setButtonLoading(e.currentTarget, true, 'Opening Paystack...');
+          try {
+            await payWithPaystack({
+              email: currentUserEmail || request?.customerEmail || 'customer@naijaswap.ng',
+              amountInNaira: amount,
+              metadata: {
+                swapRequestId: request?.firestoreId || reqId,
+                targetDevice: model
+              },
+              onSuccess: async (response) => {
+                try {
+                  if (request?.firestoreId) {
+                    await recordSwapPaymentBackend({
+                      requestId: request.firestoreId,
+                      paymentReference: response.reference,
+                      paymentAmount: amount,
+                      paymentChannel: 'paystack'
+                    });
+                  }
+                  NaijaSwapData.recordSwapPayment(reqId, {
+                    reference: response.reference,
+                    amountInNaira: amount,
+                    channel: 'paystack'
+                  });
+                  alert(`🎉 Payment Successful!\n\nReference: ${response.reference}\nAmount: ₦${amount.toLocaleString()} is now safely secured in NaijaSwap Escrow.\n\nYou can now proceed to book and attend your physical hub inspection.`);
+                  renderSwaps();
+                } catch (err) {
+                  console.error('[Payment] Error recording payment:', err);
+                  alert(`Payment completed on Paystack (Ref: ${response.reference}), but could not update database: ${err.message}`);
+                  renderSwaps();
+                }
+              },
+              onCancel: () => {
+                setButtonLoading(btn, false);
+              }
+            });
+          } catch (err) {
+            alert(err.message || 'Could not initiate Paystack payment. Please try again.');
+          } finally {
+            setButtonLoading(e.currentTarget, false);
+          }
+        });
+      });
 
       // Bind In-App Chat buttons
       document.querySelectorAll('.btn-open-chat').forEach(btn => {
@@ -1451,7 +1823,10 @@
         btn.addEventListener('click', (e) => respondToCounter(btn.dataset.id, 'rejected', e.currentTarget));
       });
       document.querySelectorAll('.btn-counter-again').forEach(btn => {
-        btn.addEventListener('click', (e) => sendCustomerCounter(btn.dataset.id, e.currentTarget));
+        btn.addEventListener('click', (e) => openCustomerCounterModal(btn.dataset.id));
+      });
+      document.querySelectorAll('.btn-open-booking').forEach(btn => {
+        btn.addEventListener('click', (e) => openHubBookingModal(btn.dataset.id, btn.dataset.store));
       });
       document.querySelectorAll('.btn-confirm-handover').forEach(btn => {
         btn.addEventListener('click', (e) => confirmHandover(btn.dataset.id, e.currentTarget));
@@ -1459,27 +1834,198 @@
       document.querySelectorAll('.btn-open-dispute').forEach(btn => {
         btn.addEventListener('click', () => openDispute(btn.dataset.id));
       });
-      document.querySelectorAll('.btn-pay-topup').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const reqId = e.currentTarget.dataset.id;
-          const topupAmount = e.currentTarget.dataset.amount;
-          const amountNaira = parseInt(topupAmount.replace(/\D/g, '')) || 0;
-          setButtonLoading(e.currentTarget, true, 'Connecting Paystack...');
-          try {
-            const d = await apiPost('/api/payments/initialize', { requestId: reqId, amountNaira, email: auth.currentUser.email });
-            window.location.href = d.authorizationUrl;
-          } catch (error) {
-            setButtonLoading(e.currentTarget, false);
-            alert(error.message || 'Payment initialization failed');
-          }
-        });
-      });
-
     }
+
+    // =========================================================================
+    // HUB BOOKING & SAFEPASS CONTROLLER
+    // =========================================================================
+    const hubBookingModal = document.getElementById('hubBookingModal');
+    const closeHubBookingModal = document.getElementById('closeHubBookingModal');
+    const hubBookingForm = document.getElementById('hubBookingForm');
+    const bookingRequestId = document.getElementById('bookingRequestId');
+    const bookingDateInput = document.getElementById('bookingDateInput');
+    const bookingTimeSlot = document.getElementById('bookingTimeSlot');
+    const bookingStoreNameText = document.getElementById('bookingStoreNameText');
+    const bookingHubAddressText = document.getElementById('bookingHubAddressText');
+
+    function openHubBookingModal(reqId, storeName) {
+      if (!hubBookingModal) return;
+      if (bookingRequestId) bookingRequestId.value = reqId;
+      
+      const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === reqId || item.firestoreId === reqId);
+      const name = request?.storeName || storeName || 'Verified Partner Store';
+      const address = request?.hubAddress || request?.location || 'Otigba Street, Computer Village, Ikeja, Lagos';
+
+      if (bookingStoreNameText) bookingStoreNameText.textContent = name;
+      if (bookingHubAddressText) bookingHubAddressText.textContent = address;
+
+      // Default date to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const yyyy = tomorrow.getFullYear();
+      const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      const dd = String(tomorrow.getDate()).padStart(2, '0');
+      if (bookingDateInput) {
+        bookingDateInput.min = `${yyyy}-${mm}-${dd}`;
+        bookingDateInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+
+      hubBookingModal.style.display = 'flex';
+      hubBookingModal.classList.add('active');
+    }
+
+    closeHubBookingModal?.addEventListener('click', () => {
+      if (hubBookingModal) {
+        hubBookingModal.style.display = 'none';
+        hubBookingModal.classList.remove('active');
+      }
+    });
+
+    hubBookingModal?.addEventListener('click', (e) => {
+      if (e.target === hubBookingModal) {
+        hubBookingModal.style.display = 'none';
+        hubBookingModal.classList.remove('active');
+      }
+    });
+
+    hubBookingForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const reqId = bookingRequestId?.value;
+      if (!reqId) return;
+
+      const confirmBtn = document.getElementById('btnConfirmBooking');
+      if (confirmBtn) setButtonLoading(confirmBtn, true, 'Confirming Inspection Slot...');
+
+      try {
+        const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === reqId || item.firestoreId === reqId);
+        const hubName = bookingStoreNameText?.textContent || request?.storeName || 'Verified Partner Store';
+        const hubAddress = bookingHubAddressText?.textContent || request?.hubAddress || 'Otigba Street, Computer Village, Ikeja, Lagos';
+        const appointmentDate = bookingDateInput?.value || new Date().toISOString().split('T')[0];
+        const appointmentTimeSlot = bookingTimeSlot?.value || 'Morning (10:00 AM - 1:00 PM)';
+
+        NaijaSwapData.bookHubAppointment(reqId, {
+          hubName,
+          hubAddress,
+          appointmentDate,
+          appointmentTimeSlot
+        });
+
+        if (request?.firestoreId) {
+          try {
+            await updateSwapRequestStatusBackend({
+              requestId: request.firestoreId,
+              status: 'hub_booked',
+              hubBooking: {
+                booked: true,
+                hubName,
+                hubAddress,
+                appointmentDate,
+                appointmentTimeSlot,
+                bookedAt: new Date().toISOString()
+              }
+            });
+          } catch (beErr) {
+            console.warn('[Booking] Backend sync fallback active:', beErr.message);
+          }
+        }
+
+        alert('🎉 Physical Inspection Slot Confirmed!\n\nYour appointment is set for ' + appointmentDate + ' (' + appointmentTimeSlot + '). Your SafeSwap Passcode is activated. Please arrive with your device ready!');
+        if (hubBookingModal) {
+          hubBookingModal.style.display = 'none';
+          hubBookingModal.classList.remove('active');
+        }
+        renderSwaps();
+      } catch (err) {
+        console.error(err);
+        alert('Booking note: ' + (err.message || 'Could not record booking.'));
+      } finally {
+        if (confirmBtn) setButtonLoading(confirmBtn, false);
+      }
+    });
+
+    // =========================================================================
+    // CUSTOMER REVISED COUNTER-OFFER MODAL CONTROLLER
+    // =========================================================================
+    const customerCounterModal = document.getElementById('customerCounterModal');
+    const closeCustomerCounterModal = document.getElementById('closeCustomerCounterModal');
+    const customerCounterForm = document.getElementById('customerCounterForm');
+    const customerCounterReqId = document.getElementById('customerCounterReqId');
+    const customerCounterAmount = document.getElementById('customerCounterAmount');
+    const customerCounterNote = document.getElementById('customerCounterNote');
+
+    function openCustomerCounterModal(reqId) {
+      if (!customerCounterModal) return;
+      const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === reqId);
+      if (customerCounterReqId) customerCounterReqId.value = reqId;
+      if (customerCounterAmount) {
+        const rawTopup = (request?.counterOffer || request?.topupOffered || '0').replace(/\D/g, '');
+        customerCounterAmount.value = rawTopup || '';
+      }
+      if (customerCounterNote) customerCounterNote.value = '';
+
+      customerCounterModal.style.display = 'flex';
+      customerCounterModal.classList.add('active');
+    }
+
+    closeCustomerCounterModal?.addEventListener('click', () => {
+      if (customerCounterModal) {
+        customerCounterModal.style.display = 'none';
+        customerCounterModal.classList.remove('active');
+      }
+    });
+
+    customerCounterModal?.addEventListener('click', (e) => {
+      if (e.target === customerCounterModal) {
+        customerCounterModal.style.display = 'none';
+        customerCounterModal.classList.remove('active');
+      }
+    });
+
+    customerCounterForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const reqId = customerCounterReqId?.value;
+      const numVal = parseInt(customerCounterAmount?.value, 10) || 0;
+      const noteVal = (customerCounterNote?.value || '').trim();
+      const submitBtn = document.getElementById('btnSubmitCustomerCounter');
+
+      if (!reqId) return;
+      if (submitBtn) setButtonLoading(submitBtn, true, 'Submitting Counter...');
+
+      try {
+        const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === reqId);
+        const formattedAmount = '₦' + numVal.toLocaleString();
+        
+        NaijaSwapData.proposeCounterOffer(reqId, {
+          counterOffer: formattedAmount,
+          counterMessage: noteVal,
+          counterReason: 'Customer revised top-up offer'
+        }, request?.storeId);
+
+        if (request?.firestoreId) {
+          await persistSwapResponse(request, 'countered', {
+            counterOffer: formattedAmount,
+            counterMessage: noteVal
+          });
+        }
+
+        alert('🤝 Your revised counter-proposal has been sent to the store!');
+        if (customerCounterModal) {
+          customerCounterModal.style.display = 'none';
+          customerCounterModal.classList.remove('active');
+        }
+        renderSwaps();
+      } catch (err) {
+        alert('Could not send counter-offer: ' + (err.message || 'Error occurred.'));
+      } finally {
+        if (submitBtn) setButtonLoading(submitBtn, false);
+      }
+    });
 
     async function persistSwapResponse(request, status, extra = {}) {
       if (!request?.firestoreId) {
-        throw new Error('This swap is not connected to the live backend yet. Please refresh and try again.');
+        NaijaSwapData.updateSwapRequestStatus(request.id, status, request.storeId);
+        renderSwaps();
+        return;
       }
       await updateSwapRequestStatusBackend({
         requestId: request.firestoreId,
@@ -1495,28 +2041,13 @@
       if (!request) return;
       if (triggerBtn) setButtonLoading(triggerBtn, true, status === 'accepted' ? 'Accepting...' : 'Declining...');
       try {
+        if (status === 'accepted') {
+          NaijaSwapData.acceptCounterOffer(requestId, currentUserId);
+        }
         await persistSwapResponse(request, status);
+        alert(status === 'accepted' ? '✓ Counter-Offer Accepted! You can now book your inspection slot.' : 'Counter-Offer declined.');
       } catch (error) {
         alert(error.message || 'Unable to update this swap response.');
-      } finally {
-        if (triggerBtn) setButtonLoading(triggerBtn, false);
-      }
-    }
-
-    async function sendCustomerCounter(requestId, triggerBtn = null) {
-      const request = NaijaSwapData.getUserSwapRequests(currentUserId).find(item => item.id === requestId);
-      if (!request) return;
-      const amount = prompt('Enter your proposed top-up amount:', request.counterOffer || request.topupOffered || '');
-      if (amount === null) return;
-      const message = prompt('Add a message for the dealer (optional):', '') || '';
-      if (triggerBtn) setButtonLoading(triggerBtn, true, 'Sending...');
-      try {
-        await persistSwapResponse(request, 'Countered', {
-          counterOffer: amount.trim(),
-          counterMessage: message
-        });
-      } catch (error) {
-        alert(error.message || 'Unable to send your counter-offer.');
       } finally {
         if (triggerBtn) setButtonLoading(triggerBtn, false);
       }
@@ -1527,10 +2058,10 @@
       if (!request?.firestoreId || !confirm('Confirm that you received the inspected device and completed the handover at the authorized hub?')) return;
       if (triggerBtn) setButtonLoading(triggerBtn, true, 'Confirming...');
       try {
-        await apiPost('/api/swap/confirm-handover', { requestId: request.firestoreId, confirmed: true });
+        await confirmSwapHandoverBackend({ requestId: request.firestoreId });
         alert('Your confirmation was recorded. The dealer must also confirm before the swap can complete.');
         // Refresh local data to reflect changes
-        request.status = 'completed'; // optimistic update
+        request.customerConfirmed = true;
         renderSwaps();
       } catch (error) {
         alert(error.message || 'Unable to record handover confirmation.');
@@ -1574,7 +2105,7 @@
         if (!reason || !requestId) return;
         if (submitBtn) setButtonLoading(submitBtn, true, 'Submitting Dispute...');
         try {
-          await apiPost('/api/swap/dispute', { requestId, reason });
+          await openSwapDisputeBackend({ requestId, reason });
           alert('Your dispute was opened and the swap has been flagged for review.');
           disputeModal.classList.remove('active');
           disputeForm.reset();
@@ -1595,19 +2126,20 @@
     const chatInputText = document.getElementById('chatInputText');
     const chatMessagesContainer = document.getElementById('chatMessagesContainer');
     const chatModalTitle = document.getElementById('chatModalTitle');
-    let activeChatRequestId = null;
-    let chatUnsubscribe = null;
-
     function openChatModal(requestId, storeName) {
+      if (!requestId) return;
       activeChatRequestId = requestId;
-      chatModalTitle.textContent = `Chat with ${storeName || 'Store'}`;
-      chatMessagesContainer.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:24px;font-size:0.82rem;">Connecting to real-time chat...</div>';
-      chatModal.style.display = 'flex';
-      chatModal.classList.add('active');
+
+      if (chatModalTitle) {
+        chatModalTitle.textContent = `Chat with ${storeName || 'Store'}`;
+      }
+      if (chatModal) {
+        chatModal.style.display = 'flex';
+        chatModal.classList.add('active');
+      }
 
       if (chatUnsubscribe) chatUnsubscribe();
 
-      // Real-time Firestore listener on swap subcollection
       try {
         const msgsQuery = query(
           collection(db, 'swapRequests', requestId, 'messages'),
@@ -1681,15 +2213,7 @@
           createdAt: serverTimestamp()
         });
       } catch (err) {
-        try {
-          await apiPost('/api/swap/messages', {
-            requestId: activeChatRequestId,
-            text,
-            senderName: currentUserName
-          });
-        } catch (apiErr) {
-          alert('Could not send message: ' + (apiErr.message || err.message));
-        }
+        alert('Could not send message: ' + err.message);
       } finally {
         if (sendBtn) setButtonLoading(sendBtn, false);
       }
@@ -1779,7 +2303,7 @@
       if (submitBtn) setButtonLoading(submitBtn, true, 'Submitting Review...');
 
       try {
-        await apiPost('/api/reviews', {
+        await createReviewBackend({
           requestId,
           storeId,
           rating: selectedRating,
@@ -1790,26 +2314,516 @@
         reviewModal.style.display = 'none';
         reviewModal.classList.remove('active');
       } catch (err) {
-        try {
-          await addDoc(collection(db, 'reviews'), {
-            requestId,
-            storeId,
-            authorUid: auth.currentUser ? auth.currentUser.uid : currentUserId,
-            authorName: currentUserName,
-            rating: selectedRating,
-            comment,
-            createdAt: serverTimestamp()
-          });
-          alert('★ Thank you! Your review was recorded.');
-          reviewModal.style.display = 'none';
-          reviewModal.classList.remove('active');
-        } catch (fErr) {
-          alert('Review submission failed: ' + (err.message || fErr.message));
-        }
+        alert('Review submission failed: ' + err.message);
       } finally {
         if (submitBtn) setButtonLoading(submitBtn, false);
       }
     });
+
+    // Tab switching between Swap Proposals and My Trade-In Phones
+    const tabBtnProposals = document.getElementById('tabBtnProposals');
+    const tabBtnDevices = document.getElementById('tabBtnDevices');
+    const proposalsViewContainer = document.getElementById('proposalsViewContainer');
+    const devicesViewContainer = document.getElementById('devicesViewContainer');
+    const tabCountProposals = document.getElementById('tabCountProposals');
+    const tabCountDevices = document.getElementById('tabCountDevices');
+    const btnAddDeviceHeaderBtn = document.getElementById('btnAddDeviceHeaderBtn');
+
+    function switchViewTab(tab) {
+      if (tab === 'devices') {
+        if (tabBtnDevices) tabBtnDevices.classList.add('active');
+        if (tabBtnProposals) tabBtnProposals.classList.remove('active');
+        if (devicesViewContainer) devicesViewContainer.style.display = 'block';
+        if (proposalsViewContainer) proposalsViewContainer.style.display = 'none';
+        renderMyDevices();
+      } else {
+        if (tabBtnProposals) tabBtnProposals.classList.add('active');
+        if (tabBtnDevices) tabBtnDevices.classList.remove('active');
+        if (proposalsViewContainer) proposalsViewContainer.style.display = 'block';
+        if (devicesViewContainer) devicesViewContainer.style.display = 'none';
+        renderSwaps();
+      }
+    }
+
+    if (tabBtnProposals) {
+      tabBtnProposals.addEventListener('click', () => switchViewTab('proposals'));
+    }
+    if (tabBtnDevices) {
+      tabBtnDevices.addEventListener('click', () => switchViewTab('devices'));
+    }
+
+    // =========================================================================
+    // MY LISTED TRADE-IN DEVICES CONTROLLER
+    // =========================================================================
+    const userDevicesListContainer = document.getElementById('userDevicesListContainer');
+
+    function renderMyDevices() {
+      const devices = NaijaSwapData.getUserDevices(currentUserId) || [];
+      if (tabCountDevices) tabCountDevices.textContent = devices.length;
+
+      if (!userDevicesListContainer) return;
+
+      if (devices.length === 0) {
+        userDevicesListContainer.innerHTML = `
+          <div class="empty-state-box" id="emptyDevicesState" style="text-align: center; padding: 48px 20px; background: rgba(255, 255, 255, 0.02); border: 1.5px dashed var(--glass-border); border-radius: var(--radius-xl);">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(0, 210, 106, 0.12); border: 1px solid var(--emerald-border); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 16px auto;">
+              📱
+            </div>
+            <h3 style="color: #FFF; font-weight: 800; font-size: 1.25rem; margin-bottom: 8px;">No Trade-In Phone Listed Yet</h3>
+            <p style="font-size: 0.88rem; color: var(--text-dim); max-width: 440px; margin: 0 auto 24px auto; line-height: 1.6;">
+              List your phone once with its specifications, battery health, and inspection photos. You will then be able to trade it in for any verified phone across the marketplace in one click!
+            </p>
+            <button type="button" class="btn-primary-action" id="btnEmptyAddDevice" style="padding: 12px 28px; font-weight: 700; margin: 0 auto; display: inline-flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>+ List Your Phone Now</span>
+            </button>
+          </div>
+        `;
+
+        const btnEmpty = document.getElementById('btnEmptyAddDevice');
+        if (btnEmpty) btnEmpty.addEventListener('click', openAddDeviceModal);
+        return;
+      }
+
+      let html = '<div class="swaps-cards-stack fade-in-content">';
+      devices.forEach(dev => {
+        const photos = Array.isArray(dev.deviceMedia) ? dev.deviceMedia : [];
+        const mainPhoto = photos[0]?.dataUrl || '';
+        const createdDate = dev.createdAt ? new Date(dev.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recently';
+
+        const triage = dev.conditionTriage || {};
+        const triagePills = [];
+        if (triage.powerAndScreen !== false) triagePills.push('<span style="color: var(--emerald-400);">✓ Display Working</span>');
+        if (triage.screenGlass === false) triagePills.push('<span style="color: var(--emerald-400);">✓ No Screen Cracks</span>');
+        if (triage.bodyAndHousing === false) triagePills.push('<span style="color: var(--emerald-400);">✓ Clean Housing</span>');
+        if (triage.hardwareFunctionality !== false) triagePills.push('<span style="color: var(--emerald-400);">✓ Cameras & FaceID OK</span>');
+        if (dev.repairHistory) triagePills.push(`<span style="color: var(--cyan-400);">🔧 ${escapeHtml(dev.repairHistory)}</span>`);
+        if (dev.inclusions && dev.inclusions !== 'Device Only') triagePills.push(`<span style="color: #fbbf24;">📦 ${escapeHtml(dev.inclusions)}</span>`);
+
+        html += `
+          <div class="swap-tracker-card" data-device-id="${escapeHtml(dev.id)}">
+            <!-- Top Bar -->
+            <div class="swap-card-topbar">
+              <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span class="swap-id-tag">SAVED TRADE-IN DEVICE</span>
+                <span class="swap-date-text">• Added ${createdDate}</span>
+              </div>
+              <span class="status-badge status-accepted" style="background: rgba(0,210,106,0.12); color: var(--emerald-400); border-color: var(--emerald-border);">
+                Ready for Swap
+              </span>
+            </div>
+
+            <!-- Device Specs Header -->
+            <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap;">
+              <div style="width: 64px; height: 64px; border-radius: var(--radius-md); background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 2rem; flex-shrink: 0; overflow: hidden;">
+                ${mainPhoto ? `<img src="${escapeHtml(mainPhoto)}" alt="${escapeHtml(dev.model)}" style="width:100%;height:100%;object-fit:cover;">` : '📱'}
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #FFF; margin: 0 0 4px 0;">${escapeHtml(dev.brand || '')} ${escapeHtml(dev.model)}</h3>
+                <div style="display: flex; gap: 8px; font-size: 0.82rem; color: var(--text-dim); flex-wrap: wrap; align-items: center;">
+                  <span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px; color: #FFF; font-weight: 600;">${escapeHtml(dev.storageCapacity || dev.storage || '128GB')}</span>
+                  ${dev.color ? `<span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px; color: #FFF; font-weight: 600;">${escapeHtml(dev.color)}</span>` : ''}
+                  ${dev.ram ? `<span style="background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px; color: #FFF; font-weight: 600;">${escapeHtml(dev.ram)} RAM</span>` : ''}
+                  <span style="color: var(--emerald-400); font-weight: 700;">🔋 ${escapeHtml(dev.batteryHealth || '90%')} Battery</span>
+                  <span style="background: rgba(0,210,106,0.1); border: 1px solid var(--emerald-border); color: var(--emerald-400); padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.76rem;">${escapeHtml(dev.carrierLock || 'Factory Unlocked')}</span>
+                  <span style="color: var(--cyan-400); font-weight: 600;">• ${escapeHtml(dev.condition || 'Excellent')}</span>
+                </div>
+                ${dev.imeiNumber ? `
+                  <div style="font-size: 0.76rem; color: var(--text-faint); margin-top: 6px; font-family: monospace;">
+                    IMEI: ${escapeHtml(dev.imeiNumber)}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Triage Checks Summary -->
+            ${triagePills.length > 0 ? `
+              <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 14px; display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.78rem; font-weight: 600;">
+                ${triagePills.join('<span style="color: var(--text-faint);">|</span>')}
+              </div>
+            ` : ''}
+
+            <!-- Attached Media Previews -->
+            ${photos.length > 0 ? `
+              <div style="margin-bottom: 16px;">
+                <span style="font-size: 0.74rem; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">
+                  Inspection Photos & Videos (${photos.length} files)
+                </span>
+                <div class="swap-thumbnails-row">
+                  ${photos.map((media, idx) => `
+                    <div class="swap-thumb-item">
+                      ${media.isVideo ? `
+                        <video src="${escapeHtml(media.dataUrl)}"></video>
+                        <span class="swap-thumb-video-badge">▶ Video</span>
+                      ` : `
+                        <img src="${escapeHtml(media.dataUrl)}" alt="Device photo ${idx + 1}">
+                      `}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- Actions Footer -->
+            <div class="swap-actions-footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <button type="button" class="btn-action-sm btn-delete-device" data-id="${escapeHtml(dev.id)}" style="background: rgba(244,63,94,0.08); border: 1px solid var(--rose-border); color: var(--rose-400); padding: 8px 16px; border-radius: var(--radius-md); font-weight: 600; cursor: pointer;">
+                Delete Phone
+              </button>
+
+              <a href="dashboard.html" class="btn-primary-action" style="text-decoration: none; padding: 8px 18px; font-size: 0.86rem; font-weight: 700; border-radius: var(--radius-md); display: inline-flex; align-items: center; gap: 6px;">
+                <span>Browse Phones to Swap &rarr;</span>
+              </a>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+
+      userDevicesListContainer.innerHTML = html;
+
+      // Bind delete device buttons
+      userDevicesListContainer.querySelectorAll('.btn-delete-device').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const devId = e.currentTarget.dataset.id;
+          if (confirm('Are you sure you want to remove this listed phone?')) {
+            NaijaSwapData.deleteUserDevice(devId);
+            renderMyDevices();
+          }
+        });
+      });
+    }
+
+    // =========================================================================
+    // ADD DEVICE MODAL & FORM CONTROLLER
+    // =========================================================================
+    const addDeviceModal = document.getElementById('addDeviceModal');
+    const closeAddDeviceModal = document.getElementById('closeAddDeviceModal');
+    const btnCancelAddDevice = document.getElementById('btnCancelAddDevice');
+    const addDeviceForm = document.getElementById('addDeviceForm');
+
+    const deviceBrand = document.getElementById('deviceBrand');
+    const deviceModel = document.getElementById('deviceModel');
+    const deviceStorage = document.getElementById('deviceStorage');
+    const deviceRamGroup = document.getElementById('deviceRamGroup');
+    const deviceBatteryHint = document.getElementById('deviceBatteryHint');
+    const deviceCustomBrandGroup = document.getElementById('deviceCustomBrandGroup');
+    const deviceCustomBrand = document.getElementById('deviceCustomBrand');
+    const deviceCustomModelGroup = document.getElementById('deviceCustomModelGroup');
+    const deviceCustomModel = document.getElementById('deviceCustomModel');
+    const deviceCustomStorageGroup = document.getElementById('deviceCustomStorageGroup');
+    const deviceCustomStorage = document.getElementById('deviceCustomStorage');
+
+    const deviceDropzone = document.getElementById('deviceDropzone');
+    const deviceMediaInput = document.getElementById('deviceMediaInput');
+    const deviceUploadProgress = document.getElementById('deviceUploadProgress');
+    const deviceProgressFill = document.getElementById('deviceProgressFill');
+    const devicePreviewsGrid = document.getElementById('devicePreviewsGrid');
+    const deviceMediaCounter = document.getElementById('deviceMediaCounter');
+
+    const devTriage = {
+      powerAndScreen: true,
+      screenGlass: false,
+      bodyAndHousing: false,
+      hardwareFunctionality: true
+    };
+
+    let devUploadedFiles = [];
+
+    function openAddDeviceModal() {
+      if (addDeviceModal) {
+        addDeviceModal.style.display = 'flex';
+        addDeviceModal.classList.add('active');
+      }
+    }
+
+    function closeAddDeviceModalFn() {
+      if (addDeviceModal) {
+        addDeviceModal.style.display = 'none';
+        addDeviceModal.classList.remove('active');
+      }
+    }
+
+    if (btnAddDeviceHeaderBtn) {
+      btnAddDeviceHeaderBtn.addEventListener('click', openAddDeviceModal);
+    }
+    if (closeAddDeviceModal) {
+      closeAddDeviceModal.addEventListener('click', closeAddDeviceModalFn);
+    }
+    if (btnCancelAddDevice) {
+      btnCancelAddDevice.addEventListener('click', closeAddDeviceModalFn);
+    }
+    if (addDeviceModal) {
+      addDeviceModal.addEventListener('click', (e) => {
+        if (e.target === addDeviceModal) closeAddDeviceModalFn();
+      });
+    }
+
+    function updateDevMediaCounter() {
+      if (deviceMediaCounter) {
+        deviceMediaCounter.textContent = `${devUploadedFiles.length} / 5 files`;
+      }
+    }
+
+    function initAddDeviceForm() {
+      if (!deviceBrand) return;
+
+      const brands = NaijaSwapData.getBrands();
+      deviceBrand.innerHTML = '<option value="" disabled selected>-- Select Brand --</option>' +
+        brands.map(b => `<option value="${b}">${b}</option>`).join('') +
+        '';
+
+      deviceBrand.addEventListener('change', () => {
+        const brand = deviceBrand.value;
+        if (brand === 'Other') {
+          if (deviceCustomBrandGroup) deviceCustomBrandGroup.style.display = 'block';
+          deviceModel.disabled = false;
+          deviceModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone (Type below)</option>';
+          if (deviceCustomModelGroup) deviceCustomModelGroup.style.display = 'block';
+        } else {
+          if (deviceCustomBrandGroup) deviceCustomBrandGroup.style.display = 'none';
+          const models = NaijaSwapData.getModelsForBrand(brand);
+          deviceModel.disabled = false;
+          if (models.length > 0) {
+            deviceModel.innerHTML = '<option value="" disabled selected>-- Select Model --</option>' +
+              models.map(m => `<option value="${m}">${m}</option>`).join('') +
+              '<option value="Other Model">Other Model (Type custom)</option>';
+          } else {
+            deviceModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone</option>';
+          }
+          if (deviceCustomModelGroup) deviceCustomModelGroup.style.display = 'none';
+        }
+
+        const isAndroid = NaijaSwapData.isAndroid(brand);
+        if (deviceRamGroup) {
+          deviceRamGroup.style.display = isAndroid ? 'block' : 'none';
+        }
+        if (deviceBatteryHint) {
+          deviceBatteryHint.textContent = isAndroid 
+            ? 'Estimate approximate battery health capacity %'
+            : 'Settings > Battery > Battery Health (Maximum Capacity %)';
+        }
+      });
+
+      deviceModel.addEventListener('change', () => {
+        const val = deviceModel.value;
+        if (val === 'Other Model' || val === 'Other Smartphone') {
+          if (deviceCustomModelGroup) deviceCustomModelGroup.style.display = 'block';
+        } else {
+          if (deviceCustomModelGroup) deviceCustomModelGroup.style.display = 'none';
+        }
+      });
+
+      if (deviceStorage) {
+        deviceStorage.addEventListener('change', () => {
+          if (deviceStorage.value === 'Other') {
+            if (deviceCustomStorageGroup) deviceCustomStorageGroup.style.display = 'block';
+          } else {
+            if (deviceCustomStorageGroup) deviceCustomStorageGroup.style.display = 'none';
+          }
+        });
+      }
+
+      // Segmented Triage Switches
+      setupDevSegmentedSwitch('switchDevPowerScreen', 'powerAndScreen', true);
+      setupDevSegmentedSwitch('switchDevScreenGlass', 'screenGlass', false);
+      setupDevSegmentedSwitch('switchDevBodyHousing', 'bodyAndHousing', false);
+      setupDevSegmentedSwitch('switchDevHardware', 'hardwareFunctionality', true);
+
+      // Media Dropzone
+      if (deviceDropzone && deviceMediaInput) {
+        deviceDropzone.addEventListener('click', () => deviceMediaInput.click());
+        deviceMediaInput.addEventListener('change', (e) => handleDevMediaFiles(e.target.files));
+
+        deviceDropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          deviceDropzone.classList.add('dragover');
+        });
+        deviceDropzone.addEventListener('dragleave', () => {
+          deviceDropzone.classList.remove('dragover');
+        });
+        deviceDropzone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          deviceDropzone.classList.remove('dragover');
+          handleDevMediaFiles(e.dataTransfer.files);
+        });
+      }
+
+      // Add Device Form Submit
+      if (addDeviceForm) {
+        addDeviceForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const brand = (deviceBrand.value === 'Other' && deviceCustomBrand?.value.trim()) 
+            ? deviceCustomBrand.value.trim() 
+            : deviceBrand.value;
+          const isCustomModel = deviceModel.value === 'Other Model' || deviceModel.value === 'Other Smartphone';
+          const model = (isCustomModel && deviceCustomModel?.value.trim()) 
+            ? deviceCustomModel.value.trim() 
+            : deviceModel.value;
+
+          if (!brand || !model || model.includes('--')) {
+            alert('Please select or specify your phone Brand and Model.');
+            return;
+          }
+
+          const storageCapacity = (deviceStorage.value === 'Other' && deviceCustomStorage?.value.trim())
+            ? deviceCustomStorage.value.trim()
+            : deviceStorage.value;
+          const color = document.getElementById('deviceColor')?.value.trim() || 'Standard';
+          const ram = (NaijaSwapData.isAndroid(brand) && document.getElementById('deviceRam')) 
+            ? document.getElementById('deviceRam').value 
+            : '';
+          const imeiNumber = document.getElementById('deviceImei')?.value.trim() || '';
+          const batteryHealth = parseInt(document.getElementById('deviceBatteryHealth')?.value) || 90;
+          const carrierLock = document.getElementById('deviceCarrierLock')?.value || 'Factory Unlocked';
+          const repairHistory = document.getElementById('deviceRepairHistory')?.value || 'All Original (Never Repaired)';
+          const inclusions = document.getElementById('deviceInclusions')?.value || 'Device Only';
+          const accountCleanCheck = document.getElementById('deviceAccountCleanCheck')?.checked !== false;
+
+          const triagePayload = {
+            powerAndScreen: devTriage.powerAndScreen,
+            screenGlass: devTriage.screenGlass,
+            bodyAndHousing: devTriage.bodyAndHousing,
+            hardwareFunctionality: devTriage.hardwareFunctionality,
+            batteryHealth,
+            carrierLock,
+            repairHistory,
+            inclusions,
+            accountCleanCheck
+          };
+
+          const condition = !triagePayload.powerAndScreen || !triagePayload.hardwareFunctionality
+            ? 'Damaged'
+            : triagePayload.screenGlass || triagePayload.bodyAndHousing
+              ? 'Fair'
+              : 'Excellent';
+
+          NaijaSwapData.addUserDevice(currentUserId, {
+            brand,
+            model,
+            storageCapacity,
+            color,
+            ram,
+            condition,
+            batteryHealth: `${batteryHealth}%`,
+            carrierLock,
+            repairHistory,
+            inclusions,
+            accountCleanCheck,
+            imeiNumber,
+            conditionTriage: triagePayload,
+            deviceMedia: devUploadedFiles,
+            contactPhone: ''
+          });
+
+          addDeviceForm.reset();
+          devUploadedFiles = [];
+          if (devicePreviewsGrid) devicePreviewsGrid.innerHTML = '';
+          if (deviceCustomBrandGroup) deviceCustomBrandGroup.style.display = 'none';
+          if (deviceCustomModelGroup) deviceCustomModelGroup.style.display = 'none';
+          if (deviceCustomStorageGroup) deviceCustomStorageGroup.style.display = 'none';
+          updateDevMediaCounter();
+
+          closeAddDeviceModalFn();
+          switchViewTab('devices');
+        });
+      }
+    }
+
+    function setupDevSegmentedSwitch(switchId, triageKey, positiveIsYes) {
+      const container = document.getElementById(switchId);
+      if (!container) return;
+      const btns = container.querySelectorAll('.segmented-option-btn');
+
+      btns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          btns.forEach(b => b.classList.remove('active-yes', 'active-no'));
+          const val = btn.dataset.val === 'yes';
+          devTriage[triageKey] = val;
+
+          if (positiveIsYes) {
+            btn.classList.add(val ? 'active-yes' : 'active-no');
+          } else {
+            btn.classList.add(val ? 'active-no' : 'active-yes');
+          }
+        });
+      });
+    }
+
+    function handleDevMediaFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+      const remainingSlots = 5 - devUploadedFiles.length;
+      if (remainingSlots <= 0) {
+        alert('You can only upload up to 5 photos and videos.');
+        return;
+      }
+
+      const filesToAdd = Array.from(fileList).slice(0, remainingSlots);
+
+      if (deviceUploadProgress && deviceProgressFill) {
+        deviceUploadProgress.style.display = 'block';
+        deviceProgressFill.style.width = '0%';
+        setTimeout(() => { deviceProgressFill.style.width = '60%'; }, 100);
+        setTimeout(() => { deviceProgressFill.style.width = '100%'; }, 250);
+        setTimeout(() => { deviceUploadProgress.style.display = 'none'; }, 400);
+      }
+
+      filesToAdd.forEach(file => {
+        const reader = new FileReader();
+        const isVideo = file.type.startsWith('video/');
+        reader.onload = (e) => {
+          const fileData = {
+            name: file.name,
+            size: (file.size < 1024 * 1024) ? `${(file.size / 1024).toFixed(0)} KB` : `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+            type: file.type,
+            isVideo,
+            dataUrl: e.target.result
+          };
+          devUploadedFiles.push(fileData);
+          updateDevMediaCounter();
+          renderDevPreviewItem(fileData, devUploadedFiles.length - 1);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderDevPreviewItem(fileData, index) {
+      const card = document.createElement('div');
+      card.className = 'preview-item-card';
+
+      if (fileData.isVideo) {
+        card.innerHTML = `
+          <div class="preview-video-box" style="width: 80px; height: 80px; background: rgba(0,0,0,0.5); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span style="font-size: 1.5rem;">🎥</span>
+            <span style="font-size: 0.68rem; color: #FFF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70px;">${escapeHtml(fileData.name)}</span>
+          </div>
+          <button type="button" class="preview-remove-btn" title="Remove" style="position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: #EF4444; color: #FFF; border: none; cursor: pointer; font-size: 0.8rem; line-height: 1;">&times;</button>
+        `;
+      } else {
+        card.innerHTML = `
+          <div style="position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; border: 1px solid var(--glass-border);">
+            <img src="${fileData.dataUrl}" alt="${escapeHtml(fileData.name)}" style="width: 100%; height: 100%; object-fit: cover;">
+            <button type="button" class="preview-remove-btn" title="Remove" style="position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.7); color: #FFF; border: none; cursor: pointer; font-size: 0.8rem; line-height: 1;">&times;</button>
+          </div>
+        `;
+      }
+
+      card.querySelector('.preview-remove-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        devUploadedFiles = devUploadedFiles.filter((_, i) => i !== index);
+        refreshDevPreviews();
+      });
+
+      if (devicePreviewsGrid) devicePreviewsGrid.appendChild(card);
+    }
+
+    function refreshDevPreviews() {
+      if (devicePreviewsGrid) devicePreviewsGrid.innerHTML = '';
+      devUploadedFiles.forEach((item, idx) => {
+        renderDevPreviewItem(item, idx);
+      });
+      updateDevMediaCounter();
+    }
 
     // Filter bar tab listeners
     if (swapFilterBar) {
@@ -1822,443 +2836,6 @@
         });
       });
     }
-
-    // Auth readiness triggers the first data render.
-
-    // Setup Form Brand & Models
-    function populateBrands() {
-      const brands = NaijaSwapData.getBrands();
-      if (!consumerBrand) return;
-      consumerBrand.innerHTML = '<option value="" disabled selected>-- Select Brand --</option>';
-      brands.forEach(b => {
-        const opt = document.createElement('option');
-        opt.value = b;
-        opt.textContent = b;
-        consumerBrand.appendChild(opt);
-      });
-    }
-
-    function setupBrandModelLinks() {
-      if (consumerBrand && consumerModel) {
-        consumerBrand.addEventListener('change', () => {
-          const brand = consumerBrand.value;
-          if (brand === 'Other') {
-            consumerCustomBrandGroup.style.display = 'block';
-            consumerCustomBrand.required = true;
-            consumerModel.innerHTML = '<option value="Other" selected>Other Model (Type custom)</option>';
-            consumerModel.disabled = false;
-            consumerCustomModelGroup.style.display = 'block';
-            consumerCustomModel.required = true;
-            if (consumerRamGroup) consumerRamGroup.style.display = 'block';
-            return;
-          }
-
-          consumerCustomBrandGroup.style.display = 'none';
-          consumerCustomBrand.required = false;
-
-          const models = NaijaSwapData.getModelsForBrand(brand);
-          consumerModel.innerHTML = '<option value="" disabled selected>-- Select Model --</option>';
-          models.forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m;
-            opt.textContent = m;
-            consumerModel.appendChild(opt);
-          });
-          const otherModelOpt = document.createElement('option');
-          otherModelOpt.value = 'Other';
-          otherModelOpt.textContent = 'Other Model (Type custom)';
-          consumerModel.appendChild(otherModelOpt);
-
-          consumerModel.disabled = false;
-          consumerCustomModelGroup.style.display = 'none';
-          consumerCustomModel.required = false;
-
-          if (consumerRamGroup) {
-            consumerRamGroup.style.display = NaijaSwapData.isAndroid(brand) ? 'block' : 'none';
-          }
-        });
-
-        consumerModel.addEventListener('change', () => {
-          if (consumerModel.value === 'Other') {
-            consumerCustomModelGroup.style.display = 'block';
-            consumerCustomModel.required = true;
-          } else {
-            consumerCustomModelGroup.style.display = 'none';
-            consumerCustomModel.required = false;
-          }
-        });
-      }
-
-      if (consumerStorage) {
-        consumerStorage.addEventListener('change', () => {
-          if (consumerStorage.value === 'Other') {
-            consumerCustomStorageGroup.style.display = 'block';
-            consumerCustomStorage.required = true;
-          } else {
-            consumerCustomStorageGroup.style.display = 'none';
-            consumerCustomStorage.required = false;
-          }
-        });
-      }
-
-    }
-
-    // Segmented Switch Triage
-    function setupSegmentedSwitch(switchId, triageKey, positiveIsYes) {
-      const container = document.getElementById(switchId);
-      if (!container) return;
-      const btns = container.querySelectorAll('.segmented-option-btn');
-
-      btns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          btns.forEach(b => b.classList.remove('active-yes', 'active-no'));
-          const val = btn.dataset.val === 'yes';
-          consumerTriage[triageKey] = val;
-
-          if (positiveIsYes) {
-            btn.classList.add(val ? 'active-yes' : 'active-no');
-          } else {
-            btn.classList.add(val ? 'active-no' : 'active-yes');
-          }
-        });
-      });
-    }
-
-    // Unified Media Uploads Handling (Max 5 files)
-    function setupConsumerDropzone() {
-      if (!consumerDropzone || !consumerMediaInput) return;
-      consumerDropzone.addEventListener('click', () => {
-        if (!isPublishingSwapperListing) consumerMediaInput.click();
-      });
-
-      consumerMediaInput.addEventListener('change', (e) => {
-        handleMediaFiles(e.target.files);
-        consumerMediaInput.value = '';
-      });
-
-      consumerDropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        consumerDropzone.classList.add('dragover');
-      });
-      consumerDropzone.addEventListener('dragleave', () => {
-        consumerDropzone.classList.remove('dragover');
-      });
-      consumerDropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        consumerDropzone.classList.remove('dragover');
-        handleMediaFiles(e.dataTransfer.files);
-      });
-    }
-
-    function handleMediaFiles(fileList) {
-      if (isPublishingSwapperListing || !fileList || fileList.length === 0) return;
-
-      const remainingSlots = 5 - consumerUploadedFiles.length - consumerPendingFiles;
-      if (remainingSlots <= 0) {
-        alert('You have already attached the maximum limit of 5 media files.');
-        return;
-      }
-
-      const filesToProcess = Array.from(fileList).slice(0, remainingSlots);
-      if (fileList.length > remainingSlots) {
-        alert(`You can only add ${remainingSlots} more file(s). (Max 5 files total)`);
-      }
-
-      const supportedFiles = filesToProcess.filter(file => {
-        const supported = /^(image|video)\//.test(file.type);
-        if (!supported) alert(`${file.name} is not a supported image or video.`);
-        return supported;
-      });
-      if (supportedFiles.length === 0) return;
-
-      let processedCount = 0;
-      supportedFiles.forEach(file => {
-        consumerPendingFiles += 1;
-        updateConsumerMediaCounter();
-        const reader = new FileReader();
-        const isVideo = file.type.startsWith('video/');
-
-        reader.onload = (event) => {
-          consumerPendingFiles -= 1;
-          if (typeof event.target.result !== 'string') {
-            updateConsumerMediaCounter();
-            alert(`Could not read ${file.name}. Please choose the file again.`);
-            return;
-          }
-          consumerUploadedFiles.push({
-            name: file.name,
-            size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
-            type: file.type,
-            isVideo,
-            dataUrl: event.target.result,
-            uploadedUrl: ''
-          });
-
-          processedCount++;
-          if (processedCount === supportedFiles.length) {
-            renderConsumerPreviews();
-          } else {
-            updateConsumerMediaCounter();
-          }
-        };
-        reader.onerror = () => {
-          consumerPendingFiles -= 1;
-          processedCount += 1;
-          updateConsumerMediaCounter();
-          alert(`Could not read ${file.name}. Please choose the file again.`);
-          if (processedCount === supportedFiles.length) renderConsumerPreviews();
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function renderConsumerPreviews() {
-      if (!consumerPreviewsGrid) return;
-      consumerPreviewsGrid.innerHTML = '';
-      updateConsumerMediaCounter();
-
-      consumerUploadedFiles.forEach((file, index) => {
-        const card = document.createElement('div');
-        card.className = 'media-preview-card';
-        card.innerHTML = `
-          <button type="button" class="preview-remove-btn" aria-label="Remove media" data-index="${index}">&times;</button>
-          ${file.isVideo ? `
-            <div class="video-placeholder">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            </div>
-            <div class="preview-meta">
-              <span class="preview-name">${escapeHtml(file.name)}</span>
-              <span class="preview-badge badge-video">${escapeHtml(file.size)}</span>
-            </div>
-          ` : `
-            <img src="${escapeHtml(file.dataUrl)}" alt="Preview ${index + 1}" class="preview-img">
-            <div class="preview-meta">
-              <span class="preview-name">${escapeHtml(file.name)}</span>
-              <span class="preview-badge badge-photo">${escapeHtml(file.size)}</span>
-            </div>
-          `}
-        `;
-        consumerPreviewsGrid.appendChild(card);
-      });
-
-      consumerPreviewsGrid.querySelectorAll('.preview-remove-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (isPublishingSwapperListing) return;
-          const idx = parseInt(btn.dataset.index, 10);
-          consumerUploadedFiles.splice(idx, 1);
-          renderConsumerPreviews();
-        });
-      });
-    }
-
-    function updateConsumerMediaCounter() {
-      if (!consumerMediaCounter) return;
-      consumerMediaCounter.textContent = `${consumerUploadedFiles.length + consumerPendingFiles} / 5 files`;
-      if (consumerUploadedFiles.length + consumerPendingFiles >= 5) {
-        consumerMediaCounter.style.background = 'rgba(0, 210, 106, 0.2)';
-        consumerMediaCounter.style.color = 'var(--emerald-400)';
-      } else {
-        consumerMediaCounter.style.background = 'rgba(255, 255, 255, 0.08)';
-        consumerMediaCounter.style.color = '#FFF';
-      }
-    }
-
-    // Modal Events
-    if (openSwapModalBtn) {
-      openSwapModalBtn.addEventListener('click', () => {
-        if (consumerSwapModal) consumerSwapModal.classList.add('active');
-      });
-    }
-    const floatingSwapBtn = document.getElementById('floatingSwapBtn');
-    if (floatingSwapBtn) {
-      floatingSwapBtn.addEventListener('click', () => {
-        if (consumerSwapModal) consumerSwapModal.classList.add('active');
-      });
-    }
-    if (closeConsumerModal) {
-      closeConsumerModal.addEventListener('click', () => {
-        if (!isPublishingSwapperListing && consumerSwapModal) consumerSwapModal.classList.remove('active');
-      });
-    }
-    if (consumerSwapModal) {
-      consumerSwapModal.addEventListener('click', (e) => {
-        if (e.target === consumerSwapModal && !isPublishingSwapperListing) consumerSwapModal.classList.remove('active');
-      });
-    }
-
-    // Publish this phone as an active dealer-facing listing, not as a technician swap request.
-    if (consumerSwapForm) {
-      consumerSwapForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (isPublishingSwapperListing) return;
-
-        const brand = consumerBrand.value === 'Other' ? consumerCustomBrand.value.trim() : consumerBrand.value;
-        const model = consumerModel.value === 'Other' ? consumerCustomModel.value.trim() : consumerModel.value;
-        const storage = consumerStorage.value === 'Other' ? consumerCustomStorage.value.trim() : consumerStorage.value;
-        const imei = consumerImei.value.trim();
-        const batteryHealth = Number(consumerBatteryHealth.value);
-        if (!['Apple', 'Samsung'].includes(brand)) {
-          alert('Only Apple and Samsung phones can currently be listed for dealers.');
-          return;
-        }
-        if (!model || !storage) {
-          alert('Please select or enter your phone model and storage.');
-          return;
-        }
-        if (!Number.isInteger(batteryHealth) || batteryHealth < 1 || batteryHealth > 100) {
-          alert('Battery health must be between 1 and 100%.');
-          return;
-        }
-        if (consumerPendingFiles > 0) {
-          alert('Please wait for the selected media to finish loading before publishing.');
-          return;
-        }
-        if (!consumerUploadedFiles.some(file => !file.isVideo)) {
-          alert('Add at least one phone photo before publishing your listing.');
-          return;
-        }
-        if (!auth.currentUser) {
-          alert('Your sign-in session has expired. Sign in again, then submit your listing.');
-          return;
-        }
-
-        const contactPhone = consumerPhoneInput.value.trim();
-        const location = consumerListingLocation.value.trim();
-        const color = consumerColorInput.value.trim();
-        const ram = consumerRamGroup && consumerRamGroup.style.display !== 'none' ? consumerRam.value : '';
-        const carrierLock = consumerCarrierLock.value;
-        const conditionTriage = {
-          powerAndScreen: consumerTriage.powerAndScreen,
-          screenGlass: consumerTriage.screenGlass,
-          bodyAndHousing: consumerTriage.bodyAndHousing,
-          hardwareFunctionality: consumerTriage.hardwareFunctionality
-        };
-        const condition = !conditionTriage.powerAndScreen || !conditionTriage.hardwareFunctionality
-          ? 'Damaged'
-          : conditionTriage.screenGlass || conditionTriage.bodyAndHousing
-            ? 'Fair'
-            : 'Excellent';
-        const submitBtn = document.getElementById('submitConsumerSwapBtn');
-        isPublishingSwapperListing = true;
-        if (consumerMediaInput) consumerMediaInput.disabled = true;
-        setButtonLoading(submitBtn, true, 'Verifying & Publishing...');
-        try {
-          if (consumerUploadProgress) consumerUploadProgress.style.display = 'block';
-          if (consumerProgressLabel) consumerProgressLabel.textContent = 'Verifying your phone...';
-          if (consumerProgressPct) consumerProgressPct.textContent = '0%';
-          if (consumerProgressBar) consumerProgressBar.style.width = '0%';
-          if (consumerProgressTrack) consumerProgressTrack.setAttribute('aria-valuenow', '0');
-
-          const verification = await verifyDeviceIMEIBackend(imei);
-          if (!verification.valid) {
-            throw new Error(verification.error || 'Phone verification failed.');
-          }
-
-          const mediaFiles = [];
-          for (let index = 0; index < consumerUploadedFiles.length; index += 1) {
-            const file = consumerUploadedFiles[index];
-            if (!file.uploadedUrl) {
-              file.uploadedUrl = await uploadToCloudinary(
-                file.dataUrl,
-                `naijaswap/${currentUserId}/swapper-listings`,
-                (loaded, total) => {
-                  const percent = Math.min(100, Math.round((loaded / total) * 100));
-                  if (consumerProgressLabel) {
-                    consumerProgressLabel.textContent = `Uploading ${index + 1} of ${consumerUploadedFiles.length}: ${file.name}`;
-                  }
-                  if (consumerProgressPct) consumerProgressPct.textContent = `${percent}%`;
-                  if (consumerProgressBar) consumerProgressBar.style.width = `${percent}%`;
-                  if (consumerProgressTrack) consumerProgressTrack.setAttribute('aria-valuenow', String(percent));
-                }
-              );
-              if (typeof file.uploadedUrl !== 'string' || !file.uploadedUrl.startsWith('https://res.cloudinary.com/')) {
-                throw new Error(`The upload for ${file.name} did not return a public media URL.`);
-              }
-            }
-            mediaFiles.push({
-              name: file.name,
-              type: file.type,
-              isVideo: file.isVideo,
-              dataUrl: file.uploadedUrl
-            });
-          }
-
-          if (consumerProgressLabel) consumerProgressLabel.textContent = 'Publishing your listing for dealers...';
-          if (consumerProgressPct) consumerProgressPct.textContent = '100%';
-          if (consumerProgressBar) consumerProgressBar.style.width = '100%';
-          if (consumerProgressTrack) consumerProgressTrack.setAttribute('aria-valuenow', '100');
-
-          const result = await createSwapperListingBackend({
-            imei,
-            contactPhone,
-            device: {
-              brand,
-              model,
-              storage,
-              ram,
-              condition,
-              conditionGrade: condition,
-              batteryHealth,
-              color,
-              carrierLock,
-              conditionTriage,
-              location
-            },
-            mediaFiles
-          });
-          if (!result.listingId) throw new Error('Your phone could not be published. Please try again.');
-
-          consumerSwapForm.reset();
-          consumerUploadedFiles = [];
-          consumerPendingFiles = 0;
-          if (consumerPreviewsGrid) consumerPreviewsGrid.innerHTML = '';
-          if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'none';
-          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
-          if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'none';
-          if (consumerRamGroup) consumerRamGroup.style.display = 'none';
-          Object.assign(consumerTriage, {
-            powerAndScreen: true,
-            screenGlass: false,
-            bodyAndHousing: false,
-            hardwareFunctionality: true
-          });
-          [
-            ['triagePowerSwitch', true],
-            ['triageScreenSwitch', false],
-            ['triageBodySwitch', false],
-            ['triageHardwareSwitch', true]
-          ].forEach(([switchId, defaultYes]) => {
-            document.getElementById(switchId)?.querySelectorAll('.segmented-option-btn').forEach(button => {
-              const value = button.dataset.val === 'yes';
-              button.classList.toggle('active-yes', value === defaultYes);
-              button.classList.toggle('active-no', value !== defaultYes);
-            });
-          });
-          updateConsumerMediaCounter();
-          if (consumerSwapModal) consumerSwapModal.classList.remove('active');
-          alert('Your phone is now live and visible to dealers only. Dealers can contact you using the number you provided.');
-        } catch (error) {
-          console.error('[NaijaSwap] Swapper listing publish failed:', error);
-          alert(`${error.message || 'Your phone could not be published.'} Your form and uploaded files are still here; submit again to retry.`);
-        } finally {
-          isPublishingSwapperListing = false;
-          if (consumerMediaInput) consumerMediaInput.disabled = false;
-          setButtonLoading(submitBtn, false);
-          if (consumerUploadProgress) consumerUploadProgress.style.display = 'none';
-        }
-      });
-    }
-
-    // Setup helper items
-    populateBrands();
-    setupBrandModelLinks();
-    setupSegmentedSwitch('triagePowerSwitch', 'powerAndScreen', true);
-    setupSegmentedSwitch('triageScreenSwitch', 'screenGlass', false);
-    setupSegmentedSwitch('triageBodySwitch', 'bodyAndHousing', false);
-    setupSegmentedSwitch('triageHardwareSwitch', 'hardwareFunctionality', true);
-    setupConsumerDropzone();
 
     // User Dropdown & Notifications
     if (userMenuBtn && userDropdown) {
@@ -2291,7 +2868,10 @@
     }
 
     // Initial load
+    initAddDeviceForm();
     renderSwaps();
+    const initDevs = NaijaSwapData.getUserDevices(currentUserId) || [];
+    if (tabCountDevices) tabCountDevices.textContent = initDevs.length;
   </script>
 </body>
 </html>

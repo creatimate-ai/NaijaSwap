@@ -34,6 +34,5 @@ Disallow: /phone-auth.html
 Disallow: /dealer-listing.html
 Disallow: /dealer-request.html
 Disallow: /dealer-activities.html
-Disallow: /api/
 
 Sitemap: https://naijaswap.web.app/sitemap.xml

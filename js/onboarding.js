@@ -249,24 +249,13 @@ function getSwapperStepsHTML() {
       </div>
     </div>
 
-    <!-- STEP 3: EXPLORE OR LIST PHONE (FINAL STEP) -->
+    <!-- STEP 3: EXPLORE PHONES (FINAL STEP) -->
     <div class="onboarding-step-panel" data-step="3">
       <div class="onboarding-badge">🚀 Step 3 of 3 &bull; Ready to Swap</div>
-      <h2 class="onboarding-title">How would you like to start?</h2>
-      <p class="onboarding-subtitle">Your contact details are saved! Choose whether to explore available phones or list your device to receive direct trade offers.</p>
+      <h2 class="onboarding-title">Ready to find your next phone?</h2>
+      <p class="onboarding-subtitle">Your contact details are saved. Browse phones listed by verified dealers and submit a swap request for the one you want.</p>
 
       <div class="onboarding-choice-container" style="display: flex; flex-direction: column; gap: 14px; margin: 22px 0 24px 0;">
-        <!-- Option 1: Let us know the phone you have (Redirects to proper listing page) -->
-        <button type="button" class="launch-card-btn highlight" id="btnStep3ListPhone">
-          <div class="launch-icon">📱</div>
-          <div class="launch-info">
-            <strong>Let us know the phone you have</strong>
-            <span>Upload photos, specs & condition to list your phone properly &rarr;</span>
-          </div>
-          <div class="launch-arrow">&rarr;</div>
-        </button>
-
-        <!-- Option 2: Explore phones -->
         <button type="button" class="launch-card-btn" id="btnStep3Explore">
           <div class="launch-icon">🔍</div>
           <div class="launch-info">
@@ -498,7 +487,6 @@ function setupOnboardingWizardLogic(modal, user, role) {
     const btnStep2Back = modal.querySelector('#btnStep2Back');
     const btnStep2Next = modal.querySelector('#btnStep2Next');
     const btnStep3Back = modal.querySelector('#btnStep3Back');
-    const btnStep3ListPhone = modal.querySelector('#btnStep3ListPhone');
     const btnStep3Explore = modal.querySelector('#btnStep3Explore');
 
     const inputName = modal.querySelector('#obFullName');
@@ -580,24 +568,6 @@ function setupOnboardingWizardLogic(modal, user, role) {
           console.warn('[NaijaSwap Onboarding] Firestore completion note:', err.message);
         }
       }
-    }
-
-    // Button: "Let us know the phone you have" -> Redirect to proper listing page
-    if (btnStep3ListPhone) {
-      btnStep3ListPhone.addEventListener('click', async () => {
-        setButtonLoading(btnStep3ListPhone, true, 'Loading...');
-        try {
-          await finishSwapperOnboarding();
-          if (window.location.pathname.toLowerCase().includes('my-swaps')) {
-            const consumerModal = document.getElementById('consumerSwapModal');
-            if (consumerModal) consumerModal.classList.add('active');
-          } else {
-            window.location.href = 'my-swaps.html?action=new';
-          }
-        } finally {
-          setButtonLoading(btnStep3ListPhone, false);
-        }
-      });
     }
 
     // Button: "Explore Phones" -> Scroll to phonesGrid or redirect to dashboard.html#phonesGrid

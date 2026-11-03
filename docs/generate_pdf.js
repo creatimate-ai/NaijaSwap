@@ -195,8 +195,8 @@ const htmlContent = `<!DOCTYPE html>
     </div>
     <p style="margin:2px 0 4px 0;">Validates all user-entered 15-digit IMEI numbers (*#06# check) using the mathematical Luhn algorithm to reject fabricated, mistyped, or fake IMEI strings.</p>
     <ul>
-      <li>Blocks invalid or randomly generated IMEI entries at the server boundary.</li>
-      <li>Implementation: <span class="code-loc">api-server.js (verifyLuhnChecksum)</span> | <span class="code-loc">tests/api-server.test.js</span></li>
+      <li>Checks IMEI format and the 15-digit Luhn checksum in the browser before submitting.</li>
+      <li>Implementation: <span class="code-loc">js/backend-api.js (isValidImei)</span></li>
     </ul>
   </div>
 
@@ -205,22 +205,22 @@ const htmlContent = `<!DOCTYPE html>
       <span class="measure-name">National Stolen Device Blacklist Check</span>
       <span class="badge badge-anti-theft">Anti-Theft</span>
     </div>
-    <p style="margin:2px 0 4px 0;">Cross-references submitted IMEIs against Firestore stolen device registries (<code>stolenDevices</code> collection) and national carrier blacklist databases.</p>
+    <p style="margin:2px 0 4px 0;">Checks submitted IMEIs against the Firestore <code>stolenDevices</code> registry. No external carrier blacklist is queried.</p>
     <ul>
-      <li>Rejects flagged devices immediately with an HTTP 403 Forbidden alert.</li>
-      <li>Implementation: <span class="code-loc">api-server.js (/api/device/verify-imei)</span> | <span class="code-loc">firestore.rules (stolenDevices)</span></li>
+      <li>Rejects a flagged device in the browser; Firestore rules also block requests matching a blacklisted registry record.</li>
+      <li>Implementation: <span class="code-loc">js/backend-api.js</span> | <span class="code-loc">firestore.rules</span></li>
     </ul>
   </div>
 
   <div class="measure-card">
     <div class="measure-header">
-      <span class="measure-name">Active Swap Uniqueness / Duplicate Listing Lock</span>
+      <span class="measure-name">Duplicate IMEI Limitation</span>
       <span class="badge badge-anti-theft">Anti-Theft</span>
     </div>
-    <p style="margin:2px 0 4px 0;">Prevents an IMEI/serial from being listed in multiple pending or active swaps simultaneously to block parallel trading or double-swapping fraud.</p>
+    <p style="margin:2px 0 4px 0;">Direct client writes validate IMEI format and the stolen-device registry, but do not provide a global uniqueness lock for active swaps.</p>
     <ul>
-      <li>Queries active Firestore swap requests; returns HTTP 409 Conflict if duplicate detected.</li>
-      <li>Implementation: <span class="code-loc">api-server.js (lines 117-128)</span> | <span class="code-loc">functions/src/index.js (lines 281-288)</span></li>
+      <li>A trusted backend is required to enforce uniqueness across all users.</li>
+      <li>Implementation: <span class="code-loc">firestore.rules</span></li>
     </ul>
   </div>
 
@@ -249,7 +249,7 @@ const htmlContent = `<!DOCTYPE html>
     <p style="margin:2px 0 4px 0;">Mandatory physical triage at certified verification benches (e.g. Computer Village Hub, Ikeja) before trade clearance.</p>
     <ul>
       <li>Hardware checklist: Screen condition, battery health %, biometrics (TouchID/FaceID), camera functions, iCloud sign-out status, and physical IMEI matching.</li>
-      <li>Implementation: <span class="code-loc">admin.html (Hub Desk)</span> | <span class="code-loc">api-server.js (/api/swap/inspection)</span></li>
+      <li>Implementation: <span class="code-loc">admin.html (Hub Desk)</span> | <span class="code-loc">js/backend-api.js</span> | <span class="code-loc">firestore.rules</span></li>
     </ul>
   </div>
 
@@ -263,8 +263,8 @@ const htmlContent = `<!DOCTYPE html>
       <li>1. Certified technician records <code>inspectionStatus: 'passed'</code>.</li>
       <li>2. Customer explicitly confirms physical handover (<code>customerConfirmed: true</code>).</li>
       <li>3. Dealer explicitly confirms physical handover (<code>dealerConfirmed: true</code>).</li>
-      <li>4. Cash top-up payment is verified as <code>paid</code> in escrow.</li>
-      <li>Implementation: <span class="code-loc">api-server.js (lines 492-500)</span> | <span class="code-loc">functions/src/index.js (lines 509-515)</span></li>
+      <li>4. Online top-up payments are temporarily disabled and are not verified or held in escrow.</li>
+      <li>Implementation: <span class="code-loc">my-swaps.html</span></li>
     </ul>
   </div>
 
@@ -276,7 +276,7 @@ const htmlContent = `<!DOCTYPE html>
     <p style="margin:2px 0 4px 0;">Issues unique certified inspection report IDs (e.g., <code>NS-CERT-XXXXXX</code>) stored immutably in Firestore.</p>
     <ul>
       <li>Public verification portal (<code>certificate.html</code>) allows buyers/dealers to verify phone provenance.</li>
-      <li>Implementation: <span class="code-loc">certificate.html</span> | <span class="code-loc">api-server.js (/api/certificate)</span></li>
+      <li>Implementation: <span class="code-loc">certificate.html</span> | <span class="code-loc">js/backend-api.js</span> | <span class="code-loc">firestore.rules</span></li>
     </ul>
   </div>
 </div>
@@ -293,7 +293,7 @@ const htmlContent = `<!DOCTYPE html>
     <p style="margin:2px 0 4px 0;">Dealers must submit CAC business registration numbers, government photo IDs, and proof of address before trading.</p>
     <ul>
       <li>Listing Gating: Unverified dealers cannot publish listings on the platform.</li>
-      <li>Implementation: <span class="code-loc">api-server.js (/api/dealer-verification)</span> | <span class="code-loc">dealer-verification.html</span></li>
+      <li>Implementation: <span class="code-loc">dealer-verification.html</span> | <span class="code-loc">firestore.rules</span></li>
     </ul>
   </div>
 
@@ -305,7 +305,7 @@ const htmlContent = `<!DOCTYPE html>
     <p style="margin:2px 0 4px 0;">Government IDs and address proofs are restricted to authenticated private Cloudinary directories (<code>naijaswap/{uid}/...</code>) and protected Firebase Storage (<code>/kyc/{uid}/</code>).</p>
     <ul>
       <li>Prevents public indexing or unauthorized viewing of identity documents.</li>
-      <li>Implementation: <span class="code-loc">storage.rules</span> | <span class="code-loc">js/private-storage.js</span> | <span class="code-loc">api-server.js</span></li>
+      <li>Implementation: <span class="code-loc">storage.rules</span> | <span class="code-loc">js/private-storage.js</span></li>
     </ul>
   </div>
 </div>
@@ -316,25 +316,25 @@ const htmlContent = `<!DOCTYPE html>
   
   <div class="measure-card">
     <div class="measure-header">
-      <span class="measure-name">Paystack Cash Top-Up Escrow Holding</span>
+      <span class="measure-name">Cash Top-Up Payments Temporarily Disabled</span>
       <span class="badge badge-escrow">Escrow Protection</span>
     </div>
-    <p style="margin:2px 0 4px 0;">Cash top-up balances are locked in escrow (<code>escrowStatus: 'held_in_escrow'</code>) and are not released until physical inspection passes.</p>
+    <p style="margin:2px 0 4px 0;">Paystack payments are disabled while the app has no trusted server. Do not represent a top-up as paid or held in escrow.</p>
     <ul>
-      <li>Eliminates advance payment scams and fake bank transfer alerts.</li>
-      <li>Implementation: <span class="code-loc">api-server.js (/api/payments/initialize & webhook)</span></li>
+      <li>Re-enable payments only after a trusted server-side payment verifier is available.</li>
+      <li>Implementation: <span class="code-loc">my-swaps.html</span></li>
     </ul>
   </div>
 
   <div class="measure-card">
     <div class="measure-header">
-      <span class="measure-name">HMAC SHA-512 Signature Webhook Validation</span>
+      <span class="measure-name">No Client-Side Webhook Verification</span>
       <span class="badge badge-escrow">API Security</span>
     </div>
-    <p style="margin:2px 0 4px 0;">Validates Paystack webhook events using <code>x-paystack-signature</code> and HMAC SHA-512 against the secret key.</p>
+    <p style="margin:2px 0 4px 0;">Webhook signatures require a server-side secret and are not handled in browser code.</p>
     <ul>
-      <li>Blocks forged payment notifications and replayed webhook payloads.</li>
-      <li>Implementation: <span class="code-loc">api-server.js (lines 161-171)</span></li>
+      <li>Payment verification must remain disabled until a trusted server is restored.</li>
+      <li>Implementation: <span class="code-loc">my-swaps.html</span></li>
     </ul>
   </div>
 
@@ -346,7 +346,7 @@ const htmlContent = `<!DOCTYPE html>
     <p style="margin:2px 0 4px 0;">Compares submitted payment amounts directly against approved top-up amounts stored in Firestore; enforces maximum transaction limits (<code>₦5,000,000</code> cap).</p>
     <ul>
       <li>Prevents client-side price modification or payment tampering.</li>
-      <li>Implementation: <span class="code-loc">api-server.js (MAX_SWAP_AMOUNT_NAIRA)</span> | <span class="code-loc">functions/src/index.js</span></li>
+      <li>Implementation: <span class="code-loc">js/backend-api.js</span> | <span class="code-loc">firestore.rules</span></li>
     </ul>
   </div>
 </div>
@@ -375,7 +375,7 @@ const htmlContent = `<!DOCTYPE html>
     </div>
     <p style="margin:2px 0 4px 0;">All key operations automatically create write-protected logs in <code>auditLogs</code>. Participants can open disputes to lock swaps for manual support review.</p>
     <ul>
-      <li>Implementation: <span class="code-loc">api-server.js (/api/swap/dispute)</span> | <span class="code-loc">functions/src/index.js (logSwapActivity)</span></li>
+      <li>Implementation: <span class="code-loc">js/backend-api.js</span> | <span class="code-loc">firestore.rules</span></li>
     </ul>
   </div>
 </div>
@@ -402,7 +402,7 @@ const htmlContent = `<!DOCTYPE html>
       <tr>
         <td>Double Trading / Duplicate IMEI</td>
         <td>Active Swap Firestore Uniqueness Lock</td>
-        <td>Database & Backend API</td>
+        <td>Firebase Client SDK & Firestore Rules</td>
         <td><strong style="color:#00D26A;">ACTIVE</strong></td>
       </tr>
       <tr>

@@ -558,12 +558,17 @@
       </span>
     </div>
 
-    <div class="dash-header-right">
+    <div class="dash-header-right" style="display: flex; align-items: center; gap: 10px;">
+      <!-- Store Activity & Audit Log Notification Icon Button (Active State) -->
+      <a href="dealer-activity.html" class="header-notif-btn" id="headerActivityBtn" title="Store Activity & Audit Log" style="position: relative; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(6, 182, 212, 0.12); border: 1px solid var(--cyan-400); color: var(--cyan-400); text-decoration: none; box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      </a>
+
       <!-- Store Profile Menu -->
       <div class="user-menu-wrapper">
         <button type="button" class="user-profile-btn" id="storeMenuBtn" aria-expanded="false" aria-haspopup="true">
-          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));">S</div>
-          <span class="user-name-text" id="topStoreName">My Store</span>
+          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));"></div>
+          <span class="user-name-text" id="topStoreName"><span class="skeleton-shimmer" style="display:inline-block; width:65px; height:14px; border-radius:3px; vertical-align:middle; background:rgba(255,255,255,0.08);"></span></span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
 
@@ -752,9 +757,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
       <span>Requests</span>
     </a>
-    <a href="dealer-activity.html" class="bottom-nav-item active" id="navActivityBtn" title="Activity">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-      <span>Activity</span>
+    <a href="inbox.html" class="bottom-nav-item" id="navInboxBtn" title="Inbox & Messages">
+      <span class="bottom-nav-badge" id="mobileInboxBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Inbox</span>
     </a>
     <a href="more.html" class="bottom-nav-item" id="navStoreMoreBtn" title="More">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
@@ -842,12 +848,13 @@
 
   <!-- Scripts -->
   <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/app-enhancements.js"></script>
   <script type="module">
-    import { resolveMedia } from './js/profile.js';
+    import { resolveMedia, renderAvatarElement } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
 
     let currentStoreId = '';
-    let currentStoreName = 'Store Portal';
+    let currentStoreName = '';
     let dealerAuthUser = null;
 
     // Filters state
@@ -864,6 +871,10 @@
           currentStoreId = dealerAuthUser.uid;
           const storedShop = localStorage.getItem('naijaswap_shop_' + dealerAuthUser.uid);
           if (storedShop) currentStoreName = storedShop;
+          const avatarEl = document.getElementById('storeAvatarFallback');
+          if (avatarEl) {
+            renderAvatarElement(avatarEl, currentStoreId, currentStoreName || 'Store', dealerAuthUser);
+          }
         }
       }
     } catch (_) {}
@@ -874,23 +885,14 @@
         dealerAuthUser = user;
         currentStoreId = user.uid;
         const storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
-        currentStoreName = storedShop || (user.displayName ? `${user.displayName}'s Gadgets` : 'My Gadget Store');
+        currentStoreName = storedShop || user.displayName || (user.email ? user.email.split('@')[0] : 'My Store');
 
         const topName = document.getElementById('topStoreName');
         const avatarEl = document.getElementById('storeAvatarFallback');
         if (topName) topName.textContent = currentStoreName;
 
-        const storedPhoto = localStorage.getItem('naijaswap_photo_' + user.uid);
         if (avatarEl) {
-          if (storedPhoto) {
-            resolveMedia(storedPhoto).then(src => {
-              if (src && avatarEl) {
-                avatarEl.innerHTML = `<img src="${src}" alt="${currentStoreName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-              }
-            });
-          } else {
-            avatarEl.textContent = currentStoreName.charAt(0).toUpperCase();
-          }
+          renderAvatarElement(avatarEl, user.uid, currentStoreName, user);
         }
 
         renderAll();

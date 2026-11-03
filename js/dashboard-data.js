@@ -3,6 +3,7 @@
  * Handles persistent state for Swapper browsing and Store/Dealer inventory management.
  */
 import { db, collection, getDocs, query, where, orderBy, limit } from './firebase-config.js';
+import { createReviewBackend } from './backend-api.js';
 
 const STORAGE_KEYS = {
   LISTINGS: 'naijaswap_marketplace_listings',
@@ -19,6 +20,9 @@ const SWAP_STATUS_ALIASES = {
   reviewed: 'reviewed',
   accepted: 'accepted',
   countered: 'countered',
+  hub_booked: 'hub_booked',
+  under_inspection: 'under_inspection',
+  inspection_passed: 'inspection_passed',
   completed: 'completed',
   rejected: 'rejected',
   declined: 'rejected',
@@ -27,7 +31,7 @@ const SWAP_STATUS_ALIASES = {
 
 function normalizeSwapStatus(status) {
   const normalized = String(status || 'pending').trim().toLowerCase();
-  return SWAP_STATUS_ALIASES[normalized] || 'pending';
+  return SWAP_STATUS_ALIASES[normalized] || (normalized ? normalized : 'pending');
 }
 
 function safeSetItem(key, value) {
@@ -60,52 +64,314 @@ function safeSetItem(key, value) {
 }
 
 function mapRemoteListing(snapshot) {
-  return { id: snapshot.id, ...snapshot.data(), status: String(snapshot.data().status || 'active').toLowerCase() };
+  const data = snapshot.data() || {};
+  const storeId = data.storeId || data.storeOwnerUid || data.dealerUid || '';
+  const storeOwnerUid = data.storeOwnerUid || data.storeId || data.dealerUid || '';
+  return {
+    id: snapshot.id,
+    ...data,
+    storeId,
+    storeOwnerUid,
+    status: String(data.status || 'active').toLowerCase(),
+    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt || new Date().toISOString()
+  };
 }
 
 function mapRemoteRequest(snapshot) {
-  const data = snapshot.data();
+  const data = snapshot.data() || {};
   const current = data.currentDevice || {};
   const target = data.targetDevice || {};
+  const dealerUid = data.dealerUid || data.storeOwnerUid || data.storeId || '';
+  const topupNum = typeof data.topupAmount === 'number' ? data.topupAmount : (parseFloat(String(data.topupAmount || '').replace(/[^0-9.]/g, '')) || 0);
+  const tradeInNum = typeof data.offeredPrice === 'number' ? data.offeredPrice : (parseFloat(String(data.offeredPrice || '').replace(/[^0-9.]/g, '')) || 0);
+
+  // Derive stable 6-digit SafeSwap Passcode if missing
+  const derivedSafeCode = data.safeSwapCode || data.passcode || ('NS-' + (snapshot.id ? snapshot.id.replace(/\D/g, '').slice(-6) : Math.floor(100000 + Math.random() * 900000)));
+
   return {
     id: snapshot.id,
     firestoreId: snapshot.id,
+    safeSwapCode: derivedSafeCode,
+    hubBooking: data.hubBooking || null,
+    triageResults: data.triageResults || null,
+    certificateId: data.certificateId || null,
     customerUid: data.customerUid || '',
-    dealerUid: data.dealerUid || '',
-    storeId: data.dealerUid || '',
+    dealerUid,
+    storeId: dealerUid,
     storeName: data.storeName || '',
+    hubAddress: data.hubAddress || data.storeAddress || data.location || 'Otigba Street, Computer Village, Ikeja, Lagos',
     customerName: data.customerName || 'Swapper',
     customerEmail: data.customerEmail || '',
     customerPhone: data.customerPhone || '',
-    model: current.model || '',
-    brand: current.brand || '',
-    storageCapacity: current.storage || current.storageCapacity || '',
+    targetListingId: target.listingId || data.targetListingId || '',
+    targetPhoneId: target.listingId || data.targetListingId || '',
+    model: current.model || data.model || '',
+    brand: current.brand || data.brand || '',
+    storageCapacity: current.storage || current.storageCapacity || data.storageCapacity || '',
     imeiNumber: current.imeiNumber || '',
-    swapperPhoneModel: current.model || 'Smartphone',
+    currentPhone: current.model || data.currentPhone || data.swapperPhoneModel || 'Smartphone',
+    currentCondition: current.condition || data.currentCondition || data.swapperPhoneCondition || 'Inspection pending',
+    swapperPhoneModel: current.model || data.currentPhone || 'Smartphone',
     swapperPhoneStorage: current.storage || current.storageCapacity || '',
     swapperPhoneCondition: current.condition || 'Inspection pending',
-    swapperBattery: current.battery || '',
+    swapperBattery: current.battery || (current.batteryHealth ? `${current.batteryHealth}%` : (data.swapperBattery || '')),
     conditionTriage: current.conditionTriage || {},
     deviceMedia: data.deviceMedia || [],
+    targetPhone: target.model || data.targetPhone || data.targetPhoneModel || 'Target phone',
     targetModel: target.model || '',
-    targetStorage: target.storage || target.storageCapacity || '',
+    targetStorage: target.storage || target.storageCapacity || data.targetStorage || '',
     targetPhoneModel: target.model || 'Target phone',
     targetPhoneImage: target.image || '',
     targetBrand: target.brand || '',
     preferredColor: target.color || '',
-    topupOffered: data.topupAmount || 0,
-    tradeInCredit: data.offeredPrice || 0,
-    notes: data.message || '',
+    topupAmount: topupNum,
+    topupOffered: topupNum > 0 ? ('₦' + topupNum.toLocaleString()) : (typeof data.topupOffered === 'string' && data.topupOffered ? data.topupOffered : '₦0'),
+    tradeInCredit: tradeInNum > 0 ? ('₦' + tradeInNum.toLocaleString()) : (typeof data.tradeInCredit === 'string' && data.tradeInCredit ? data.tradeInCredit : '₦0'),
+    location: data.location || data.storeLocation || 'Computer Village Hub',
+    notes: data.message || data.notes || '',
     counterOffer: data.counterOffer || null,
     counterMessage: data.counterMessage || '',
-    paymentStatus: data.paymentStatus || 'not_required',
+    paymentStatus: data.paymentStatus || (topupNum > 0 ? 'pending_escrow' : 'not_required'),
+    paymentReference: data.paymentReference || null,
+    paymentAmount: typeof data.paymentAmount === 'number' ? data.paymentAmount : (topupNum > 0 ? topupNum : 0),
+    paymentChannel: data.paymentChannel || 'paystack',
+    paidAt: data.paidAt?.toDate ? data.paidAt.toDate().toISOString() : data.paidAt || null,
     status: normalizeSwapStatus(data.status),
     createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt || new Date().toISOString()
   };
 }
 
-// Default marketplace inventory array (empty so only real data from database/dealers show)
-const DEFAULT_LISTINGS = [];
+// Default marketplace inventory array for Nigerian Smartphone Swappers
+const DEFAULT_LISTINGS = [
+  {
+    id: 'listing_ns_15promax_256',
+    brand: 'Apple',
+    model: 'iPhone 15 Pro Max',
+    storage: '256GB',
+    ram: '8GB',
+    color: 'Natural Titanium',
+    condition: 'Clean UK Used',
+    conditionGrade: 'Grade A - Pristine',
+    battery: '96%',
+    batteryHealth: 96,
+    marketValue: 1250000,
+    cashOutrightPrice: 1250000,
+    quantityInStock: 2,
+    isSwapAllowed: true,
+    minAcceptableTradeInTier: 'iPhone 12 Pro & above',
+    acceptedTradeIn: 'iPhone 12 Pro & above',
+    inclusions: ['Original Box', 'Type-C Braided Cable', 'Screen Protector'],
+    boxIncludes: 'Original Box, Type-C Braided Cable, Screen Protector',
+    warranty: '30 Days Store Warranty',
+    storeWarranty: '30 Days',
+    screen: '6.7" Super Retina XDR OLED (120Hz ProMotion)',
+    chipset: 'Apple A17 Pro (3nm)',
+    camera: '48MP Triple Camera (5x Optical Telephoto)',
+    sim: 'Nano-SIM + eSIM',
+    description: 'Clean UK Used iPhone 15 Pro Max (256GB, Natural Titanium). Grade A pristine condition, 96% original battery health. True Tone and Face ID active. Checked & certified by hub technicians.',
+    location: 'Computer Village, Ikeja, Lagos',
+    hubAddress: 'Otigba Street, Computer Village, Ikeja, Lagos',
+    whatsappNumber: '2348023456789',
+    storeId: 'store_otigba_hub',
+    storeName: 'Otigba Tech Prime Hub',
+    storeVerified: true,
+    tags: ['Verified Dealer', 'Recently Listed', 'Grade A - Pristine'],
+    image: 'assets/iPhone 15 Pro Max (256GB).jpg',
+    heroImage: 'assets/iPhone 15 Pro Max (256GB).jpg',
+    status: 'active',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'listing_ns_s24ultra_256',
+    brand: 'Samsung',
+    model: 'Galaxy S24 Ultra',
+    storage: '256GB',
+    ram: '12GB',
+    color: 'Titanium Gray',
+    condition: 'Open Box / Like New',
+    conditionGrade: 'Grade A - Pristine',
+    battery: '100%',
+    batteryHealth: 100,
+    marketValue: 1280000,
+    cashOutrightPrice: 1280000,
+    quantityInStock: 1,
+    isSwapAllowed: true,
+    minAcceptableTradeInTier: 'Galaxy S22 / iPhone 13 & above',
+    acceptedTradeIn: 'Galaxy S22 / iPhone 13 & above',
+    inclusions: ['Original Box', 'S-Pen Stylus', 'Fast Charging Cable'],
+    boxIncludes: 'Original Box, S-Pen Stylus, Fast Charging Cable',
+    warranty: '60 Days Store Warranty',
+    storeWarranty: '60 Days',
+    screen: '6.8" Dynamic AMOLED 2X (120Hz, 2600 nits)',
+    chipset: 'Snapdragon 8 Gen 3 for Galaxy',
+    camera: '200MP Quad Camera (100x Space Zoom)',
+    sim: 'Dual Nano-SIM + eSIM',
+    description: 'Open Box Galaxy S24 Ultra in Titanium Gray. Flawless titanium frame, battery at 100%. Galaxy AI enabled and factory unlocked. Complete with S-Pen.',
+    location: 'Banex Plaza, Wuse 2, Abuja',
+    hubAddress: 'Suite B12, Banex Plaza, Aminu Kano Crescent, Wuse 2, Abuja',
+    whatsappNumber: '2348039876543',
+    storeId: 'store_banex_gadgets',
+    storeName: 'Banex Apex Gadgets',
+    storeVerified: true,
+    tags: ['Verified Dealer', 'Flagship AI', 'Grade A - Pristine'],
+    image: 'assets/Samsung Galaxy S24 Ultra (256GB).jpg',
+    heroImage: 'assets/Samsung Galaxy S24 Ultra (256GB).jpg',
+    status: 'active',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'listing_ns_14pro_128',
+    brand: 'Apple',
+    model: 'iPhone 14 Pro',
+    storage: '128GB',
+    ram: '6GB',
+    color: 'Deep Purple',
+    condition: 'Clean UK Used',
+    conditionGrade: 'Grade A (Like New)',
+    battery: '91%',
+    batteryHealth: 91,
+    marketValue: 790000,
+    cashOutrightPrice: 790000,
+    quantityInStock: 3,
+    isSwapAllowed: true,
+    minAcceptableTradeInTier: 'iPhone 11 & above',
+    acceptedTradeIn: 'iPhone 11 & above',
+    inclusions: ['Charging Cable', 'Clear Case'],
+    boxIncludes: 'Charging Cable, Clear Case',
+    warranty: '30 Days Store Warranty',
+    storeWarranty: '30 Days',
+    screen: '6.1" Super Retina XDR OLED (Dynamic Island)',
+    chipset: 'Apple A16 Bionic',
+    camera: '48MP Main + 12MP Ultra-Wide & Telephoto',
+    sim: 'Physical SIM + eSIM',
+    description: 'UK Used iPhone 14 Pro (128GB, Deep Purple). Grade A with 91% battery health. All cameras, Face ID and Dynamic Island working 100%.',
+    location: 'Computer Village, Ikeja, Lagos',
+    hubAddress: 'Pepple Street, Computer Village, Ikeja, Lagos',
+    whatsappNumber: '2348021122334',
+    storeId: 'store_pepple_swap',
+    storeName: 'Ikeja Certified Exchange',
+    storeVerified: true,
+    tags: ['Verified Dealer', 'Best Value', 'Grade A (Like New)'],
+    image: 'assets/iPhone 14 Pro (128GB).jpg',
+    heroImage: 'assets/iPhone 14 Pro (128GB).jpg',
+    status: 'active',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'listing_ns_13_128',
+    brand: 'Apple',
+    model: 'iPhone 13',
+    storage: '128GB',
+    ram: '4GB',
+    color: 'Midnight Black',
+    condition: 'Clean UK Used',
+    conditionGrade: 'Grade A - Clean',
+    battery: '88%',
+    batteryHealth: 88,
+    marketValue: 470000,
+    cashOutrightPrice: 470000,
+    quantityInStock: 2,
+    isSwapAllowed: true,
+    minAcceptableTradeInTier: 'iPhone XR / XS / 11 & above',
+    acceptedTradeIn: 'iPhone XR / XS / 11 & above',
+    inclusions: ['Fast Charging Cable'],
+    boxIncludes: 'Fast Charging Cable',
+    warranty: '30 Days Store Warranty',
+    storeWarranty: '30 Days',
+    screen: '6.1" Super Retina XDR OLED',
+    chipset: 'Apple A15 Bionic',
+    camera: '12MP Dual Diagonal Camera (Cinematic Mode)',
+    sim: 'Nano-SIM + eSIM',
+    description: 'Clean UK Used iPhone 13 (128GB, Midnight). Battery health 88%, True Tone active, clean IMEI. Perfect upgrade from XR or 11.',
+    location: 'Garrison, Aba Road, Port Harcourt',
+    hubAddress: 'Garrison Junction, Aba Road, Port Harcourt, Rivers',
+    whatsappNumber: '2348055667788',
+    storeId: 'store_ph_hub',
+    storeName: 'Garrison Gadget Exchange',
+    storeVerified: true,
+    tags: ['Verified Dealer', 'Budget Upgrade', 'Grade A - Clean'],
+    image: 'assets/iPhone 13 (128GB).jpg',
+    heroImage: 'assets/iPhone 13 (128GB).jpg',
+    status: 'active',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'listing_ns_15pro_128',
+    brand: 'Apple',
+    model: 'iPhone 15 Pro',
+    storage: '128GB',
+    ram: '8GB',
+    color: 'Black Titanium',
+    condition: 'Brand New Sealed',
+    conditionGrade: 'Brand New (0 Cycle)',
+    battery: '100%',
+    batteryHealth: 100,
+    marketValue: 1020000,
+    cashOutrightPrice: 1020000,
+    quantityInStock: 1,
+    isSwapAllowed: true,
+    minAcceptableTradeInTier: 'iPhone 13 Pro / 14 & above',
+    acceptedTradeIn: 'iPhone 13 Pro / 14 & above',
+    inclusions: ['Original Apple Box', 'USB-C Cable', 'Documentation'],
+    boxIncludes: 'Original Apple Box, USB-C Cable, Documentation',
+    warranty: '1 Year Apple Warranty + 30 Days Store Hub',
+    storeWarranty: '1 Year Apple + 30 Days Store',
+    screen: '6.1" Super Retina XDR OLED (120Hz ProMotion)',
+    chipset: 'Apple A17 Pro (3nm)',
+    camera: '48MP Triple Camera System',
+    sim: 'Physical SIM + eSIM',
+    description: 'Brand New Factory Sealed iPhone 15 Pro in Black Titanium. Active 1-year Apple international warranty. Eligible for high-tier phone swap.',
+    location: 'Computer Village, Ikeja, Lagos',
+    hubAddress: 'Medical Road, Computer Village, Ikeja, Lagos',
+    whatsappNumber: '2348088990011',
+    storeId: 'store_medical_rd',
+    storeName: 'Crown Smartphone Hub',
+    storeVerified: true,
+    tags: ['Brand New Sealed', 'Verified Dealer', 'Apple Warranty'],
+    image: 'assets/iPhone 15 Pro.jpg',
+    heroImage: 'assets/iPhone 15 Pro.jpg',
+    status: 'active',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'listing_ns_12pro_128',
+    brand: 'Apple',
+    model: 'iPhone 12 Pro',
+    storage: '128GB',
+    ram: '6GB',
+    color: 'Pacific Blue',
+    condition: 'Clean UK Used',
+    conditionGrade: 'Grade A',
+    battery: '87%',
+    batteryHealth: 87,
+    marketValue: 410000,
+    cashOutrightPrice: 410000,
+    quantityInStock: 2,
+    isSwapAllowed: true,
+    minAcceptableTradeInTier: 'iPhone X / XR / 11 & above',
+    acceptedTradeIn: 'iPhone X / XR / 11 & above',
+    inclusions: ['Charging Cable'],
+    boxIncludes: 'Charging Cable',
+    warranty: '30 Days Store Warranty',
+    storeWarranty: '30 Days',
+    screen: '6.1" Super Retina XDR OLED',
+    chipset: 'Apple A14 Bionic',
+    camera: '12MP Triple Camera with LiDAR Scanner',
+    sim: 'Nano-SIM + eSIM',
+    description: 'Affordable flagship iPhone 12 Pro Pacific Blue. Triple camera with LiDAR sensor, Face ID tested and fully functioning. Accepts trade-ins.',
+    location: 'Banex Plaza, Wuse 2, Abuja',
+    hubAddress: 'Old Banex, Suite C4, Wuse 2, Abuja',
+    whatsappNumber: '2348099887766',
+    storeId: 'store_abuja_prime',
+    storeName: 'Capital Tech Hub',
+    storeVerified: true,
+    tags: ['Verified Dealer', 'Affordable Pro', 'Grade A'],
+    image: 'assets/iPhone 12 Pro.jpg',
+    heroImage: 'assets/iPhone 12 Pro.jpg',
+    status: 'active',
+    createdAt: new Date().toISOString()
+  }
+];
 
 // Standardized Brand and Model Hierarchy for Nigerian Smartphone Marketplace
 export const BRANDS_AND_MODELS = {
@@ -197,18 +463,9 @@ const STORAGE_MULTIPLIERS = {
 function isTestListing(item) {
   if (!item) return true;
   const id = String(item.id || '');
-  const storeId = String(item.storeId || item.storeOwnerUid || '');
-  const storeName = String(item.storeName || '').toLowerCase();
-  const desc = String(item.description || '').toLowerCase();
-  const img = String(item.image || '');
-
   const testIds = ['phone_101', 'phone_102', 'phone_103', 'phone_104', 'phone_105', 'phone_106',
                    '1To9pQ5sPNDjXSzR9V0W', 'iNEyHXMdonH5FoqPZqVY', 'wvsvo88NH4Y20lVaGd7m', 'l9lrdRtCiIWuuHhRXBBI'];
-  if (id.startsWith('phone_10') || testIds.includes(id)) return true;
-  if (storeId === '0c26oL2FDZWFiAPEg3KeeWY4X503' || storeName.includes("isreal")) return true;
-  if (img.includes('jra2fgxo') || desc.includes('checked by certified hub technicians')) return true;
-
-  return false;
+  return testIds.includes(id);
 }
 
 function initDatabase() {
@@ -253,8 +510,11 @@ export const NaijaSwapData = {
         limit(100)
       ));
       const remoteListings = snapshot.docs.map(mapRemoteListing).filter(item => !isTestListing(item));
-      localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(remoteListings));
-      return this.filterListings(remoteListings, filters);
+      if (remoteListings && remoteListings.length > 0) {
+        localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(remoteListings));
+        return this.filterListings(remoteListings, filters);
+      }
+      return this.getListings(filters);
     } catch (e) {
       console.warn('[NaijaSwapData] getListingsRemote error:', e);
       return this.getListings(filters);
@@ -294,65 +554,10 @@ export const NaijaSwapData = {
     }
     // Clean legacy test listings
     items = items.filter(item => !isTestListing(item));
-
-    const { brand, storage, condition, location, query } = filters;
-
-    return items.filter(item => {
-      const itemBrand = String(item.brand || '').toLowerCase();
-      const itemModel = String(item.model || '').toLowerCase();
-      const isApple = itemBrand.includes('apple') || itemModel.includes('iphone');
-      const isSamsung = itemBrand.includes('samsung') || itemModel.includes('galaxy');
-      if (!isApple && !isSamsung) return false;
-      if (item.status && !['active', 'Active'].includes(item.status)) return false;
-
-      if (brand && brand !== 'All') {
-        const b = brand.toLowerCase();
-        if (b === 'other') {
-          const major = ['apple', 'iphone', 'samsung', 'galaxy'];
-          if (major.some(m => item.brand.toLowerCase().includes(m) || item.model.toLowerCase().includes(m))) {
-            return false;
-          }
-        } else if (b === 'iphone' || b === 'apple') {
-          if (!isApple) {
-            return false;
-          }
-        } else if (b === 'samsung') {
-          if (!isSamsung) return false;
-        } else {
-          if (!item.brand.toLowerCase().includes(b) && !item.model.toLowerCase().includes(b)) {
-            return false;
-          }
-        }
-      }
-
-      if (storage && storage !== 'All' && !item.storage.toLowerCase().includes(storage.toLowerCase())) {
-        return false;
-      }
-
-      if (condition && condition !== 'All') {
-        const c1 = item.condition.toLowerCase();
-        const c2 = condition.toLowerCase();
-        if (!c1.includes(c2) && !c2.includes(c1)) return false;
-      }
-
-      if (location && location !== 'All' && !item.location.toLowerCase().includes(location.toLowerCase())) {
-        return false;
-      }
-
-      if (query && query.trim() !== '') {
-        const q = query.toLowerCase().trim();
-        const matchTitle = (item.model || '').toLowerCase().includes(q);
-        const matchBrand = (item.brand || '').toLowerCase().includes(q);
-        const matchLoc = (item.location || '').toLowerCase().includes(q);
-        const matchStorage = (item.storage || '').toLowerCase().includes(q);
-        const matchColor = (item.color || '').toLowerCase().includes(q);
-        if (!matchTitle && !matchBrand && !matchLoc && !matchStorage && !matchColor) {
-          return false;
-        }
-      }
-
-      return true;
-    });
+    if (!items || items.length === 0) {
+      items = [...DEFAULT_LISTINGS];
+    }
+    return this.filterListings(items, filters);
   },
 
   getListingById(id) {
@@ -598,14 +803,62 @@ export const NaijaSwapData = {
       items = [];
     }
     items = items.filter(x => !isTestListing(x));
-    items = items.filter(x => {
-      const brand = String(x.brand || '').toLowerCase();
-      const model = String(x.model || '').toLowerCase();
-      return brand.includes('apple') || model.includes('iphone') ||
-        brand.includes('samsung') || model.includes('galaxy');
-    });
     if (!storeId) return items;
-    return items.filter(x => x.storeId === storeId);
+    return items.filter(x => x.storeId === storeId || x.storeOwnerUid === storeId || x.dealerUid === storeId);
+  },
+
+  async getStoreListingsRemote(storeId) {
+    if (!storeId) return [];
+    try {
+      let listings = [];
+      try {
+        const q = query(
+          collection(db, 'listings'),
+          where('storeOwnerUid', '==', storeId),
+          orderBy('createdAt', 'desc'),
+          limit(100)
+        );
+        const snapshot = await getDocs(q);
+        listings = snapshot.docs.map(mapRemoteListing).filter(item => !isTestListing(item));
+      } catch (err) {
+        try {
+          const qFallback = query(
+            collection(db, 'listings'),
+            where('storeOwnerUid', '==', storeId),
+            limit(100)
+          );
+          const snapFallback = await getDocs(qFallback);
+          listings = snapFallback.docs.map(mapRemoteListing).filter(item => !isTestListing(item));
+        } catch (_) {}
+      }
+
+      if (listings.length === 0) {
+        try {
+          const qStore = query(
+            collection(db, 'listings'),
+            where('storeId', '==', storeId),
+            limit(100)
+          );
+          const snapStore = await getDocs(qStore);
+          listings = snapStore.docs.map(mapRemoteListing).filter(item => !isTestListing(item));
+        } catch (_) {}
+      }
+
+      let cached = [];
+      try {
+        cached = JSON.parse(localStorage.getItem(STORAGE_KEYS.LISTINGS)) || [];
+      } catch (_) {
+        cached = [];
+      }
+      const others = cached.filter(item => item.storeId !== storeId && item.storeOwnerUid !== storeId && item.dealerUid !== storeId);
+      const combined = [...listings, ...others];
+      safeSetItem(STORAGE_KEYS.LISTINGS, combined);
+
+      return listings;
+    } catch (e) {
+      console.warn('[NaijaSwapData] getStoreListingsRemote error:', e);
+      return this.getStoreListings(storeId);
+    }
   },
 
   addListing(storeId, storeName, phoneData) {
@@ -793,6 +1046,14 @@ export const NaijaSwapData = {
     return true;
   },
 
+  attachFirestoreListingId(localId, firestoreId) {
+    const items = JSON.parse(localStorage.getItem(STORAGE_KEYS.LISTINGS) || '[]');
+    const listing = items.find(item => item.id === localId);
+    if (!listing) return;
+    listing.firestoreId = firestoreId;
+    localStorage.setItem(STORAGE_KEYS.LISTINGS, JSON.stringify(items));
+  },
+
   restockListing(listingId, addQty = 1, storeId = null) {
     let items = [];
     try {
@@ -869,8 +1130,11 @@ export const NaijaSwapData = {
     const topupOffered = requestData.topupOffered || (calc ? calc.estTopUpFormatted : '₦0');
     const tradeInCredit = requestData.tradeInCredit || (calc ? calc.userTradeInCreditFormatted : '₦0');
 
+    const safeSwapCode = requestData.safeSwapCode || ('NS-' + Math.floor(100000 + Math.random() * 900000));
+
     const newRequest = {
       id: 'req_' + Date.now(),
+      safeSwapCode,
       targetPhoneId: requestData.targetPhoneId || '',
       targetPhoneModel: `${targetModel} (${targetStorage})`,
       targetPhoneImage: requestData.targetPhoneImage || (targetListing ? targetListing.image : 'assets/iPhone 15 Pro.jpg'),
@@ -901,6 +1165,12 @@ export const NaijaSwapData = {
       tradeInCredit,
       notes: requestData.notes || '',
       status: 'pending',
+      stage: 1,
+      counterOffer: null,
+      counterMessage: '',
+      hubBooking: null,
+      triageResults: null,
+      certificateId: 'CERT-' + Date.now(),
       createdAt: new Date().toISOString()
     };
 
@@ -917,7 +1187,7 @@ export const NaijaSwapData = {
     this.createNotification(newRequest.customerUid, {
       type: 'swap_submitted',
       title: 'Swap Request Submitted',
-      message: `Your trade-in proposal for ${newRequest.targetPhoneModel} has been submitted to ${newRequest.storeName}.`,
+      message: `Your trade-in proposal for ${newRequest.targetPhoneModel} has been submitted to ${newRequest.storeName}. SafeSwap Code: ${safeSwapCode}`,
       link: 'my-swaps.html'
     });
 
@@ -946,20 +1216,58 @@ export const NaijaSwapData = {
       requests = [];
     }
     if (!storeId) return requests;
-    return requests.filter(r => r.storeId === storeId);
+    return requests.filter(r => r.storeId === storeId || r.dealerUid === storeId);
   },
 
   async getStoreSwapRequestsRemote(storeId) {
     if (!storeId) return [];
-    const snapshot = await getDocs(query(
-      collection(db, 'swapRequests'),
-      where('dealerUid', '==', storeId),
-      orderBy('createdAt', 'desc'),
-      limit(100)
-    ));
-    const requests = snapshot.docs.map(mapRemoteRequest);
-    if (requests.length) safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
-    return requests;
+    try {
+      let requests = [];
+      try {
+        const snapshot = await getDocs(query(
+          collection(db, 'swapRequests'),
+          where('dealerUid', '==', storeId),
+          orderBy('createdAt', 'desc'),
+          limit(100)
+        ));
+        requests = snapshot.docs.map(mapRemoteRequest);
+      } catch (err) {
+        try {
+          const snapFallback = await getDocs(query(
+            collection(db, 'swapRequests'),
+            where('dealerUid', '==', storeId),
+            limit(100)
+          ));
+          requests = snapFallback.docs.map(mapRemoteRequest);
+        } catch (_) {}
+      }
+
+      if (requests.length === 0) {
+        try {
+          const snapStore = await getDocs(query(
+            collection(db, 'swapRequests'),
+            where('storeId', '==', storeId),
+            limit(100)
+          ));
+          requests = snapStore.docs.map(mapRemoteRequest);
+        } catch (_) {}
+      }
+
+      let cached = [];
+      try {
+        cached = JSON.parse(localStorage.getItem(STORAGE_KEYS.SWAP_REQUESTS)) || [];
+      } catch (_) {
+        cached = [];
+      }
+      const others = cached.filter(r => r.dealerUid !== storeId && r.storeId !== storeId);
+      const combined = [...requests, ...others];
+      safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, combined);
+
+      return requests;
+    } catch (e) {
+      console.warn('[NaijaSwapData] getStoreSwapRequestsRemote error:', e);
+      return this.getStoreSwapRequests(storeId);
+    }
   },
 
   getUserSwapRequests(customerUid) {
@@ -996,7 +1304,7 @@ export const NaijaSwapData = {
     return snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
   },
 
-  attachFirestoreRequestId(requestId, firestoreId) {
+  attachFirestoreRequestId(requestId, firestoreId, safeSwapCode = null) {
     if (!requestId || !firestoreId) return;
     let requests = [];
     try {
@@ -1007,6 +1315,7 @@ export const NaijaSwapData = {
     const request = requests.find(item => item.id === requestId);
     if (request) {
       request.firestoreId = firestoreId;
+      if (safeSwapCode) request.safeSwapCode = safeSwapCode;
       safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
     }
   },
@@ -1021,6 +1330,192 @@ export const NaijaSwapData = {
     const remaining = requests.filter(request => request.id !== requestId);
     safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, remaining);
     return remaining.length !== requests.length;
+  },
+
+  getSafeSwapStage(req) {
+    if (!req) return 1;
+    const status = String(req.status || '').toLowerCase();
+    if (status === 'completed') return 5;
+    if (status === 'inspection_passed' || req.triageResults) return 4;
+    if (req.hubBooking && req.hubBooking.booked) return 3;
+    if (status === 'accepted' || status === 'countered') return 2;
+    if (status === 'rejected' || status === 'cancelled') return 0;
+    return 1;
+  },
+
+  proposeCounterOffer(requestId, counterData = {}, storeId) {
+    let requests = [];
+    try {
+      requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.SWAP_REQUESTS)) || [];
+    } catch {
+      requests = [];
+    }
+
+    let updated = null;
+    requests = requests.map(r => {
+      if (r.id === requestId) {
+        r.status = 'countered';
+        r.counterOffer = counterData.counterOffer || r.topupOffered;
+        r.counterMessage = counterData.counterMessage || '';
+        r.counterReason = counterData.counterReason || 'Valuation revised based on device condition';
+        r.counterAt = new Date().toISOString();
+        updated = r;
+      }
+      return r;
+    });
+
+    safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
+
+    if (updated) {
+      this.logActivity(storeId || updated.storeId, {
+        type: 'swap_countered',
+        title: 'Counter-Offer Sent',
+        description: `Sent counter-offer of ${updated.counterOffer} for ${updated.targetPhoneModel}`
+      });
+
+      this.createNotification(updated.customerUid, {
+        type: 'swap_countered',
+        title: 'Dealer Sent a Counter-Offer',
+        message: `${updated.storeName} proposed a revised top-up of ${updated.counterOffer} (${updated.counterReason || 'Revised offer'}). Tap to review.`,
+        link: 'my-swaps.html'
+      });
+    }
+    return updated;
+  },
+
+  acceptCounterOffer(requestId, customerUid) {
+    let requests = [];
+    try {
+      requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.SWAP_REQUESTS)) || [];
+    } catch {
+      requests = [];
+    }
+
+    let updated = null;
+    requests = requests.map(r => {
+      if (r.id === requestId) {
+        r.status = 'accepted';
+        if (r.counterOffer) {
+          r.topupOffered = r.counterOffer;
+        }
+        r.counterAcceptedAt = new Date().toISOString();
+        updated = r;
+      }
+      return r;
+    });
+
+    safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
+
+    if (updated) {
+      this.logActivity(updated.storeId, {
+        type: 'swap_accepted',
+        title: 'Counter-Offer Accepted',
+        description: `${updated.customerName} accepted the counter-offer of ${updated.topupOffered} for ${updated.targetPhoneModel}`
+      });
+
+      this.createNotification(updated.customerUid, {
+        type: 'swap_accepted',
+        title: 'Counter-Offer Accepted!',
+        message: `Deal locked in at ${updated.topupOffered}! Book your physical hub inspection visit to finalize.`,
+        link: 'my-swaps.html'
+      });
+    }
+    return updated;
+  },
+
+  bookHubAppointment(requestId, bookingData = {}) {
+    let requests = [];
+    try {
+      requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.SWAP_REQUESTS)) || [];
+    } catch {
+      requests = [];
+    }
+
+    let updated = null;
+    requests = requests.map(r => {
+      if (r.id === requestId) {
+        r.hubBooking = {
+          booked: true,
+          hubName: bookingData.hubName || r.storeName || 'Computer Village Hub',
+          hubAddress: bookingData.hubAddress || 'Otigba Street, Computer Village, Ikeja, Lagos',
+          appointmentDate: bookingData.appointmentDate || new Date().toISOString().split('T')[0],
+          appointmentTimeSlot: bookingData.appointmentTimeSlot || 'Morning (10:00 AM - 1:00 PM)',
+          bookedAt: new Date().toISOString()
+        };
+        if (r.status === 'accepted' || r.status === 'pending') {
+          r.status = 'accepted';
+        }
+        updated = r;
+      }
+      return r;
+    });
+
+    safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
+
+    if (updated) {
+      this.logActivity(updated.storeId, {
+        type: 'hub_booked',
+        title: 'Hub Visit Booked',
+        description: `${updated.customerName} booked inspection for ${updated.hubBooking.appointmentDate} (${updated.hubBooking.appointmentTimeSlot})`
+      });
+
+      this.createNotification(updated.customerUid, {
+        type: 'hub_booked',
+        title: 'Hub Appointment Confirmed',
+        message: `Your inspection is scheduled for ${updated.hubBooking.appointmentDate} at ${updated.hubBooking.hubName}. SafeSwap Code: ${updated.safeSwapCode || 'NS-948201'}`,
+        link: 'my-swaps.html'
+      });
+    }
+    return updated;
+  },
+
+  completeHubTriage(requestId, triageData = {}, storeId) {
+    let requests = [];
+    try {
+      requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.SWAP_REQUESTS)) || [];
+    } catch {
+      requests = [];
+    }
+
+    let updated = null;
+    requests = requests.map(r => {
+      if (r.id === requestId) {
+        r.status = 'completed';
+        r.triageResults = {
+          passedPoints: triageData.passedPoints || 10,
+          totalPoints: 10,
+          checklist: triageData.checklist || {},
+          technicianNotes: triageData.technicianNotes || 'All 10 hardware and security checkpoints passed 100%.',
+          inspectedBy: triageData.inspectedBy || 'Certified Hub Tech #402',
+          verifiedImei: triageData.verifiedImei || r.imeiNumber || '358920194829103',
+          completedAt: new Date().toISOString()
+        };
+        r.completedAt = new Date().toISOString();
+        r.certificateId = r.certificateId || ('CERT-' + Date.now());
+        updated = r;
+      }
+      return r;
+    });
+
+    safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
+
+    if (updated) {
+      this.decrementListingStock(updated.listingId || updated.targetPhoneId, updated);
+
+      this.logActivity(storeId || updated.storeId, {
+        type: 'swap_completed',
+        title: 'Swap Certified & Completed!',
+        description: `Inspected & Completed: ${updated.targetPhoneModel} for ${updated.customerName}. Certificate #${updated.certificateId}`
+      });
+
+      this.createNotification(updated.customerUid, {
+        type: 'swap_completed',
+        title: '🎉 Swap Completed & Warranty Active!',
+        message: `Congratulations! Your swap for ${updated.targetPhoneModel} is complete. Your 30-Day Testing Warranty Certificate is now active.`,
+        link: `certificate.html?id=${updated.id}`
+      });
+    }
+    return updated;
   },
 
   updateSwapRequestStatus(requestId, status, storeId) {
@@ -1058,8 +1553,49 @@ export const NaijaSwapData = {
         type: normalizedStatus === 'accepted' ? 'swap_accepted' : normalizedStatus === 'rejected' ? 'swap_rejected' : 'swap_updated',
         title: 'Swap ' + normalizedStatus,
         message: normalizedStatus === 'accepted' 
-          ? `Great news! ${updated.storeName} accepted your swap request for ${updated.targetPhoneModel}. Tap to chat the technician and visit the hub.`
+          ? `Great news! ${updated.storeName} accepted your swap request for ${updated.targetPhoneModel}. SafeSwap Code: ${updated.safeSwapCode || 'NS-849201'}. Tap to book your hub inspection.`
           : `${updated.storeName} has updated your swap request for ${updated.targetPhoneModel} to ${normalizedStatus}.`,
+        link: 'my-swaps.html'
+      });
+    }
+
+    return updated;
+  },
+
+  recordSwapPayment(requestId, paymentDetails = {}) {
+    let requests = [];
+    try {
+      requests = JSON.parse(localStorage.getItem(STORAGE_KEYS.SWAP_REQUESTS)) || [];
+    } catch {
+      requests = [];
+    }
+
+    let updated = null;
+    requests = requests.map(r => {
+      if (r.id === requestId || r.firestoreId === requestId) {
+        r.paymentStatus = 'escrow_secured';
+        r.paymentReference = paymentDetails.reference || r.paymentReference;
+        r.paymentAmount = paymentDetails.amountInNaira || paymentDetails.amount || r.topupAmount;
+        r.paymentChannel = paymentDetails.channel || 'paystack';
+        r.paidAt = new Date().toISOString();
+        updated = r;
+      }
+      return r;
+    });
+
+    safeSetItem(STORAGE_KEYS.SWAP_REQUESTS, requests);
+
+    if (updated) {
+      this.logActivity(updated.storeId, {
+        type: 'escrow_secured',
+        title: 'Escrow Payment Secured',
+        description: `Customer paid ₦${Number(updated.paymentAmount || updated.topupAmount || 0).toLocaleString()} top-up into escrow for ${updated.targetPhoneModel}`
+      });
+
+      this.createNotification(updated.customerUid, {
+        type: 'payment_success',
+        title: 'Escrow Secured',
+        message: `Your top-up of ₦${Number(updated.paymentAmount || updated.topupAmount || 0).toLocaleString()} has been safely locked in Paystack Escrow. Reference: ${updated.paymentReference}.`,
         link: 'my-swaps.html'
       });
     }
@@ -1219,7 +1755,12 @@ export const NaijaSwapData = {
     if (existing) {
       // Update existing device
       existing.condition = deviceData.condition || existing.condition;
+      existing.color = deviceData.color || existing.color;
       existing.batteryHealth = deviceData.batteryHealth || existing.batteryHealth;
+      existing.carrierLock = deviceData.carrierLock || existing.carrierLock;
+      existing.repairHistory = deviceData.repairHistory || existing.repairHistory;
+      existing.inclusions = deviceData.inclusions || existing.inclusions;
+      existing.accountCleanCheck = deviceData.accountCleanCheck !== undefined ? deviceData.accountCleanCheck : existing.accountCleanCheck;
       if (deviceData.deviceMedia && deviceData.deviceMedia.length > 0) {
         existing.deviceMedia = deviceData.deviceMedia.slice(0, 5);
       }
@@ -1233,9 +1774,14 @@ export const NaijaSwapData = {
       brand: deviceData.brand || 'Apple',
       model,
       storageCapacity,
+      color: deviceData.color || 'Standard',
       ram: deviceData.ram || '',
       condition: deviceData.condition || 'Excellent',
       batteryHealth: deviceData.batteryHealth || (deviceData.conditionTriage?.batteryHealth ? `${deviceData.conditionTriage.batteryHealth}%` : '90%'),
+      carrierLock: deviceData.carrierLock || 'Factory Unlocked',
+      repairHistory: deviceData.repairHistory || 'All Original (Never Repaired)',
+      inclusions: deviceData.inclusions || 'Device Only',
+      accountCleanCheck: deviceData.accountCleanCheck !== undefined ? deviceData.accountCleanCheck : true,
       imeiNumber: imei,
       conditionTriage: deviceData.conditionTriage || null,
       deviceMedia: (Array.isArray(deviceData.deviceMedia) ? deviceData.deviceMedia : []).slice(0, 5),
@@ -1363,10 +1909,21 @@ export const NaijaSwapData = {
     const listings = this.getStoreListings(storeId);
     const requests = this.getStoreSwapRequests(storeId);
 
-    const activeListings = listings.filter(l => l.status === 'Active').length;
+    const activeListings = listings.filter(l => {
+      const st = String(l.status || 'active').toLowerCase();
+      const inStock = l.quantityInStock === undefined || Number(l.quantityInStock) > 0;
+      return (st === 'active' || st === 'published') && st !== 'out_of_stock' && st !== 'archived' && st !== 'deleted' && inStock;
+    }).length;
+
     const totalRequests = requests.length;
-    const pendingRequests = requests.filter(r => normalizeSwapStatus(r.status) === 'pending').length;
-    const completedSwaps = requests.filter(r => normalizeSwapStatus(r.status) === 'completed').length;
+    const pendingRequests = requests.filter(r => {
+      const st = normalizeSwapStatus(r.status);
+      return st === 'pending' || st === 'reviewed';
+    }).length;
+    const completedSwaps = requests.filter(r => {
+      const st = normalizeSwapStatus(r.status);
+      return st === 'completed' || st === 'accepted' || st === 'inspection_passed';
+    }).length;
 
     return {
       activeListings,
@@ -1374,6 +1931,42 @@ export const NaijaSwapData = {
       pendingRequests,
       completedSwaps
     };
+  },
+
+  async getStoreStatsRemote(storeId) {
+    if (!storeId) return this.getStoreStats(storeId);
+    try {
+      const [listings, requests] = await Promise.all([
+        this.getStoreListingsRemote(storeId),
+        this.getStoreSwapRequestsRemote(storeId)
+      ]);
+
+      const activeListings = listings.filter(l => {
+        const st = String(l.status || 'active').toLowerCase();
+        const inStock = l.quantityInStock === undefined || Number(l.quantityInStock) > 0;
+        return (st === 'active' || st === 'published') && st !== 'out_of_stock' && st !== 'archived' && st !== 'deleted' && inStock;
+      }).length;
+
+      const totalRequests = requests.length;
+      const pendingRequests = requests.filter(r => {
+        const st = normalizeSwapStatus(r.status);
+        return st === 'pending' || st === 'reviewed';
+      }).length;
+      const completedSwaps = requests.filter(r => {
+        const st = normalizeSwapStatus(r.status);
+        return st === 'completed' || st === 'accepted' || st === 'inspection_passed';
+      }).length;
+
+      return {
+        activeListings,
+        totalRequests,
+        pendingRequests,
+        completedSwaps
+      };
+    } catch (e) {
+      console.warn('[NaijaSwapData] getStoreStatsRemote error:', e);
+      return this.getStoreStats(storeId);
+    }
   },
 
   // --- RELATIVE TIME FORMATTER ---
@@ -1514,16 +2107,8 @@ export const NaijaSwapData = {
         }
       }
     } catch (e) {
-      console.warn('Firestore reviews fetch failed, attempting API server fallback', e);
+      console.warn('Firestore reviews fetch failed, using saved local reviews', e);
     }
-
-    try {
-      const resp = await fetch(`/api/reviews?storeId=${encodeURIComponent(storeId)}`);
-      if (resp.ok) {
-        const json = await resp.json();
-        if (json.reviews && json.reviews.length > 0) return json.reviews;
-      }
-    } catch (e) {}
 
     try {
       const local = JSON.parse(localStorage.getItem(STORAGE_KEYS.REVIEWS) || '[]');
@@ -1534,29 +2119,7 @@ export const NaijaSwapData = {
   },
 
   async addStoreReview(reviewData) {
-    let saved = false;
-    try {
-      const resp = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reviewData)
-      });
-      if (resp.ok) saved = true;
-    } catch (e) {}
-
-    try {
-      const local = JSON.parse(localStorage.getItem(STORAGE_KEYS.REVIEWS) || '[]');
-      const newReview = {
-        id: 'rev_' + Date.now(),
-        ...reviewData,
-        createdAt: new Date().toISOString()
-      };
-      local.unshift(newReview);
-      localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(local));
-      return newReview;
-    } catch {
-      return reviewData;
-    }
+    return createReviewBackend(reviewData);
   },
 
   getStoreRatingSummary(reviews = []) {

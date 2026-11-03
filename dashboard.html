@@ -39,11 +39,17 @@
       </span>
     </div>
 
-    <div class="dash-header-right">
+    <div class="dash-header-right" style="display: flex; align-items: center; gap: 10px;">
+      <!-- Notification Icon Button beside profile picture -->
+      <a href="alerts.html" class="header-notif-btn" id="headerNotifBtn" title="Alerts & Notifications" style="position: relative; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); color: #FFF; text-decoration: none;">
+        <span class="header-notif-badge" id="headerNotifBadge" style="display: none; position: absolute; top: -2px; right: -2px; background: #EF4444; color: #FFF; font-size: 0.65rem; font-weight: 800; border-radius: 50%; min-width: 18px; height: 18px; line-height: 18px; text-align: center; border: 2px solid #080C0E; padding: 0 4px;">0</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </a>
+
       <!-- User Menu -->
       <div class="user-menu-wrapper">
         <button type="button" class="user-profile-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
-          <div class="user-avatar" id="headerAvatarFallback">S</div>
+          <div class="user-avatar" id="headerAvatarFallback"></div>
           <span class="user-name-text" id="headerUserName">Swapper</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
@@ -60,6 +66,14 @@
           <a href="my-swaps.html" class="dropdown-item" id="openMySwapsFromMenu">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
             <span>My Swap Requests</span>
+          </a>
+          <a href="inbox.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Inbox &amp; Messages</span>
+          </a>
+          <a href="alerts.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Alerts &amp; Notifications</span>
           </a>
           <a href="index.html" class="dropdown-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
@@ -100,6 +114,10 @@
       <button type="button" class="brand-chip active" data-brand="All">Apple & Samsung</button>
       <button type="button" class="brand-chip" data-brand="iPhone">iPhone</button>
       <button type="button" class="brand-chip" data-brand="Samsung">Samsung</button>
+      <button type="button" class="brand-chip brand-chip-swap" id="quickSwapChip" title="Show only devices accepting phone swaps">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+        <span>Swap Ready</span>
+      </button>
 
       <!-- Quick Reset Pill (Shows when non-brand filters are applied) -->
       <button type="button" class="brand-chip quick-reset-chip" id="quickResetChip" style="display: none;" title="Reset all filters">
@@ -115,60 +133,60 @@
       </button>
     </div>
 
+    <!-- Results Toolbar: Live Count & Sort Dropdown -->
+    <div class="listings-results-bar">
+      <div class="results-count-wrap">
+        <span class="results-dot-pulse"></span>
+        <span class="results-count-text" id="listingsCountText">Exploring verified phones...</span>
+      </div>
+      <div class="results-sort-wrap">
+        <label for="sortListingsSelect" class="sort-label">Sort:</label>
+        <div class="custom-select-wrap">
+          <select id="sortListingsSelect" class="sort-select" aria-label="Sort phone listings">
+            <option value="featured">✨ Featured Deals</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="battery_desc">Battery: Highest First</option>
+            <option value="newest">Recently Listed</option>
+          </select>
+          <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </div>
+
     <!-- Phone Listings Grid (Main Focus of Swapper Dashboard) -->
     <div class="phones-grid" id="phonesGrid">
       <!-- Default Skeleton Placeholders (Cleared when dynamic listings load) -->
       <article class="skeleton-phone-card" aria-hidden="true">
         <div class="skeleton-media skeleton-shimmer"></div>
         <div class="skeleton-body">
+          <div class="skeleton-meta-line skeleton-shimmer"></div>
           <div class="skeleton-title-line skeleton-shimmer"></div>
+          <div class="skeleton-price-line skeleton-shimmer"></div>
           <div class="skeleton-specs-line skeleton-shimmer"></div>
-          <div class="skeleton-location-line skeleton-shimmer"></div>
+          <div class="skeleton-callout-line skeleton-shimmer"></div>
         </div>
         <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
       </article>
       <article class="skeleton-phone-card" aria-hidden="true">
         <div class="skeleton-media skeleton-shimmer"></div>
         <div class="skeleton-body">
+          <div class="skeleton-meta-line skeleton-shimmer"></div>
           <div class="skeleton-title-line skeleton-shimmer"></div>
+          <div class="skeleton-price-line skeleton-shimmer"></div>
           <div class="skeleton-specs-line skeleton-shimmer"></div>
-          <div class="skeleton-location-line skeleton-shimmer"></div>
+          <div class="skeleton-callout-line skeleton-shimmer"></div>
         </div>
         <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
       </article>
       <article class="skeleton-phone-card" aria-hidden="true">
         <div class="skeleton-media skeleton-shimmer"></div>
         <div class="skeleton-body">
+          <div class="skeleton-meta-line skeleton-shimmer"></div>
           <div class="skeleton-title-line skeleton-shimmer"></div>
+          <div class="skeleton-price-line skeleton-shimmer"></div>
           <div class="skeleton-specs-line skeleton-shimmer"></div>
-          <div class="skeleton-location-line skeleton-shimmer"></div>
-        </div>
-        <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
-      </article>
-      <article class="skeleton-phone-card" aria-hidden="true">
-        <div class="skeleton-media skeleton-shimmer"></div>
-        <div class="skeleton-body">
-          <div class="skeleton-title-line skeleton-shimmer"></div>
-          <div class="skeleton-specs-line skeleton-shimmer"></div>
-          <div class="skeleton-location-line skeleton-shimmer"></div>
-        </div>
-        <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
-      </article>
-      <article class="skeleton-phone-card" aria-hidden="true">
-        <div class="skeleton-media skeleton-shimmer"></div>
-        <div class="skeleton-body">
-          <div class="skeleton-title-line skeleton-shimmer"></div>
-          <div class="skeleton-specs-line skeleton-shimmer"></div>
-          <div class="skeleton-location-line skeleton-shimmer"></div>
-        </div>
-        <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
-      </article>
-      <article class="skeleton-phone-card" aria-hidden="true">
-        <div class="skeleton-media skeleton-shimmer"></div>
-        <div class="skeleton-body">
-          <div class="skeleton-title-line skeleton-shimmer"></div>
-          <div class="skeleton-specs-line skeleton-shimmer"></div>
-          <div class="skeleton-location-line skeleton-shimmer"></div>
+          <div class="skeleton-callout-line skeleton-shimmer"></div>
         </div>
         <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
       </article>
@@ -185,369 +203,28 @@
   </main>
 
   <!-- ==========================================================================
-       SWAPPER MOBILE BOTTOM NAVIGATION (GLASSMORPHISM EFFECT)
+       SWAPPER MOBILE BOTTOM NAVIGATION (HOME | MY SWAPS | INBOX | MORE)
        ========================================================================== -->
   <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
-    <button type="button" class="bottom-nav-item active" id="navHomeBtn" title="Browse Phones">
+    <a href="dashboard.html" class="bottom-nav-item active" id="navHomeBtn" title="Browse Phones" aria-current="page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       <span>Home</span>
-    </button>
+    </a>
     <a href="my-swaps.html" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
       <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
       <span>My Swaps</span>
     </a>
-    <a href="alerts.html" class="bottom-nav-item" id="navNotifBtn" title="Alerts">
-      <span class="bottom-nav-badge" id="mobileAlertsBadge" style="display: none;">0</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <span>Alerts</span>
+    <a href="inbox.html" class="bottom-nav-item" id="navInboxBtn" title="Messages &amp; Inbox">
+      <span class="bottom-nav-badge" id="mobileInboxBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Inbox</span>
     </a>
     <a href="more.html" class="bottom-nav-item" id="navMoreBtn" title="More">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
       <span>More</span>
     </a>
   </nav>
-
-  <!-- ==========================================================================
-       MODAL: SWAPPER PHONE LISTING FOR DEALERS
-       ========================================================================== -->
-  <div class="modal-backdrop" id="consumerSwapModal" role="dialog" aria-modal="true" aria-labelledby="consumerModalTitle">
-    <div class="modal-card modal-card-xl">
-      <div class="modal-header">
-        <div>
-          <span class="tag-badge tag-verified">Visible to Dealers Only</span>
-          <h2 class="modal-title" id="consumerModalTitle" style="margin-top: 4px;">List Your Phone</h2>
-          <p class="form-helper-text">Your IMEI is checked securely and never shown to dealers.</p>
-        </div>
-        <button type="button" class="modal-close-btn" id="closeConsumerModal" aria-label="Close modal">&times;</button>
-      </div>
-
-      <form id="consumerSwapForm" class="dash-form">
-        <div class="form-sections-wrapper">
-
-          <!-- SECTION 1: DEVICE BASICS -->
-          <div class="form-section-card">
-            <div class="form-section-header">
-              <span class="form-section-num">1</span>
-              <div>
-                <h3>Device Basics</h3>
-                <p>Phone details visible to verified dealers</p>
-              </div>
-            </div>
-
-            <div class="form-row-2">
-              <div class="form-group">
-                <label class="form-label" for="consumerBrand">Brand</label>
-                <select id="consumerBrand" class="form-select" required>
-                  <option value="" disabled selected>-- Select Brand --</option>
-                  <!-- Populated dynamically from NaijaSwapData.getBrands() -->
-                </select>
-                <div id="consumerCustomBrandGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerCustomBrand" class="form-input" placeholder="Type your phone brand (e.g. OnePlus, Motorola)...">
-                  <span class="form-helper-text">Specify brand name if not in list</span>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="consumerModel">Model</label>
-                <select id="consumerModel" class="form-select" required disabled>
-                  <option value="" disabled selected>-- Select Brand First --</option>
-                </select>
-                <div id="consumerCustomModelGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerCustomModel" class="form-input" placeholder="Type exact phone model name...">
-                  <span class="form-helper-text">Specify model if not in list</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-row-2" style="margin-top: 10px;">
-              <div class="form-group">
-                <label class="form-label" for="consumerStorage">Storage Capacity</label>
-                <select id="consumerStorage" class="form-select" required>
-                  <option value="64GB">64GB</option>
-                  <option value="128GB" selected>128GB</option>
-                  <option value="256GB">256GB</option>
-                  <option value="512GB">512GB</option>
-                  <option value="1TB">1TB</option>
-                  <option value="Other">Other (Type custom)</option>
-                </select>
-                <div id="consumerCustomStorageGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerCustomStorage" class="form-input" placeholder="e.g. 32GB, 2TB...">
-                  <span class="form-helper-text">Specify storage capacity</span>
-                </div>
-              </div>
-              <div class="form-group" id="consumerRamGroup" style="display: none;">
-                <label class="form-label" for="consumerRam">RAM (Android)</label>
-                <select id="consumerRam" class="form-select">
-                  <option value="4GB">4GB</option>
-                  <option value="6GB">6GB</option>
-                  <option value="8GB" selected>8GB</option>
-                  <option value="12GB">12GB</option>
-                  <option value="16GB">16GB</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-group" style="margin-top: 10px;">
-              <label class="form-label" for="consumerImei">IMEI Number (15 Digits)</label>
-              <input type="text" id="consumerImei" class="form-input" placeholder="e.g. 354892091234567" maxlength="18" required>
-              <span class="form-helper-text">ℹ️ *Dial *#06# on your phone to find this*</span>
-            </div>
-          </div>
-
-          <!-- SECTION 2: CONDITION TRIAGE (BOOLEAN YES/NO TOGGLES) -->
-          <div class="form-section-card">
-            <div class="form-section-header">
-              <span class="form-section-num">2</span>
-              <div>
-                <h3>Condition Triage</h3>
-                <p>Answer truthfully so dealers can assess your phone accurately</p>
-              </div>
-            </div>
-
-            <div class="triage-list">
-              <!-- Q1: Power & Screen -->
-              <div class="triage-row">
-                <div class="triage-info">
-                  <span class="triage-q-title">Power & Touch Responsiveness</span>
-                  <span class="triage-q-desc">Does the phone power on, and is the touchscreen fully responsive without dead spots?</span>
-                </div>
-                <div class="segmented-switch" id="switchPowerScreen" data-name="powerAndScreen">
-                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes</button>
-                  <button type="button" class="segmented-option-btn" data-val="no">✕ No</button>
-                </div>
-              </div>
-
-              <!-- Q2: Screen Glass -->
-              <div class="triage-row">
-                <div class="triage-info">
-                  <span class="triage-q-title">Screen Glass & Display Condition</span>
-                  <span class="triage-q-desc">Are there any cracks, deep scratches, or LCD ink bleeds/lines on the display?</span>
-                </div>
-                <div class="segmented-switch" id="switchScreenGlass" data-name="screenGlass">
-                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Cracked)</button>
-                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean)</button>
-                </div>
-              </div>
-
-              <!-- Q3: Body & Housing -->
-              <div class="triage-row">
-                <div class="triage-info">
-                  <span class="triage-q-title">Body & Housing Condition</span>
-                  <span class="triage-q-desc">Are there any chips, dents, or bends on the frame or back glass?</span>
-                </div>
-                <div class="segmented-switch" id="switchBodyHousing" data-name="bodyAndHousing">
-                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Dented)</button>
-                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean)</button>
-                </div>
-              </div>
-
-              <!-- Q4: Hardware Functionality -->
-              <div class="triage-row">
-                <div class="triage-info">
-                  <span class="triage-q-title">Hardware & Sensors Functionality</span>
-                  <span class="triage-q-desc">Do the cameras, microphone, speakers, and FaceID/TouchID all work perfectly?</span>
-                </div>
-                <div class="segmented-switch" id="switchHardware" data-name="hardwareFunctionality">
-                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes</button>
-                  <button type="button" class="segmented-option-btn" data-val="no">✕ No</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Battery Health & Carrier Lock -->
-            <div class="form-row-2" style="margin-top: 14px;">
-              <div class="form-group" id="consumerBatteryGroup">
-                <label class="form-label" for="consumerBatteryHealth">Battery Health / Estimated Capacity %</label>
-                <input type="number" id="consumerBatteryHealth" class="form-input" min="1" max="100" placeholder="e.g. 87" value="88" required>
-                <span class="form-helper-text" id="consumerBatteryHint">Settings > Battery > Battery Health (Maximum Capacity %)</span>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="consumerCarrierLock">Carrier Lock Status</label>
-                <select id="consumerCarrierLock" class="form-select" required>
-                  <option value="Factory Unlocked" selected>Factory Unlocked (All SIMs)</option>
-                  <option value="Network Locked">Network Locked</option>
-                  <option value="CHIP Unlocked">CHIP Unlocked (RSIM / Gevey)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- SECTION 3: MEDIA UPLOADS (IMAGES & VIDEOS UP TO 5) -->
-          <div class="form-section-card">
-            <div class="form-section-header">
-              <span class="form-section-num">3</span>
-              <div style="flex: 1;">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                  <h3 style="margin: 0;">Media Uploads (Up to 5)</h3>
-                  <span class="tag-badge" id="consumerMediaCounter" style="font-size: 0.72rem; padding: 3px 9px; background: rgba(16, 185, 129, 0.15); color: var(--emerald-400); border: 1px solid rgba(16, 185, 129, 0.3);">0 / 5 files</span>
-                </div>
-                <p style="margin-top: 4px;">Upload photos and short video clips of your phone (front, back, and powering on)</p>
-              </div>
-            </div>
-
-            <!-- Drag & Drop Zone -->
-            <div class="media-dropzone" id="consumerDropzone">
-              <span class="dropzone-icon">📸</span>
-              <div class="dropzone-title">Click to browse or drag & drop files here</div>
-              <div class="dropzone-desc">Accepts photos (JPG, PNG, WEBP) and video clips (MP4, MOV). Add up to 5 items.</div>
-              <input type="file" id="consumerMediaInput" class="dropzone-file-input" multiple accept="image/*,video/*">
-            </div>
-
-            <!-- Upload Progress Bar -->
-            <div class="upload-progress-container" id="consumerUploadProgress" style="display: none;">
-              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 4px;">
-                <span id="consumerProgressLabel" style="color: var(--text-muted);">Uploading media...</span>
-                <span id="consumerProgressPct" style="color: var(--cyan-400);">0%</span>
-              </div>
-              <div id="consumerProgressTrack" role="progressbar" aria-label="Phone media upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="height: 4px; width: 100%; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
-                <div class="upload-progress-fill" id="consumerProgressFill"></div>
-              </div>
-            </div>
-
-            <!-- Media Previews Grid -->
-            <div class="dropzone-previews-grid" id="consumerPreviewsGrid"></div>
-          </div>
-
-          <!-- SECTION 4: CONTACT DETAILS -->
-          <div class="form-section-card">
-            <div class="form-section-header">
-              <span class="form-section-num">4</span>
-              <div>
-                <h3>Contact Details</h3>
-                <p>Let dealers know where you are and how to reach you</p>
-              </div>
-            </div>
-            <div class="form-row-2" style="margin-top: 10px;">
-              <div class="form-group">
-                <label class="form-label" for="consumerListingLocation">Location</label>
-                <input type="text" id="consumerListingLocation" class="form-input" maxlength="120" placeholder="e.g. Ikeja, Lagos" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="consumerPhoneInput">Your WhatsApp / Phone Number</label>
-                <input type="tel" id="consumerPhoneInput" class="form-input" placeholder="e.g. 08012345678" required>
-                <span class="form-helper-text">Your number will be shared with verified dealers so they can contact you.</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <button type="submit" class="btn-primary-action" id="submitConsumerSwapBtn" style="justify-content: center; padding: 16px; font-size: 1.02rem; margin-top: 10px;">
-          <span>Verify &amp; List for Dealers</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ==========================================================================
-       MODAL: FILTERS BOTTOM SHEET / DIALOG
-       ========================================================================== -->
-  <div class="modal-backdrop" id="filterModal" role="dialog" aria-modal="true" aria-labelledby="filterModalTitle">
-    <div class="modal-card modal-card-filter">
-      <div class="modal-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2.2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-          <h2 class="modal-title" id="filterModalTitle">Filter Listings</h2>
-        </div>
-        <button type="button" class="modal-close-btn" id="closeFilterModal" aria-label="Close filters">&times;</button>
-      </div>
-
-      <div class="modal-filter-scroll-body">
-        <!-- Brand -->
-        <div class="form-group">
-          <label class="form-label" for="filterBrand">Brand</label>
-          <select class="form-select" id="filterBrand" aria-label="Filter by brand select">
-            <option value="All">All Brands (Apple & Samsung)</option>
-            <option value="Apple">Apple iPhone</option>
-            <option value="Samsung">Samsung Galaxy</option>
-          </select>
-        </div>
-
-        <!-- Storage & Condition in 2 columns -->
-        <div class="form-row-2">
-          <div class="form-group">
-            <label class="form-label" for="filterStorage">Storage Capacity</label>
-            <select class="form-select" id="filterStorage" aria-label="Filter by storage">
-              <option value="All">All Storage</option>
-              <option value="64GB">64GB</option>
-              <option value="128GB">128GB</option>
-              <option value="256GB">256GB</option>
-              <option value="512GB">512GB</option>
-              <option value="1TB">1TB</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="filterCondition">Condition</label>
-            <select class="form-select" id="filterCondition" aria-label="Filter by condition">
-              <option value="All">All Conditions</option>
-              <option value="Brand New">Brand New Sealed</option>
-              <option value="Excellent">Excellent (Grade A)</option>
-              <option value="Very Good">Very Good</option>
-              <option value="Good">Good (Grade B)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Location -->
-        <div class="form-group">
-          <label class="form-label" for="filterLocation">Location</label>
-          <select class="form-select" id="filterLocation" aria-label="Filter by location">
-            <option value="All">All Locations</option>
-            <option value="Ikeja, Lagos">Ikeja (Computer Village)</option>
-            <option value="Lekki, Lagos">Lekki / Victoria Island</option>
-            <option value="Abuja">Abuja (Banex Plaza)</option>
-            <option value="Port Harcourt">Port Harcourt (Garrison)</option>
-          </select>
-        </div>
-
-        <!-- Price Range -->
-        <div class="form-group">
-          <label class="form-label">Price Range (₦)</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="number" id="panelMinPrice" class="form-input" placeholder="Min ₦" min="0">
-            <input type="number" id="panelMaxPrice" class="form-input" placeholder="Max ₦" min="0">
-          </div>
-        </div>
-
-        <!-- Swap Allowed Toggle -->
-        <div class="form-group" style="margin-top: 4px;">
-          <label class="swap-toggle-card" for="panelSwapAllowed">
-            <input type="checkbox" id="panelSwapAllowed" style="width: 18px; height: 18px; accent-color: var(--emerald-400); cursor: pointer;">
-            <span style="font-size: 0.88rem; font-weight: 500; color: var(--text-white); cursor: pointer;">Direct Swap Allowed Only</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Modal Footer Actions -->
-      <div class="modal-filter-footer">
-        <button type="button" class="btn-reset-filters" id="resetFiltersBtn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-          <span>Reset All</span>
-        </button>
-        <button type="button" class="btn-primary-action" id="applyFiltersBtn" style="padding: 10px 22px; font-size: 0.88rem; font-weight: 600; justify-content: center;">
-          <span>Apply Filters</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================================================
-       MODAL: MY SWAPS TRACKER
-       ========================================================================== -->
-  <div class="modal-backdrop" id="mySwapsModal" role="dialog" aria-modal="true" aria-labelledby="mySwapsTitle">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2 class="modal-title" id="mySwapsTitle">My Swap Requests</h2>
-        <button type="button" class="modal-close-btn" id="closeMySwapsModal" aria-label="Close modal">&times;</button>
-      </div>
-
-      <div id="mySwapsListContainer" style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
-        <!-- Dynamically populated from NaijaSwapData.getUserSwapRequests -->
-      </div>
-    </div>
-  </div>
 
   <!-- ==========================================================================
        MODAL: NOTIFICATIONS POPUP
@@ -568,13 +245,11 @@
 
   <!-- Scripts -->
   <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/app-enhancements.js"></script>
   <script type="module">
-    import { requireCompleteProfile } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { createSwapperListingBackend, verifyDeviceIMEIBackend } from './js/backend-api.js';
-    import { uploadToCloudinary } from './js/cloudinary-config.js';
     import { initOnboarding, openOnboardingModal } from './js/onboarding.js';
-    import { setButtonLoading } from './js/auth.js';
+    import { renderAvatarElement } from './js/profile.js';
 
     let currentUserId = 'user_guest';
     let currentUserName = 'Swapper';
@@ -593,13 +268,7 @@
         const avatarEl = document.getElementById('headerAvatarFallback');
         if (nameEl) nameEl.textContent = currentUserName;
         if (avatarEl) {
-          const storedPhoto = currentUserId ? localStorage.getItem('naijaswap_photo_' + currentUserId) : null;
-          const photo = storedPhoto || (u.photoURL && u.photoURL.startsWith('http') ? u.photoURL : null);
-          if (photo) {
-            avatarEl.innerHTML = `<img src="${photo}" alt="${currentUserName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-          } else {
-            avatarEl.textContent = currentUserName.charAt(0).toUpperCase();
-          }
+          renderAvatarElement(avatarEl, currentUserId, currentUserName, u);
         }
       }
     } catch (e) {}
@@ -631,6 +300,38 @@
     const mobileSwapsBadge = document.getElementById('mobileSwapsBadge');
 
     let activeBrand = 'All';
+    let swapOnlyFilter = false;
+
+    // Helpers for card rendering
+    function formatPrice(val) {
+      const num = typeof val === 'number' ? val : (parseFloat(String(val || '').replace(/[^0-9.]/g, '')) || 0);
+      return num.toLocaleString();
+    }
+
+    function isRawUid(str) {
+      if (!str || typeof str !== 'string') return true;
+      const s = str.trim();
+      if (s.length >= 18 && !s.includes(' ') && /^[a-zA-Z0-9_-]+$/.test(s)) return true;
+      if (/^(store_|user_|dealer_)[a-zA-Z0-9]+$/i.test(s)) return true;
+      return false;
+    }
+
+    function shortenLocation(loc) {
+      if (!loc) return 'Lagos, Nigeria';
+      const parts = loc.split(',').map(p => p.trim());
+      if (parts.length >= 2) {
+        return `${parts[parts.length - 2]}, ${parts[parts.length - 1]}`;
+      }
+      return loc;
+    }
+
+    function getBrandBadgeHtml(brand) {
+      const b = String(brand || '').toLowerCase();
+      if (b.includes('apple') || b.includes('iphone')) {
+        return `<span class="tag-badge tag-brand"><svg width="10" height="10" viewBox="0 0 170 170" fill="currentColor" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.69-7.85-11.97-14.42-5.77-8.87-10.22-19.14-13.35-30.82-3.13-11.68-4.7-22.75-4.7-33.21 0-14.44 3.73-26.68 11.19-36.72 7.46-10.04 16.98-15.19 28.56-15.45 4.35 0 9.29 1.15 14.82 3.45 5.53 2.3 9.4 3.51 11.62 3.63 1.74-.12 5.89-1.4 12.45-3.84 6.56-2.45 11.96-3.48 16.2-3.1 12.01.99 21.6 5.48 28.77 13.48-10.56 6.4-15.74 15.22-15.54 26.47.2 9.04 3.69 16.71 10.47 23.01 6.78 6.3 14.88 9.94 24.31 10.92-2.3 6.96-5.18 14.28-8.65 21.95zm-29.43-108.7c0-7.39 2.64-14.24 7.92-20.55 5.28-6.31 11.75-10.05 19.41-11.23.44 2.87.66 5.43.66 7.68 0 7.39-2.73 14.34-8.19 20.85-5.46 6.51-12.08 10.28-19.86 11.31-.07-2.69.06-5.38.06-8.06z"/></svg>Apple</span>`;
+      }
+      return `<span class="tag-badge tag-brand"><span style="color:var(--cyan-400); margin-right:3px;">●</span>Samsung</span>`;
+    }
 
     // Render Phone Listings to Grid
     let allListingsCache = null;
@@ -672,13 +373,24 @@
       }
       if (searchInput && searchInput.value.trim()) {
         const q = searchInput.value.trim().toLowerCase();
-        listings = listings.filter(phone => (phone.model || '').toLowerCase().includes(q));
+        listings = listings.filter(phone => 
+          (phone.model || '').toLowerCase().includes(q) ||
+          (phone.brand || '').toLowerCase().includes(q) ||
+          (phone.color || '').toLowerCase().includes(q) ||
+          (phone.storage || '').toLowerCase().includes(q) ||
+          (phone.location || '').toLowerCase().includes(q)
+        );
       }
 
-      // Additional Modal Filters (Price Range & Swap Allowed)
+      // Quick Swap Only Filter or Modal Checkbox
+      const panelSwapAllowed = document.getElementById('panelSwapAllowed');
+      if (swapOnlyFilter || (panelSwapAllowed && panelSwapAllowed.checked)) {
+        listings = listings.filter(phone => phone.isSwapAllowed !== false);
+      }
+
+      // Additional Modal Filters (Price Range)
       const panelMinPrice = document.getElementById('panelMinPrice');
       const panelMaxPrice = document.getElementById('panelMaxPrice');
-      const panelSwapAllowed = document.getElementById('panelSwapAllowed');
 
       if (panelMinPrice && panelMinPrice.value) {
         const min = parseInt(panelMinPrice.value);
@@ -694,8 +406,30 @@
           return price <= max;
         });
       }
-      if (panelSwapAllowed && panelSwapAllowed.checked) {
-        listings = listings.filter(phone => phone.isSwapAllowed);
+
+      // Sorting
+      const sortSelect = document.getElementById('sortListingsSelect');
+      const sortVal = sortSelect ? sortSelect.value : 'featured';
+
+      if (sortVal === 'price_asc') {
+        listings.sort((a, b) => (a.cashOutrightPrice || a.marketValue || 0) - (b.cashOutrightPrice || b.marketValue || 0));
+      } else if (sortVal === 'price_desc') {
+        listings.sort((a, b) => (b.cashOutrightPrice || b.marketValue || 0) - (a.cashOutrightPrice || a.marketValue || 0));
+      } else if (sortVal === 'battery_desc') {
+        const getBatteryNum = p => parseInt(String(p.battery || p.batteryHealth || '0').replace(/\D/g, ''), 10) || 0;
+        listings.sort((a, b) => getBatteryNum(b) - getBatteryNum(a));
+      } else if (sortVal === 'newest') {
+        listings.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      }
+
+      // Live inventory counter update
+      const listingsCountText = document.getElementById('listingsCountText');
+      if (listingsCountText) {
+        if (listings.length === 0) {
+          listingsCountText.innerHTML = 'No phones matching filters';
+        } else {
+          listingsCountText.innerHTML = `Showing <strong>${listings.length}</strong> verified ${listings.length === 1 ? 'phone' : 'phones'} available for swap`;
+        }
       }
 
       if (listings.length === 0) {
@@ -709,51 +443,144 @@
 
       listings.forEach(phone => {
         const card = document.createElement('article');
-        card.className = 'phone-card fade-in-content';
+        const isOutOfStock = phone.quantityInStock === 0 || phone.status === 'out_of_stock' || phone.status === 'sold';
+        card.className = `phone-card fade-in-content ${isOutOfStock ? 'phone-card-out-of-stock' : ''}`;
         card.setAttribute('data-id', phone.id);
 
-        const isOutOfStock = phone.quantityInStock === 0 || phone.status === 'out_of_stock' || phone.status === 'sold';
+        const isSwapAllowed = phone.isSwapAllowed !== false;
+        const brandBadge = getBrandBadgeHtml(phone.brand);
+        const conditionGradeText = phone.conditionGrade || phone.condition || 'Grade A';
+        const gradeClass = conditionGradeText.toLowerCase().includes('pristine') || conditionGradeText.toLowerCase().includes('sealed') 
+          ? 'tag-grade-pristine' 
+          : 'tag-grade-clean';
 
-        let tagsHtml = (phone.tags || []).map(t => {
-          const isVerified = t.toLowerCase().includes('verified');
-          return `<span class="tag-badge ${isVerified ? 'tag-verified' : 'tag-recent'}">${t}</span>`;
-        }).join('');
-
-        if (isOutOfStock) {
-          tagsHtml += `<span class="tag-badge" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5);">Swapped</span>`;
+        let batteryText = '';
+        if (phone.battery) {
+          batteryText = String(phone.battery).includes('%') ? phone.battery : `${phone.battery}%`;
+        } else if (phone.batteryHealth) {
+          batteryText = `${phone.batteryHealth}%`;
         }
 
+        let storeName = phone.storeName;
+        if (!storeName || isRawUid(storeName)) {
+          storeName = 'Verified Partner Hub';
+        }
+        const isVerifiedStore = phone.storeVerified !== false;
+        const shortLoc = shortenLocation(phone.location);
+        const price = phone.cashOutrightPrice || phone.marketValue || 0;
+        const tradeInTier = phone.minAcceptableTradeInTier || phone.acceptedTradeIn || 'Open to all eligible devices';
+        const warrantyText = phone.storeWarranty || phone.warranty || '30-Day Store Warranty';
+        const imageSrc = phone.image || 'assets/iPhone 15 Pro.jpg';
+
         card.innerHTML = `
+          <!-- Media Header -->
           <div class="phone-card-media">
-            <div class="phone-tags-floating">${tagsHtml}</div>
-            <img src="${phone.image}" alt="${phone.brand} ${phone.model}" class="phone-card-img" loading="lazy" style="${isOutOfStock ? 'filter: grayscale(0.5) opacity(0.85);' : ''}">
+            <div class="phone-tags-floating">
+              ${brandBadge}
+              <span class="tag-badge ${gradeClass}">${escapeHtml(conditionGradeText)}</span>
+            </div>
+
+            <div class="phone-badge-status-wrap">
+              ${isOutOfStock 
+                ? `<span class="badge-stock badge-swapped">● Swapped</span>`
+                : isSwapAllowed
+                  ? `<span class="badge-swap-pill badge-swap-active" title="Direct swap accepted">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+                      <span>Swap Available</span>
+                     </span>`
+                  : `<span class="badge-swap-pill badge-cash-only">💵 Cash Only</span>`
+              }
+            </div>
+
+            <img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(phone.brand || '')} ${escapeHtml(phone.model)}" class="phone-card-img" loading="lazy" onerror="this.onerror=null;this.src='assets/iPhone 15 Pro.jpg';" style="${isOutOfStock ? 'filter: grayscale(0.6) opacity(0.8);' : ''}">
+
+            ${batteryText ? `
+              <div class="phone-media-overlay-pill">
+                <span class="media-battery-pill" title="Battery Health">
+                  <span class="bat-icon">🔋</span>
+                  <span>${escapeHtml(batteryText)} Health</span>
+                </span>
+              </div>
+            ` : ''}
           </div>
+
+          <!-- Body -->
           <div class="phone-card-body">
-            <div class="phone-title-block">
-              <h3>${phone.model}</h3>
-              <div class="phone-specs-line">
-                <span>${phone.storage}</span>
-                <span>•</span>
-                <span>${phone.condition}</span>
+            <!-- Dealer & Hub Meta Row -->
+            <div class="phone-dealer-meta-row">
+              <div class="phone-store-name" title="${escapeHtml(storeName)}">
+                <svg class="store-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="store-text">${escapeHtml(storeName)}</span>
+                ${isVerifiedStore ? `<span class="verified-check-pill" title="Verified Hub Dealer"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></span>` : ''}
+              </div>
+              <div class="phone-location-meta" title="${escapeHtml(phone.location || 'Nigeria')}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>${escapeHtml(shortLoc)}</span>
               </div>
             </div>
-            <div class="phone-location-line">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-              <span>${phone.location}</span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-size:0.76rem;">
-              <div style="display:flex;align-items:center;gap:5px;color:var(--emerald-400);font-weight:700;">
-                ${phone.storeVerified ? '<span aria-label="Verified dealer">🛡️ Verified Hub</span>' : '<span style="color:var(--text-muted);">Verification pending</span>'}
-              </div>
-              <div style="color:#fbbf24;font-weight:700;">
-                ★ 4.9
+
+            <!-- Title & Price Block -->
+            <div class="phone-main-info-row">
+              <h3 class="phone-card-title">${escapeHtml(phone.model)}</h3>
+              <div class="phone-price-badge-block">
+                <div><span class="price-currency">₦</span><span class="price-number">${formatPrice(price)}</span></div>
+                <span class="price-caption">${isSwapAllowed ? 'Value / Outright' : 'Cash Outright'}</span>
               </div>
             </div>
+
+            <!-- Key Specs Pills -->
+            <div class="phone-specs-pill-wrap">
+              <span class="spec-pill spec-storage" title="Storage Capacity">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+                <span>${escapeHtml(phone.storage || '128GB')}</span>
+              </span>
+
+              ${phone.color ? `
+                <span class="spec-pill spec-color" title="Color Finish">
+                  <span class="color-dot-indicator"></span>
+                  <span>${escapeHtml(phone.color)}</span>
+                </span>
+              ` : ''}
+
+              ${batteryText ? `
+                <span class="spec-pill spec-battery" title="Battery Health">
+                  <span>🔋 ${escapeHtml(batteryText)}</span>
+                </span>
+              ` : ''}
+
+              <span class="spec-pill spec-warranty" title="Hub Warranty">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>${escapeHtml(warrantyText)}</span>
+              </span>
+            </div>
+
+            <!-- Swap Trade-in Eligibility Callout -->
+            ${isSwapAllowed ? `
+              <div class="phone-swap-tradein-callout">
+                <div class="swap-callout-icon">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+                </div>
+                <div class="swap-callout-text">
+                  <span class="swap-callout-label">Accepts Trade-in:</span>
+                  <span class="swap-callout-value" title="${escapeHtml(tradeInTier)}">${escapeHtml(tradeInTier)}</span>
+                </div>
+              </div>
+            ` : `
+              <div class="phone-swap-tradein-callout cash-only-callout">
+                <div class="swap-callout-icon">💵</div>
+                <div class="swap-callout-text">
+                  <span class="swap-callout-label">Purchase:</span>
+                  <span class="swap-callout-value">Direct Cash Only (No Trade-in)</span>
+                </div>
+              </div>
+            `}
           </div>
+
+          <!-- Footer Action Button -->
           <div class="phone-card-footer">
-            <button type="button" class="btn-view-details" style="${isOutOfStock ? 'background: rgba(255,255,255,0.08); color: var(--text-dim);' : ''}">
-              <span>${isOutOfStock ? 'Swapped / Out of Stock' : 'View Details & Swap'}</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            <button type="button" class="btn-view-details ${isOutOfStock ? 'btn-out-of-stock' : ''}">
+              <span>${isOutOfStock ? 'Swapped / Out of Stock' : (isSwapAllowed ? 'Calculate Swap Top-Up' : 'View Phone Details')}</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
           </div>
         `;
@@ -801,8 +628,6 @@
         else if (req.status === 'rejected') badgeClass = 'status-declined';
         else if (req.status === 'completed') badgeClass = 'status-completed';
 
-        const waMsg = encodeURIComponent(`Hello ${req.storeName}, I submitted a swap request on NaijaSwap for ${req.targetPhoneModel} offering my ${req.swapperPhoneModel}. Let's discuss details.`);
-
         item.innerHTML = `
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
             <strong style="color: #FFF; font-size: 0.94rem;">${escapeHtml(req.swapperPhoneModel)} ➔ ${escapeHtml(req.targetPhoneModel)}</strong>
@@ -811,7 +636,10 @@
           <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">Store: ${escapeHtml(req.storeName)}</p>
           <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem;">
             <span style="color: var(--emerald-400); font-weight: 700;">Est. Top-Up: ${escapeHtml(req.topupOffered)}</span>
-            <a href="https://wa.me/?text=${waMsg}" target="_blank" rel="noopener" class="btn-action-sm btn-accept" style="text-decoration: none; padding: 4px 12px;">Chat Store</a>
+            <a href="chat.html?id=${encodeURIComponent(req.id || req.firestoreId)}" class="btn-action-sm btn-accept" style="text-decoration: none; padding: 4px 12px; display: inline-flex; align-items: center; gap: 5px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <span>Chat Store</span>
+            </a>
           </div>
         `;
         container.appendChild(item);
@@ -855,6 +683,7 @@
     function getActiveFilterCount() {
       let count = 0;
       if (activeBrand !== 'All') count++;
+      if (swapOnlyFilter) count++;
       if (filterStorage && filterStorage.value !== 'All') count++;
       if (filterCondition && filterCondition.value !== 'All') count++;
       if (filterLocation && filterLocation.value !== 'All') count++;
@@ -920,6 +749,23 @@
       quickResetChip.addEventListener('click', resetAllFilters);
     }
 
+    const quickSwapChip = document.getElementById('quickSwapChip');
+    if (quickSwapChip) {
+      quickSwapChip.addEventListener('click', () => {
+        swapOnlyFilter = !swapOnlyFilter;
+        quickSwapChip.classList.toggle('active', swapOnlyFilter);
+        syncFilterUI();
+        renderPhoneListings();
+      });
+    }
+
+    const sortListingsSelect = document.getElementById('sortListingsSelect');
+    if (sortListingsSelect) {
+      sortListingsSelect.addEventListener('change', () => {
+        renderPhoneListings();
+      });
+    }
+
     const panelMinPrice = document.getElementById('panelMinPrice');
     const panelMaxPrice = document.getElementById('panelMaxPrice');
     const panelSwapAllowed = document.getElementById('panelSwapAllowed');
@@ -939,8 +785,13 @@
     }
 
     brandChips.forEach(chip => {
+      if (chip.id === 'quickSwapChip' || chip.id === 'quickResetChip' || chip.id === 'toggleFilterPanelBtn') return;
       chip.addEventListener('click', () => {
-        brandChips.forEach(c => c.classList.remove('active'));
+        brandChips.forEach(c => {
+          if (c.id !== 'quickSwapChip' && c.id !== 'quickResetChip' && c.id !== 'toggleFilterPanelBtn') {
+            c.classList.remove('active');
+          }
+        });
         chip.classList.add('active');
         activeBrand = chip.dataset.brand;
         if (filterBrand) filterBrand.value = activeBrand === 'All' ? 'All' : activeBrand;
@@ -953,7 +804,9 @@
       filterBrand.addEventListener('change', () => {
         activeBrand = filterBrand.value;
         brandChips.forEach(c => {
-          c.classList.toggle('active', c.dataset.brand.toLowerCase() === activeBrand.toLowerCase());
+          if (c.dataset.brand) {
+            c.classList.toggle('active', c.dataset.brand.toLowerCase() === activeBrand.toLowerCase());
+          }
         });
         syncFilterUI();
         renderPhoneListings();
@@ -984,7 +837,14 @@
 
     function resetAllFilters() {
       activeBrand = 'All';
-      brandChips.forEach(c => c.classList.toggle('active', c.dataset.brand === 'All'));
+      swapOnlyFilter = false;
+      if (quickSwapChip) quickSwapChip.classList.remove('active');
+      if (sortListingsSelect) sortListingsSelect.value = 'featured';
+      brandChips.forEach(c => {
+        if (c.dataset.brand) {
+          c.classList.toggle('active', c.dataset.brand === 'All');
+        }
+      });
       if (filterBrand) filterBrand.value = 'All';
       if (filterStorage) filterStorage.value = 'All';
       if (filterCondition) filterCondition.value = 'All';
@@ -1063,12 +923,8 @@
         const avatarEl = document.getElementById('headerAvatarFallback');
         if (nameEl) nameEl.textContent = currentUserName;
 
-        const storedPhoto = localStorage.getItem('naijaswap_photo_' + user.uid);
-        const photo = storedPhoto || (user.photoURL && user.photoURL.startsWith('http') ? user.photoURL : null);
-        if (photo && avatarEl) {
-          avatarEl.innerHTML = `<img src="${photo}" alt="${escapeHtml(currentUserName)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-        } else if (avatarEl) {
-          avatarEl.textContent = currentUserName.charAt(0).toUpperCase();
+        if (avatarEl) {
+          renderAvatarElement(avatarEl, user.uid, currentUserName, user);
         }
 
         updateMySwapsBadge();
@@ -1084,468 +940,6 @@
     }
 
     // =========================================================================
-    // SWAPPER PHONE LISTING FORM CONTROLLER
-    // =========================================================================
-    const consumerSwapModal = document.getElementById('consumerSwapModal');
-    const openConsumerSwapModalBtn = document.getElementById('openConsumerSwapModalBtn');
-    const closeConsumerModal = document.getElementById('closeConsumerModal');
-    const consumerSwapForm = document.getElementById('consumerSwapForm');
-    let isPublishingSwapperListing = false;
-
-    const consumerBrand = document.getElementById('consumerBrand');
-    const consumerModel = document.getElementById('consumerModel');
-    const consumerStorage = document.getElementById('consumerStorage');
-    const consumerRamGroup = document.getElementById('consumerRamGroup');
-    const consumerDropzone = document.getElementById('consumerDropzone');
-    const consumerMediaInput = document.getElementById('consumerMediaInput');
-    const consumerUploadProgress = document.getElementById('consumerUploadProgress');
-    const consumerProgressFill = document.getElementById('consumerProgressFill');
-    const consumerPreviewsGrid = document.getElementById('consumerPreviewsGrid');
-    const consumerBatteryHint = document.getElementById('consumerBatteryHint');
-    const consumerMediaCounter = document.getElementById('consumerMediaCounter');
-
-    const consumerCustomBrandGroup = document.getElementById('consumerCustomBrandGroup');
-    const consumerCustomBrand = document.getElementById('consumerCustomBrand');
-    const consumerCustomModelGroup = document.getElementById('consumerCustomModelGroup');
-    const consumerCustomModel = document.getElementById('consumerCustomModel');
-    const consumerCustomStorageGroup = document.getElementById('consumerCustomStorageGroup');
-    const consumerCustomStorage = document.getElementById('consumerCustomStorage');
-
-    const consumerProgressLabel = document.getElementById('consumerProgressLabel');
-    const consumerProgressPct = document.getElementById('consumerProgressPct');
-    const consumerProgressTrack = document.getElementById('consumerProgressTrack');
-    const consumerListingLocation = document.getElementById('consumerListingLocation');
-
-    const consumerTriage = {
-      powerAndScreen: true,
-      screenGlass: false,
-      bodyAndHousing: false,
-      hardwareFunctionality: true
-    };
-
-    let consumerUploadedFiles = [];
-    let consumerPendingFiles = 0;
-
-    function updateConsumerMediaCounter() {
-      if (consumerMediaCounter) {
-        consumerMediaCounter.textContent = `${consumerUploadedFiles.length + consumerPendingFiles} / 5 files`;
-      }
-    }
-
-    function initConsumerForm() {
-      if (!consumerBrand) return;
-
-      // Populate phone brands from the marketplace catalogue.
-      const brands = NaijaSwapData.getBrands();
-      const brandOptions = '<option value="" disabled selected>-- Select Brand --</option>' +
-        brands.map(b => `<option value="${b}">${b}</option>`).join('') +
-        '';
-
-      consumerBrand.innerHTML = brandOptions;
-
-      // Current brand change -> populate model & handle Android RAM & custom input
-      consumerBrand.addEventListener('change', () => {
-        const brand = consumerBrand.value;
-        if (brand === 'Other') {
-          if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'block';
-          consumerModel.disabled = false;
-          consumerModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone (Type below)</option>';
-          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'block';
-        } else {
-          if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'none';
-          const models = NaijaSwapData.getModelsForBrand(brand);
-          consumerModel.disabled = false;
-
-          if (models.length > 0) {
-            consumerModel.innerHTML = '<option value="" disabled selected>-- Select Model --</option>' +
-              models.map(m => `<option value="${m}">${m}</option>`).join('') +
-              '<option value="Other Model">Other Model (Type custom)</option>';
-          } else {
-            consumerModel.innerHTML = '<option value="Other Smartphone" selected>Other Smartphone</option>';
-          }
-          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
-        }
-
-        const isAndroid = NaijaSwapData.isAndroid(brand);
-        if (consumerRamGroup) {
-          consumerRamGroup.style.display = isAndroid ? 'block' : 'none';
-        }
-        if (consumerBatteryHint) {
-          consumerBatteryHint.textContent = isAndroid 
-            ? 'Estimate approximate battery life capacity %'
-            : 'Settings > Battery > Battery Health (Maximum Capacity %)';
-        }
-      });
-
-      // Model change -> toggle custom model input
-      consumerModel.addEventListener('change', () => {
-        const val = consumerModel.value;
-        if (val === 'Other Model' || val === 'Other Smartphone') {
-          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'block';
-        } else {
-          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
-        }
-      });
-
-      // Storage change -> toggle custom storage input
-      if (consumerStorage) {
-        consumerStorage.addEventListener('change', () => {
-          if (consumerStorage.value === 'Other') {
-            if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'block';
-          } else {
-            if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'none';
-          }
-        });
-      }
-
-      // Segmented Triage Switches
-      setupSegmentedSwitch('switchPowerScreen', 'powerAndScreen', true);
-      setupSegmentedSwitch('switchScreenGlass', 'screenGlass', false);
-      setupSegmentedSwitch('switchBodyHousing', 'bodyAndHousing', false);
-      setupSegmentedSwitch('switchHardware', 'hardwareFunctionality', true);
-
-      // Media Dropzone
-      setupConsumerDropzone();
-
-      // Form submission
-      if (consumerSwapForm) {
-        consumerSwapForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (isPublishingSwapperListing) return;
-          const brand = (consumerBrand.value === 'Other' && consumerCustomBrand?.value.trim()) 
-            ? consumerCustomBrand.value.trim() 
-            : consumerBrand.value;
-          const isCustomModel = consumerModel.value === 'Other Model' || consumerModel.value === 'Other Smartphone';
-          const model = (isCustomModel && consumerCustomModel?.value.trim()) 
-            ? consumerCustomModel.value.trim() 
-            : consumerModel.value;
-
-          if (!brand || !model || model.includes('--')) {
-            alert('Please select or specify your phone Brand and Model.');
-            return;
-          }
-          if (!['Apple', 'Samsung'].includes(brand)) {
-            alert('Only Apple and Samsung phones can currently be listed for dealers.');
-            return;
-          }
-
-          const storageCapacity = (consumerStorage.value === 'Other' && consumerCustomStorage?.value.trim())
-            ? consumerCustomStorage.value.trim()
-            : consumerStorage.value;
-          const ram = (NaijaSwapData.isAndroid(brand) && document.getElementById('consumerRam')) 
-            ? document.getElementById('consumerRam').value 
-            : '';
-          const imeiNumber = document.getElementById('consumerImei').value.trim();
-          const batteryHealth = Number(document.getElementById('consumerBatteryHealth').value);
-          const carrierLock = document.getElementById('consumerCarrierLock').value;
-          const contactPhone = document.getElementById('consumerPhoneInput').value.trim();
-          const location = consumerListingLocation.value.trim();
-          if (consumerPendingFiles > 0) {
-            alert('Please wait for the selected media to finish loading before publishing.');
-            return;
-          }
-          if (!Number.isInteger(batteryHealth) || batteryHealth < 1 || batteryHealth > 100) {
-            alert('Battery health must be between 1 and 100%.');
-            return;
-          }
-          if (!consumerUploadedFiles.some(file => !file.isVideo)) {
-            alert('Add at least one clear phone photo before publishing your listing.');
-            return;
-          }
-
-          const triagePayload = {
-            powerAndScreen: consumerTriage.powerAndScreen,
-            screenGlass: consumerTriage.screenGlass,
-            bodyAndHousing: consumerTriage.bodyAndHousing,
-            hardwareFunctionality: consumerTriage.hardwareFunctionality,
-            batteryHealth,
-            carrierLock
-          };
-
-          const submitBtn = document.getElementById('submitConsumerSwapBtn');
-          isPublishingSwapperListing = true;
-          const mediaInput = document.getElementById('consumerMediaInput');
-          if (mediaInput) mediaInput.disabled = true;
-          setButtonLoading(submitBtn, true, 'Verifying & Publishing...');
-          try {
-            if (consumerUploadProgress) consumerUploadProgress.style.display = 'block';
-            if (consumerProgressLabel) consumerProgressLabel.textContent = 'Verifying phone details...';
-            if (consumerProgressPct) consumerProgressPct.textContent = '0%';
-            if (consumerProgressFill) consumerProgressFill.style.width = '0%';
-            if (consumerProgressTrack) consumerProgressTrack.setAttribute('aria-valuenow', '0');
-
-            const verification = await verifyDeviceIMEIBackend(imeiNumber);
-            if (!verification.valid) throw new Error(verification.error || 'Phone verification failed.');
-
-            const condition = !triagePayload.powerAndScreen || !triagePayload.hardwareFunctionality
-              ? 'Damaged'
-              : triagePayload.screenGlass || triagePayload.bodyAndHousing
-                ? 'Fair'
-                : 'Excellent';
-            const mediaFiles = [];
-            for (let index = 0; index < consumerUploadedFiles.length; index += 1) {
-              const item = consumerUploadedFiles[index];
-              if (!item.uploadedUrl) {
-                item.uploadedUrl = await uploadToCloudinary(
-                  item.dataUrl,
-                  `naijaswap/${currentUserId}/swapper-listings`,
-                  (loaded, total) => {
-                    const percent = Math.min(100, Math.round((loaded / total) * 100));
-                    if (consumerProgressLabel) {
-                      consumerProgressLabel.textContent = `Uploading ${index + 1} of ${consumerUploadedFiles.length}: ${item.name}`;
-                    }
-                    if (consumerProgressPct) consumerProgressPct.textContent = `${percent}%`;
-                    if (consumerProgressFill) consumerProgressFill.style.width = `${percent}%`;
-                    if (consumerProgressTrack) consumerProgressTrack.setAttribute('aria-valuenow', String(percent));
-                  }
-                );
-                if (typeof item.uploadedUrl !== 'string' || !item.uploadedUrl.startsWith('https://res.cloudinary.com/')) {
-                  throw new Error(`The upload for ${item.name} did not return a public media URL.`);
-                }
-              }
-              mediaFiles.push({
-                name: item.name,
-                type: item.type,
-                isVideo: item.isVideo,
-                dataUrl: item.uploadedUrl
-              });
-            }
-
-            if (consumerProgressLabel) consumerProgressLabel.textContent = 'Publishing your phone to dealers...';
-            if (consumerProgressPct) consumerProgressPct.textContent = '100%';
-            if (consumerProgressFill) consumerProgressFill.style.width = '100%';
-            const result = await createSwapperListingBackend({
-              imei: imeiNumber,
-              contactPhone,
-              device: {
-                brand,
-                model,
-                storage: storageCapacity,
-                ram,
-                condition,
-                conditionGrade: condition,
-                batteryHealth,
-                carrierLock,
-                conditionTriage: triagePayload,
-                location
-              },
-              mediaFiles
-            });
-            if (!result.listingId) throw new Error('The phone was verified but could not be published. Please try again.');
-
-            consumerSwapForm.reset();
-            consumerUploadedFiles = [];
-            consumerPendingFiles = 0;
-            if (consumerPreviewsGrid) consumerPreviewsGrid.innerHTML = '';
-            if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'none';
-            if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
-            if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'none';
-            if (consumerRamGroup) consumerRamGroup.style.display = 'none';
-            Object.assign(consumerTriage, {
-              powerAndScreen: true,
-              screenGlass: false,
-              bodyAndHousing: false,
-              hardwareFunctionality: true
-            });
-            [
-              ['switchPowerScreen', true],
-              ['switchScreenGlass', false],
-              ['switchBodyHousing', false],
-              ['switchHardware', true]
-            ].forEach(([switchId, defaultYes]) => {
-              const buttons = document.getElementById(switchId)?.querySelectorAll('.segmented-option-btn');
-              buttons?.forEach(button => {
-                const value = button.dataset.val === 'yes';
-                button.classList.toggle('active-yes', value === defaultYes);
-                button.classList.toggle('active-no', value !== defaultYes);
-              });
-            });
-            updateConsumerMediaCounter();
-            consumerSwapModal.classList.remove('active');
-            alert('Your phone is now live and visible to dealers only. Dealers can contact you using the number you provided.');
-          } catch (error) {
-            console.error('[NaijaSwap] Swapper listing publish failed:', error);
-            alert(`${error.message || 'Your phone could not be published.'} Your form and uploaded files are still here; submit again to retry.`);
-          } finally {
-            isPublishingSwapperListing = false;
-            if (mediaInput) mediaInput.disabled = false;
-            setButtonLoading(submitBtn, false);
-            if (consumerUploadProgress) consumerUploadProgress.style.display = 'none';
-          }
-        });
-      }
-    }
-
-    function setupSegmentedSwitch(switchId, triageKey, positiveIsYes) {
-      const container = document.getElementById(switchId);
-      if (!container) return;
-      const btns = container.querySelectorAll('.segmented-option-btn');
-
-      btns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          btns.forEach(b => {
-            b.classList.remove('active-yes', 'active-no');
-          });
-
-          const val = btn.dataset.val === 'yes';
-          consumerTriage[triageKey] = val;
-
-          if (positiveIsYes) {
-            btn.classList.add(val ? 'active-yes' : 'active-no');
-          } else {
-            btn.classList.add(val ? 'active-no' : 'active-yes');
-          }
-        });
-      });
-    }
-
-    function setupConsumerDropzone() {
-      if (!consumerDropzone || !consumerMediaInput) return;
-
-      consumerDropzone.addEventListener('click', () => {
-        if (!isPublishingSwapperListing) consumerMediaInput.click();
-      });
-
-      consumerMediaInput.addEventListener('change', (e) => {
-        handleMediaFiles(e.target.files);
-        consumerMediaInput.value = '';
-      });
-
-      consumerDropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        consumerDropzone.classList.add('dragover');
-      });
-      consumerDropzone.addEventListener('dragleave', () => {
-        consumerDropzone.classList.remove('dragover');
-      });
-      consumerDropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        consumerDropzone.classList.remove('dragover');
-        handleMediaFiles(e.dataTransfer.files);
-      });
-    }
-
-    function handleMediaFiles(fileList) {
-      if (isPublishingSwapperListing || !fileList || fileList.length === 0) return;
-
-      const remainingSlots = 5 - consumerUploadedFiles.length - consumerPendingFiles;
-      if (remainingSlots <= 0) {
-        alert('You can only upload up to 5 photos and videos.');
-        return;
-      }
-
-      const filesToAdd = Array.from(fileList).slice(0, remainingSlots);
-      if (fileList.length > remainingSlots) {
-        alert(`You can only add up to 5 items. Adding the first ${remainingSlots} selected.`);
-      }
-
-      filesToAdd.forEach(file => {
-        if (!/^(image|video)\//.test(file.type)) {
-          alert(`${file.name} is not a supported image or video.`);
-          return;
-        }
-        consumerPendingFiles += 1;
-        updateConsumerMediaCounter();
-        const reader = new FileReader();
-        const isVideo = file.type.startsWith('video/');
-
-        reader.onload = (e) => {
-          consumerPendingFiles -= 1;
-          const fileData = {
-            name: file.name,
-            size: formatFileSize(file.size),
-            type: file.type,
-            isVideo,
-            dataUrl: e.target.result
-          };
-          consumerUploadedFiles.push(fileData);
-          updateConsumerMediaCounter();
-          renderPreviewItem(fileData, consumerUploadedFiles.length - 1);
-        };
-        reader.onerror = () => {
-          consumerPendingFiles -= 1;
-          updateConsumerMediaCounter();
-          alert(`Could not read ${file.name}. Please choose the file again.`);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function formatFileSize(bytes) {
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
-      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-    }
-
-    function renderPreviewItem(fileData, index) {
-      const card = document.createElement('div');
-      card.className = 'preview-item-card';
-
-      if (fileData.isVideo) {
-        card.innerHTML = `
-          <div class="preview-video-box">
-            <span style="font-size: 1.5rem;">🎥</span>
-            <span style="font-size: 0.68rem; color: #FFF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90px;">${escapeHtml(fileData.name)}</span>
-          </div>
-          <button type="button" class="preview-remove-btn" title="Remove">&times;</button>
-          <span class="preview-size-badge">${fileData.size}</span>
-        `;
-      } else {
-        card.innerHTML = `
-          <img src="${fileData.dataUrl}" alt="${escapeHtml(fileData.name)}" class="preview-thumb-img">
-          <button type="button" class="preview-remove-btn" title="Remove">&times;</button>
-          <span class="preview-size-badge">${fileData.size}</span>
-        `;
-      }
-
-      card.querySelector('.preview-remove-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (isPublishingSwapperListing) return;
-        consumerUploadedFiles = consumerUploadedFiles.filter((_, i) => i !== index);
-        refreshConsumerPreviews();
-      });
-
-      consumerPreviewsGrid.appendChild(card);
-    }
-
-    function refreshConsumerPreviews() {
-      consumerPreviewsGrid.innerHTML = '';
-      consumerUploadedFiles.forEach((item, idx) => {
-        renderPreviewItem(item, idx);
-      });
-      updateConsumerMediaCounter();
-    }
-
-    // Modal bindings for consumer form
-    if (openConsumerSwapModalBtn && consumerSwapModal) {
-      openConsumerSwapModalBtn.addEventListener('click', () => {
-        if (!requireCompleteProfile(window.naijaswapAuthUser, 'customer', 'list your phone')) return;
-        consumerSwapModal.classList.add('active');
-
-        // Pre-fill user's current device from onboarding if fields are empty
-        try {
-          const savedDeviceRaw = localStorage.getItem('naijaswap_user_device_' + currentUserId);
-          if (savedDeviceRaw && consumerBrand && !consumerBrand.value) {
-            const dev = JSON.parse(savedDeviceRaw);
-            if (dev.brand) {
-              consumerBrand.value = dev.brand;
-              consumerBrand.dispatchEvent(new Event('change'));
-              setTimeout(() => {
-                if (dev.model && consumerModel) {
-                  consumerModel.value = dev.model;
-                  consumerModel.dispatchEvent(new Event('change'));
-                }
-                if (dev.storage && consumerStorage) {
-                  consumerStorage.value = dev.storage;
-                  consumerStorage.dispatchEvent(new Event('change'));
-                }
-              }, 50);
-            }
-          }
-        } catch (_) {}
-      });
-    }
-
     // Getting Started Guide manual trigger from dropdown
     const openTourBtn = document.getElementById('openOnboardingTourBtn');
     if (openTourBtn) {
@@ -1553,20 +947,6 @@
         openOnboardingModal(window.naijaswapAuthUser || { uid: currentUserId, displayName: currentUserName }, 'customer');
       });
     }
-
-    if (closeConsumerModal && consumerSwapModal) {
-      closeConsumerModal.addEventListener('click', () => {
-        if (!isPublishingSwapperListing) consumerSwapModal.classList.remove('active');
-      });
-    }
-
-    if (consumerSwapModal) {
-      consumerSwapModal.addEventListener('click', (e) => {
-        if (e.target === consumerSwapModal && !isPublishingSwapperListing) consumerSwapModal.classList.remove('active');
-      });
-    }
-
-    initConsumerForm();
 
     // Initial render
     renderPhoneListings();

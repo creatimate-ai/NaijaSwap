@@ -309,3 +309,136 @@ export function getStoreMetrics(storeId) {
   } catch (_) {}
   return { listings, requests, completed };
 }
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * Resolves the effective photo token or URL for a user from all available sources:
+ * 1. localStorage ('naijaswap_photo_' + uid)
+ * 2. user object (user.photoURL)
+ * 3. localStorage naijaswap_user
+ * 4. Stored profile (IndexedDB/localStorage)
+ * 5. Firestore users/{uid}
+ * 6. Firestore dealerVerification/{uid} or dealers/{uid}
+ */
+export async function getEffectiveUserPhoto(uid, userObj = null) {
+  if (!uid && userObj?.uid) uid = userObj.uid;
+  if (!uid) {
+    try {
+      uid = localStorage.getItem('naijaswap_last_uid') || JSON.parse(localStorage.getItem('naijaswap_user') || '{}')?.uid || '';
+    } catch (_) {}
+  }
+  if (!uid) return userObj?.photoURL || '';
+
+  // 1. Direct localStorage photo key
+  let photo = localStorage.getItem('naijaswap_photo_' + uid);
+  if (photo) return photo;
+
+  // 2. User object photoURL
+  if (userObj?.photoURL) {
+    localStorage.setItem('naijaswap_photo_' + uid, userObj.photoURL);
+    return userObj.photoURL;
+  }
+
+  // 3. Local cached naijaswap_user object
+  try {
+    const cachedUser = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
+    if (cachedUser.uid === uid && cachedUser.photoURL) {
+      localStorage.setItem('naijaswap_photo_' + uid, cachedUser.photoURL);
+      return cachedUser.photoURL;
+    }
+  } catch (_) {}
+
+  // 4. Stored profile in localStorage
+  try {
+    const profile = getStoredProfile(uid);
+    if (profile.avatar || profile.photoURL || profile.storeLogo) {
+      const p = profile.avatar || profile.photoURL || profile.storeLogo;
+      localStorage.setItem('naijaswap_photo_' + uid, p);
+      return p;
+    }
+  } catch (_) {}
+
+  // 5. Remote Firestore lookup: users/{uid}
+  try {
+    const userSnap = await getDoc(doc(db, 'users', uid));
+    if (userSnap.exists()) {
+      const uData = userSnap.data();
+      const remotePhoto = uData.photoURL || uData.avatar || uData.storeLogo || uData.logo || uData.profilePicture;
+      if (remotePhoto) {
+        localStorage.setItem('naijaswap_photo_' + uid, remotePhoto);
+        return remotePhoto;
+      }
+    }
+  } catch (_) {}
+
+  // 6. Remote Firestore lookup: dealerVerification/{uid} & dealers/{uid}
+  try {
+    const verSnap = await getDoc(doc(db, 'dealerVerification', uid));
+    if (verSnap.exists()) {
+      const vData = verSnap.data();
+      const remotePhoto = vData.storeLogo || vData.photoURL || vData.avatar;
+      if (remotePhoto) {
+        localStorage.setItem('naijaswap_photo_' + uid, remotePhoto);
+        return remotePhoto;
+      }
+    }
+  } catch (_) {}
+
+  try {
+    const dealerSnap = await getDoc(doc(db, 'dealers', uid));
+    if (dealerSnap.exists()) {
+      const dData = dealerSnap.data();
+      const remotePhoto = dData.storeLogo || dData.photoURL || dData.avatar;
+      if (remotePhoto) {
+        localStorage.setItem('naijaswap_photo_' + uid, remotePhoto);
+        return remotePhoto;
+      }
+    }
+  } catch (_) {}
+
+  return '';
+}
+
+/**
+ * Renders an avatar into a container element (e.g., #storeAvatarFallback, #headerAvatarFallback, #moreAvatarNode)
+ * Resolves IndexedDB tokens, Cloudinary URLs, data URIs, and sets <img> with error fallback to initial.
+ */
+export async function renderAvatarElement(containerEl, uid, fallbackName = 'User', userObj = null) {
+  if (!containerEl) return;
+  const initial = (fallbackName || 'U').trim().charAt(0).toUpperCase() || 'U';
+
+  const photoToken = await getEffectiveUserPhoto(uid, userObj);
+  if (photoToken) {
+    try {
+      const src = await resolveMedia(photoToken);
+      if (src && containerEl) {
+        const isSafeProtocol = typeof src === 'string' && (src.startsWith('https://') || src.startsWith('data:image/') || src.startsWith('blob:') || src.startsWith('assets/'));
+        if (isSafeProtocol) {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = fallbackName || 'User';
+          img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;';
+          img.onerror = () => { containerEl.textContent = initial; };
+          containerEl.innerHTML = '';
+          containerEl.appendChild(img);
+          return;
+        }
+        return;
+      }
+    } catch (err) {
+      console.warn('[Avatar] Error resolving media:', err);
+    }
+  }
+
+  if (containerEl) {
+    containerEl.textContent = initial;
+  }
+}

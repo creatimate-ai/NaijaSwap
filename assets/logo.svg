@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" width="280" height="64" fill="none">
+  <defs>
+    <!-- Background Gradient for Icon -->
+    <linearGradient id="nsIconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="50%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <!-- Arrow Stroke Gradient -->
+    <linearGradient id="nsArrowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#ecfdf5"/>
+    </linearGradient>
+    <!-- Subtle drop shadow -->
+    <filter id="nsShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Logo Icon Badge (56x56) -->
+  <g transform="translate(4, 4)">
+    <rect width="56" height="56" rx="14" fill="url(#nsIconGrad)"/>
+    <rect width="54" height="54" x="1" y="1" rx="13" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+
+    <!-- Dual Arrow Exchange Glyph -->
+    <g filter="url(#nsShadow)" stroke="url(#nsArrowGrad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Top left-pointing arrow -->
+      <path d="M20 21L13 28M13 28L20 35M13 28H39"/>
+      <!-- Bottom right-pointing arrow -->
+      <path d="M36 35L43 28M43 28L36 21M43 28H17"/>
+    </g>
+  </g>
+
+  <!-- Wordmark: NaijaSwap -->
+  <text x="74" y="42" font-family="'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="32" font-weight="800" letter-spacing="-0.5px">
+    <tspan fill="#ffffff">Naija</tspan><tspan fill="#10b981">Swap</tspan>
+  </text>
+</svg>

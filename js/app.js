@@ -97,7 +97,7 @@ function initScrollReveal() {
  * BACKEND INTEGRATION NOTE:
  * The landing page currently displays "24 dealers matching" as demo content.
  * When integrating with a live database or backend API, update getMatchingCount()
- * to fetch live counts (e.g. from `/api/dealers/matching?have=${have}&want=${want}`).
+ * to fetch live counts from Firebase.
  */
 const DealerMatchingService = {
   // Demo example count for landing page presentation
@@ -413,12 +413,17 @@ function initModals() {
     }
   });
 
-  // Swap Request WhatsApp Button inside View Swap Modal
+  // Swap Request Button inside View Swap Modal
   const requestSwapBtn = document.getElementById('btnRequestThisSwap');
   if (requestSwapBtn) {
     requestSwapBtn.addEventListener('click', () => {
       closeModal(viewSwapModal);
-      showToast('🚀 Opening WhatsApp chat with verified dealer for instant inspection booking...');
+      const user = localStorage.getItem('naijaswap_user');
+      if (user) {
+        window.location.href = 'dashboard.html';
+      } else {
+        window.location.href = 'signup.html';
+      }
     });
   }
 }

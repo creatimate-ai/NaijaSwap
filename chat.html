@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>SafeSwap Direct Messaging — NaijaSwap</title>
+  <meta name="description" content="Encrypted real-time messaging for smartphone trade-ins, counter negotiations, and inspection hub coordination.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    /* ─── DEDICATED FULL-SCREEN MESSAGING APP LAYOUT ─── */
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #080C0E;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      color: #FFF;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+
+    .chat-app-root {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 960px;
+      height: 100%;
+      height: 100dvh;
+      margin: 0 auto;
+      background: rgba(13, 20, 29, 0.88);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border-left: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      border-right: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    @media (max-width: 960px) {
+      .chat-app-root {
+        border-left: none;
+        border-right: none;
+      }
+    }
+
+    /* ─── TOP CHAT HEADER BAR ─── */
+    .chat-topbar {
+      padding: 12px 16px;
+      padding-top: max(12px, env(safe-area-inset-top, 12px));
+      background: rgba(10, 16, 23, 0.95);
+      border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .chat-topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .chat-back-btn {
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      text-decoration: none;
+      transition: all var(--spring-fast, 0.15s ease);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .chat-back-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--cyan-400, #06b6d4);
+      transform: translateX(-2px);
+    }
+
+    .chat-counterpart-avatar {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400, #10b981));
+      color: #021307;
+      font-weight: 800;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
+    .chat-online-indicator {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      background: #10b981;
+      border: 2px solid #080C0E;
+      border-radius: 50%;
+    }
+
+    .chat-counterpart-info {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .chat-counterpart-name {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #FFF;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.25;
+    }
+    .chat-counterpart-sub {
+      font-size: 0.72rem;
+      color: var(--emerald-400, #10b981);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-deal-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: var(--radius-full, 9999px);
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: var(--cyan-400, #06b6d4);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all var(--spring-fast, 0.15s ease);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-deal-pill:hover {
+      background: rgba(6, 182, 212, 0.22);
+      border-color: var(--cyan-400, #06b6d4);
+      transform: scale(1.02);
+    }
+
+    /* ─── DEAL SUMMARY BANNER RIBBON ─── */
+    .deal-summary-banner {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(16, 185, 129, 0.05));
+      border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .deal-summary-devices {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #FFF;
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+    }
+    .deal-device-chip {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 140px;
+    }
+    .deal-arrow-icon {
+      color: var(--cyan-400, #06b6d4);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .deal-topup-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--emerald-400, #10b981);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 8px;
+      border-radius: 9999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .deal-status-chip {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--amber-400, #fbbf24);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ─── LIVE MESSAGES BODY STREAM ─── */
+    .chat-messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.04), transparent 70%);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .chat-bubble-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+      animation: fadeInMsg 0.2s ease-out;
+    }
+    @keyframes fadeInMsg {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .chat-bubble-row.me {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+    .chat-bubble-row.them {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .chat-bubble-header {
+      font-size: 0.68rem;
+      color: var(--text-faint, #64748b);
+      margin-bottom: 3px;
+      padding: 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-bubble {
+      padding: 10px 15px;
+      border-radius: 18px;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      word-break: break-word;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+    .chat-bubble-row.me .chat-bubble {
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #FFF;
+      font-weight: 500;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+    }
+    .chat-bubble-row.them .chat-bubble {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(14px);
+      color: #FFF;
+      border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      border-bottom-left-radius: 4px;
+    }
+
+    /* System Deal Milestone Card Bubble */
+    .chat-system-card {
+      align-self: center;
+      max-width: 90%;
+      margin: 8px 0;
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px dashed rgba(6, 182, 212, 0.35);
+      border-radius: var(--radius-lg, 16px);
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim, #94a3b8);
+      line-height: 1.45;
+    }
+    .chat-system-card strong {
+      color: var(--cyan-400, #06b6d4);
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.86rem;
+    }
+
+    /* ─── QUICK REPLIES BAR ─── */
+    .chat-quick-replies-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 7px 14px;
+      background: rgba(10, 16, 23, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      flex-shrink: 0;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .chat-quick-replies-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .quick-chip-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      border-radius: var(--radius-full, 9999px);
+      color: var(--text-muted, #cbd5e1);
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all var(--spring-fast, 0.15s ease);
+      flex-shrink: 0;
+    }
+    .quick-chip-btn:hover {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: var(--cyan-400, #06b6d4);
+      color: #FFF;
+      transform: translateY(-1px);
+    }
+
+    /* ─── BOTTOM INPUT FORM BAR (NO FOOTER ON CHAT PAGE) ─── */
+    .chat-input-bar {
+      padding: 10px 14px;
+      padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+      background: rgba(8, 12, 16, 0.98);
+      border-top: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+    .chat-text-input {
+      flex: 1;
+      min-width: 0;
+      height: 42px;
+      padding: 0 16px;
+      border-radius: var(--radius-full, 9999px);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+      color: #FFF;
+      font-size: 16px;
+      outline: none;
+      transition: all var(--spring-fast, 0.15s ease);
+      font-family: inherit;
+    }
+    .chat-text-input:focus {
+      border-color: var(--cyan-400, #06b6d4);
+      background: rgba(255, 255, 255, 0.09);
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.2);
+    }
+    .chat-attach-btn {
+      width: 42px;
+      height: 42px;
+      min-width: 42px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+      color: var(--text-muted, #cbd5e1);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--spring-fast, 0.15s ease);
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .chat-attach-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: var(--cyan-400, #06b6d4);
+      color: var(--cyan-400, #06b6d4);
+      transform: translateY(-1px);
+    }
+    .chat-attach-btn:active {
+      transform: scale(0.94);
+    }
+    .chat-send-btn {
+      width: 42px;
+      height: 42px;
+      min-width: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400, #10b981));
+      border: none;
+      color: #021307;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--spring-fast, 0.15s ease);
+      flex-shrink: 0;
+      padding: 0;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+    }
+    .chat-send-btn svg {
+      transform: translateX(1px);
+    }
+    .chat-send-btn:hover {
+      transform: translateY(-1px) scale(1.05);
+      box-shadow: 0 6px 18px rgba(6, 182, 212, 0.5);
+    }
+    .chat-send-btn:active {
+      transform: scale(0.94);
+    }
+    .chat-send-btn:disabled,
+    .chat-attach-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ─── MODAL: VIEW PROPOSAL DETAILS ─── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 7, 10, 0.82);
+      backdrop-filter: blur(14px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .modal-backdrop.active {
+      display: flex;
+    }
+    .modal-card {
+      background: #0d151e;
+      border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+      border-radius: var(--radius-xl, 24px);
+      padding: 22px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    }
+
+    /* ─── RESPONSIVE COMPACT ENHANCEMENTS FOR SMALLER SCREENS ─── */
+    @media (max-width: 640px) {
+      .chat-topbar {
+        padding: 8px 12px;
+        padding-top: max(8px, env(safe-area-inset-top, 8px));
+        gap: 8px;
+      }
+      .chat-topbar-left {
+        gap: 8px;
+      }
+      .chat-back-btn {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+      }
+      .chat-counterpart-avatar {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        font-size: 0.95rem;
+      }
+      .chat-counterpart-name {
+        font-size: 0.92rem;
+      }
+      .chat-counterpart-sub {
+        font-size: 0.68rem;
+      }
+      .btn-deal-pill {
+        padding: 6px 10px;
+        font-size: 0.72rem;
+        gap: 4px;
+      }
+      
+      .deal-summary-banner {
+        padding: 6px 10px;
+        gap: 6px;
+      }
+      .deal-summary-devices {
+        gap: 4px;
+        font-size: 0.74rem;
+      }
+      .deal-device-chip {
+        padding: 2px 6px;
+        font-size: 0.7rem;
+        max-width: 105px;
+      }
+      .deal-arrow-icon {
+        font-size: 0.72rem;
+      }
+      .deal-topup-badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+      }
+      .deal-status-chip {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+      }
+
+      .chat-messages-container {
+        padding: 10px 10px;
+        gap: 8px;
+      }
+      .chat-bubble-row {
+        max-width: 88%;
+      }
+      .chat-bubble {
+        padding: 8px 12px;
+        font-size: 0.88rem;
+        border-radius: 16px;
+      }
+      .chat-bubble-header {
+        font-size: 0.66rem;
+      }
+      
+      .chat-quick-replies-bar {
+        padding: 6px 8px;
+        gap: 5px;
+      }
+      .quick-chip-btn {
+        padding: 4px 10px;
+        font-size: 0.72rem;
+      }
+
+      .chat-input-bar {
+        padding: 8px 10px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+        gap: 6px;
+      }
+      .chat-attach-btn {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+      }
+      .chat-send-btn {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+      }
+      .chat-text-input {
+        height: 38px;
+        padding: 0 14px;
+        font-size: 16px;
+      }
+
+      .modal-card {
+        padding: 16px 14px;
+        border-radius: 18px;
+        max-height: 85vh;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .deal-device-chip {
+        max-width: 75px;
+      }
+      .chat-counterpart-name {
+        max-width: 105px;
+      }
+      .btn-deal-pill span {
+        display: none;
+      }
+      .btn-deal-pill {
+        padding: 6px;
+        border-radius: 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glows -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Dedicated Chat Application Root Container -->
+  <div class="chat-app-root">
+
+    <!-- 1. Top Header Bar with Back to Inbox & Counterparty Info -->
+    <header class="chat-topbar">
+      <div class="chat-topbar-left">
+        <a href="inbox.html" class="chat-back-btn" id="chatBackBtn" title="Back to Inbox" aria-label="Back to Inbox">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
+
+        <div class="chat-counterpart-avatar" id="chatAvatar">🏪
+          <span class="chat-online-indicator"></span>
+        </div>
+
+        <div class="chat-counterpart-info">
+          <h1 class="chat-counterpart-name" id="chatTitle">Partner Store</h1>
+          <div class="chat-counterpart-sub" id="chatSubtitle">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+            <span>🛡️ Encrypted SafeSwap Deal</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-topbar-actions">
+        <button type="button" class="btn-deal-pill" id="btnOpenDealModal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+          <span>View Deal</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. Deal Summary Snapshot Ribbon -->
+    <section class="deal-summary-banner" id="dealSummaryBanner" aria-label="Swap Deal Summary">
+      <div class="deal-summary-devices">
+        <span class="deal-device-chip" id="bannerOfferedDevice">Trade-in Device</span>
+        <span class="deal-arrow-icon">➔</span>
+        <span class="deal-device-chip" id="bannerTargetDevice" style="color: var(--cyan-400); border-color: rgba(6,182,212,0.3);">Target Phone</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span class="deal-topup-badge" id="bannerTopupVal">+₦0</span>
+        <span class="deal-status-chip" id="bannerStatusChip">Pending</span>
+      </div>
+    </section>
+
+    <!-- 3. Real-Time Messages Stream -->
+    <main class="chat-messages-container" id="chatMessagesContainer" aria-label="Message History">
+      <div style="text-align: center; color: var(--text-faint); padding: 40px 16px; font-size: 0.85rem;">
+        <div class="skeleton-box skeleton-shimmer" style="width: 140px; height: 16px; margin: 0 auto 10px; border-radius: 4px;"></div>
+        Connecting to encrypted real-time chat...
+      </div>
+    </main>
+
+    <!-- 4. Quick Reply Suggestions Carousel -->
+    <nav class="chat-quick-replies-bar" id="chatQuickReplies" aria-label="Quick response suggestions">
+      <button type="button" class="quick-chip-btn" data-msg="Is the screen 100% original follow-come OEM?">📱 Original OEM screen?</button>
+      <button type="button" class="quick-chip-btn" data-msg="What is the exact battery health capacity %?">🔋 Battery health %?</button>
+      <button type="button" class="quick-chip-btn" data-msg="I am heading to the inspection hub now.">📍 Heading to Hub</button>
+      <button type="button" class="quick-chip-btn" data-msg="Can we negotiate the top-up difference?">🤝 Top-up negotiation</button>
+      <button type="button" class="quick-chip-btn" data-msg="Does the phone come with receipt and original box?">📦 Box &amp; Receipt?</button>
+      <button type="button" class="quick-chip-btn" data-msg="I'm ready for the physical hub verification!">✅ Ready for hub triage</button>
+    </nav>
+
+    <!-- 5. Bottom Message Input Form Bar -->
+    <form class="chat-input-bar" id="chatMessageForm">
+      <input type="file" id="chatFileInput" accept="image/*" style="display: none;">
+      <button type="button" class="chat-attach-btn" id="btnChatAttach" title="Attach image or photo (Condition / Receipt / Verification)" aria-label="Attach photo">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+      </button>
+      <input 
+        type="text" 
+        id="chatInputText" 
+        class="chat-text-input" 
+        placeholder="Type a message, offer..." 
+        autocomplete="off" 
+        aria-label="Message text"
+      >
+      <button type="submit" class="chat-send-btn" id="btnSendChat" aria-label="Send message" title="Send message">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </form>
+
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: FULL DEAL PROPOSAL SNAPSHOT
+       ========================================================================== -->
+  <div class="modal-backdrop" id="dealDetailModal" role="dialog" aria-modal="true" aria-labelledby="modalDealTitle">
+    <div class="modal-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <div>
+          <span class="status-badge status-accepted" id="modalStatusBadge">Accepted</span>
+          <h2 id="modalDealTitle" style="font-size: 1.2rem; font-weight: 800; color: #FFF; margin-top: 4px;">Swap Proposal Overview</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeDealModal" aria-label="Close modal" style="background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px;">
+          <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Trade-in Device:</span>
+          <strong id="modalOfferedPhone" style="font-size: 0.92rem; color: #FFF; display: block; margin-top: 2px;">--</strong>
+          <span id="modalOfferedCondition" style="font-size: 0.76rem; color: var(--emerald-400);">Grade A</span>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px;">
+          <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Target Store Phone:</span>
+          <strong id="modalTargetPhone" style="font-size: 0.92rem; color: var(--cyan-400); display: block; margin-top: 2px;">--</strong>
+          <span id="modalTopupVal" style="font-size: 0.76rem; color: var(--emerald-400); font-weight: 700;">+₦0 Top-up</span>
+        </div>
+      </div>
+
+      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; font-size: 0.82rem; color: var(--text-dim);">
+        <div style="margin-bottom: 8px;"><strong style="color: #FFF;">Inspection Location:</strong> <span id="modalHubAddress">Computer Village Hub</span></div>
+        <div style="margin-bottom: 8px;"><strong style="color: #FFF;">Reference Code:</strong> <span id="modalSafeSwapCode" style="color: var(--cyan-400); font-family: 'JetBrains Mono', monospace; font-weight: 700;">NS-849201</span></div>
+        <a id="btnOpenGoogleMaps" href="#" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 6px; color: var(--cyan-400); font-size: 0.78rem; font-weight: 700; text-decoration: none; padding: 4px 0;">
+          <span>📍 Open Hub Address in Google Maps &rarr;</span>
+        </a>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <a id="btnViewCertLink" href="certificate.html" target="_blank" class="btn-primary-action" style="display: none; justify-content: center; text-decoration: none; border-radius: var(--radius-full); padding: 10px; background: linear-gradient(135deg, #10B981, #059669); color: #021307; font-weight: 800;">
+          <span>📜 View SafeSwap Handover Certificate</span>
+        </a>
+        <a id="btnFullSwapPage" href="my-swaps.html" class="btn-primary-action" style="justify-content: center; text-decoration: none; border-radius: var(--radius-full); padding: 12px;">
+          <span>Open Full Swap Portal &rarr;</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div class="chat-image-lightbox" id="chatImageLightbox">
+    <button class="chat-lightbox-close" id="closeLightbox" aria-label="Close photo preview">&times;</button>
+    <img id="lightboxImg" src="" alt="Enlarged photo attachment">
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/app-enhancements.js"></script>
+  <script type="module">
+    import { auth, db, doc, getDoc, getDocs, collection, addDoc, query, where, limit, orderBy, onSnapshot, serverTimestamp } from './js/firebase-config.js';
+    import { NaijaSwapData } from './js/dashboard-data.js';
+    import { playMessageChime } from './js/app-enhancements.js';
+
+    // State
+    let currentUserId = 'user_guest';
+    let currentUserName = 'Swapper';
+    let currentUserRole = 'customer';
+    let activeRequestId = '';
+    let currentSwapData = null;
+    let chatUnsubscribe = null;
+
+    // Elements
+    const chatTitle = document.getElementById('chatTitle');
+    const chatSubtitle = document.getElementById('chatSubtitle');
+    const chatAvatar = document.getElementById('chatAvatar');
+    const bannerOfferedDevice = document.getElementById('bannerOfferedDevice');
+    const bannerTargetDevice = document.getElementById('bannerTargetDevice');
+    const bannerTopupVal = document.getElementById('bannerTopupVal');
+    const bannerStatusChip = document.getElementById('bannerStatusChip');
+    const chatMessagesContainer = document.getElementById('chatMessagesContainer');
+    const chatMessageForm = document.getElementById('chatMessageForm');
+    const chatInputText = document.getElementById('chatInputText');
+    const btnSendChat = document.getElementById('btnSendChat');
+    const btnOpenDealModal = document.getElementById('btnOpenDealModal');
+    const dealDetailModal = document.getElementById('dealDetailModal');
+    const closeDealModal = document.getElementById('closeDealModal');
+    const btnFullSwapPage = document.getElementById('btnFullSwapPage');
+
+    // Parse URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    activeRequestId = urlParams.get('id') || urlParams.get('requestId') || '';
+
+    // Synchronous initial cache read
+    try {
+      const storedUser = localStorage.getItem('naijaswap_user');
+      if (storedUser) {
+        const u = JSON.parse(storedUser);
+        currentUserId = u.uid || 'user_guest';
+        currentUserName = u.displayName || (u.email ? u.email.split('@')[0] : 'Swapper');
+      }
+      const storedRole = localStorage.getItem('naijaswap_role_' + currentUserId) || localStorage.getItem('naijaswap_role');
+      if (storedRole) currentUserRole = storedRole;
+    } catch (_) {}
+
+    // Smart Back Button Navigation
+    const chatBackBtn = document.querySelector('.chat-back-btn');
+    if (chatBackBtn) {
+      chatBackBtn.addEventListener('click', (e) => {
+        if (window.history.length > 1 && document.referrer && !document.referrer.includes('login.html')) {
+          e.preventDefault();
+          window.history.back();
+        }
+      });
+    }
+
+    // Load active swap request details
+    async function loadSwapContext() {
+      // If no activeRequestId provided, support direct messaging via phoneId or storeId
+      if (!activeRequestId) {
+        const phoneParam = urlParams.get('phoneId') || '';
+        const storeParam = urlParams.get('storeId') || '';
+
+        if (phoneParam || storeParam) {
+          // Check local or remote for existing conversation
+          let existing = null;
+          try {
+            const mySwaps = NaijaSwapData.getUserSwapRequests(currentUserId) || [];
+            existing = mySwaps.find(r => 
+              (phoneParam && (r.targetListingId === phoneParam || r.targetPhoneId === phoneParam)) ||
+              (storeParam && (r.storeId === storeParam || r.storeOwnerUid === storeParam))
+            );
+          } catch (_) {}
+
+          if (!existing && currentUserId !== 'user_guest') {
+            try {
+              let qInit;
+              if (phoneParam) {
+                qInit = query(collection(db, 'swapRequests'), where('customerUid', '==', currentUserId), where('targetListingId', '==', phoneParam), limit(1));
+              } else {
+                qInit = query(collection(db, 'swapRequests'), where('customerUid', '==', currentUserId), where('storeId', '==', storeParam), limit(1));
+              }
+              const snap = await getDocs(qInit);
+              if (!snap.empty) {
+                const d = snap.docs[0];
+                existing = { id: d.id, firestoreId: d.id, ...d.data() };
+              }
+            } catch (_) {}
+          }
+
+          if (existing) {
+            activeRequestId = existing.id || existing.firestoreId;
+            window.history.replaceState({}, '', `chat.html?id=${encodeURIComponent(activeRequestId)}`);
+          } else {
+            // Create an initial direct inquiry thread
+            let targetPhoneObj = null;
+            if (phoneParam) {
+              targetPhoneObj = NaijaSwapData.getListingById(phoneParam);
+              if (!targetPhoneObj) {
+                try {
+                  const pSnap = await getDoc(doc(db, 'listings', phoneParam));
+                  if (pSnap.exists()) targetPhoneObj = { id: pSnap.id, ...pSnap.data() };
+                } catch (_) {}
+              }
+            }
+
+            let resolvedStoreName = targetPhoneObj?.storeName || '';
+            let resolvedStoreId = storeParam || targetPhoneObj?.storeOwnerUid || targetPhoneObj?.storeId || '';
+            let hubAddressStr = targetPhoneObj?.hubAddress || targetPhoneObj?.location || 'Lagos Inspection Hub';
+
+            if ((!resolvedStoreName || resolvedStoreName.startsWith('user_') || resolvedStoreName.startsWith('store_')) && resolvedStoreId) {
+              try {
+                const profSnap = await getDoc(doc(db, 'dealerProfiles', resolvedStoreId));
+                if (profSnap.exists()) {
+                  const p = profSnap.data();
+                  resolvedStoreName = p.storeName || p.businessName || resolvedStoreName;
+                  hubAddressStr = p.address || p.location || hubAddressStr;
+                }
+              } catch (_) {}
+            }
+            if (!resolvedStoreName || resolvedStoreName.startsWith('user_')) {
+              resolvedStoreName = 'Verified Partner Hub';
+            }
+
+            const modelName = targetPhoneObj ? `${targetPhoneObj.brand || ''} ${targetPhoneObj.model || ''}`.trim() : 'Phone Inquiry';
+            const newReqObj = {
+              customerUid: currentUserId,
+              customerName: currentUserName,
+              customerEmail: auth.currentUser?.email || '',
+              customerPhone: localStorage.getItem('naijaswap_user_phone_' + currentUserId) || '',
+              storeId: resolvedStoreId,
+              storeOwnerUid: resolvedStoreId,
+              storeName: resolvedStoreName,
+              hubAddress: hubAddressStr,
+              targetListingId: phoneParam || '',
+              targetPhone: modelName,
+              targetPhoneModel: targetPhoneObj?.model || modelName,
+              targetPhoneImage: targetPhoneObj?.image || targetPhoneObj?.mediaFiles?.[0]?.url || '',
+              currentPhone: 'Direct Hub Inquiry',
+              swapperPhoneModel: 'Direct Hub Inquiry',
+              topupOffered: 'Negotiable',
+              status: 'inquiry',
+              createdAt: new Date().toISOString(),
+              type: 'inquiry',
+              notes: 'Direct chat inquiry started from phone details / store profile.'
+            };
+
+            try {
+              if (auth.currentUser) {
+                const docRef = await addDoc(collection(db, 'swapRequests'), {
+                  ...newReqObj,
+                  createdAt: serverTimestamp()
+                });
+                newReqObj.id = docRef.id;
+                newReqObj.firestoreId = docRef.id;
+                activeRequestId = docRef.id;
+              } else {
+                newReqObj.id = 'inquiry_' + Date.now();
+                activeRequestId = newReqObj.id;
+              }
+              NaijaSwapData.createSwapRequest(newReqObj);
+              window.history.replaceState({}, '', `chat.html?id=${encodeURIComponent(activeRequestId)}`);
+            } catch (err) {
+              console.warn('[Chat] Could not persist new inquiry thread:', err);
+              newReqObj.id = 'inquiry_' + Date.now();
+              activeRequestId = newReqObj.id;
+            }
+          }
+        }
+      }
+
+      if (!activeRequestId) {
+        chatMessagesContainer.innerHTML = `
+          <div style="text-align: center; padding: 40px 16px; color: var(--text-dim);">
+            <div style="font-size: 2rem; margin-bottom: 8px;">📭</div>
+            <h3 style="color: #FFF; font-size: 1.1rem; margin-bottom: 6px;">No Conversation Selected</h3>
+            <p style="font-size: 0.84rem; margin-bottom: 20px;">Please select a conversation from your inbox.</p>
+            <a href="inbox.html" class="btn-primary-action" style="text-decoration: none; display: inline-flex; padding: 10px 20px;">
+              &larr; Back to Inbox
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      // 1. Try local data first
+      let req = null;
+      try {
+        const localSwaps = NaijaSwapData.getUserSwapRequests(currentUserId) || [];
+        req = localSwaps.find(r => r.id === activeRequestId || r.firestoreId === activeRequestId);
+      } catch (_) {}
+
+      if (!req) {
+        try {
+          const storeReqs = NaijaSwapData.getStoreSwapRequests(currentUserId) || [];
+          req = storeReqs.find(r => r.id === activeRequestId || r.firestoreId === activeRequestId);
+        } catch (_) {}
+      }
+
+      // 2. Fetch from Firestore if needed
+      if (!req) {
+        try {
+          const snap = await getDoc(doc(db, 'swapRequests', activeRequestId));
+          if (snap.exists()) {
+            req = { id: snap.id, firestoreId: snap.id, ...snap.data() };
+          }
+        } catch (e) {
+          console.warn('[Chat] Remote swap fetch error:', e.message);
+        }
+      }
+
+      currentSwapData = req;
+      renderSwapHeaderAndBanner(req);
+      initRealtimeMessages();
+    }
+
+    function renderSwapHeaderAndBanner(req) {
+      if (!req) {
+        if (chatTitle) chatTitle.textContent = 'SafeSwap Chat';
+        return;
+      }
+
+      const isCustomer = (currentUserId === req.customerUid) || (currentUserRole !== 'dealer');
+      const counterpartyName = isCustomer ? (req.storeName || 'Partner Store Hub') : (req.customerName || 'Verified Swapper');
+      const initial = counterpartyName.charAt(0).toUpperCase();
+
+      if (chatTitle) chatTitle.textContent = counterpartyName;
+      if (chatAvatar) {
+        chatAvatar.innerHTML = `<span>${initial}</span><span class="chat-online-indicator"></span>`;
+      }
+
+      const offeredPhone = req.currentPhone || req.swapperPhoneModel || req.model || 'Trade-in Device';
+      const targetPhone = req.targetPhone || req.targetPhoneModel || req.targetModel || 'Target Phone';
+      const topupVal = req.topupOffered || (req.topupAmount ? `+₦${Number(req.topupAmount).toLocaleString()}` : '+₦0');
+      const statusStr = (req.status || 'pending').replace(/_/g, ' ');
+
+      if (bannerOfferedDevice) bannerOfferedDevice.textContent = offeredPhone;
+      if (bannerTargetDevice) bannerTargetDevice.textContent = targetPhone;
+      if (bannerTopupVal) bannerTopupVal.textContent = topupVal;
+      if (bannerStatusChip) bannerStatusChip.textContent = statusStr;
+
+      // Update Modal
+      const modalOfferedPhone = document.getElementById('modalOfferedPhone');
+      const modalTargetPhone = document.getElementById('modalTargetPhone');
+      const modalTopupVal = document.getElementById('modalTopupVal');
+      const modalStatusBadge = document.getElementById('modalStatusBadge');
+      const modalHubAddress = document.getElementById('modalHubAddress');
+      const modalSafeSwapCode = document.getElementById('modalSafeSwapCode');
+      const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
+      const btnViewCertLink = document.getElementById('btnViewCertLink');
+
+      if (modalOfferedPhone) modalOfferedPhone.textContent = offeredPhone;
+      if (modalTargetPhone) modalTargetPhone.textContent = targetPhone;
+      if (modalTopupVal) modalTopupVal.textContent = topupVal;
+      if (modalStatusBadge) modalStatusBadge.textContent = statusStr;
+      
+      const hubAddressStr = req.hubAddress || req.location || 'Computer Village, Ikeja, Lagos';
+      if (modalHubAddress) modalHubAddress.textContent = hubAddressStr;
+      if (modalSafeSwapCode) modalSafeSwapCode.textContent = req.safeSwapCode || `NS-${String(req.id || '849201').slice(-6).toUpperCase()}`;
+
+      if (btnOpenGoogleMaps) {
+        btnOpenGoogleMaps.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hubAddressStr)}`;
+      }
+
+      if (btnViewCertLink) {
+        if (req.status === 'completed' || req.certificateId) {
+          btnViewCertLink.href = `certificate.html?id=${encodeURIComponent(req.id || req.certificateId)}`;
+          btnViewCertLink.style.display = 'inline-flex';
+        } else {
+          btnViewCertLink.style.display = 'none';
+        }
+      }
+
+      if (btnFullSwapPage) {
+        btnFullSwapPage.href = isCustomer ? 'my-swaps.html' : 'dealer-requests.html';
+      }
+
+      renderQuickReplies(!isCustomer);
+    }
+
+    let initialMessagesLoaded = false;
+
+    function initRealtimeMessages() {
+      if (!activeRequestId) return;
+      if (chatUnsubscribe) chatUnsubscribe();
+      initialMessagesLoaded = false;
+
+      chatMessagesContainer.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:28px;font-size:0.84rem;">Connecting to encrypted real-time chat...</div>';
+
+      try {
+        const msgsQuery = query(
+          collection(db, 'swapRequests', activeRequestId, 'messages'),
+          orderBy('createdAt', 'asc')
+        );
+
+        chatUnsubscribe = onSnapshot(msgsQuery, (snapshot) => {
+          if (snapshot.empty) {
+            chatMessagesContainer.innerHTML = `
+              <div style="text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 0.88rem;">
+                <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6,182,212,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 12px;">💬</div>
+                <strong style="color: #FFF; font-size: 1.05rem;">Direct SafeSwap Chat Active</strong>
+                <p style="color: var(--text-faint); font-size: 0.82rem; margin-top: 6px; max-width: 360px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+                  Send a message or attach close-up photos to confirm device condition, negotiate top-up difference, or notify the hub when arriving.
+                </p>
+              </div>
+            `;
+            initialMessagesLoaded = true;
+            return;
+          }
+
+          // Check if new incoming message was added
+          if (initialMessagesLoaded && snapshot.docChanges) {
+            const hasNewIncoming = snapshot.docChanges().some(change => {
+              if (change.type === 'added') {
+                const data = change.doc.data();
+                const myUid = auth.currentUser ? auth.currentUser.uid : currentUserId;
+                return data.senderUid !== myUid;
+              }
+              return false;
+            });
+            if (hasNewIncoming) {
+              playMessageChime();
+            }
+          }
+
+          chatMessagesContainer.innerHTML = snapshot.docs.map(d => {
+            const m = d.data();
+            const isMe = m.senderUid === (auth.currentUser ? auth.currentUser.uid : currentUserId);
+            const timeStr = m.createdAt ? new Date(m.createdAt.seconds ? m.createdAt.seconds * 1000 : m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            const senderLabel = isMe ? 'You' : escapeHtml(m.senderName || (m.senderRole === 'dealer' ? 'Partner Store' : 'Swapper'));
+
+            const imageHtml = m.imageUrl ? `
+              <div class="chat-image-wrapper" data-img="${escapeHtml(m.imageUrl)}">
+                <img class="chat-image-preview" src="${escapeHtml(m.imageUrl)}" alt="Attached photo" loading="lazy">
+              </div>
+            ` : '';
+
+            const textHtml = m.text ? `<div>${escapeHtml(m.text)}</div>` : '';
+
+            return `
+              <div class="chat-bubble-row ${isMe ? 'me' : 'them'}">
+                <span class="chat-bubble-header">${senderLabel} • ${timeStr}</span>
+                <div class="chat-bubble">
+                  ${textHtml}
+                  ${imageHtml}
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          // Bind lightbox click to chat images
+          chatMessagesContainer.querySelectorAll('.chat-image-wrapper').forEach(wrap => {
+            wrap.addEventListener('click', () => {
+              const src = wrap.dataset.img;
+              if (src && lightboxImg && chatImageLightbox) {
+                lightboxImg.src = src;
+                chatImageLightbox.classList.add('active');
+              }
+            });
+          });
+
+          initialMessagesLoaded = true;
+          chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }, (err) => {
+          console.warn('[Chat] Messages listener notice:', err.message);
+        });
+      } catch (e) {
+        console.warn('[Chat] Realtime setup notice:', e.message);
+      }
+    }
+
+    // ─── PHOTO ATTACHMENT COMPRESSION & UPLOAD ───
+    const chatFileInput = document.getElementById('chatFileInput');
+    const btnChatAttach = document.getElementById('btnChatAttach');
+    const chatImageLightbox = document.getElementById('chatImageLightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const closeLightbox = document.getElementById('closeLightbox');
+
+    btnChatAttach?.addEventListener('click', () => {
+      chatFileInput?.click();
+    });
+
+    closeLightbox?.addEventListener('click', () => {
+      chatImageLightbox?.classList.remove('active');
+    });
+    chatImageLightbox?.addEventListener('click', (e) => {
+      if (e.target === chatImageLightbox) {
+        chatImageLightbox.classList.remove('active');
+      }
+    });
+
+    async function compressImageFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 1000;
+
+            if (width > height && width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
+            resolve(compressedDataUrl);
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const ATTACH_ICON_SVG = `<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+    const SEND_ICON_SVG = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
+
+    chatFileInput?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file || !activeRequestId) return;
+
+      if (!auth.currentUser) {
+        alert('Please log in to your account to attach photos.');
+        chatFileInput.value = '';
+        return;
+      }
+
+      if (btnChatAttach) {
+        btnChatAttach.disabled = true;
+        btnChatAttach.innerHTML = `<span class="btn-spinner" style="width:16px;height:16px;border-width:2px;border-color:rgba(255,255,255,0.2);border-top-color:#06b6d4;" aria-hidden="true"></span>`;
+      }
+
+      try {
+        const compressedBase64 = await compressImageFile(file);
+        
+        await addDoc(collection(db, 'swapRequests', activeRequestId, 'messages'), {
+          requestId: activeRequestId,
+          senderUid: auth.currentUser.uid,
+          senderName: currentUserName,
+          senderRole: currentUserRole === 'dealer' ? 'dealer' : 'customer',
+          text: 'Photo attachment (Condition / Verification)',
+          imageUrl: compressedBase64,
+          type: 'image',
+          createdAt: serverTimestamp()
+        });
+
+      } catch (err) {
+        console.error('[Photo Upload Error]', err);
+        alert('Could not attach image: ' + (err.message || 'Permission denied'));
+      } finally {
+        if (btnChatAttach) {
+          btnChatAttach.disabled = false;
+          btnChatAttach.innerHTML = ATTACH_ICON_SVG;
+        }
+        chatFileInput.value = '';
+      }
+    });
+
+    function renderQuickReplies(isDealer) {
+      const quickRepliesContainer = document.getElementById('chatQuickReplies');
+      if (!quickRepliesContainer) return;
+
+      const dealerReplies = [
+        { label: '📦 Device is ready at hub', msg: 'The device is available and ready for your inspection at our verified hub.' },
+        { label: '🔋 Battery & OEM verified', msg: 'The device battery and all internal components are 100% genuine and inspected.' },
+        { label: '📍 Ready to receive you at hub', msg: 'Our technician is on standby at the hub to verify your trade-in.' },
+        { label: '🤝 Trade-in offer accepted', msg: 'We accept your trade-in proposal! You can proceed to confirm your hub visit slot.' },
+        { label: '🛡️ 30-Day warranty included', msg: 'All completed swaps come with our 30-Day Testing Warranty Certificate.' }
+      ];
+
+      const swapperReplies = [
+        { label: '📱 Original OEM screen?', msg: 'Is the screen 100% original follow-come OEM without any replacement?' },
+        { label: '🔋 Battery health %?', msg: 'What is the exact battery health capacity percentage and cycle count?' },
+        { label: '📍 Heading to Hub', msg: 'I am heading to the inspection hub now with my trade-in device ready.' },
+        { label: '🤝 Top-up negotiation', msg: 'Can we negotiate the top-up difference slightly?' },
+        { label: '📦 Box & Receipt?', msg: 'Does the phone come with receipt and original manufacturer box?' },
+        { label: '✅ Ready for hub triage', msg: 'My phone is backed up and signed out. Ready for physical hub verification!' }
+      ];
+
+      const replies = isDealer ? dealerReplies : swapperReplies;
+      quickRepliesContainer.innerHTML = replies.map(r => `
+        <button type="button" class="quick-chip-btn" data-msg="${escapeHtml(r.msg)}">${escapeHtml(r.label)}</button>
+      `).join('');
+
+      quickRepliesContainer.querySelectorAll('.quick-chip-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (chatInputText) {
+            chatInputText.value = btn.dataset.msg;
+            chatInputText.focus();
+          }
+        });
+      });
+    }
+
+    // Send message submit
+    chatMessageForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = (chatInputText.value || '').trim();
+      if (!text || !activeRequestId) return;
+
+      if (!auth.currentUser) {
+        alert('Please log in to your account to send messages.');
+        return;
+      }
+
+      if (btnSendChat) {
+        btnSendChat.disabled = true;
+        btnSendChat.innerHTML = `<span class="btn-spinner" style="width:15px;height:15px;border-width:2px;border-color:rgba(0,0,0,0.25);border-top-color:#021307;" aria-hidden="true"></span>`;
+      }
+      chatInputText.value = '';
+
+      try {
+        await addDoc(collection(db, 'swapRequests', activeRequestId, 'messages'), {
+          requestId: activeRequestId,
+          senderUid: auth.currentUser.uid,
+          senderName: currentUserName,
+          senderRole: currentUserRole === 'dealer' ? 'dealer' : 'customer',
+          text,
+          type: 'text',
+          createdAt: serverTimestamp()
+        });
+      } catch (err) {
+        console.error(err);
+        alert('Could not send message: ' + (err.message || 'Permission denied'));
+      } finally {
+        if (btnSendChat) {
+          btnSendChat.disabled = false;
+          btnSendChat.innerHTML = SEND_ICON_SVG;
+        }
+        chatInputText.focus();
+      }
+    });
+
+    // Modal toggles
+    btnOpenDealModal?.addEventListener('click', () => {
+      if (dealDetailModal) dealDetailModal.classList.add('active');
+    });
+    closeDealModal?.addEventListener('click', () => {
+      if (dealDetailModal) dealDetailModal.classList.remove('active');
+    });
+    dealDetailModal?.addEventListener('click', (e) => {
+      if (e.target === dealDetailModal) dealDetailModal.classList.remove('active');
+    });
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // ─── MOBILE VIRTUAL KEYBOARD & VIEWPORT ADAPTER ───
+    const chatRoot = document.querySelector('.chat-app-root');
+    
+    function adaptVisualViewport() {
+      if (!window.visualViewport || !chatRoot) return;
+      const vpHeight = window.visualViewport.height;
+      const vpTop = window.visualViewport.offsetTop;
+      
+      // Pin container height & offset exactly to visible screen area above keyboard
+      chatRoot.style.height = `${vpHeight}px`;
+      chatRoot.style.top = `${vpTop}px`;
+      
+      // Keep page window scroll locked at top (0,0) so headers never scroll out of view
+      window.scrollTo(0, 0);
+
+      // Keep messages scrolled to latest message
+      if (chatMessagesContainer) {
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+      }
+    }
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', adaptVisualViewport);
+      window.visualViewport.addEventListener('scroll', () => {
+        window.scrollTo(0, 0);
+      });
+    }
+
+    chatInputText?.addEventListener('focus', () => {
+      setTimeout(() => {
+        adaptVisualViewport();
+      }, 100);
+    });
+
+    chatInputText?.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (chatRoot) {
+          chatRoot.style.height = '100dvh';
+          chatRoot.style.top = '0px';
+        }
+        window.scrollTo(0, 0);
+      }, 100);
+    });
+
+    // User Ready hook
+    window.onNaijaSwapUserReady = (user, role) => {
+      if (user) {
+        currentUserId = user.uid;
+        currentUserName = user.displayName || user.email?.split('@')[0] || 'Swapper';
+        if (role) currentUserRole = role;
+        loadSwapContext();
+      }
+    };
+
+    // Initial load
+    loadSwapContext();
+  </script>
+</body>
+</html>

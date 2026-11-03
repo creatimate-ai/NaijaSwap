@@ -16,6 +16,8 @@ import {
   onAuthStateChanged
 } from './firebase-config.js';
 import { db, doc, getDoc, setDoc } from './firebase-config.js';
+import { resolveMedia } from './media-storage.js';
+import { renderAvatarElement, getEffectiveUserPhoto } from './profile.js';
 
 export { auth };
 
@@ -245,6 +247,13 @@ export function isValidRedirectTarget(url) {
   if (!url || typeof url !== "string") return false;
   try {
     const targetUrl = new URL(url, window.location.origin);
+    // Strict Origin Check: Reject any foreign origin or protocol tampering
+    if (targetUrl.origin !== window.location.origin) {
+      return false;
+    }
+    if (targetUrl.protocol !== "http:" && targetUrl.protocol !== "https:") {
+      return false;
+    }
     const path = targetUrl.pathname.toLowerCase().replace(/\/$/, "");
     const lastSeg = path.split("/").pop() || "";
     const base = lastSeg.replace(/\.html$/, "");
@@ -261,18 +270,24 @@ export async function redirectUserAfterAuth(user) {
   if (!user || !user.uid) return;
   try {
     const userRole = await getUserRole(user);
-    const redirect = sessionStorage.getItem("post_login_redirect");
-    sessionStorage.removeItem("post_login_redirect");
+    const urlParams = typeof window !== "undefined" && window.location ? new URLSearchParams(window.location.search) : null;
+    const redirectParam = urlParams ? urlParams.get("redirect") : null;
+    const redirectSession = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("post_login_redirect") : null;
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem("post_login_redirect");
+    }
 
-    if (isValidRedirectTarget(redirect)) {
-      logNaijaSwap("info", "Auth", `Redirecting authenticated user to saved destination: ${redirect}`);
-      window.location.assign(redirect);
+    const candidate = isValidRedirectTarget(redirectParam) ? redirectParam : (isValidRedirectTarget(redirectSession) ? redirectSession : null);
+
+    if (candidate) {
+      logNaijaSwap("info", "Auth", "Redirecting authenticated user to saved destination: " + candidate);
+      window.location.assign(candidate);
       return;
     }
 
     const target = userRole === "dealer" ? "/dealer-dashboard.html" : "/dashboard.html";
-    logNaijaSwap("info", "Auth", `Redirecting authenticated ${userRole} to ${target}`);
-    console.log(`[NaijaSwap Auth] Redirecting ${user.uid} (${userRole}) to ${target}`);
+    logNaijaSwap("info", "Auth", "Redirecting authenticated " + userRole + " to " + target);
+    console.log("[NaijaSwap Auth] Redirecting " + user.uid + " (" + userRole + ") to " + target);
     window.location.assign(target);
   } catch (err) {
     console.error("[NaijaSwap Auth] Error during post-auth redirection:", err);
@@ -961,30 +976,34 @@ export function initRouteProtection() {
 
       // Cache user profile for instant synchronous rendering across all pages
       const displayName = user.displayName || (user.email ? user.email.split("@")[0] : "User");
-      const storedPhoto = localStorage.getItem("naijaswap_photo_" + user.uid);
-      const photo = storedPhoto || (user.photoURL && user.photoURL.startsWith("http") ? user.photoURL : null);
+      const storedShop = localStorage.getItem("naijaswap_shop_" + user.uid);
+      const effectiveName = (userRole === "dealer" && storedShop) ? storedShop : displayName;
 
-      try {
-        localStorage.setItem("naijaswap_user", JSON.stringify({
-          uid: user.uid,
-          displayName: displayName,
-          email: user.email || "",
-          phoneNumber: user.phoneNumber || "",
-          photoURL: photo || null
-        }));
-      } catch (e) {}
+      getEffectiveUserPhoto(user.uid, user).then(photo => {
+        try {
+          localStorage.setItem("naijaswap_user", JSON.stringify({
+            uid: user.uid,
+            displayName: displayName,
+            email: user.email || "",
+            phoneNumber: user.phoneNumber || "",
+            photoURL: photo || null
+          }));
+        } catch (e) {}
+      });
 
-      // Automatically update global header user pill
+      // Automatically update global header user pill & avatars
       const globalHeaderName = document.getElementById("headerUserName");
+      const topStoreName = document.getElementById("topStoreName");
       const globalHeaderAvatar = document.getElementById("headerAvatarFallback");
+      const storeAvatarFallback = document.getElementById("storeAvatarFallback");
+      const moreAvatarNode = document.getElementById("moreAvatarNode");
+
       if (globalHeaderName) globalHeaderName.textContent = displayName;
-      if (globalHeaderAvatar) {
-        if (photo) {
-          globalHeaderAvatar.innerHTML = `<img src="${photo}" alt="${displayName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-        } else {
-          globalHeaderAvatar.textContent = displayName.charAt(0).toUpperCase();
-        }
-      }
+      if (topStoreName && effectiveName) topStoreName.textContent = effectiveName;
+
+      [globalHeaderAvatar, storeAvatarFallback, moreAvatarNode].forEach(el => {
+        if (el) renderAvatarElement(el, user.uid, effectiveName, user);
+      });
 
       if (isAuthPage) {
         await redirectUserAfterAuth(user);
@@ -1020,7 +1039,6 @@ export function initRouteProtection() {
     } else {
       // Unauthenticated
       try {
-        localStorage.removeItem("naijaswap_user");
         localStorage.removeItem("naijaswap_user");
       } catch (e) {}
 
@@ -1074,17 +1092,27 @@ function populateDashboardUser(user, role = "customer") {
   }
   if (providerEl) providerEl.textContent = providerName;
 
-  if (user.photoURL && avatarImg) {
-    avatarImg.src = user.photoURL;
-    avatarImg.style.display = "block";
-    if (avatarFallback) avatarFallback.style.display = "none";
-  } else {
-    if (avatarFallback) {
-      avatarFallback.textContent = displayName.charAt(0).toUpperCase();
-      avatarFallback.style.display = "flex";
+  getEffectiveUserPhoto(user.uid, user).then(photoToken => {
+    if (photoToken) {
+      resolveMedia(photoToken).then(src => {
+        if (src && avatarImg) {
+          avatarImg.src = src;
+          avatarImg.style.display = "block";
+          if (avatarFallback) avatarFallback.style.display = "none";
+        } else if (avatarFallback) {
+          avatarFallback.textContent = displayName.charAt(0).toUpperCase();
+          avatarFallback.style.display = "flex";
+          if (avatarImg) avatarImg.style.display = "none";
+        }
+      });
+    } else {
+      if (avatarFallback) {
+        avatarFallback.textContent = displayName.charAt(0).toUpperCase();
+        avatarFallback.style.display = "flex";
+      }
+      if (avatarImg) avatarImg.style.display = "none";
     }
-    if (avatarImg) avatarImg.style.display = "none";
-  }
+  });
 
   // Trigger page-specific data loader if present
   if (typeof window.onNaijaSwapUserReady === "function") {

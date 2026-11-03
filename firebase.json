@@ -3,9 +3,6 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": {
-    "source": "functions"
-  },
   "hosting": [
     {
       "site": "naijaswap",
@@ -16,6 +13,7 @@
         "**/.*",
         "**/node_modules/**",
         "functions/**",
+        "tests/**",
         "firestore.rules",
         "firestore.indexes.json",
         "storage.rules",
@@ -74,6 +72,7 @@
         "**/.*",
         "**/node_modules/**",
         "functions/**",
+        "tests/**",
         "firestore.rules",
         "firestore.indexes.json",
         "storage.rules",

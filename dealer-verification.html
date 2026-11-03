@@ -572,7 +572,9 @@
 
         setButtonLoading(submitBtn, true, 'Saving your details\u2026');
         const profile = getStoredProfile(uid);
-        Object.assign(profile, { nin:data.nin, bvn:data.bvn, businessName:data.businessName, businessEmail:data.businessEmail, cacNumber:data.cacNumber, shopAddress:data.shopAddress, geoTag:data.geoTag, bankName:data.bankName, bankAccountNumber:data.bankAccountNumber });
+        const maskedNin = data.nin ? ('***' + String(data.nin).slice(-4)) : '';
+        const maskedBvn = data.bvn ? ('***' + String(data.bvn).slice(-4)) : '';
+        Object.assign(profile, { nin:maskedNin, bvn:maskedBvn, businessName:data.businessName, businessEmail:data.businessEmail, cacNumber:data.cacNumber, shopAddress:data.shopAddress, geoTag:data.geoTag, bankName:data.bankName, bankAccountNumber:data.bankAccountNumber });
         if (data.governmentIdData) profile.governmentIdData = data.governmentIdData;
         if (data.proofOfAddressData) profile.proofOfAddressData = data.proofOfAddressData;
         saveStoredProfile(uid, profile);
@@ -589,8 +591,8 @@
           businessName: data.businessName,
           businessEmail: data.businessEmail,
           cacNumber: data.cacNumber,
-          nin: data.nin,
-          bvn: data.bvn,
+          nin: data.nin ? ('***' + String(data.nin).slice(-4)) : '',
+          bvn: data.bvn ? ('***' + String(data.bvn).slice(-4)) : '',
           shopAddress: data.shopAddress,
           geoTag: data.geoTag,
           bankName: data.bankName,

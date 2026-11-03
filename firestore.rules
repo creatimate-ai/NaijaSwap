@@ -18,41 +18,48 @@ service cloud.firestore {
       );
     }
 
-    function validSwapStatus(status) {
-      return status in ['pending', 'reviewed', 'accepted', 'countered',
-                        'under_inspection', 'inspection_passed',
-                        'completed', 'rejected', 'cancelled'];
-    }
-
-    function validSwapTransition(from, to) {
-      return (from == 'pending' && to in ['reviewed', 'rejected', 'cancelled'])
-        || (from == 'reviewed' && to in ['accepted', 'countered', 'rejected', 'cancelled'])
-        || (from == 'countered' && to in ['accepted', 'countered', 'rejected', 'cancelled'])
-        || (from == 'accepted' && to in ['under_inspection', 'cancelled'])
-        || (from == 'under_inspection' && to in ['inspection_passed', 'cancelled'])
-        || (from == 'inspection_passed' && to in ['completed', 'cancelled'])
-        || (from == 'completed' && to == 'completed')
-        || (from == 'rejected' && to == 'rejected')
-        || (from == 'cancelled' && to == 'cancelled');
-    }
-
     function isOwner(uid) {
       return isSignedIn() && request.auth.uid == uid;
     }
 
-    function isDealer() {
+    function isTechnician() {
       return isSignedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && (
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'dealer'
-          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountType == 'dealer'
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'technician'
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountType == 'technician'
+          || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isTechnician == true
+          || isAdmin()
         );
+    }
+
+    function isSwapParticipant() {
+      return isSignedIn()
+        && (request.auth.uid == resource.data.customerUid
+          || request.auth.uid == resource.data.dealerUid);
+    }
+
+    function validSwapTransition(from, to) {
+      return (from == 'pending' && to in ['reviewed', 'accepted', 'countered', 'rejected', 'cancelled', 'hub_booked'])
+        || (from == 'reviewed' && to in ['accepted', 'countered', 'rejected', 'cancelled', 'hub_booked'])
+        || (from == 'countered' && to in ['accepted', 'countered', 'rejected', 'cancelled', 'hub_booked'])
+        || (from == 'accepted' && to in ['hub_booked', 'under_inspection', 'cancelled'])
+        || (from == 'hub_booked' && to in ['under_inspection', 'cancelled'])
+        || (from == 'under_inspection' && to in ['inspection_passed', 'cancelled'])
+        || (from == 'inspection_passed' && to in ['completed', 'cancelled']);
     }
 
     match /users/{uid} {
       allow create: if isOwner(uid)
         && request.resource.data.uid == uid
-        && request.resource.data.email == request.auth.token.email
+        && (
+          (request.auth.token.email != null && request.resource.data.email == request.auth.token.email)
+          || ('phone_number' in request.auth.token && request.resource.data.phoneNumber == request.auth.token.phone_number)
+          || (request.auth.token.firebase.sign_in_provider == 'phone')
+        )
+        && !('isTechnician' in request.resource.data)
+        && !('admin' in request.resource.data)
+        && !('isAdmin' in request.resource.data)
         && (!('role' in request.resource.data) || request.resource.data.role in ['customer', 'dealer'])
         && (!('accountType' in request.resource.data) || request.resource.data.accountType in ['customer', 'dealer'])
         && (!('verificationStatus' in request.resource.data) || request.resource.data.verificationStatus in ['none', 'pending']);
@@ -61,7 +68,7 @@ service cloud.firestore {
         || (isOwner(uid)
           && request.resource.data.uid == resource.data.uid
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
-            ['displayName', 'phoneNumber', 'businessName', 'shopName', 'photoURL', 'preferences', 'updatedAt'])
+            ['displayName', 'phoneNumber', 'businessName', 'shopName', 'photoURL', 'avatar', 'preferences', 'preferredHub', 'currentDevice', 'updatedAt'])
           && !('role' in request.resource.data.diff(resource.data).affectedKeys())
           && !('accountType' in request.resource.data.diff(resource.data).affectedKeys())
           && !('verificationStatus' in request.resource.data.diff(resource.data).affectedKeys())
@@ -76,11 +83,7 @@ service cloud.firestore {
         && !('role' in request.resource.data)
         && !('accountType' in request.resource.data)
         && !('verificationStatus' in request.resource.data);
-      allow read: if isSignedIn() && (
-        uid == request.auth.uid ||
-        resource.data.storeOwnerUid == request.auth.uid ||
-        isAdmin()
-      );
+      allow read: if true;
       allow update: if isOwner(uid)
         && request.resource.data.storeOwnerUid == uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
@@ -97,22 +100,22 @@ service cloud.firestore {
     }
 
     match /dealerVerification/{uid} {
-      // Clients may create their own verification record with status:'pending' only.
       allow create: if isOwner(uid)
         && request.resource.data.uid == uid
         && !('role' in request.resource.data)
         && !('verificationStatus' in request.resource.data)
-        && (!('status' in request.resource.data) || request.resource.data.status == 'pending');
+        && (!('accountType' in request.resource.data) || request.resource.data.accountType == 'dealer')
+        && request.resource.data.status == 'pending';
       allow read: if isSignedIn() && (
         uid == request.auth.uid ||
         isAdmin()
       );
-      // Clients may re-submit; status can only be reset to 'pending'. Admins may approve/reject.
       allow update: if isAdmin() || (isOwner(uid)
         && request.resource.data.uid == resource.data.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
-          ['storeName', 'businessEmail', 'phoneNumber', 'cacNumber',
-           'governmentIdData', 'proofOfAddressData', 'status', 'submittedAt', 'updatedAt'])
+          ['storeName', 'businessName', 'businessEmail', 'phoneNumber', 'cacNumber',
+           'governmentIdData', 'proofOfAddressData', 'status', 'submittedAt', 'updatedAt',
+           'nin', 'bvn', 'shopAddress', 'geoTag', 'bankName', 'bankAccountNumber', 'logoUrl', 'contactPerson'])
         && (!('status' in request.resource.data.diff(resource.data).affectedKeys())
             || request.resource.data.status == 'pending'));
       allow delete: if false;
@@ -124,6 +127,23 @@ service cloud.firestore {
         && request.resource.data.storeOwnerUid == request.auth.uid
         && exists(/databases/$(database)/documents/dealerVerification/$(request.auth.uid))
         && get(/databases/$(database)/documents/dealerVerification/$(request.auth.uid)).data.status == 'approved'
+        && request.resource.data.keys().hasOnly([
+          'storeOwnerUid', 'storeId', 'storeName', 'brand', 'model', 'storage',
+          'condition', 'conditionGrade', 'color', 'battery', 'marketValue',
+          'quantityInStock', 'isSwapAllowed', 'image', 'mediaFiles',
+          'description', 'location', 'hubAddress', 'whatsappNumber', 'status',
+          'createdAt', 'updatedAt'])
+        && request.resource.data.brand in ['Apple', 'Samsung']
+        && request.resource.data.model is string
+        && request.resource.data.model.size() > 0
+        && request.resource.data.marketValue is number
+        && request.resource.data.marketValue > 0
+        && request.resource.data.marketValue <= 100000000
+        && request.resource.data.storeId == request.auth.uid
+        && request.resource.data.quantityInStock is number
+        && request.resource.data.quantityInStock >= 0
+        && request.resource.data.mediaFiles is list
+        && request.resource.data.mediaFiles.size() <= 5
         && request.resource.data.status == 'active';
       allow update: if isSignedIn()
         && resource.data.storeOwnerUid == request.auth.uid
@@ -131,79 +151,189 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
           ['model', 'storage', 'condition', 'conditionGrade', 'color', 'battery',
            'marketValue', 'quantityInStock', 'isSwapAllowed', 'image', 'mediaFiles',
-           'description', 'location', 'updatedAt', 'status'])
+          'description', 'location', 'hubAddress', 'whatsappNumber', 'updatedAt', 'status'])
         && request.resource.data.status in ['active', 'out_of_stock', 'archived'];
       allow delete: if isSignedIn() && resource.data.storeOwnerUid == request.auth.uid;
     }
 
     match /swapperListings/{listingId} {
-      allow read: if isOwner(resource.data.ownerUid)
-        || (isDealer() && resource.data.status == 'active');
-      allow create, update, delete: if false;
+      allow read, write: if false;
     }
 
-    // Legacy collection used by older admin dashboard builds.
     match /marketplace_listings/{listingId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
     match /swapRequests/{requestId} {
-      // Swap creates go through the Render API server which validates IMEI,
-      // ownership, and payment. Client writes are allowed for authenticated users.
       allow create: if isSignedIn()
         && request.resource.data.customerUid == request.auth.uid
+        && request.resource.data.dealerUid != request.auth.uid
         && request.resource.data.status == 'pending'
-        && request.resource.data.disputeStatus == 'none';
+        && request.resource.data.disputeStatus == 'none'
+        && request.resource.data.paymentStatus in ['pending_escrow', 'not_required']
+        && request.resource.data.keys().hasOnly([
+          'customerUid', 'dealerUid', 'customerName', 'customerEmail', 'customerPhone',
+          'storeName', 'status', 'currentDevice', 'targetListingId', 'targetDevice',
+          'offeredPrice', 'topupAmount', 'message', 'deviceMedia', 'disputeStatus',
+          'paymentStatus', 'createdAt', 'updatedAt', 'safeSwapCode', 'hubBooking', 'hubAddress'])
+        && request.resource.data.currentDevice.imeiNumber is string
+        && request.resource.data.currentDevice.imeiNumber.matches('^[0-9A-Z]{8,32}$')
+        && request.resource.data.targetListingId is string
+        && exists(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId))
+        && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.storeOwnerUid == request.resource.data.dealerUid
+        && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.status == 'active'
+        && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.quantityInStock > 0
+        && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.isSwapAllowed == true
+        && request.resource.data.targetDevice.listingId == request.resource.data.targetListingId
+        && request.resource.data.targetDevice.brand == get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.brand
+        && request.resource.data.targetDevice.model == get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.model
+        && (!exists(/databases/$(database)/documents/dealerVerification/$(request.resource.data.dealerUid))
+          || get(/databases/$(database)/documents/dealerVerification/$(request.resource.data.dealerUid)).data.status != 'rejected')
+        && (!exists(/databases/$(database)/documents/stolenDevices/$(request.resource.data.currentDevice.imeiNumber))
+          || get(/databases/$(database)/documents/stolenDevices/$(request.resource.data.currentDevice.imeiNumber)).data.status != 'blacklisted')
+        && request.resource.data.deviceMedia is list
+        && request.resource.data.deviceMedia.size() <= 5
+        && request.resource.data.topupAmount is number
+        && request.resource.data.topupAmount >= 0
+        && request.resource.data.topupAmount <= 100000000
+        && request.resource.data.offeredPrice is number
+        && request.resource.data.offeredPrice >= 0
+        && request.resource.data.offeredPrice <= 100000000;
       allow read: if isSignedIn() && (
         request.auth.uid == resource.data.customerUid ||
         request.auth.uid == resource.data.dealerUid ||
         isAdmin()
       );
       allow update: if isAdmin()
-        || (isSignedIn() && (
-          request.auth.uid == resource.data.customerUid ||
-          request.auth.uid == resource.data.dealerUid
-        ) && validSwapTransition(resource.data.status, request.resource.data.status));
+        || (isSwapParticipant()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status', 'lastUpdatedBy', 'updatedAt', 'counterOffer', 'counterMessage',
+            'counterReason', 'hubBooking', 'triageResults', 'safeSwapCode', 'certificateId'])
+          && validSwapTransition(resource.data.status, request.resource.data.status)
+          && request.resource.data.lastUpdatedBy == request.auth.uid
+          && (
+            (request.auth.uid == resource.data.dealerUid
+              && request.resource.data.status in ['reviewed', 'accepted', 'countered', 'rejected', 'under_inspection'])
+            || (request.auth.uid == resource.data.customerUid
+              && (
+                request.resource.data.status in ['cancelled', 'hub_booked']
+                || (resource.data.status == 'countered'
+                  && request.resource.data.status in ['accepted', 'countered', 'rejected'])
+              ))
+          ))
+        || (isSwapParticipant()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'paymentReference', 'paymentChannel', 'updatedAt'])
+          && resource.data.paymentStatus == 'pending_escrow')
+        || (isSwapParticipant()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'customerConfirmed', 'dealerConfirmed', 'updatedAt'])
+          && (
+            (request.auth.uid == resource.data.customerUid
+              && request.resource.data.customerConfirmed == true
+              && (!('dealerConfirmed' in resource.data)
+                || request.resource.data.dealerConfirmed == resource.data.dealerConfirmed))
+            || (request.auth.uid == resource.data.dealerUid
+              && request.resource.data.dealerConfirmed == true
+              && (!('customerConfirmed' in resource.data)
+                || request.resource.data.customerConfirmed == resource.data.customerConfirmed))
+          ))
+        || (isSwapParticipant()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'disputeStatus', 'disputeOpenedBy', 'disputeReason', 'disputeOpenedAt', 'updatedAt'])
+          && resource.data.status in ['pending', 'reviewed', 'countered', 'accepted', 'hub_booked', 'under_inspection', 'inspection_passed', 'completed']
+          && request.resource.data.disputeStatus == 'open'
+          && request.resource.data.disputeOpenedBy == request.auth.uid
+          && request.resource.data.disputeReason is string
+          && request.resource.data.disputeReason.size() > 0
+          && request.resource.data.disputeReason.size() <= 2000)
+        || (isTechnician()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'inspectionStatus', 'inspectionReportId', 'technicianUid', 'technicianName',
+            'hubLocation', 'inspectionNotes', 'diagnosticDetails', 'inspectedAt',
+            'updatedAt', 'status'])
+          && request.resource.data.technicianUid == request.auth.uid
+          && request.resource.data.inspectionStatus in ['passed', 'failed']
+          && (!('status' in request.resource.data.diff(resource.data).affectedKeys())
+            || (resource.data.status in ['accepted', 'hub_booked', 'under_inspection']
+              && request.resource.data.status == 'inspection_passed')));
       allow delete: if false;
 
       match /messages/{messageId} {
         allow read: if isSignedIn() && (
+          !exists(/databases/$(database)/documents/swapRequests/$(requestId)) ||
           request.auth.uid == get(/databases/$(database)/documents/swapRequests/$(requestId)).data.customerUid ||
           request.auth.uid == get(/databases/$(database)/documents/swapRequests/$(requestId)).data.dealerUid ||
           isAdmin()
         );
         allow create: if isSignedIn() && (
+          !exists(/databases/$(database)/documents/swapRequests/$(requestId)) ||
           request.auth.uid == get(/databases/$(database)/documents/swapRequests/$(requestId)).data.customerUid ||
           request.auth.uid == get(/databases/$(database)/documents/swapRequests/$(requestId)).data.dealerUid ||
           isAdmin()
-        ) && request.resource.data.senderUid == request.auth.uid;
+        )
+        && request.resource.data.senderUid == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'requestId', 'senderUid', 'senderRole', 'senderName', 'text', 'type', 'createdAt', 'imageUrl'])
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 2000
+        && (!('imageUrl' in request.resource.data) || (request.resource.data.imageUrl is string && request.resource.data.imageUrl.size() < 1000000));
         allow update, delete: if false;
       }
     }
 
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isSignedIn() && request.resource.data.authorUid == request.auth.uid;
+      allow create: if isSignedIn()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'requestId', 'storeId', 'authorUid', 'authorName', 'authorRole',
+          'rating', 'comment', 'targetDeviceModel', 'createdAt'])
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() > 0
+        && request.resource.data.comment.size() <= 1000
+        && request.resource.data.storeId is string
+        && exists(/databases/$(database)/documents/swapRequests/$(request.resource.data.requestId))
+        && (
+          get(/databases/$(database)/documents/swapRequests/$(request.resource.data.requestId)).data.customerUid == request.auth.uid
+          || get(/databases/$(database)/documents/swapRequests/$(request.resource.data.requestId)).data.dealerUid == request.auth.uid
+        );
       allow update, delete: if isAdmin();
     }
 
     match /auditLogs/{logId} {
-      // Audit entries are written by Admin SDK triggers/callables, not clients.
-      allow create: if false;
-      allow read: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow read: if isSignedIn() && (resource.data.uid == request.auth.uid || resource.data.storeId == request.auth.uid || isAdmin());
       allow update, delete: if false;
     }
 
     match /users/{uid}/notifications/{notificationId} {
-      allow read, update: if isSignedIn() && request.auth.uid == uid;
-      allow create: if isAdmin();
-      allow delete: if isSignedIn() && request.auth.uid == uid;
+      allow read, update, delete: if isSignedIn() && request.auth.uid == uid;
+      allow create: if isSignedIn()
+        && (
+          request.auth.uid == uid
+          || isAdmin()
+          || (
+            request.resource.data.senderUid == request.auth.uid
+            && request.resource.data.keys().hasOnly(['title', 'message', 'type', 'requestId', 'senderUid', 'senderName', 'createdAt', 'read', 'link'])
+          )
+        );
     }
 
     match /inspectionCertificates/{certificateId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if isTechnician()
+        && request.resource.data.keys().hasOnly([
+          'reportId', 'requestId', 'inspectionStatus', 'technicianName',
+          'hubLocation', 'notes', 'inspectedAt', 'diagnosticDetails',
+          'device', 'targetDevice', 'storeName'])
+        && request.resource.data.reportId == certificateId;
+      allow update, delete: if isAdmin();
     }
 
     match /stolenDevices/{imei} {

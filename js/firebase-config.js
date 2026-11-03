@@ -12,6 +12,12 @@ if (typeof window !== "undefined" && window.location && window.location.hostname
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { 
+  getStorage, 
+  ref as storageRef, 
+  uploadBytes, 
+  getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
+import { 
   getFirestore, 
   collection, 
   doc, 
@@ -20,6 +26,7 @@ import {
   setDoc, 
   addDoc,
   updateDoc,
+  writeBatch,
   deleteDoc,
   query, 
   where, 
@@ -47,10 +54,6 @@ import {
   deleteUser
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
-  getFunctions,
-  httpsCallable
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-functions.js";
-import {
   initializeAppCheck,
   ReCaptchaV3Provider
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
@@ -72,7 +75,7 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase Authentication & Services
 const auth = getAuth(app);
 const db = getFirestore(app);
-const functions = getFunctions(app);
+const storage = getStorage(app);
 const appCheckSiteKey = window.NAIJASWAP_APPCHECK_SITE_KEY || '';
 if (appCheckSiteKey) {
   initializeAppCheck(app, {
@@ -102,6 +105,10 @@ googleProvider.setCustomParameters({
 });
 
 export {
+  storage,
+  storageRef,
+  uploadBytes,
+  getDownloadURL,
   app,
   db,
   collection,
@@ -111,6 +118,7 @@ export {
   setDoc,
   addDoc,
   updateDoc,
+  writeBatch,
   deleteDoc,
   query,
   where,
@@ -134,6 +142,4 @@ export {
   updateProfile,
   updatePassword,
   deleteUser,
-  functions,
-  httpsCallable
 };

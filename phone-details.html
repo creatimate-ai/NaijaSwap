@@ -406,11 +406,17 @@
       </span>
     </div>
 
-    <div class="dash-header-right">
+    <div class="dash-header-right" style="display: flex; align-items: center; gap: 10px;">
+      <!-- Notification Icon Button beside profile picture -->
+      <a href="alerts.html" class="header-notif-btn" id="headerNotifBtn" title="Alerts & Notifications">
+        <span class="header-notif-badge" id="headerNotifBadge" style="display: none;">0</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </a>
+
       <!-- User Menu -->
       <div class="user-menu-wrapper">
         <button type="button" class="user-profile-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
-          <div class="user-avatar" id="headerAvatarFallback">S</div>
+          <div class="user-avatar" id="headerAvatarFallback"></div>
           <span class="user-name-text" id="headerUserName">Swapper</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
@@ -421,12 +427,20 @@
             <span>Profile</span>
           </a>
           <a href="dashboard.html" class="dropdown-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <span>Browse Phones</span>
           </a>
           <a href="my-swaps.html" class="dropdown-item" id="openMySwapsFromHeader">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
             <span>My Active Swaps</span>
+          </a>
+          <a href="inbox.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Inbox &amp; Messages</span>
+          </a>
+          <a href="alerts.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Alerts &amp; Notifications</span>
           </a>
           <div class="dropdown-separator"></div>
           <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
@@ -475,63 +489,39 @@
                 <span class="tag-badge tag-verified">Verified Store Listing</span>
               </div>
 
-              <!-- Slide 0: Front View (Main Phone Photo) -->
-              <div class="gallery-slide active" data-slide="0">
-                <img src="" alt="Front Display" id="phoneHeroImg">
-              </div>
-
-              <!-- Slide 1: Back View & Camera Lenses Inspection -->
-              <div class="gallery-slide" data-slide="1">
-                <img src="" alt="Back & Camera Lenses Inspection" id="galleryImgBack">
-              </div>
-
-              <!-- Slide 2: 360° Physical Hub Inspection Video -->
-              <div class="gallery-slide" data-slide="2">
-                <div class="gallery-video-container">
-                  <span class="video-inspect-badge">🎥 360° Hub Inspection Video</span>
-                  <video class="gallery-video-player" id="galleryVideoPlayer" controls playsinline preload="metadata">
-                    Your browser does not support the video tag.
-                  </video>
-                  <span id="videoUnavailableMessage" style="display: none; padding: 24px; color: var(--text-muted); text-align: center;">
-                    No inspection video was provided for this listing.
-                  </span>
-                </div>
-              </div>
-
-              <!-- Slide 3: Box Packaging & Included Accessories -->
-              <div class="gallery-slide" data-slide="3">
-                <img src="" alt="Original Box & Accessories" id="galleryImgBox">
-              </div>
+              <!-- Gallery slides dynamically built by initGallery() based on uploaded media -->
+              <div id="gallerySlideContainer"></div>
 
               <!-- Navigation Arrows -->
               <button type="button" class="gallery-nav-arrow gallery-nav-prev" id="galleryPrevBtn" aria-label="Previous slide">‹</button>
               <button type="button" class="gallery-nav-arrow gallery-nav-next" id="galleryNextBtn" aria-label="Next slide">›</button>
 
               <!-- Counter Pill -->
-              <div class="gallery-counter-pill" id="galleryCounterPill">1 / 4</div>
+              <div class="gallery-counter-pill" id="galleryCounterPill"></div>
             </div>
           </div>
 
           <!-- Store / Dealer Hub Info -->
           <div class="details-store-box">
-            <div class="store-badge-header">
-              <a href="#" id="storePageLink" class="store-name-link" style="text-decoration:none;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-400)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                <span id="storeNameText">Computer Village Hub</span>
-                <span id="storeVerifiedMark" title="Verified dealer" aria-label="Verified dealer" style="display:none;color:var(--emerald-400);font-weight:800;">✓</span>
+            <div class="store-badge-header" style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:nowrap;width:100%;">
+              <a href="#" id="storePageLink" class="store-name-link" style="text-decoration:none;display:flex;align-items:center;gap:8px;min-width:0;flex:1;overflow:hidden;" title="Click to view full dealer store profile & details">
+                <!-- Dealer profile photo (populated by JS) -->
+                <div id="dealerAvatarWrap" style="width:32px;height:32px;border-radius:50%;overflow:hidden;background:rgba(0,210,106,0.15);border:1.5px solid var(--emerald-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.9rem;font-weight:700;color:var(--emerald-400);">
+                  <span id="dealerAvatarInitial">?</span>
+                </div>
+                <span id="storeNameText" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;color:#FFF;font-size:0.95rem;max-width:145px;"></span>
+                <span id="storeVerifiedMark" title="Verified dealer" aria-label="Verified dealer" style="display:none;color:var(--emerald-400);font-weight:800;flex-shrink:0;">✓</span>
               </a>
-              <span class="tag-badge tag-verified">Verified Hub</span>
+              <span class="tag-badge tag-verified" style="flex-shrink:0;font-size:0.72rem;padding:3px 8px;">Verified Hub</span>
             </div>
 
-            <div id="storeRatingRow" style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:0.84rem;">
-              <span id="storeRatingStars" style="color:#fbbf24;font-weight:700;">★ 5.0</span>
-              <span id="storeRatingCount" style="color:var(--text-dim);">(Verified Store)</span>
-              <a href="#" id="storeViewReviewsLink" style="color:var(--cyan-400);font-size:0.78rem;margin-left:auto;text-decoration:none;">View Reviews →</a>
+            <div id="storeRatingRow" style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:0.82rem;flex-wrap:wrap;">
+              <span id="storeRatingStars" style="color:#fbbf24;font-weight:700;"></span>
+              <span id="storeRatingCount" style="color:var(--text-dim);"></span>
+              <a href="#" id="storeViewReviewsLink" style="color:var(--cyan-400);font-size:0.75rem;margin-left:auto;text-decoration:none;font-weight:600;white-space:nowrap;">View Reviews →</a>
             </div>
 
-            <div class="store-hub-info" id="hubAddressText" style="margin-top:10px;">
-              Shop B14, Digital Complex, Otigba Street, Computer Village, Ikeja, Lagos
-            </div>
+            <div class="store-hub-info" id="hubAddressText" style="margin-top:8px;font-size:0.8rem;"></div>
 
             <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px; font-size: 0.82rem; color: var(--text-dim); display: flex; gap: 10px; align-items: center;">
               <span style="font-size: 1.25rem;">🛡️</span>
@@ -541,9 +531,9 @@
               </div>
             </div>
 
-            <a href="#" target="_blank" rel="noopener" id="directWhatsAppBtn" class="btn-primary-action" style="background: rgba(37, 211, 102, 0.15); border: 1px solid rgba(37, 211, 102, 0.4); color: #25D366; justify-content: center; box-shadow: 0 4px 16px rgba(37, 211, 102, 0.15);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.77.813 2.796.814 3.181 0 5.768-2.587 5.768-5.767 0-3.181-2.587-5.769-5.768-5.769zm3.394 8.204c-.144.405-.837.774-1.17.824-.312.045-.694.072-2.029-.479-1.636-.677-2.678-2.339-2.759-2.449-.081-.11-.663-.884-.663-1.684 0-.8.419-1.193.568-1.353.149-.16.326-.2.435-.2.109 0 .218.001.312.006.1.006.233-.038.365.279.135.324.462 1.127.502 1.209.041.082.068.178.014.287-.054.11-.082.179-.163.273-.081.096-.171.214-.244.287-.081.082-.167.172-.072.336.096.163.424.699.912 1.134.628.56 1.157.733 1.32.815.163.082.258.068.354-.041.095-.11.407-.474.516-.638.109-.163.218-.137.366-.082.149.055.945.446 1.108.528.163.082.272.123.312.191.041.069.041.397-.103.802z"/></svg>
-              <span>Chat with Hub on WhatsApp</span>
+            <a href="#" id="directMessageBtn" class="btn-primary-action" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.18), rgba(16, 185, 129, 0.18)); border: 1px solid var(--emerald-border); color: #FFF; justify-content: center; box-shadow: 0 4px 16px rgba(0, 210, 106, 0.15); text-decoration: none;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <span>Message Hub</span>
             </a>
           </div>
         </div>
@@ -567,10 +557,12 @@
           <h1 class="details-model-title" id="phoneModelTitle">iPhone 15 Pro Max</h1>
 
           <div class="details-specs-pills-row" id="specsPillsContainer">
-            <span class="spec-pill spec-pill-highlight" id="specStoragePill">256GB</span>
+            <span class="spec-pill spec-pill-highlight" id="specPricePill" style="font-weight: 800;">₦0 Outright</span>
+            <span class="spec-pill" id="specStoragePill">256GB</span>
             <span class="spec-pill" id="specConditionPill">Brand New Sealed</span>
             <span class="spec-pill" id="specColorPill">Natural Titanium</span>
             <span class="spec-pill" id="specBatteryPill">100% Battery</span>
+            <span class="spec-pill" id="specLockPill">Factory Unlocked</span>
             <span class="spec-pill" id="specLocationPill">Ikeja, Lagos</span>
           </div>
 
@@ -581,24 +573,32 @@
           <h3 style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Technical Verification Checklist</h3>
           <div class="tech-specs-grid">
             <div class="tech-spec-item">
-              <span class="tech-spec-label">Display & Screen</span>
-              <span class="tech-spec-val" id="specScreen">OLED 120Hz ProMotion</span>
+              <span class="tech-spec-label">Display & TrueTone</span>
+              <span class="tech-spec-val" id="specScreen">Original OEM Screen (TrueTone Active)</span>
             </div>
             <div class="tech-spec-item">
-              <span class="tech-spec-label">Processor</span>
-              <span class="tech-spec-val" id="specChipset">Apple A17 Pro (3nm)</span>
-            </div>
-            <div class="tech-spec-item">
-              <span class="tech-spec-label">Camera System</span>
-              <span class="tech-spec-val" id="specCamera">48MP Triple Lens System</span>
+              <span class="tech-spec-label">Face ID / Biometrics</span>
+              <span class="tech-spec-val" id="specBiometrics">Face ID / Touch ID Working 100%</span>
             </div>
             <div class="tech-spec-item">
               <span class="tech-spec-label">SIM Configuration</span>
               <span class="tech-spec-val" id="specSim">Nano-SIM + eSIM</span>
             </div>
             <div class="tech-spec-item">
-              <span class="tech-spec-label">Box & Accessories</span>
+              <span class="tech-spec-label">Network / Carrier Lock</span>
+              <span class="tech-spec-val" id="specCarrierLock">Factory Unlocked (Worldwide)</span>
+            </div>
+            <div class="tech-spec-item">
+              <span class="tech-spec-label">Camera System</span>
+              <span class="tech-spec-val" id="specCamera">High-Resolution Multi-Lens</span>
+            </div>
+            <div class="tech-spec-item">
+              <span class="tech-spec-label">Box & Inclusions</span>
               <span class="tech-spec-val" id="specBoxIncludes">Original Box & Cable</span>
+            </div>
+            <div class="tech-spec-item">
+              <span class="tech-spec-label">Processor / Chipset</span>
+              <span class="tech-spec-val" id="specChipset">High-Performance Chipset</span>
             </div>
             <div class="tech-spec-item">
               <span class="tech-spec-label">Hub Warranty</span>
@@ -614,10 +614,10 @@
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-400)" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               <span id="calcPanelHeading">Swap with Your Phone</span>
             </div>
-            <p class="calc-subtitle" id="calcPanelSubheading">Select a phone you already listed to calculate your verified trade-in valuation and top-up.</p>
+            <p class="calc-subtitle" id="calcPanelSubheading">Select a saved trade-in phone or enter its details when you request a swap.</p>
           </div>
 
-          <!-- Dynamic Swap Container (Empty state redirect button or listed device selection) -->
+          <!-- Dynamic swap request or saved trade-in selection -->
           <div id="swapSelectionContainer">
             <!-- Dynamically populated by renderSwapSelection() -->
           </div>
@@ -627,11 +627,12 @@
             <div style="font-size: 2.8rem; margin-bottom: 12px;">🎉</div>
             <h3 style="font-size: 1.4rem; font-weight: 800; color: #FFF; margin-bottom: 8px;">Swap Proposal Sent!</h3>
             <p style="font-size: 0.9rem; color: var(--text-dim); max-width: 460px; margin: 0 auto 20px auto; line-height: 1.55;" id="successCardMsg">
-              Your trade-in proposal has been sent to the store hub. You can now chat directly with their verification technician on WhatsApp or track it in My Swaps.
+              Your trade-in proposal has been sent to the store hub. You can now chat directly with their verification technician in our secure messaging system or track it in My Swaps.
             </p>
             <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
-              <a href="#" target="_blank" rel="noopener" id="successWhatsAppLink" class="btn-primary-action" style="background: rgba(37, 211, 102, 0.2); border: 1px solid rgba(37, 211, 102, 0.4); color: #25D366;">
-                <span>Chat Hub on WhatsApp</span>
+              <a href="#" id="successChatLink" class="btn-primary-action" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.2)); border: 1px solid var(--emerald-border); color: #FFF; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Open In-App Chat</span>
               </a>
               <button type="button" class="header-icon-btn" id="successTrackBtn" style="width: auto; padding: 0 20px; font-weight: 600; color: #FFF;">
                 <span>Track in My Swaps</span>
@@ -704,8 +705,8 @@
     <div class="modal-card modal-card-xl">
       <div class="modal-header">
         <div>
-          <span class="tag-badge tag-verified">Trade-In Application</span>
-          <h2 class="modal-title" id="consumerModalTitle" style="margin-top: 4px;">Propose a Swap Request</h2>
+          <span class="tag-badge tag-verified">Private Device Inventory</span>
+          <h2 class="modal-title" id="consumerModalTitle" style="margin-top: 4px;">List a Phone for Trade-In</h2>
         </div>
         <button type="button" class="modal-close-btn" id="closeConsumerModal" aria-label="Close modal">&times;</button>
       </div>
@@ -718,24 +719,24 @@
             <div class="form-section-header">
               <span class="form-section-num">1</span>
               <div>
-                <h3>Device Basics</h3>
-                <p>Information about the phone you currently own and want to trade in</p>
+                <h3>1. Your Phone Details</h3>
+                <p>Select the exact brand, model, storage, and color of the phone you want to trade in</p>
               </div>
             </div>
 
             <div class="form-row-2">
               <div class="form-group">
-                <label class="form-label" for="consumerBrand">Brand</label>
+                <label class="form-label" for="consumerBrand">Phone Brand</label>
                 <select id="consumerBrand" class="form-select" required>
                   <option value="" disabled selected>-- Select Brand --</option>
                 </select>
                 <div id="consumerCustomBrandGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerCustomBrand" class="form-input" placeholder="Type your phone brand (e.g. OnePlus, Motorola)...">
+                  <input type="text" id="consumerCustomBrand" class="form-input" placeholder="Type your phone brand (e.g. OnePlus, Google)...">
                   <span class="form-helper-text">Specify brand name if not in list</span>
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="consumerModel">Model</label>
+                <label class="form-label" for="consumerModel">Phone Model</label>
                 <select id="consumerModel" class="form-select" required disabled>
                   <option value="" disabled selected>-- Select Brand First --</option>
                 </select>
@@ -762,6 +763,13 @@
                   <span class="form-helper-text">Specify storage capacity</span>
                 </div>
               </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerColor">Color</label>
+                <input type="text" id="consumerColor" class="form-input" placeholder="e.g. Space Gray, Sierra Blue, Gold" required>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
               <div class="form-group" id="consumerRamGroup" style="display: none;">
                 <label class="form-label" for="consumerRam">RAM (Android)</label>
                 <select id="consumerRam" class="form-select">
@@ -772,22 +780,30 @@
                   <option value="16GB">16GB</option>
                 </select>
               </div>
+              <div class="form-group">
+                <label class="form-label" for="consumerCarrierLock">SIM Lock Status</label>
+                <select id="consumerCarrierLock" class="form-select" required>
+                  <option value="Factory Unlocked" selected>Factory Unlocked (Works with all SIMs)</option>
+                  <option value="Chip / JV Unlocked">Chip / JV / Gevey Unlocked (R-SIM)</option>
+                  <option value="Network Locked">Network Locked (Foreign network only)</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-group" style="margin-top: 10px;">
-              <label class="form-label" for="consumerImei">IMEI Number (15 Digits)</label>
-              <input type="text" id="consumerImei" class="form-input" placeholder="e.g. 354892091234567" maxlength="18" required>
-              <span class="form-helper-text">ℹ️ *Dial *#06# on your phone to find this*</span>
+              <label class="form-label" for="consumerImei">IMEI Number (Optional)</label>
+              <input type="text" id="consumerImei" class="form-input" placeholder="e.g. 354892091234567" maxlength="18">
+              <span class="form-helper-text">ℹ️ Quick tip: Dial <strong>*#06#</strong> on your phone call keypad to view</span>
             </div>
           </div>
 
-          <!-- SECTION 2: CONDITION TRIAGE (BOOLEAN YES/NO TOGGLES) -->
+          <!-- SECTION 2: CONDITION & REPAIR TRIAGE -->
           <div class="form-section-card">
             <div class="form-section-header">
               <span class="form-section-num">2</span>
               <div>
-                <h3>Condition Triage</h3>
-                <p>Answer truthfully to receive an accurate valuation from verified hub technicians</p>
+                <h3>2. Phone Condition & Checkup</h3>
+                <p>Answer honestly so the hub technician can quote your exact top-up valuation without delay</p>
               </div>
             </div>
 
@@ -795,67 +811,90 @@
               <!-- Q1: Power & Screen -->
               <div class="triage-row">
                 <div class="triage-info">
-                  <span class="triage-q-title">Power & Touch Responsiveness</span>
-                  <span class="triage-q-desc">Does the phone power on, and is the touchscreen fully responsive without dead spots?</span>
+                  <span class="triage-q-title">Does the phone turn on and touch smoothly?</span>
+                  <span class="triage-q-desc">Display lights up properly and touch responds smoothly everywhere with no ghost touches.</span>
                 </div>
                 <div class="segmented-switch" id="switchPowerScreen" data-name="powerAndScreen">
-                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes</button>
-                  <button type="button" class="segmented-option-btn" data-val="no">✕ No</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes, works fine</button>
+                  <button type="button" class="segmented-option-btn" data-val="no">✕ No, has issues</button>
                 </div>
               </div>
 
               <!-- Q2: Screen Glass -->
               <div class="triage-row">
                 <div class="triage-info">
-                  <span class="triage-q-title">Screen Glass & Display Condition</span>
-                  <span class="triage-q-desc">Are there any cracks, deep scratches, or LCD ink bleeds/lines on the display?</span>
+                  <span class="triage-q-title">Is the front screen glass cracked or bleeding ink?</span>
+                  <span class="triage-q-desc">Check for any glass cracks, deep scratches, green lines, or black ink bleed spots.</span>
                 </div>
                 <div class="segmented-switch" id="switchScreenGlass" data-name="screenGlass">
-                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Cracked)</button>
-                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean)</button>
+                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Cracked / Line)</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean Screen)</button>
                 </div>
               </div>
 
               <!-- Q3: Body & Housing -->
               <div class="triage-row">
                 <div class="triage-info">
-                  <span class="triage-q-title">Body & Housing Condition</span>
-                  <span class="triage-q-desc">Are there any chips, dents, or bends on the frame or back glass?</span>
+                  <span class="triage-q-title">Any dents, bends, or broken back glass?</span>
+                  <span class="triage-q-desc">Check for bent frame, shattered back glass, or heavy scuffs and deep marks.</span>
                 </div>
                 <div class="segmented-switch" id="switchBodyHousing" data-name="bodyAndHousing">
-                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Dented)</button>
-                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean)</button>
+                  <button type="button" class="segmented-option-btn" data-val="yes">Yes (Dented / Cracked)</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="no">No (Clean Body)</button>
                 </div>
               </div>
 
-              <!-- Q4: Hardware Functionality -->
+              <!-- Q4: Hardware & Biometrics -->
               <div class="triage-row">
                 <div class="triage-info">
-                  <span class="triage-q-title">Hardware & Sensors Functionality</span>
-                  <span class="triage-q-desc">Do the cameras, microphone, speakers, and FaceID/TouchID all work perfectly?</span>
+                  <span class="triage-q-title">Do cameras, Face ID / Fingerprint & speakers work?</span>
+                  <span class="triage-q-desc">All camera lenses (0.5x, zoom, selfie), Face ID or fingerprint, and loud speakers work 100%.</span>
                 </div>
                 <div class="segmented-switch" id="switchHardware" data-name="hardwareFunctionality">
-                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes</button>
-                  <button type="button" class="segmented-option-btn" data-val="no">✕ No</button>
+                  <button type="button" class="segmented-option-btn active-yes" data-val="yes">✓ Yes, 100% working</button>
+                  <button type="button" class="segmented-option-btn" data-val="no">✕ No, faulty / disabled</button>
                 </div>
               </div>
             </div>
 
-            <!-- Battery Health & Carrier Lock -->
+            <!-- Battery Health & Repair History -->
             <div class="form-row-2" style="margin-top: 14px;">
               <div class="form-group" id="consumerBatteryGroup">
-                <label class="form-label" for="consumerBatteryHealth">Battery Health % (For iOS)</label>
+                <label class="form-label" for="consumerBatteryHealth">Battery Health (%)</label>
                 <input type="number" id="consumerBatteryHealth" class="form-input" min="40" max="100" placeholder="e.g. 87" value="88" required>
                 <span class="form-helper-text" id="consumerBatteryHint">Settings > Battery > Battery Health (Maximum Capacity %)</span>
               </div>
               <div class="form-group">
-                <label class="form-label" for="consumerCarrierLock">Carrier Lock Status</label>
-                <select id="consumerCarrierLock" class="form-select" required>
-                  <option value="Factory Unlocked" selected>Factory Unlocked (All SIMs)</option>
-                  <option value="Network Locked">Network Locked</option>
-                  <option value="CHIP Unlocked">CHIP Unlocked (RSIM / Gevey)</option>
+                <label class="form-label" for="consumerRepairHistory">Has this phone ever been opened or repaired?</label>
+                <select id="consumerRepairHistory" class="form-select">
+                  <option value="All Original (Never Repaired)" selected>First Body (Never opened / 100% original)</option>
+                  <option value="Battery Replaced (OEM / Aftermarket)">Battery replaced before</option>
+                  <option value="Screen Replaced">Screen replaced / changed</option>
+                  <option value="Back Glass / Housing Replaced">Back glass or housing replaced</option>
+                  <option value="Camera / Face ID Repaired">Camera or Face ID repaired</option>
+                  <option value="Multiple Parts Repaired">Multiple parts repaired</option>
                 </select>
               </div>
+            </div>
+
+            <!-- Proof of Ownership & Inclusions -->
+            <div class="form-group" style="margin-top: 12px;">
+              <label class="form-label" for="consumerInclusions">What are you bringing along?</label>
+              <select id="consumerInclusions" class="form-select">
+                <option value="Device Only" selected>Phone Only</option>
+                <option value="Original Box Included">Phone + Original Box</option>
+                <option value="Original Box + Charging Cable">Phone + Original Box + Charging Cable</option>
+                <option value="Receipt / Proof of Ownership Available">Phone + Store Receipt / Proof of Ownership</option>
+                <option value="Full Complete Box & Receipt">Full Complete Box + Charger + Receipt</option>
+              </select>
+            </div>
+
+            <!-- iCloud / Google Account Cleanliness Confirmation -->
+            <div class="form-group" style="margin-top: 14px; background: rgba(0, 210, 106, 0.08); border: 1px solid var(--emerald-border); border-radius: var(--radius-md); padding: 12px 14px;">
+              <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; color: #FFF; font-size: 0.86rem; font-weight: 600; line-height: 1.45;">
+                <input type="checkbox" id="consumerAccountCleanCheck" required checked style="margin-top: 3px; accent-color: var(--emerald-400); width: 16px; height: 16px;">
+                <span>✓ I confirm that I will sign out my Apple ID / iCloud / Google Account and remove all locks before exchanging at the hub.</span>
+              </label>
             </div>
           </div>
 
@@ -865,17 +904,17 @@
               <span class="form-section-num">3</span>
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; justify-content: space-between;">
-                  <h3 style="margin: 0;">Media Uploads (Up to 5)</h3>
+                  <h3 style="margin: 0;">Photos of Your Phone (Up to 5)</h3>
                   <span class="tag-badge" id="consumerMediaCounter" style="font-size: 0.72rem; padding: 3px 9px; background: rgba(16, 185, 129, 0.15); color: var(--emerald-400); border: 1px solid rgba(16, 185, 129, 0.3);">0 / 5 files</span>
                 </div>
-                <p style="margin-top: 4px;">Upload photos and short video clips of your phone (front, back, and powering on)</p>
+                <p style="margin-top: 4px;">Snap clear photos of the phone (front screen-on, back, and sides) so dealers can review your swap proposal quickly</p>
               </div>
             </div>
 
             <!-- Drag & Drop Zone -->
             <div class="media-dropzone" id="consumerDropzone">
               <span class="dropzone-icon">📸</span>
-              <div class="dropzone-title">Click to browse or drag & drop files here</div>
+              <div class="dropzone-title">Click to choose photos or drag & drop files here</div>
               <div class="dropzone-desc">Accepts photos (JPG, PNG, WEBP) and video clips (MP4, MOV). Add up to 5 items.</div>
               <input type="file" id="consumerMediaInput" class="dropzone-file-input" multiple accept="image/*,video/*">
             </div>
@@ -889,71 +928,10 @@
             <div class="dropzone-previews-grid" id="consumerPreviewsGrid"></div>
           </div>
 
-          <!-- SECTION 4: THE TARGET SWAP -->
-          <div class="form-section-card">
-            <div class="form-section-header">
-              <span class="form-section-num">4</span>
-              <div>
-                <h3>The Target Swap</h3>
-                <p>Confirm the phone model and storage capacity you are trading for</p>
-              </div>
-            </div>
-
-            <div class="form-row-2">
-              <div class="form-group">
-                <label class="form-label" for="consumerTargetBrand">Target Brand</label>
-                <select id="consumerTargetBrand" class="form-select" required>
-                  <option value="" disabled selected>-- Select Target Brand --</option>
-                </select>
-                <div id="consumerTargetCustomBrandGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerTargetCustomBrand" class="form-input" placeholder="Type target brand...">
-                  <span class="form-helper-text">Specify brand if not in list</span>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="consumerTargetModel">Target Model</label>
-                <select id="consumerTargetModel" class="form-select" required>
-                  <option value="" disabled selected>-- Select Target Model --</option>
-                </select>
-                <div id="consumerTargetCustomModelGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerTargetCustomModel" class="form-input" placeholder="Type target phone model...">
-                  <span class="form-helper-text">Specify model if not in list</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-row-2" style="margin-top: 10px;">
-              <div class="form-group">
-                <label class="form-label" for="consumerTargetStorage">Target Storage</label>
-                <select id="consumerTargetStorage" class="form-select" required>
-                  <option value="128GB">128GB</option>
-                  <option value="256GB" selected>256GB</option>
-                  <option value="512GB">512GB</option>
-                  <option value="1TB">1TB</option>
-                  <option value="Other">Other (Type custom)</option>
-                </select>
-                <div id="consumerTargetCustomStorageGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="consumerTargetCustomStorage" class="form-input" placeholder="e.g. 32GB, 2TB...">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="consumerPreferredColor">Preferred Color (Optional)</label>
-                <input type="text" id="consumerPreferredColor" class="form-input" placeholder="e.g. Natural Titanium">
-              </div>
-            </div>
-
-            <!-- Contact input -->
-            <div class="form-group" style="margin-top: 10px;">
-              <label class="form-label" for="consumerPhoneInput">Your WhatsApp / Phone Number</label>
-              <input type="tel" id="consumerPhoneInput" class="form-input" placeholder="e.g. 08012345678" required>
-              <span class="form-helper-text">Store hub technicians will contact you with their physical inspection slot.</span>
-            </div>
-          </div>
-
         </div>
 
         <button type="submit" class="btn-primary-action" id="submitConsumerSwapBtn" style="justify-content: center; padding: 16px; font-size: 1.02rem; margin-top: 10px;">
-          <span>Submit Verified Swap Request</span>
+          <span>+ Save & Use This Phone for Swap</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
       </form>
@@ -995,41 +973,37 @@
   <script type="module">
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { createSwapRequestBackend } from './js/backend-api.js';
-    import { db, doc, getDoc } from './js/firebase-config.js';
+    import { db, doc, getDoc, auth } from './js/firebase-config.js';
     import { setButtonLoading } from './js/auth.js';
+    import { getUserPhone, autofillField } from './js/user-autofill.js';
+    import { uploadToCloudinary } from './js/cloudinary-config.js';
+    import { renderAvatarElement } from './js/profile.js';
 
     let currentUserId = 'user_guest';
     let currentUserName = 'Swapper';
     let currentUserEmail = '';
     let targetPhone = null;
 
+    function updateHeaderUserUI(name, uid, userObj = null) {
+      const headerUserName = document.getElementById('headerUserName');
+      const headerAvatarFallback = document.getElementById('headerAvatarFallback');
+      if (headerUserName) headerUserName.textContent = name;
+      if (headerAvatarFallback) {
+        renderAvatarElement(headerAvatarFallback, uid, name || 'Swapper', userObj);
+      }
+    }
+
     // Synchronous initial cache read from localStorage
     try {
-      const stored = localStorage.getItem('naijaswap_user') || localStorage.getItem('naijaswap_user');
+      const stored = localStorage.getItem('naijaswap_user');
       if (stored) {
         const u = JSON.parse(stored);
         currentUserId = u.uid || 'user_guest';
         currentUserName = u.displayName || (u.email ? u.email.split('@')[0] : 'Swapper');
         currentUserEmail = u.email || '';
+        updateHeaderUserUI(currentUserName, currentUserId, u);
       }
     } catch (e) {}
-
-    function updateHeaderUserUI(name, uid, photoURL) {
-      const headerUserName = document.getElementById('headerUserName');
-      const headerAvatarFallback = document.getElementById('headerAvatarFallback');
-      if (headerUserName) headerUserName.textContent = name;
-      if (headerAvatarFallback) {
-        const storedPhoto = uid ? localStorage.getItem('naijaswap_photo_' + uid) : null;
-        const photo = storedPhoto || (photoURL && photoURL.startsWith('http') ? photoURL : null);
-        if (photo) {
-          headerAvatarFallback.innerHTML = `<img src="${photo}" alt="${escapeHtml(name)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-        } else {
-          headerAvatarFallback.textContent = name.charAt(0).toUpperCase();
-        }
-      }
-    }
-
-    updateHeaderUserUI(currentUserName, currentUserId);
 
     // Parse phone ID from URL query string
     const urlParams = new URLSearchParams(window.location.search);
@@ -1046,7 +1020,7 @@
     const storeNameText = document.getElementById('storeNameText');
     const storeVerifiedMark = document.getElementById('storeVerifiedMark');
     const hubAddressText = document.getElementById('hubAddressText');
-    const directWhatsAppBtn = document.getElementById('directWhatsAppBtn');
+    const directMessageBtn = document.getElementById('directMessageBtn') || document.getElementById('directWhatsAppBtn');
 
     // Specs
     const specStoragePill = document.getElementById('specStoragePill');
@@ -1065,7 +1039,7 @@
     const swapSelectionContainer = document.getElementById('swapSelectionContainer');
     const proposalSuccessCard = document.getElementById('proposalSuccessCard');
     const successCardMsg = document.getElementById('successCardMsg');
-    const successWhatsAppLink = document.getElementById('successWhatsAppLink');
+    const successChatLink = document.getElementById('successChatLink') || document.getElementById('successWhatsAppLink');
     const successTrackBtn = document.getElementById('successTrackBtn');
 
     // Modal & Nav Elements
@@ -1102,66 +1076,109 @@
 
       document.title = `${targetPhone.model} (${targetPhone.storage}) - Swap on NaijaSwap`;
 
-      // Populate Phone Details
-      phoneHeroImg.src = targetPhone.image;
-      phoneHeroImg.alt = `${targetPhone.brand} ${targetPhone.model}`;
-      
-      const galleryImgBack = document.getElementById('galleryImgBack');
-      if (galleryImgBack) {
-        galleryImgBack.src = targetPhone.backImage || targetPhone.image;
-        galleryImgBack.alt = `${targetPhone.model} Back & Casing`;
-      }
+      // Gallery is built dynamically inside initGallery() from mediaFiles
 
-      const galleryVideoPlayer = document.getElementById('galleryVideoPlayer');
-      if (galleryVideoPlayer) {
-        galleryVideoPlayer.poster = targetPhone.image;
-        const videoMedia = Array.isArray(targetPhone.mediaFiles)
-          ? targetPhone.mediaFiles.find(media => media && media.isVideo && media.dataUrl)
-          : null;
-        const videoUnavailableMessage = document.getElementById('videoUnavailableMessage');
-        if (videoMedia) {
-          galleryVideoPlayer.src = videoMedia.dataUrl;
-          galleryVideoPlayer.controls = true;
-          if (videoUnavailableMessage) videoUnavailableMessage.style.display = 'none';
-        } else {
-          galleryVideoPlayer.removeAttribute('src');
-          galleryVideoPlayer.controls = false;
-          if (videoUnavailableMessage) videoUnavailableMessage.style.display = 'block';
-        }
-      }
-
-      const galleryImgBox = document.getElementById('galleryImgBox');
-      if (galleryImgBox) {
-        galleryImgBox.src = targetPhone.accessoriesImage || targetPhone.image;
-        galleryImgBox.alt = `${targetPhone.model} Inclusions & Packaging`;
+      function isRawUid(str) {
+        if (!str || typeof str !== 'string') return true;
+        const s = str.trim();
+        if (s.length >= 18 && !s.includes(' ') && /^[a-zA-Z0-9_-]+$/.test(s)) return true;
+        if (/^(store_|user_|dealer_)[a-zA-Z0-9]+$/i.test(s)) return true;
+        return false;
       }
 
       phoneModelTitle.textContent = targetPhone.model;
       phoneBrandBadge.textContent = targetPhone.brand;
       phoneDescriptionText.textContent = targetPhone.description || `Clean, certified ${targetPhone.model} (${targetPhone.storage}) in ${targetPhone.condition} condition. Verified by hub technicians.`;
       
-      storeNameText.textContent = targetPhone.storeName || 'Computer Village Hub';
-      if (storeVerifiedMark) {
-        storeVerifiedMark.style.display = targetPhone.storeVerified ? 'inline' : 'none';
+      let initialStoreName = targetPhone.storeName;
+      if (!initialStoreName || isRawUid(initialStoreName)) {
+        initialStoreName = 'Verified Partner Hub';
       }
-      hubAddressText.textContent = targetPhone.hubAddress || `${targetPhone.location} Inspection Center`;
+      storeNameText.textContent = initialStoreName;
+      if (storeVerifiedMark) {
+        storeVerifiedMark.style.display = targetPhone.storeVerified !== false ? 'inline' : 'none';
+      }
+      hubAddressText.textContent = targetPhone.hubAddress || (targetPhone.location ? `${targetPhone.location} Inspection Hub` : 'Lagos Inspection Hub');
 
-      // Update store links and fetch dealer reviews rating
+      // Dealer profile photo & rating — fetched from Firestore
       const storeUid = targetPhone.storeOwnerUid || targetPhone.storeId;
       const storePageLink = document.getElementById('storePageLink');
       const storeViewReviewsLink = document.getElementById('storeViewReviewsLink');
+      const dealerAvatarWrap = document.getElementById('dealerAvatarWrap');
+      const dealerAvatarInitial = document.getElementById('dealerAvatarInitial');
+      const starsEl = document.getElementById('storeRatingStars');
+      const countEl = document.getElementById('storeRatingCount');
+
+      // Clear fake defaults
+      if (starsEl) starsEl.textContent = '';
+      if (countEl) countEl.textContent = '';
+
       if (storeUid) {
-        if (storePageLink) storePageLink.href = `store.html?storeId=${encodeURIComponent(storeUid)}`;
+        if (storePageLink) storePageLink.href = `dealer-profile.html?storeId=${encodeURIComponent(storeUid)}`;
         if (storeViewReviewsLink) storeViewReviewsLink.href = `store.html?storeId=${encodeURIComponent(storeUid)}`;
-        
-        // Async fetch dealer rating summary
-        NaijaSwapData.getStoreReviews(storeUid).then(reviews => {
+
+        // Fetch dealer profile (photo + rating + real name/address) concurrently
+        Promise.all([
+          NaijaSwapData.getStoreReviews(storeUid).catch(() => []),
+          (async () => {
+            try {
+              let prof = {};
+              const snap = await getDoc(doc(db, 'dealerProfiles', storeUid));
+              if (snap.exists()) prof = { ...snap.data() };
+              if (!prof.storeName || isRawUid(prof.storeName) || !prof.address) {
+                const uSnap = await getDoc(doc(db, 'users', storeUid));
+                if (uSnap.exists()) {
+                  const u = uSnap.data();
+                  prof.storeName = prof.storeName || u.businessName || u.shopName || u.displayName;
+                  prof.address = prof.address || u.shopAddress || u.address;
+                  prof.location = prof.location || u.location;
+                  prof.profilePhoto = prof.profilePhoto || u.photoURL;
+                }
+              }
+              return prof;
+            } catch { return {}; }
+          })()
+        ]).then(([reviews, dealerProfile]) => {
+          // Update store name if initial was a placeholder or UID
+          if (dealerProfile.storeName && !isRawUid(dealerProfile.storeName)) {
+            storeNameText.textContent = dealerProfile.storeName;
+          }
+          if (dealerProfile.address || dealerProfile.shopAddress) {
+            hubAddressText.textContent = dealerProfile.address || dealerProfile.shopAddress;
+          }
+
+          // Populate rating
           const summary = NaijaSwapData.getStoreRatingSummary(reviews);
-          const starsEl = document.getElementById('storeRatingStars');
-          const countEl = document.getElementById('storeRatingCount');
-          if (starsEl) starsEl.textContent = `★ ${summary.averageRating}`;
-          if (countEl) countEl.textContent = `(${summary.count} ${summary.count === 1 ? 'review' : 'reviews'})`;
-        }).catch(() => {});
+          if (summary.count > 0) {
+            if (starsEl) starsEl.textContent = `★ ${summary.averageRating}`;
+            if (countEl) countEl.textContent = `(${summary.count} ${summary.count === 1 ? 'review' : 'reviews'})`;
+          } else {
+            if (starsEl) starsEl.textContent = '';
+            if (countEl) countEl.textContent = 'No reviews yet';
+          }
+
+          // Populate dealer avatar
+          if (dealerAvatarWrap && dealerAvatarInitial) {
+            const photo = dealerProfile.profilePhoto || dealerProfile.photoURL || dealerProfile.logoUrl || '';
+            const name = storeNameText.textContent || 'Verified Hub';
+            if (photo && typeof photo === 'string' && (photo.startsWith('https://') || photo.startsWith('assets/') || photo.startsWith('data:image/'))) {
+              const safeImg = document.createElement('img');
+              safeImg.src = photo;
+              safeImg.alt = name;
+              safeImg.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+              safeImg.onerror = () => { dealerAvatarInitial.textContent = name.charAt(0).toUpperCase() || '?'; };
+              dealerAvatarWrap.innerHTML = '';
+              dealerAvatarWrap.appendChild(safeImg);
+            } else {
+              dealerAvatarInitial.textContent = name.charAt(0).toUpperCase() || '?';
+            }
+          }
+        });
+      } else {
+        // No storeUid — show initials from store name
+        if (dealerAvatarInitial) {
+          dealerAvatarInitial.textContent = (storeNameText.textContent || '?').charAt(0).toUpperCase();
+        }
       }
 
       // Check Out of Stock status
@@ -1180,38 +1197,57 @@
         }
       }
 
-      // Specs
-      specStoragePill.textContent = targetPhone.storage;
-      specConditionPill.textContent = targetPhone.condition;
-      specColorPill.textContent = targetPhone.color || 'Standard';
-      specBatteryPill.textContent = targetPhone.battery || '100% Battery';
-      specLocationPill.textContent = targetPhone.location;
+      // Specs & Pills
+      const specPricePill = document.getElementById('specPricePill');
+      const specLockPill = document.getElementById('specLockPill');
+      const specBiometrics = document.getElementById('specBiometrics');
+      const specCarrierLock = document.getElementById('specCarrierLock');
 
-      specScreen.textContent = targetPhone.screen || 'Retina OLED Display';
-      specChipset.textContent = targetPhone.chipset || 'Octa-Core Processor';
-      specCamera.textContent = targetPhone.camera || 'High-Resolution Cameras';
-      specSim.textContent = targetPhone.sim || 'Nano-SIM + eSIM';
-      specBoxIncludes.textContent = targetPhone.boxIncludes || 'Device & Charging Cable';
-      specWarranty.textContent = targetPhone.warranty || '30-Day Hub Warranty';
-
-      // WhatsApp link
-      let dealerPhone = '';
-      if (storeUid) {
-        try {
-          const dealerProfileSnap = await getDoc(doc(db, 'dealerProfiles', storeUid));
-          dealerPhone = dealerProfileSnap.exists() ? (dealerProfileSnap.data().phoneNumber || '') : '';
-        } catch (e) {
-          console.error("Error fetching dealer profile:", e);
-        }
+      const outrightVal = Number(targetPhone.price || targetPhone.cashOutrightPrice || targetPhone.marketValue || 0);
+      if (specPricePill) {
+        specPricePill.textContent = outrightVal > 0 ? `₦${outrightVal.toLocaleString()} Outright` : 'Swaps & Cash';
       }
-      const waNumber = targetPhone.whatsappNumber || dealerPhone;
-      
-      if (waNumber) {
-        const waMsg = encodeURIComponent(`Hello ${targetPhone.storeName || 'NaijaSwap Hub'}, I am viewing the ${targetPhone.model} (${targetPhone.storage}) listed for swap on NaijaSwap. I would like to trade in my phone.`);
-        directWhatsAppBtn.href = `https://wa.me/${waNumber.replace(/[^0-9]/g, '')}?text=${waMsg}`;
-        directWhatsAppBtn.style.display = 'inline-flex';
-      } else {
-        directWhatsAppBtn.style.display = 'none';
+      if (specStoragePill) specStoragePill.textContent = targetPhone.storage;
+      if (specConditionPill) specConditionPill.textContent = targetPhone.conditionGrade || targetPhone.condition;
+      if (specColorPill) specColorPill.textContent = targetPhone.color || 'Standard';
+      if (specBatteryPill) specBatteryPill.textContent = targetPhone.battery || '100% Battery';
+      if (specLockPill) specLockPill.textContent = targetPhone.carrierLock || 'Factory Unlocked';
+      if (specLocationPill) specLocationPill.textContent = targetPhone.location;
+
+      if (specScreen) specScreen.textContent = targetPhone.screenStatus || targetPhone.screen || 'Original OEM Screen (TrueTone Active)';
+      if (specBiometrics) specBiometrics.textContent = targetPhone.biometrics || 'Face ID / Touch ID Working 100%';
+      if (specSim) specSim.textContent = targetPhone.simType || targetPhone.sim || 'Nano-SIM + eSIM';
+      if (specCarrierLock) specCarrierLock.textContent = targetPhone.carrierLock || 'Factory Unlocked (Worldwide)';
+      if (specCamera) specCamera.textContent = targetPhone.camera || 'High-Resolution Multi-Lens';
+      if (specBoxIncludes) {
+        specBoxIncludes.textContent = Array.isArray(targetPhone.inclusions) 
+          ? targetPhone.inclusions.join(', ') 
+          : (targetPhone.boxIncludes || 'Original Box & Cable');
+      }
+      if (specChipset) specChipset.textContent = targetPhone.chipset || 'High-Performance Chipset';
+      if (specWarranty) {
+        specWarranty.textContent = targetPhone.storeWarranty 
+          ? `${targetPhone.storeWarranty} Store Warranty` 
+          : (targetPhone.warranty || '30-Day Hub Guarantee');
+      }
+
+      // Direct In-App Message link
+      if (directMessageBtn) {
+        directMessageBtn.style.display = 'inline-flex';
+        directMessageBtn.href = `chat.html?phoneId=${encodeURIComponent(phoneId)}&storeId=${encodeURIComponent(storeUid || targetPhone.storeId || '')}`;
+        directMessageBtn.onclick = (e) => {
+          e.preventDefault();
+          const userSwaps = NaijaSwapData.getUserSwapRequests(currentUserId) || [];
+          const existingSwap = userSwaps.find(r => 
+            (r.targetListingId === phoneId || r.targetPhoneId === phoneId) &&
+            (r.storeId === storeUid || r.storeOwnerUid === storeUid)
+          );
+          if (existingSwap) {
+            window.location.href = `chat.html?id=${encodeURIComponent(existingSwap.id || existingSwap.firestoreId)}`;
+          } else {
+            window.location.href = `chat.html?phoneId=${encodeURIComponent(phoneId)}&storeId=${encodeURIComponent(storeUid || targetPhone.storeId || '')}`;
+          }
+        };
       }
 
       // Update floating tags
@@ -1239,38 +1275,35 @@
       renderMorePhonesSlider();
     }
 
-    // Render Swap Selection: uses the phone(s) the user already listed, or shows empty state with redirect button
+    // =========================================================================
+    // DYNAMIC SWAP / TRADE-IN SELECTOR (SELECT FROM USER'S LISTED PHONES)
+    // =========================================================================
+    let selectedDeviceIndex = 0;
+
     function renderSwapSelection() {
       const container = document.getElementById('swapSelectionContainer');
       const calcPanelSubheading = document.getElementById('calcPanelSubheading');
       if (!container || !targetPhone) return;
 
-      const userDevices = NaijaSwapData.getUserDevices(currentUserId);
-
-      // SCENARIO 1: User has NO listed phones yet
-      if (userDevices.length === 0) {
-        if (calcPanelSubheading) {
-          calcPanelSubheading.textContent = 'List the device you want to swap to get your verified trade-in valuation and propose an upgrade.';
-        }
+      if (targetPhone.isSwapAllowed === false) {
+        if (calcPanelSubheading) calcPanelSubheading.textContent = 'This device is available for outright purchase only.';
         container.innerHTML = `
-          <div class="no-device-state-card" style="text-align: center; padding: 28px 16px 14px 16px;">
-            <div style="width: 58px; height: 58px; border-radius: 50%; background: rgba(0, 210, 106, 0.1); border: 1px solid var(--emerald-border); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; font-size: 1.5rem; box-shadow: 0 0 20px rgba(0, 210, 106, 0.15);">
-              📱
-            </div>
-            <h3 style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin-bottom: 8px;">No Phone Listed to Swap</h3>
-            <p style="font-size: 0.88rem; color: var(--text-dim); max-width: 420px; margin: 0 auto 24px auto; line-height: 1.55;">
-              You haven't listed a phone to trade in yet. List your phone with its condition and photos to get an instant trade-in valuation and propose a swap for this <strong style="color: #FFF;">${escapeHtml(targetPhone.model)}</strong>.
-            </p>
-            <a href="my-swaps.html?action=new&targetId=${encodeURIComponent(targetPhone.id)}" class="btn-primary-action" id="btnRedirectToListPhone" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; font-size: 0.98rem; font-weight: 700; box-shadow: 0 6px 20px rgba(0, 210, 106, 0.25);">
-              <span>+ List a Phone to Swap</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </a>
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 24px 18px; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 8px;">💳</div>
+            <h4 style="color: #FFF; font-weight: 700; margin-bottom: 6px;">Cash Outright Only</h4>
+            <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 16px;">The dealer is currently not accepting phone swaps for this listing.</p>
+            <a href="dashboard.html" class="btn-primary-action" style="justify-content: center; width: 100%;">Browse Swappable Phones</a>
           </div>
         `;
         return;
       }
 
-      const existingRequests = NaijaSwapData.getUserSwapRequests(currentUserId);
+      if (calcPanelSubheading) {
+        calcPanelSubheading.textContent = 'Select your trade-in phone from your listed devices to propose a swap.';
+      }
+
+      const userDevices = NaijaSwapData.getUserDevices(currentUserId) || [];
+      const existingRequests = NaijaSwapData.getUserSwapRequests(currentUserId) || [];
       const activeProposal = existingRequests.find(r => (r.targetListingId === targetPhone.id || r.targetPhoneId === targetPhone.id));
 
       let activeProposalHtml = '';
@@ -1282,210 +1315,297 @@
         activeProposalHtml = `
           <div style="background: rgba(0, 210, 106, 0.08); border: 1px solid var(--emerald-border); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
             <div>
-              <span style="color: var(--emerald-400); font-weight: 700; font-size: 0.85rem;">Active Swap Proposal:</span>
+              <span style="color: var(--emerald-400); font-weight: 700; font-size: 0.85rem;">Active Proposal for this listing:</span>
               <span class="status-badge ${statusBadgeClass}" style="margin-left: 6px; font-size: 0.75rem;">${escapeHtml(activeProposal.status)}</span>
             </div>
-            <a href="my-swaps.html" style="color: var(--emerald-400); text-decoration: none; font-weight: 600; font-size: 0.82rem;">Track in My Swaps &rarr;</a>
+            <a href="my-swaps.html" style="color: var(--emerald-400); text-decoration: none; font-weight: 600; font-size: 0.82rem;">Track &rarr;</a>
           </div>
         `;
       }
 
-      let deviceOptionsHtml = userDevices.map((d, index) => {
-        return `<option value="${escapeHtml(d.id)}" ${index === 0 ? 'selected' : ''}>${escapeHtml(d.model)} (${escapeHtml(d.storageCapacity)}) — ${escapeHtml(d.condition || 'Verified')}</option>`;
-      }).join('');
+      // Dealer Trade-In Requirement Note (Advisory only)
+      const dealerTierRequirement = targetPhone.minAcceptableTradeInTier || targetPhone.acceptedTradeIn || '';
+      let dealerRequirementHtml = '';
+      if (dealerTierRequirement && dealerTierRequirement !== 'Cash Outright Only' && dealerTierRequirement !== 'Swaps not accepted') {
+        dealerRequirementHtml = `
+          <div style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.28); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.15rem; flex-shrink: 0;">🛡️</span>
+            <div style="font-size: 0.82rem; color: var(--text-dim); line-height: 1.4;">
+              <strong style="color: var(--cyan-400);">Dealer Trade-In Tier:</strong> Accepts <strong>${escapeHtml(dealerTierRequirement)}</strong>
+            </div>
+          </div>
+        `;
+      }
 
+      // Case 1: User HAS listed devices in My Swaps
+      if (userDevices.length > 0) {
+        if (selectedDeviceIndex >= userDevices.length) selectedDeviceIndex = 0;
+        const currentDev = userDevices[selectedDeviceIndex];
+
+        // Calculate valuation for selected device
+        const calc = NaijaSwapData.calculateTopUp(targetPhone.id, {
+          brand: currentDev.brand,
+          model: currentDev.model,
+          storage: currentDev.storageCapacity || currentDev.storage || '128GB',
+          condition: currentDev.condition || 'Excellent',
+          batteryHealth: currentDev.batteryHealth,
+          conditionTriage: currentDev.conditionTriage || {}
+        });
+
+        const devicesListHtml = userDevices.map((dev, idx) => {
+          const isSelected = idx === selectedDeviceIndex;
+          const photo = (dev.deviceMedia && dev.deviceMedia[0]?.dataUrl) || '';
+          return `
+            <div class="user-device-item-card ${isSelected ? 'active-device' : ''}" data-index="${idx}" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: var(--radius-md); background: ${isSelected ? 'rgba(0, 210, 106, 0.08)' : 'rgba(255, 255, 255, 0.03)'}; border: 1.5px solid ${isSelected ? 'var(--emerald-border)' : 'var(--glass-border)'}; margin-bottom: 10px; transition: all 0.2s ease;">
+              <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; overflow: hidden;">
+                  ${photo ? `<img src="${escapeHtml(photo)}" alt="${escapeHtml(dev.model)}" style="width:100%;height:100%;object-fit:cover;">` : '📱'}
+                </div>
+                <div style="min-width: 0;">
+                  <strong style="color: #FFF; font-size: 0.94rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(dev.model)}</strong>
+                  <div style="font-size: 0.76rem; color: var(--text-dim); display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                    <span>${escapeHtml(dev.storageCapacity || dev.storage || '128GB')}</span>
+                    <span>•</span>
+                    <span style="color: var(--emerald-400); font-weight: 600;">${escapeHtml(dev.condition || 'Clean')}</span>
+                    ${dev.batteryHealth ? `<span>• 🔋 ${escapeHtml(dev.batteryHealth)}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <span style="width: 22px; height: 22px; border-radius: 50%; border: 2px solid ${isSelected ? 'var(--emerald-400)' : 'rgba(255,255,255,0.2)'}; background: ${isSelected ? 'var(--emerald-400)' : 'transparent'}; display: flex; align-items: center; justify-content: center; color: #000; font-size: 0.72rem; font-weight: 900;">
+                  ${isSelected ? '✓' : ''}
+                </span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        container.innerHTML = `
+          <div class="user-devices-selection-block">
+            ${activeProposalHtml}
+            ${dealerRequirementHtml}
+
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Your Listed Trade-In Phones (${userDevices.length})</span>
+              <button type="button" id="btnOpenAddPhoneModalInline" style="background: none; border: none; color: var(--cyan-400); font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                <span>+ Add Another</span>
+              </button>
+            </div>
+
+            <div class="user-devices-stack" style="margin-bottom: 16px;">
+              ${devicesListHtml}
+            </div>
+
+            <!-- Live Top-Up Valuation Results Box -->
+            <div class="valuation-results-box" id="valuationResultsBox" style="margin-bottom: 18px;">
+              <div class="valuation-row">
+                <span>Target Phone Market Value:</span>
+                <strong style="color: #FFF;">${calc.targetValueFormatted}</strong>
+              </div>
+              <div class="valuation-row">
+                <span>Trade-In Credit (${escapeHtml(currentDev.model)}):</span>
+                <strong style="color: var(--cyan-400);">${calc.userTradeInCreditFormatted}</strong>
+              </div>
+              <div class="valuation-divider"></div>
+              <div class="topup-final-row">
+                <div class="topup-final-label">
+                  <span>Estimated Top-Up</span>
+                  <small style="font-size: 0.75rem; color: var(--text-faint); font-weight: 500;">Range: ${calc.estRangeFormatted}</small>
+                </div>
+                <div class="topup-final-amount">${calc.estTopUpFormatted}</div>
+              </div>
+
+              <div style="margin-top: 10px; margin-bottom: 4px; padding: 8px 12px; background: rgba(0, 210, 106, 0.08); border: 1px solid var(--emerald-border); border-radius: var(--radius-sm); font-size: 0.78rem; color: var(--emerald-400); display: flex; align-items: center; gap: 6px;">
+                <span>🔒</span>
+                <span><strong>Paystack Escrow Protected:</strong> Top-up cash is safely locked in escrow until physical hub inspection passes.</span>
+              </div>
+            </div>
+
+            <!-- One-Click Propose Swap Button -->
+            <button type="button" class="btn-primary-action" id="btnSubmitSwapWithDevice" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.98rem; font-weight: 700; margin-bottom: 8px;">
+              <span>Propose Swap with ${escapeHtml(currentDev.model)}</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+          </div>
+        `;
+
+        // Device click bindings
+        container.querySelectorAll('.user-device-item-card').forEach(card => {
+          card.addEventListener('click', () => {
+            selectedDeviceIndex = parseInt(card.dataset.index, 10) || 0;
+            renderSwapSelection();
+          });
+        });
+
+        // Add another phone button
+        const addAnotherBtn = container.querySelector('#btnOpenAddPhoneModalInline');
+        if (addAnotherBtn) {
+          addAnotherBtn.addEventListener('click', () => {
+            if (consumerSwapModal) {
+              consumerSwapModal.classList.add('active');
+            }
+          });
+        }
+
+        // Propose Swap Click Handler (Instant One-Click submission using saved device specs!)
+        const submitBtn = container.querySelector('#btnSubmitSwapWithDevice');
+        if (submitBtn) {
+          submitBtn.addEventListener('click', () => {
+            handleProposeSwapWithListedPhone(currentDev, calc, submitBtn);
+          });
+        }
+
+        return;
+      }
+
+      // Case 2: User has NOT listed any trade-in devices yet
       container.innerHTML = `
         <div class="user-devices-selection-block">
           ${activeProposalHtml}
-          <div class="form-group" style="margin-bottom: 16px;">
-            <label class="form-label" for="userListedPhoneSelect" style="font-size: 0.86rem; font-weight: 700; color: #FFF; margin-bottom: 8px; display: block;">
-              Select Your Listed Phone to Swap
-            </label>
-            <select id="userListedPhoneSelect" class="form-select" style="font-weight: 600; font-size: 0.94rem; padding: 12px 14px; cursor: pointer;">
-              ${deviceOptionsHtml}
-            </select>
-          </div>
+          ${dealerRequirementHtml}
 
-          <!-- Selected Device Summary Pill -->
-          <div class="selected-device-pill-card" id="selectedDevicePillCard" style="background: rgba(255, 255, 255, 0.035); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-              <div id="deviceIconBadge" style="width: 44px; height: 44px; border-radius: var(--radius-md); background: rgba(0, 210, 106, 0.12); border: 1px solid var(--emerald-border); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;">
-                📱
-              </div>
-              <div style="min-width: 0;">
-                <div style="font-weight: 700; color: #FFF; font-size: 0.96rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="deviceCardTitle">
-                </div>
-                <div style="font-size: 0.78rem; color: var(--text-muted);" id="deviceCardSubtitle">
-                </div>
-              </div>
+          <div style="background: rgba(255, 255, 255, 0.02); border: 1.5px dashed var(--glass-border); border-radius: var(--radius-lg); padding: 26px 18px; text-align: center; margin-bottom: 12px;">
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0, 210, 106, 0.12); border: 1px solid var(--emerald-border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 12px auto;">
+              📱
             </div>
-            <span class="tag-badge tag-verified" style="flex-shrink: 0;">Listed Phone</span>
-          </div>
-
-          <!-- Live Top-Up Valuation Results Box -->
-          <div class="valuation-results-box" id="valuationResultsBox" style="margin-bottom: 20px;">
-            <div class="valuation-row">
-              <span>Target Phone Market Value:</span>
-              <strong style="color: #FFF;" id="valTargetPrice">₦...</strong>
-            </div>
-            <div class="valuation-row">
-              <span>Your Phone Trade-In Credit:</span>
-              <strong style="color: var(--cyan-400);" id="valUserCredit">₦...</strong>
-            </div>
-            <div class="valuation-divider"></div>
-            <div class="topup-final-row">
-              <div class="topup-final-label">
-                <span>Estimated Top-Up</span>
-                <small style="font-size: 0.75rem; color: var(--text-faint); font-weight: 500;" id="valTopupRangeText">Range: ...</small>
-              </div>
-              <div class="topup-final-amount" id="valTopupAmount">₦...</div>
-            </div>
-          </div>
-
-          <!-- Propose Swap Button -->
-          <button type="button" class="btn-primary-action" id="btnSubmitSwapWithDevice" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.98rem; font-weight: 700; margin-bottom: 14px;">
-            <span>Propose Swap with this Phone</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-          </button>
-
-          <div style="text-align: center;">
-            <a href="my-swaps.html?action=new&targetId=${encodeURIComponent(targetPhone.id)}" style="color: var(--text-muted); font-size: 0.82rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: color 0.15s;">
-              <span>+ Want to swap another phone? List a new device</span>
-            </a>
+            <h4 style="color: #FFF; font-weight: 800; font-size: 1.05rem; margin-bottom: 6px;">List Your Phone for Trade-In</h4>
+            <p style="font-size: 0.84rem; color: var(--text-dim); max-width: 360px; margin: 0 auto 18px auto; line-height: 1.55;">
+              List your phone with its specifications, condition, and photos once in My Swaps. You will then be able to swap it for this device in one click.
+            </p>
+            <button type="button" class="btn-primary-action" id="btnOpenAddPhoneModalEmpty" style="margin: 0 auto; justify-content: center; padding: 12px 24px; font-weight: 700;">
+              <span>+ List Your Phone for Swap</span>
+            </button>
           </div>
         </div>
       `;
 
-      const selectEl = document.getElementById('userListedPhoneSelect');
-      const cardTitle = document.getElementById('deviceCardTitle');
-      const cardSubtitle = document.getElementById('deviceCardSubtitle');
-      const valTarget = document.getElementById('valTargetPrice');
-      const valCredit = document.getElementById('valUserCredit');
-      const valTopup = document.getElementById('valTopupAmount');
-      const valRange = document.getElementById('valTopupRangeText');
-      const submitBtn = document.getElementById('btnSubmitSwapWithDevice');
+      const emptyAddBtn = container.querySelector('#btnOpenAddPhoneModalEmpty');
+      if (emptyAddBtn) {
+        emptyAddBtn.addEventListener('click', () => {
+          if (consumerSwapModal) {
+            consumerSwapModal.classList.add('active');
+          }
+        });
+      }
+    }
 
-      function updateDeviceCalculation() {
-        const devId = selectEl.value;
-        const currentDev = userDevices.find(d => d.id === devId) || userDevices[0];
-        if (!currentDev) return;
-
-        if (cardTitle) cardTitle.textContent = `${currentDev.model} (${currentDev.storageCapacity})`;
-        if (cardSubtitle) {
-          const battery = currentDev.batteryHealth ? ` • ${currentDev.batteryHealth} Battery` : '';
-          const cond = currentDev.condition || 'Verified Condition';
-          cardSubtitle.textContent = `${cond}${battery}`;
-        }
-
-        const calc = NaijaSwapData.calculateTopUpForDevice(targetPhone.id, currentDev);
-        if (calc.isValid) {
-          if (valTarget) valTarget.textContent = calc.targetValueFormatted;
-          if (valCredit) valCredit.textContent = calc.userTradeInCreditFormatted;
-          if (valTopup) valTopup.textContent = calc.estTopUpFormatted;
-          if (valRange) valRange.textContent = `Range: ${calc.estRangeFormatted}`;
-        }
+    async function handleProposeSwapWithListedPhone(device, calc, submitBtn) {
+      if (!auth.currentUser && currentUserId === 'user_guest') {
+        alert('Please sign in to submit a swap request.');
+        window.location.href = 'login.html';
+        return;
       }
 
-      selectEl.addEventListener('change', updateDeviceCalculation);
-      updateDeviceCalculation();
+      const storeUid = targetPhone.storeOwnerUid || targetPhone.storeId;
+      if (!storeUid) {
+        alert('This listing is missing its verified dealer details.');
+        return;
+      }
 
-      // Submit Swap Proposal with Selected Listed Device
-      submitBtn.addEventListener('click', async () => {
-        const devId = selectEl.value;
-        const currentDev = userDevices.find(d => d.id === devId) || userDevices[0];
-        if (!currentDev) return;
+      setButtonLoading(submitBtn, true, 'Sending Proposal...');
 
-        setButtonLoading(submitBtn, true, 'Sending Proposal...');
+      try {
+        const cachedUser = (() => {
+          try { return JSON.parse(localStorage.getItem('naijaswap_user') || '{}'); } catch (_) { return {}; }
+        })();
+        const contactPhone = getUserPhone(auth.currentUser || cachedUser);
+        const model = device.model || 'Smartphone';
+        const storageCapacity = device.storageCapacity || device.storage || '128GB';
+        const condition = device.condition || 'Excellent';
+        const message = `Swap request for ${targetPhone.model} (${targetPhone.storage}) with my ${model} (${storageCapacity}, ${condition}).`;
 
-        const calc = NaijaSwapData.calculateTopUpForDevice(targetPhone.id, currentDev);
+        const backendResult = await createSwapRequestBackend({
+          storeUid,
+          targetListingId: targetPhone.id,
+          targetDevice: {
+            brand: targetPhone.brand,
+            model: targetPhone.model,
+            storage: targetPhone.storage,
+            image: targetPhone.image
+          },
+          currentDevice: {
+            brand: device.brand,
+            model,
+            storage: storageCapacity,
+            ram: device.ram || '',
+            condition,
+            batteryHealth: device.batteryHealth || '90%',
+            carrierLock: device.carrierLock || 'Factory Unlocked',
+            conditionTriage: device.conditionTriage || {},
+            imeiNumber: device.imeiNumber || ''
+          },
+          offeredPrice: calc?.userTradeInCredit || 0,
+          topupAmount: calc?.estTopUp || 0,
+          customerName: currentUserName,
+          customerEmail: currentUserEmail,
+          customerPhone: contactPhone,
+          deviceMedia: device.deviceMedia || [],
+          message
+        });
+
+        if (!backendResult.requestId) {
+          throw new Error('The dealer did not confirm your request. Please try again.');
+        }
 
         const newReq = NaijaSwapData.createSwapRequest({
+          targetPhoneId: targetPhone.id,
           targetListingId: targetPhone.id,
           targetBrand: targetPhone.brand,
           targetModel: targetPhone.model,
           targetStorage: targetPhone.storage,
           preferredColor: targetPhone.color || 'Standard',
           targetPhoneImage: targetPhone.image,
-          storeId: targetPhone.storeId,
+          storeId: storeUid,
           storeName: targetPhone.storeName,
           customerUid: currentUserId,
           customerName: currentUserName,
           customerEmail: currentUserEmail,
-          customerPhone: currentDev.contactPhone || '08012345678',
-          brand: currentDev.brand,
-          model: currentDev.model,
-          storageCapacity: currentDev.storageCapacity,
-          ram: currentDev.ram || '',
-          imeiNumber: currentDev.imeiNumber || '',
-          conditionTriage: currentDev.conditionTriage,
-          deviceMedia: currentDev.deviceMedia || [],
-          swapperBattery: currentDev.batteryHealth || '90%',
-          topupOffered: calc.estTopUpFormatted,
-          tradeInCredit: calc.userTradeInCreditFormatted,
-          notes: `Trade-in proposal offering my listed ${currentDev.model} (${currentDev.storageCapacity}) in exchange for ${targetPhone.model}.`
+          customerPhone: contactPhone,
+          brand: device.brand,
+          model,
+          storageCapacity,
+          ram: device.ram || '',
+          imeiNumber: device.imeiNumber || '',
+          conditionTriage: device.conditionTriage || {},
+          deviceMedia: device.deviceMedia || [],
+          swapperBattery: device.batteryHealth || '90%',
+          topupOffered: calc?.estTopUpFormatted || '₦0',
+          tradeInCredit: calc?.userTradeInCreditFormatted || '₦0',
+          notes: message
         });
-        try {
-          const backendResult = await createSwapRequestBackend({
-            storeUid: newReq.storeId,
-            targetDevice: { model: newReq.targetModel, storage: newReq.targetStorage },
-            currentDevice: { model: newReq.model, storage: newReq.storageCapacity, condition: newReq.swapperPhoneCondition },
-            topupAmount: newReq.topupOffered,
-            message: newReq.notes
-          });
-          NaijaSwapData.attachFirestoreRequestId(newReq.id, backendResult.data.requestId);
-        } catch (error) {
-          setButtonLoading(submitBtn, false);
-          console.error('[NaijaSwap] Swap request backend sync failed:', error);
-          alert('Your swap request could not reach the dealer. Please try again.');
-          return;
-        }
+        NaijaSwapData.attachFirestoreRequestId(newReq.id, backendResult.requestId, backendResult.safeSwapCode);
 
-        // Show success state
-        setButtonLoading(submitBtn, false);
-        container.style.display = 'none';
+        // Show success card
+        const selectionContainer = document.getElementById('swapSelectionContainer');
         const successCard = document.getElementById('proposalSuccessCard');
-        const successMsg = document.getElementById('successCardMsg');
-        const waLink = document.getElementById('successWhatsAppLink');
-
-        if (successCard) successCard.style.display = 'block';
-        if (successMsg) {
-          successMsg.innerHTML = `Your swap proposal for <strong>${escapeHtml(targetPhone.model)}</strong> offering your listed <strong>${escapeHtml(currentDev.model)} (${escapeHtml(currentDev.storageCapacity)})</strong> with an estimated top-up of <strong style="color: var(--emerald-400);">${calc.estTopUpFormatted}</strong> has been logged with ${escapeHtml(targetPhone.storeName)}.`;
-        }
-
-        let dealerPhone = '';
-        const storeUid = targetPhone.storeOwnerUid || targetPhone.storeId;
-        if (storeUid) {
-          try {
-            const dealerProfileSnap = await getDoc(doc(db, 'dealerProfiles', storeUid));
-            dealerPhone = dealerProfileSnap.exists() ? (dealerProfileSnap.data().phoneNumber || '') : '';
-          } catch (e) {}
-        }
-        const waNumber = targetPhone.whatsappNumber || dealerPhone;
-        
-        if (waNumber) {
-          const proposalWaMsg = encodeURIComponent(
-            `Hello ${targetPhone.storeName}, I just submitted a swap proposal on NaijaSwap!\n\n` +
-            `• Target Phone: ${targetPhone.model} (${targetPhone.storage})\n` +
-            `• My Listed Phone: ${currentDev.model} (${currentDev.storageCapacity}, ${currentDev.condition || 'Verified'})\n` +
-            `• Est. Top-up: ${calc.estTopUpFormatted}\n\n` +
-            `When can I visit your hub for inspection?`
-          );
-          if (waLink) {
-            waLink.href = `https://wa.me/${waNumber.replace(/[^0-9]/g, '')}?text=${proposalWaMsg}`;
-            waLink.style.display = 'inline-flex';
+        if (selectionContainer) selectionContainer.style.display = 'none';
+        if (successCard) {
+          successCard.style.display = 'block';
+          const successMsg = document.getElementById('successCardMsg');
+          if (successMsg) {
+            successMsg.textContent = `Your trade-in proposal for ${device.model} has been sent to ${targetPhone.storeName || 'the dealer'}. You can now chat directly with their verification technician in our secure messaging system or track it in My Swaps.`;
           }
-        } else {
-          if (waLink) waLink.style.display = 'none';
+          const finalReqId = backendResult?.requestId || newReq.id;
+          const chatLink = document.getElementById('successChatLink') || document.getElementById('successWhatsAppLink');
+          if (chatLink && finalReqId) {
+            chatLink.href = `chat.html?id=${encodeURIComponent(finalReqId)}`;
+          }
         }
-
         updateMySwapsBadge();
-      });
+      } catch (error) {
+        console.error('[NaijaSwap] Trade-in proposal error:', error);
+        alert(error.message || 'Could not send swap proposal. Please try again.');
+      } finally {
+        setButtonLoading(submitBtn, false);
+      }
     }
 
     // Success Track Button
-    successTrackBtn.addEventListener('click', () => {
-      window.location.href = 'my-swaps.html';
-    });
+    if (successTrackBtn) {
+      successTrackBtn.addEventListener('click', () => {
+        window.location.href = 'my-swaps.html';
+      });
+    }
 
     // My Swaps Tracker
     function renderMySwaps() {
@@ -1617,12 +1737,8 @@
         const avatarEl = document.getElementById('headerAvatarFallback');
         if (nameEl) nameEl.textContent = currentUserName;
 
-        const storedPhoto = localStorage.getItem('naijaswap_photo_' + user.uid);
-        const photo = storedPhoto || (user.photoURL && user.photoURL.startsWith('http') ? user.photoURL : null);
-        if (photo && avatarEl) {
-          avatarEl.innerHTML = `<img src="${photo}" alt="${escapeHtml(currentUserName)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-        } else if (avatarEl) {
-          avatarEl.textContent = currentUserName.charAt(0).toUpperCase();
+        if (avatarEl) {
+          renderAvatarElement(avatarEl, user.uid, currentUserName, user);
         }
 
         updateMySwapsBadge();
@@ -1631,65 +1747,140 @@
     };
 
     // =========================================================================
-    // INTERACTIVE MEDIA GALLERY (PICTURES & 360° VIDEO INSPECTION)
+    // INTERACTIVE MULTI-MEDIA GALLERY (DEDUPLICATED PHOTOS & VIDEO)
     // =========================================================================
     function initGallery() {
-      const slides = document.querySelectorAll('.gallery-slide');
+      const slideContainer = document.getElementById('gallerySlideContainer');
       const counterPill = document.getElementById('galleryCounterPill');
-      const videoPlayer = document.getElementById('galleryVideoPlayer');
       const prevBtn = document.getElementById('galleryPrevBtn');
       const nextBtn = document.getElementById('galleryNextBtn');
       const viewport = document.querySelector('.details-media-viewport');
+
+      if (!slideContainer || !targetPhone) return;
+
+      const rawItems = [];
+
+      // 1. Collect from mediaFiles array (dealer multi-upload)
+      const mediaList = Array.isArray(targetPhone.mediaFiles) ? targetPhone.mediaFiles
+                      : Array.isArray(targetPhone.allMedia) ? targetPhone.allMedia
+                      : [];
+
+      mediaList.forEach(m => {
+        if (!m) return;
+        const src = typeof m === 'string' ? m : (m.dataUrl || m.url || '');
+        const isVideo = Boolean(m.isVideo || (typeof m === 'string' && m.match(/\.(mp4|webm|mov)(\?|$)/i)));
+        if (src) rawItems.push({ type: isVideo ? 'video' : 'image', src });
+      });
+
+      // 2. Collect from photos object or array if exists
+      if (targetPhone.photos) {
+        const photoUrls = Array.isArray(targetPhone.photos) ? targetPhone.photos : Object.values(targetPhone.photos);
+        photoUrls.forEach(src => {
+          if (src && typeof src === 'string') rawItems.push({ type: 'image', src });
+        });
+      }
+
+      // 3. Collect from individual photo properties (if distinct)
+      if (targetPhone.image) rawItems.unshift({ type: 'image', src: targetPhone.image });
+      if (targetPhone.heroImage) rawItems.unshift({ type: 'image', src: targetPhone.heroImage });
+      if (targetPhone.backImage) rawItems.push({ type: 'image', src: targetPhone.backImage });
+      if (targetPhone.accessoriesImage) rawItems.push({ type: 'image', src: targetPhone.accessoriesImage });
+      if (targetPhone.damageDisclosure) rawItems.push({ type: 'image', src: targetPhone.damageDisclosure });
+      if (targetPhone.uploadedVideo) rawItems.push({ type: 'video', src: targetPhone.uploadedVideo });
+      if (targetPhone.video) rawItems.push({ type: 'video', src: targetPhone.video });
+
+      // Deduplicate by URL
+      const seen = new Set();
+      const uniqueSlides = [];
+      for (const item of rawItems) {
+        if (!item.src || seen.has(item.src)) continue;
+        seen.add(item.src);
+        uniqueSlides.push(item);
+      }
+
+      // Fallback if completely empty
+      if (uniqueSlides.length === 0) {
+        uniqueSlides.push({
+          type: 'image',
+          src: 'assets/iPhone 15 Pro.jpg'
+        });
+      }
+
+      // Render slides
+      slideContainer.innerHTML = '';
+      uniqueSlides.forEach((slide, index) => {
+        const div = document.createElement('div');
+        div.className = 'gallery-slide' + (index === 0 ? ' active' : '');
+        div.dataset.slide = index;
+
+        if (slide.type === 'video') {
+          div.innerHTML = `
+            <div class="gallery-video-container">
+              <span class="video-inspect-badge">🎥 Inspection Video</span>
+              <video class="gallery-video-player" controls playsinline preload="metadata" style="max-width:100%;max-height:100%;">
+                <source src="${escapeHtml(slide.src)}">
+                Your browser does not support the video tag.
+              </video>
+            </div>`;
+        } else {
+          div.innerHTML = `<img src="${escapeHtml(slide.src)}" alt="${escapeHtml(targetPhone.brand)} ${escapeHtml(targetPhone.model)}" style="max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 14px 28px rgba(0,0,0,0.6));">`;
+        }
+        slideContainer.appendChild(div);
+      });
+
+      // Show/hide navigation and counter pill
+      if (uniqueSlides.length <= 1) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        if (counterPill) counterPill.style.display = 'none';
+        return;
+      }
+
+      if (prevBtn) prevBtn.style.display = '';
+      if (nextBtn) nextBtn.style.display = '';
+      if (counterPill) {
+        counterPill.style.display = '';
+        counterPill.textContent = uniqueSlides[0].type === 'video'
+          ? `1 / ${uniqueSlides.length} • Video`
+          : `1 / ${uniqueSlides.length}`;
+      }
+
       let currentSlide = 0;
+      const allSlides = slideContainer.querySelectorAll('.gallery-slide');
 
       function showSlide(idx) {
-        if (!slides.length) return;
-        currentSlide = (idx + slides.length) % slides.length;
-        slides.forEach((slide, i) => {
-          slide.classList.toggle('active', i === currentSlide);
-        });
+        currentSlide = (idx + allSlides.length) % allSlides.length;
+        allSlides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+        const currentItem = uniqueSlides[currentSlide];
         if (counterPill) {
-          counterPill.textContent = currentSlide === 2 ? `${currentSlide + 1} / ${slides.length} • Video` : `${currentSlide + 1} / ${slides.length}`;
+          counterPill.textContent = currentItem.type === 'video'
+            ? `${currentSlide + 1} / ${uniqueSlides.length} • Video`
+            : `${currentSlide + 1} / ${uniqueSlides.length}`;
         }
-        // If switching away from video slide (index 2), pause video
-        if (currentSlide !== 2 && videoPlayer && !videoPlayer.paused) {
-          videoPlayer.pause();
-        }
+        // Pause any video when switching slides
+        slideContainer.querySelectorAll('video').forEach((v, i) => {
+          if (i !== currentSlide && !v.paused) v.pause();
+        });
       }
 
       if (prevBtn) {
-        prevBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          showSlide(currentSlide - 1);
-        });
+        prevBtn.onclick = (e) => { e.preventDefault(); showSlide(currentSlide - 1); };
       }
-
       if (nextBtn) {
-        nextBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          showSlide(currentSlide + 1);
-        });
+        nextBtn.onclick = (e) => { e.preventDefault(); showSlide(currentSlide + 1); };
       }
 
       // Touch swipe support for mobile
       if (viewport) {
         let touchStartX = 0;
-        let touchEndX = 0;
         viewport.addEventListener('touchstart', (e) => {
-          if (e.touches && e.touches.length > 0) {
-            touchStartX = e.touches[0].clientX;
-          }
+          if (e.touches?.length > 0) touchStartX = e.touches[0].clientX;
         }, { passive: true });
-
         viewport.addEventListener('touchend', (e) => {
-          if (e.changedTouches && e.changedTouches.length > 0) {
-            touchEndX = e.changedTouches[0].clientX;
-            const diffX = touchEndX - touchStartX;
-            if (diffX < -40) {
-              showSlide(currentSlide + 1);
-            } else if (diffX > 40) {
-              showSlide(currentSlide - 1);
-            }
+          if (e.changedTouches?.length > 0) {
+            const diff = e.changedTouches[0].clientX - touchStartX;
+            if (diff < -40) showSlide(currentSlide + 1);
+            else if (diff > 40) showSlide(currentSlide - 1);
           }
         }, { passive: true });
       }
@@ -1789,9 +1980,6 @@
     const consumerModel = document.getElementById('consumerModel');
     const consumerStorage = document.getElementById('consumerStorage');
     const consumerRamGroup = document.getElementById('consumerRamGroup');
-    const consumerTargetBrand = document.getElementById('consumerTargetBrand');
-    const consumerTargetModel = document.getElementById('consumerTargetModel');
-    const consumerTargetStorage = document.getElementById('consumerTargetStorage');
     const consumerDropzone = document.getElementById('consumerDropzone');
     const consumerMediaInput = document.getElementById('consumerMediaInput');
     const consumerUploadProgress = document.getElementById('consumerUploadProgress');
@@ -1806,13 +1994,6 @@
     const consumerCustomModel = document.getElementById('consumerCustomModel');
     const consumerCustomStorageGroup = document.getElementById('consumerCustomStorageGroup');
     const consumerCustomStorage = document.getElementById('consumerCustomStorage');
-
-    const consumerTargetCustomBrandGroup = document.getElementById('consumerTargetCustomBrandGroup');
-    const consumerTargetCustomBrand = document.getElementById('consumerTargetCustomBrand');
-    const consumerTargetCustomModelGroup = document.getElementById('consumerTargetCustomModelGroup');
-    const consumerTargetCustomModel = document.getElementById('consumerTargetCustomModel');
-    const consumerTargetCustomStorageGroup = document.getElementById('consumerTargetCustomStorageGroup');
-    const consumerTargetCustomStorage = document.getElementById('consumerTargetCustomStorage');
 
     const consumerTriage = {
       powerAndScreen: true,
@@ -1832,14 +2013,13 @@
     function initConsumerForm() {
       if (!consumerBrand) return;
 
-      // Populate Brands for current phone & target phone
+      // Populate Brands
       const brands = NaijaSwapData.getBrands();
       const brandOptions = '<option value="" disabled selected>-- Select Brand --</option>' +
         brands.map(b => `<option value="${b}">${b}</option>`).join('') +
         '';
 
       consumerBrand.innerHTML = brandOptions;
-      consumerTargetBrand.innerHTML = brandOptions;
 
       // Current brand change -> populate model & handle Android RAM & custom input
       consumerBrand.addEventListener('change', () => {
@@ -1896,51 +2076,6 @@
         });
       }
 
-      // Target brand change -> populate target models & custom inputs
-      consumerTargetBrand.addEventListener('change', () => {
-        const tBrand = consumerTargetBrand.value;
-        if (tBrand === 'Other') {
-          if (consumerTargetCustomBrandGroup) consumerTargetCustomBrandGroup.style.display = 'block';
-          consumerTargetModel.disabled = false;
-          consumerTargetModel.innerHTML = '<option value="Other Target Model" selected>Other Smartphone (Type below)</option>';
-          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'block';
-        } else {
-          if (consumerTargetCustomBrandGroup) consumerTargetCustomBrandGroup.style.display = 'none';
-          const tModels = NaijaSwapData.getModelsForBrand(tBrand);
-          consumerTargetModel.disabled = false;
-
-          if (tModels.length > 0) {
-            consumerTargetModel.innerHTML = '<option value="" disabled selected>-- Select Target Model --</option>' +
-              tModels.map(m => `<option value="${m}">${m}</option>`).join('') +
-              '<option value="Other Target Model">Other Model (Type custom)</option>';
-          } else {
-            consumerTargetModel.innerHTML = '<option value="Other Target Model" selected>Other Target Model</option>';
-          }
-          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'none';
-        }
-      });
-
-      // Target Model change
-      consumerTargetModel.addEventListener('change', () => {
-        const val = consumerTargetModel.value;
-        if (val === 'Other Target Model') {
-          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'block';
-        } else {
-          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'none';
-        }
-      });
-
-      // Target Storage change
-      if (consumerTargetStorage) {
-        consumerTargetStorage.addEventListener('change', () => {
-          if (consumerTargetStorage.value === 'Other') {
-            if (consumerTargetCustomStorageGroup) consumerTargetCustomStorageGroup.style.display = 'block';
-          } else {
-            if (consumerTargetCustomStorageGroup) consumerTargetCustomStorageGroup.style.display = 'none';
-          }
-        });
-      }
-
       // Segmented Triage Switches
       setupSegmentedSwitch('switchPowerScreen', 'powerAndScreen', true);
       setupSegmentedSwitch('switchScreenGlass', 'screenGlass', false);
@@ -1953,7 +2088,6 @@
       // Open detailed swap modal button
       if (openDetailedSwapModalBtn && consumerSwapModal) {
         openDetailedSwapModalBtn.addEventListener('click', () => {
-          prefillConsumerFormWithTarget();
           consumerSwapModal.classList.add('active');
         });
       }
@@ -1970,9 +2104,9 @@
         });
       }
 
-      // Form submission
+      // Form submission: Saves phone to user's private trade-in devices inventory
       if (consumerSwapForm) {
-        consumerSwapForm.addEventListener('submit', (e) => {
+        consumerSwapForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const brand = (consumerBrand.value === 'Other' && consumerCustomBrand?.value.trim()) 
             ? consumerCustomBrand.value.trim() 
@@ -1987,28 +2121,19 @@
             return;
           }
 
-          const targetBrandVal = (consumerTargetBrand.value === 'Other' && consumerTargetCustomBrand?.value.trim())
-            ? consumerTargetCustomBrand.value.trim()
-            : (consumerTargetBrand.value || (targetPhone ? targetPhone.brand : 'Apple'));
-          const isTargetCustomModel = consumerTargetModel.value === 'Other Target Model';
-          const targetModelVal = (isTargetCustomModel && consumerTargetCustomModel?.value.trim())
-            ? consumerTargetCustomModel.value.trim()
-            : (consumerTargetModel.value || (targetPhone ? targetPhone.model : 'Smartphone'));
-
           const storageCapacity = (consumerStorage.value === 'Other' && consumerCustomStorage?.value.trim())
             ? consumerCustomStorage.value.trim()
             : consumerStorage.value;
+          const color = document.getElementById('consumerColor')?.value.trim() || 'Standard';
           const ram = (NaijaSwapData.isAndroid(brand) && document.getElementById('consumerRam')) 
             ? document.getElementById('consumerRam').value 
             : '';
-          const imeiNumber = document.getElementById('consumerImei').value.trim();
-          const batteryHealth = parseInt(document.getElementById('consumerBatteryHealth').value) || 90;
-          const carrierLock = document.getElementById('consumerCarrierLock').value;
-          const targetStorage = (consumerTargetStorage && consumerTargetStorage.value === 'Other' && consumerTargetCustomStorage?.value.trim())
-            ? consumerTargetCustomStorage.value.trim()
-            : (consumerTargetStorage ? consumerTargetStorage.value : (targetPhone ? targetPhone.storage : '128GB'));
-          const preferredColor = document.getElementById('consumerPreferredColor').value.trim();
-          const contactPhone = document.getElementById('consumerPhoneInput').value.trim();
+          const imeiNumber = document.getElementById('consumerImei')?.value.trim() || '';
+          const batteryHealth = parseInt(document.getElementById('consumerBatteryHealth')?.value) || 90;
+          const carrierLock = document.getElementById('consumerCarrierLock')?.value || 'Factory Unlocked';
+          const repairHistory = document.getElementById('consumerRepairHistory')?.value || 'All Original (Never Repaired)';
+          const inclusions = document.getElementById('consumerInclusions')?.value || 'Device Only';
+          const accountCleanCheck = document.getElementById('consumerAccountCleanCheck')?.checked !== false;
 
           const triagePayload = {
             powerAndScreen: consumerTriage.powerAndScreen,
@@ -2016,91 +2141,58 @@
             bodyAndHousing: consumerTriage.bodyAndHousing,
             hardwareFunctionality: consumerTriage.hardwareFunctionality,
             batteryHealth,
-            carrierLock
+            carrierLock,
+            repairHistory,
+            inclusions,
+            accountCleanCheck
           };
+          const condition = !triagePayload.powerAndScreen || !triagePayload.hardwareFunctionality
+            ? 'Damaged'
+            : triagePayload.screenGlass || triagePayload.bodyAndHousing
+              ? 'Fair'
+              : 'Excellent';
 
           const submitBtn = document.getElementById('submitConsumerSwapBtn');
-          setButtonLoading(submitBtn, true, 'Submitting Request...');
-
-          const newReq = NaijaSwapData.createSwapRequest({
-            targetPhoneId: targetPhone ? targetPhone.id : '',
-            brand,
-            model,
-            storageCapacity,
-            ram,
-            imeiNumber,
-            conditionTriage: triagePayload,
-            deviceMedia: consumerUploadedFiles,
-            targetBrand: targetBrandVal,
-            targetModel: targetModelVal,
-            targetStorage,
-            preferredColor,
-            customerUid: currentUserId,
-            customerName: currentUserName,
-            customerEmail: currentUserEmail,
-            customerPhone: contactPhone,
-            swapperBattery: `${batteryHealth}%`
-          });
-
-          // Reset & close
-          setButtonLoading(submitBtn, false);
-          consumerSwapForm.reset();
-          consumerUploadedFiles = [];
-          if (consumerPreviewsGrid) consumerPreviewsGrid.innerHTML = '';
-          if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'none';
-          if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
-          if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'none';
-          if (consumerTargetCustomBrandGroup) consumerTargetCustomBrandGroup.style.display = 'none';
-          if (consumerTargetCustomModelGroup) consumerTargetCustomModelGroup.style.display = 'none';
-          if (consumerTargetCustomStorageGroup) consumerTargetCustomStorageGroup.style.display = 'none';
-          updateConsumerMediaCounter();
-          consumerSwapModal.classList.remove('active');
-
-          updateMySwapsBadge();
-          window.location.href = 'my-swaps.html';
-        });
-      }
-    }
-
-    function prefillConsumerFormWithTarget() {
-      if (!targetPhone) return;
-
-      // Pre-fill target device in Section 4
-      if (consumerTargetBrand) {
-        consumerTargetBrand.value = targetPhone.brand;
-        const tModels = NaijaSwapData.getModelsForBrand(targetPhone.brand);
-        consumerTargetModel.disabled = false;
-        consumerTargetModel.innerHTML = tModels.map(m => `<option value="${m}" ${m === targetPhone.model ? 'selected' : ''}>${m}</option>`).join('');
-        if (!consumerTargetModel.value) {
-          consumerTargetModel.innerHTML = `<option value="${targetPhone.model}" selected>${targetPhone.model}</option>`;
-        }
-      }
-
-      if (consumerTargetStorage) {
-        consumerTargetStorage.value = targetPhone.storage;
-      }
-
-      // Pre-fill trade-in phone if user already chosen in calculator
-      const calcSelected = calcUserPhoneSelect ? calcUserPhoneSelect.value : '';
-      if (calcSelected && consumerBrand) {
-        const isIphone = calcSelected.toLowerCase().includes('iphone');
-        consumerBrand.value = 'Apple';
-        consumerBrand.dispatchEvent(new Event('change'));
-        setTimeout(() => {
-          if (consumerModel) {
-            Array.from(consumerModel.options).forEach(opt => {
-              if (opt.value.toLowerCase() === calcSelected.toLowerCase()) {
-                opt.selected = true;
-              }
+          setButtonLoading(submitBtn, true, 'Listing Phone...');
+          try {
+            // Save device to user's private trade-in devices inventory
+            NaijaSwapData.addUserDevice(currentUserId, {
+              brand,
+              model,
+              storageCapacity,
+              color,
+              ram,
+              condition,
+              batteryHealth: `${batteryHealth}%`,
+              carrierLock,
+              repairHistory,
+              inclusions,
+              accountCleanCheck,
+              imeiNumber,
+              conditionTriage: triagePayload,
+              deviceMedia: consumerUploadedFiles
             });
-          }
-        }, 50);
-      }
 
-      // Pre-fill contact phone
-      const swapperPhone = document.getElementById('swapperContactPhone')?.value;
-      if (swapperPhone && document.getElementById('consumerPhoneInput')) {
-        document.getElementById('consumerPhoneInput').value = swapperPhone;
+            consumerSwapForm.reset();
+            consumerUploadedFiles = [];
+            if (consumerPreviewsGrid) consumerPreviewsGrid.innerHTML = '';
+            if (consumerCustomBrandGroup) consumerCustomBrandGroup.style.display = 'none';
+            if (consumerCustomModelGroup) consumerCustomModelGroup.style.display = 'none';
+            if (consumerCustomStorageGroup) consumerCustomStorageGroup.style.display = 'none';
+            updateConsumerMediaCounter();
+            consumerSwapModal.classList.remove('active');
+
+            // Select this newly added device
+            const allDevs = NaijaSwapData.getUserDevices(currentUserId);
+            selectedDeviceIndex = 0;
+            renderSwapSelection();
+          } catch (error) {
+            console.error('[NaijaSwap] Device listing failed:', error);
+            alert(error.message || 'Could not list device. Please try again.');
+          } finally {
+            setButtonLoading(submitBtn, false);
+          }
+        });
       }
     }
 
@@ -2235,6 +2327,24 @@
         renderPreviewItem(item, idx);
       });
       updateConsumerMediaCounter();
+    }
+
+    async function uploadSwapRequestMedia(files) {
+      return Promise.all((Array.isArray(files) ? files : []).slice(0, 5).map(async (file) => {
+        const existingUrl = typeof file.dataUrl === 'string' ? file.dataUrl : '';
+        const url = existingUrl.startsWith('https://res.cloudinary.com/')
+          ? existingUrl
+          : await uploadToCloudinary(existingUrl, `naijaswap/${currentUserId}/swap-requests`);
+        if (!url.startsWith('https://res.cloudinary.com/')) {
+          throw new Error(`The upload for ${file.name || 'phone media'} did not return a public URL.`);
+        }
+        return {
+          name: String(file.name || 'Phone media'),
+          type: String(file.type || ''),
+          isVideo: file.isVideo === true,
+          dataUrl: url
+        };
+      }));
     }
 
     // Boot

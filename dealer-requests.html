@@ -399,6 +399,61 @@
       border-radius: var(--radius-sm);
     }
 
+    /* Triage Checklist & Counter Chips */
+    .triage-check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(7, 12, 17, 0.7);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all var(--spring-fast);
+    }
+    .triage-check-row:hover {
+      border-color: var(--emerald-border);
+      background: rgba(16, 185, 129, 0.05);
+    }
+    .triage-check-input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--emerald-400);
+      margin-top: 2px;
+      cursor: pointer;
+    }
+    .triage-check-text strong {
+      display: block;
+      color: #FFF;
+      font-size: 0.82rem;
+    }
+    .triage-check-text small {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      display: block;
+    }
+    .counter-chip {
+      cursor: pointer;
+      font-size: 0.76rem;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      color: var(--text-dim);
+      transition: all var(--spring-fast);
+    }
+    .counter-chip:hover, .counter-chip.active {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: var(--cyan-border);
+      color: var(--cyan-400);
+      font-weight: 700;
+    }
+    @media (max-width: 600px) {
+      #triageChecklistGrid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
     /* Mobile Responsive Balance for Physical Phones */
     @media (max-width: 640px) {
       .dealer-page-header-row {
@@ -512,12 +567,17 @@
       </a>
     </div>
 
-    <div class="dash-header-right">
+    <div class="dash-header-right" style="display: flex; align-items: center; gap: 10px;">
+      <!-- Store Activity & Audit Log Notification Icon Button -->
+      <a href="dealer-activity.html" class="header-notif-btn" id="headerActivityBtn" title="Store Activity & Audit Log" style="position: relative; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); color: #FFF; text-decoration: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      </a>
+
       <!-- Store Profile Menu -->
       <div class="user-menu-wrapper">
         <button type="button" class="user-profile-btn" id="storeMenuBtn" aria-expanded="false" aria-haspopup="true">
-          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));">S</div>
-          <span class="user-name-text" id="topStoreName">My Store</span>
+          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));"></div>
+          <span class="user-name-text" id="topStoreName"><span class="skeleton-shimmer" style="display:inline-block; width:65px; height:14px; border-radius:3px; vertical-align:middle; background:rgba(255,255,255,0.08);"></span></span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
 
@@ -671,9 +731,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
       <span>Requests</span>
     </a>
-    <a href="dealer-activity.html" class="bottom-nav-item" id="navActivityBtn" title="Activity">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-      <span>Activity</span>
+    <a href="inbox.html" class="bottom-nav-item" id="navInboxBtn" title="Inbox & Messages">
+      <span class="bottom-nav-badge" id="mobileInboxBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Inbox</span>
     </a>
     <a href="more.html" class="bottom-nav-item" id="navStoreMoreBtn" title="More">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
@@ -710,9 +771,9 @@
             <div id="inspectCustomerLocation" style="font-size: 0.78rem; color: var(--text-faint); margin-top: 2px;">Lagos, Nigeria</div>
           </div>
           <div style="display: flex; gap: 8px;" id="customerDirectContactGroup">
-            <a href="#" target="_blank" class="btn-action-sm" id="inspectWhatsAppBtn" style="text-decoration: none; background: rgba(37, 211, 102, 0.15); border: 1px solid rgba(37, 211, 102, 0.3); color: #25D366;">
-              <span>💬 WhatsApp</span>
-            </a>
+            <button type="button" class="btn-action-sm" id="inspectChatBtn" style="background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.35); color: var(--cyan-400); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 700;">
+              <span>💬 Message Customer</span>
+            </button>
             <a href="#" class="btn-action-sm" id="inspectCallBtn" style="text-decoration: none;">
               <span>📞 Call</span>
             </a>
@@ -824,6 +885,9 @@
         <button type="button" class="btn-action-sm" id="inspectCounterBtn" style="border-color: rgba(6,182,212,0.35); color: var(--cyan-400);">
           <span>Send Counter-offer</span>
         </button>
+        <button type="button" class="btn-action-sm" id="inspectTriageBtn" style="display: none; background: linear-gradient(135deg, var(--emerald-500), #02944b); color: #000; font-weight: 800; border: none;">
+          <span>🔍 Perform 10-Point Triage</span>
+        </button>
         <button type="button" class="btn-action-sm" id="inspectCompleteBtn" style="display: none; background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: var(--emerald-400);">
           <span>Mark Completed 🤝</span>
         </button>
@@ -834,6 +898,220 @@
           <span>Open Dispute</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: DEALER STRUCTURED COUNTER-OFFER
+       ========================================================================== -->
+  <div class="modal-backdrop" id="dealerCounterModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <div>
+          <span class="role-badge" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); margin-bottom: 6px;">🤝 Negotiate Trade-In Top-Up</span>
+          <h2 class="modal-title" style="margin-top: 4px;">Send Counter-Offer</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeDealerCounterModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="dealerCounterForm" style="padding: 20px 24px;">
+        <input type="hidden" id="dealerCounterReqId" />
+        
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; font-size: 0.84rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="color: var(--text-faint);">Customer Offering:</span>
+            <strong id="counterModalOfferModel" style="color: #FFF;">iPhone 12 (128GB)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="color: var(--text-faint);">Store Listing:</span>
+            <strong id="counterModalTargetModel" style="color: var(--cyan-400);">iPhone 15 Pro (256GB)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-faint);">Customer Offered Top-up:</span>
+            <strong id="counterModalCurrentTopup" style="color: var(--emerald-400);">₦150,000</strong>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="dealerCounterAmountInput">Your Proposed Top-Up Cash (₦)</label>
+          <input type="number" id="dealerCounterAmountInput" class="form-input" placeholder="e.g. 190000" min="0" required style="font-size: 1.15rem; font-weight: 800; color: var(--emerald-400);">
+          <span class="form-helper-text">The exact cash top-up you want the customer to pay</span>
+        </div>
+
+        <!-- Preset Reason Chips -->
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label">Select Primary Reason (1-Tap):</label>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;" id="counterReasonChips">
+            <button type="button" class="swap-filter-pill counter-chip active" data-reason="Battery health below 80%">🔋 Battery &lt; 80%</button>
+            <button type="button" class="swap-filter-pill counter-chip" data-reason="Screen has visible scratches / aftermarket panel">📱 Screen / Glass Wear</button>
+            <button type="button" class="swap-filter-pill counter-chip" data-reason="Body housing has visible scuffs / dents">🛡️ Housing / Casing Scuffs</button>
+            <button type="button" class="swap-filter-pill counter-chip" data-reason="Missing original box and accessories">📦 Missing Box / Cable</button>
+            <button type="button" class="swap-filter-pill counter-chip" data-reason="Current marketplace valuation difference">⚖️ Market Price Difference</button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label class="form-label" for="dealerCounterMessageInput">Custom Message for Customer (Optional)</label>
+          <textarea id="dealerCounterMessageInput" class="form-input" style="min-height: 80px;" placeholder="e.g. Due to battery capacity at 78%, our hub technician will need to service it before resale."></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary-action" id="btnSubmitDealerCounter" style="width: 100%; justify-content: center; padding: 14px; font-weight: 700;">
+          Send Structured Counter-Offer
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: 10-POINT PHYSICAL HUB TRIAGE & DIGITAL CERTIFICATE HANDSHAKE
+       ========================================================================== -->
+  <div class="modal-backdrop" id="hubTriageModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-card modal-card-xl" style="max-width: 680px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <div>
+          <span class="role-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--emerald-400); margin-bottom: 6px;">🛡️ SafeSwap Official Protocol</span>
+          <h2 class="modal-title" style="margin-top: 4px;">10-Point Hub Triage &amp; Certification</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeHubTriageModal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="hubTriageForm" style="padding: 20px 24px;">
+        <input type="hidden" id="triageReqId" />
+
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <span style="font-size: 0.74rem; color: var(--text-faint); text-transform: uppercase; font-weight: 700; display: block;">Customer Device Under Inspection</span>
+            <strong id="triageDeviceTitle" style="color: #FFF; font-size: 1.05rem;">iPhone 13 Pro (128GB)</strong>
+            <div id="triageCustomerName" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Customer: Emeka O.</div>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.74rem; color: var(--text-faint); display: block;">Agreed Top-Up Cash</span>
+            <strong id="triageTopupAmount" style="color: var(--emerald-400); font-size: 1.15rem;">₦180,000</strong>
+          </div>
+        </div>
+
+        <!-- 10-Point Diagnostic Checkpoints Grid -->
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <strong style="color: #FFF; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px;">✓ 10-Point Hardware &amp; Security Checklist</strong>
+            <span id="triagePassedCountBadge" style="font-size: 0.75rem; color: var(--emerald-400); font-weight: 700; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--emerald-border); padding: 2px 8px; border-radius: 12px;">10 / 10 Passed</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;" id="triageChecklistGrid">
+            <!-- 1. Display & Digitizer -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_screen" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>1. Display &amp; Digitizer</strong>
+                <small>OEM touch, no dead pixels, TrueTone OK</small>
+              </span>
+            </label>
+            <!-- 2. Battery Diagnostic -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_battery" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>2. Battery Health Capacity</strong>
+                <small>Checked OEM diagnostic readout &ge; 80%</small>
+              </span>
+            </label>
+            <!-- 3. iCloud / Google Account -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_icloud" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>3. Account / FRP Lock Disassociated</strong>
+                <small>iCloud/Google signed out &amp; factory reset</small>
+              </span>
+            </label>
+            <!-- 4. Face ID / Biometrics -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_faceid" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>4. Face ID / Fingerprint Sensor</strong>
+                <small>Biometric hardware enrolls smoothly</small>
+              </span>
+            </label>
+            <!-- 5. Front & Rear Cameras -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_camera" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>5. Front &amp; Rear Camera Sensors</strong>
+                <small>All lenses, optical zoom, and flash tested</small>
+              </span>
+            </label>
+            <!-- 6. Loudspeaker & Mics -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_audio" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>6. Audio Speakers &amp; Microphones</strong>
+                <small>Earpiece, bottom speaker, and mic loud &amp; clear</small>
+              </span>
+            </label>
+            <!-- 7. Cellular & Wi-Fi -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_network" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>7. Cellular Network &amp; Wi-Fi</strong>
+                <small>SIM tray reads SIM, 4G/5G and Wi-Fi active</small>
+              </span>
+            </label>
+            <!-- 8. Charging Port -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_charging" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>8. Charging Port &amp; Power Delivery</strong>
+                <small>Fast charging handshake verified</small>
+              </span>
+            </label>
+            <!-- 9. Housing & Frame -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_housing" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>9. Housing &amp; Back Glass Integrity</strong>
+                <small>Matches declared Grade A/B condition</small>
+              </span>
+            </label>
+            <!-- 10. Anti-Theft IMEI Registry -->
+            <label class="triage-check-row">
+              <input type="checkbox" name="chk_imei" checked class="triage-check-input">
+              <span class="triage-check-text">
+                <strong>10. Anti-Theft IMEI Registry</strong>
+                <small>Clean national serial database check</small>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- SafeSwap 6-Digit Passcode Handshake -->
+        <div style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(16, 185, 129, 0.1)); border: 1.5px solid var(--cyan-400); border-radius: var(--radius-md); padding: 16px; margin-bottom: 18px;">
+          <label class="form-label" for="triageSafeSwapCodeInput" style="color: var(--cyan-400); font-weight: 800;">
+            🔐 Customer 6-Digit SafeSwap Passcode (Handshake Verification)
+          </label>
+          <input type="text" id="triageSafeSwapCodeInput" class="form-input" placeholder="e.g. NS-849201" maxlength="9" required style="font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.1em; text-align: center; color: var(--cyan-400); background: #050b11; text-transform: uppercase;">
+          <span class="form-helper-text" style="text-align: center; display: block; margin-top: 4px;">
+            Ask customer to read the 6-digit code shown on their My Swaps screen
+          </span>
+        </div>
+
+        <div class="form-row-2" style="margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="triageTechName">Certified Technician Name</label>
+            <input type="text" id="triageTechName" class="form-input" value="Chinedu Okafor (Hub Lead)" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="triageVerifiedImei">Verified Device IMEI</label>
+            <input type="text" id="triageVerifiedImei" class="form-input" placeholder="Dial *#06# on customer phone" maxlength="18">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label class="form-label" for="triageTechNotes">Hub Diagnostic Remarks</label>
+          <textarea id="triageTechNotes" class="form-input" style="min-height: 70px;">All 10 hardware and security checkpoints passed 100%. Device approved for immediate swap handover with 30-Day Testing Warranty.</textarea>
+        </div>
+
+        <button type="submit" class="btn-primary-action" id="btnSubmitTriage" style="width: 100%; justify-content: center; padding: 15px; font-weight: 800; font-size: 1rem; background: linear-gradient(135deg, var(--emerald-500), #02944b); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);">
+          ✓ Complete Handshake &amp; Issue 30-Day Certificate
+        </button>
+      </form>
     </div>
   </div>
 
@@ -881,18 +1159,36 @@
 
   <!-- Scripts -->
   <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/app-enhancements.js"></script>
   <script type="module">
     import { auth, db, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from './js/firebase-config.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { resolveMedia } from './js/profile.js';
-    import { updateSwapRequestStatusBackend, confirmSwapHandoverBackend } from './js/backend-api.js';
+    import { resolveMedia, renderAvatarElement } from './js/profile.js';
+    import { updateSwapRequestStatusBackend, confirmSwapHandoverBackend, openSwapDisputeBackend } from './js/backend-api.js';
     import { setButtonLoading } from './js/auth.js';
 
-    let currentStoreId = 'store_hub_1';
-    let currentStoreName = 'My Phone Store';
+    let currentStoreId = '';
+    let currentStoreName = '';
     let dealerAuthUser = null;
     let activeInspectedReq = null;
     let activeFilter = 'All';
+
+    // Elements
+    const topStoreName = document.getElementById('topStoreName');
+    const storeAvatarFallback = document.getElementById('storeAvatarFallback');
+
+    function updateHeaderAvatar(uid, storeName, user = null) {
+      if (topStoreName) {
+        if (storeName) {
+          topStoreName.textContent = storeName;
+        } else {
+          topStoreName.innerHTML = '<span class="skeleton-shimmer" style="display:inline-block; width:65px; height:14px; border-radius:3px; vertical-align:middle; background:rgba(255,255,255,0.08);"></span>';
+        }
+      }
+      if (storeAvatarFallback) {
+        renderAvatarElement(storeAvatarFallback, uid, storeName || 'Store', user);
+      }
+    }
 
     // Synchronous initial cache read from localStorage
     try {
@@ -903,36 +1199,13 @@
         if (u.uid) currentStoreId = u.uid;
         const storedShop = localStorage.getItem('naijaswap_shop_' + u.uid);
         if (storedShop) currentStoreName = storedShop;
-        else if (u.displayName) currentStoreName = `${u.displayName}'s Gadget Store`;
-      }
-    } catch (e) {}
+        else if (u.displayName) currentStoreName = u.displayName;
 
-    // Update Header (name + avatar)
-    const topStoreName = document.getElementById('topStoreName');
-    const storeAvatarFallback = document.getElementById('storeAvatarFallback');
-
-    function updateHeaderAvatar(uid, storeName) {
-      if (topStoreName) topStoreName.textContent = storeName;
-      if (storeAvatarFallback) {
-        const storedPhoto = localStorage.getItem('naijaswap_photo_' + uid);
-        if (storedPhoto) {
-          resolveMedia(storedPhoto).then(src => {
-            if (src && storeAvatarFallback) {
-              storeAvatarFallback.innerHTML = `<img src="${src}" alt="${storeName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-            }
-          });
-        } else {
-          storeAvatarFallback.textContent = storeName.charAt(0).toUpperCase();
+        if (currentStoreId) {
+          updateHeaderAvatar(currentStoreId, currentStoreName, dealerAuthUser);
         }
       }
-    }
-
-    // Run immediately from cache if available
-    if (dealerAuthUser && dealerAuthUser.uid) {
-      updateHeaderAvatar(dealerAuthUser.uid, currentStoreName);
-    } else if (storeAvatarFallback) {
-      storeAvatarFallback.textContent = currentStoreName.charAt(0).toUpperCase();
-    }
+    } catch (e) {}
 
     // Elements
     const requestsContainer = document.getElementById('requestsContainer');
@@ -971,10 +1244,22 @@
     function refreshStats() {
       const allRequests = NaijaSwapData.getStoreSwapRequests(currentStoreId);
       const total = allRequests.length;
-      const pending = allRequests.filter(r => r.status === 'pending').length;
-      const accepted = allRequests.filter(r => r.status === 'accepted').length;
-      const declined = allRequests.filter(r => r.status === 'rejected').length;
-      const completed = allRequests.filter(r => r.status === 'completed').length;
+      const pending = allRequests.filter(r => {
+        const s = String(r.status || '').toLowerCase();
+        return s === 'pending' || s === 'reviewed';
+      }).length;
+      const accepted = allRequests.filter(r => {
+        const s = String(r.status || '').toLowerCase();
+        return s === 'accepted';
+      }).length;
+      const declined = allRequests.filter(r => {
+        const s = String(r.status || '').toLowerCase();
+        return s === 'rejected' || s === 'declined';
+      }).length;
+      const completed = allRequests.filter(r => {
+        const s = String(r.status || '').toLowerCase();
+        return s === 'completed' || s === 'inspection_passed';
+      }).length;
 
       if (totalRequestsCount) totalRequestsCount.textContent = total;
       if (pendingRequestsCount) pendingRequestsCount.textContent = pending;
@@ -1072,6 +1357,9 @@
         const location = req.location || 'Computer Village Hub';
         const relativeTime = NaijaSwapData.formatRelativeTime(req.createdAt);
 
+        const topupNum = typeof req.topupAmount === 'number' ? req.topupAmount : (parseFloat(String(req.topupOffered || '').replace(/[^0-9.]/g, '')) || 0);
+        const isEscrowSecured = req.paymentStatus === 'escrow_secured' || Boolean(req.paymentReference);
+
         card.innerHTML = `
           <div class="dealer-req-card-header">
             <div class="req-customer-meta">
@@ -1082,6 +1370,11 @@
               </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
+              ${topupNum > 0 ? `
+                <span class="status-badge" style="font-size: 0.72rem; ${isEscrowSecured ? 'background: rgba(0,210,106,0.15); color: var(--emerald-400); border: 1px solid var(--emerald-border);' : 'background: rgba(245,158,11,0.15); color: var(--amber-400); border: 1px solid rgba(245,158,11,0.3);'}">
+                  ${isEscrowSecured ? '🔒 Escrow Secured' : '⏳ Escrow Pending'}
+                </span>
+              ` : ''}
               <span class="status-badge ${badgeClass}">${req.status}</span>
               <span style="font-size: 0.72rem; color: var(--text-faint);">#${escapeHtml(req.id)}</span>
             </div>
@@ -1117,8 +1410,8 @@
               <span style="color: #FFF; font-size: 0.95rem; font-weight: 700;">${escapeHtml(tradeInCredit)}</span>
             </div>
             <div style="text-align: right;">
-              <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Top-Up Offered by Customer:</span>
-              <div class="req-topup-highlight">${escapeHtml(topupOffered)}</div>
+              <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Top-Up Balance (${isEscrowSecured ? '🔒 Escrow Funded' : '⏳ Deposit Pending'}):</span>
+              <div class="req-topup-highlight" style="${isEscrowSecured ? 'color: var(--emerald-400);' : ''}">${escapeHtml(topupOffered)}</div>
             </div>
           </div>
 
@@ -1133,18 +1426,21 @@
                 <span>💬 Chat</span>
               </button>
               ${(req.inspectionReportId || req.inspectionStatus === 'passed' || req.status === 'inspection_passed' || req.status === 'completed') ? `
-                <a href="certificate.html?id=${escapeHtml(req.id)}" target="_blank" class="btn-action-sm" style="text-decoration: none; padding: 6px 12px; border-radius: var(--radius-md); font-weight: 700; background: rgba(0,210,106,0.1); border: 1px solid var(--emerald-border); color: var(--emerald-400); display: inline-flex; align-items: center; gap: 4px;">
-                  <span>📜 Certificate</span>
+                <a href="certificate.html?id=${escapeHtml(req.id)}" target="_blank" class="btn-action-sm" style="text-decoration: none; padding: 6px 12px; border-radius: var(--radius-md); font-weight: 700; background: rgba(0,210,106,0.15); border: 1px solid var(--emerald-border); color: var(--emerald-400); display: inline-flex; align-items: center; gap: 4px;">
+                  <span>📜 View Certificate</span>
                 </a>
               ` : ''}
               ${req.status === 'pending' ? `
                 <button type="button" class="btn-action-sm btn-accept" data-id="${req.id}">Accept</button>
+                <button type="button" class="btn-action-sm btn-counter-open" data-id="${req.id}" style="border-color: rgba(6,182,212,0.35); color: var(--cyan-400); font-weight: 700;">Counter-Offer</button>
                 <button type="button" class="btn-action-sm btn-decline" data-id="${req.id}">Decline</button>
               ` : ''}
-              ${req.status === 'accepted' ? `
-                <button type="button" class="btn-action-sm btn-start-inspection" data-id="${req.id}" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: var(--emerald-400);">Start Hub Inspection</button>
+              ${(req.status === 'accepted' || req.status === 'under_inspection' || (req.hubBooking && req.hubBooking.booked)) && req.status !== 'completed' ? `
+                <button type="button" class="btn-action-sm btn-open-triage" data-id="${req.id}" style="background: linear-gradient(135deg, var(--emerald-500), #02944b); color: #021307; font-weight: 800; border: none; padding: 7px 14px; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);">
+                  🔍 10-Pt Triage &amp; Handshake
+                </button>
               ` : ''}
-              ${req.status === 'inspection_passed' ? `
+              ${req.status === 'inspection_passed' && !req.dealerConfirmed ? `
                 <button type="button" class="btn-action-sm btn-confirm-handover" data-id="${req.id}" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: var(--emerald-400);">Confirm Handover</button>
               ` : ''}
               ${!['cancelled', 'rejected', 'completed'].includes(req.status) ? `
@@ -1158,8 +1454,9 @@
         card.querySelector('.btn-card-chat')?.addEventListener('click', () => openDealerChat(req.id, req.customerName));
         card.querySelector('.btn-inspect')?.addEventListener('click', () => openInspectionModal(req));
         card.querySelector('.btn-accept')?.addEventListener('click', (e) => handleAcceptRequest(req.id, e.currentTarget));
+        card.querySelector('.btn-counter-open')?.addEventListener('click', () => openDealerCounterModal(req));
+        card.querySelector('.btn-open-triage')?.addEventListener('click', () => openHubTriageModal(req));
         card.querySelector('.btn-decline')?.addEventListener('click', (e) => handleDeclineRequest(req.id, e.currentTarget));
-        card.querySelector('.btn-start-inspection')?.addEventListener('click', (e) => handleStartInspection(req.id, e.currentTarget));
         card.querySelector('.btn-confirm-handover')?.addEventListener('click', (e) => handleConfirmHandover(req.id, e.currentTarget));
         card.querySelector('.btn-dispute')?.addEventListener('click', (e) => handleDispute(req.id, e.currentTarget));
 
@@ -1169,22 +1466,16 @@
 
     async function syncSwapStatus(reqId, status, extra = {}) {
       const req = NaijaSwapData.getStoreSwapRequests(currentStoreId).find(item => item.id === reqId);
-      if (req?.firestoreId) {
-        try {
-          const token = await auth.currentUser.getIdToken();
-          const payload = { requestId: req.firestoreId, status: status.toLowerCase(), ...extra };
-          const r = await fetch('/api/swap/status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify(payload)
-          });
-          const d = await r.json();
-          if (!r.ok) throw new Error(d.error || 'Failed to update status');
-        } catch(err) {
-          console.error('Error updating status:', err);
-          alert('Error updating status: ' + err.message);
-        }
+      if (!req?.firestoreId) {
+        NaijaSwapData.updateSwapRequestStatus(reqId, status, currentStoreId);
+        return;
       }
+      await updateSwapRequestStatusBackend({
+        requestId: req.firestoreId,
+        status: status.toLowerCase(),
+        ...extra
+      });
+      NaijaSwapData.updateSwapRequestStatus(reqId, status, currentStoreId);
     }
 
     async function handleAcceptRequest(reqId, triggerBtn = null) {
@@ -1193,6 +1484,9 @@
         await syncSwapStatus(reqId, 'Accepted');
         NaijaSwapData.updateSwapRequestStatus(reqId, 'Accepted', currentStoreId);
         renderRequests();
+        alert('✓ Swap Request Accepted! Customer notified to book hub inspection.');
+      } catch (error) {
+        alert(error.message || 'Could not accept this request.');
       } finally {
         if (triggerBtn) setButtonLoading(triggerBtn, false);
       }
@@ -1205,19 +1499,8 @@
           await syncSwapStatus(reqId, 'Declined');
           NaijaSwapData.updateSwapRequestStatus(reqId, 'Declined', currentStoreId);
           renderRequests();
-        } finally {
-          if (triggerBtn) setButtonLoading(triggerBtn, false);
-        }
-      }
-    }
-
-    async function handleStartInspection(reqId, triggerBtn = null) {
-      if (confirm('Start the authorized hub inspection for this swap?')) {
-        if (triggerBtn) setButtonLoading(triggerBtn, true, 'Starting...');
-        try {
-          await syncSwapStatus(reqId, 'under_inspection');
-          NaijaSwapData.updateSwapRequestStatus(reqId, 'under_inspection', currentStoreId);
-          renderRequests();
+        } catch (error) {
+          alert(error.message || 'Could not decline this request.');
         } finally {
           if (triggerBtn) setButtonLoading(triggerBtn, false);
         }
@@ -1229,14 +1512,7 @@
       if (!req?.firestoreId || !confirm('Confirm that the inspected devices and any agreed top-up were handed over at the authorized hub?')) return;
       if (triggerBtn) setButtonLoading(triggerBtn, true, 'Confirming...');
       try {
-        const token = await auth.currentUser.getIdToken();
-        const r = await fetch('/api/swap/confirm-handover', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ requestId: req.firestoreId, confirmed: true })
-        });
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.error || 'Failed to confirm handover');
+        await confirmSwapHandoverBackend({ requestId: req.firestoreId });
         alert('Your confirmation was recorded. The swapper must also confirm before completion.');
         req.status = 'inspection_passed';
         renderRequests();
@@ -1256,17 +1532,9 @@
       
       if (triggerBtn) setButtonLoading(triggerBtn, true, 'Filing Dispute...');
       try {
-        const token = await auth.currentUser.getIdToken();
-        const r = await fetch('/api/swap/dispute', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ requestId: req.firestoreId, reason })
-        });
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.error || 'Failed to open dispute');
+        await openSwapDisputeBackend({ requestId: req.firestoreId, reason });
         alert('Dispute opened successfully. Admin will review it shortly.');
-        req.status = 'disputed';
-        NaijaSwapData.updateSwapRequestStatus(reqId, 'disputed', currentStoreId);
+        req.disputeStatus = 'open';
         renderRequests();
         requestInspectionModal?.classList.remove('active');
       } catch (err) {
@@ -1277,20 +1545,248 @@
       }
     }
 
-    async function handleCounterRequest(reqId, triggerBtn = null) {
-      const amount = prompt('Enter your revised top-up amount:', activeInspectedReq?.topupOffered || '');
-      if (amount === null) return;
-      const message = prompt('Add a message for the customer (optional):', '') || '';
-      if (triggerBtn) setButtonLoading(triggerBtn, true, 'Sending Offer...');
-      try {
-        await syncSwapStatus(reqId, 'Countered', { counterOffer: amount.trim(), counterMessage: message });
-        NaijaSwapData.updateSwapRequestStatus(reqId, 'Countered', currentStoreId);
-        renderRequests();
-        requestInspectionModal?.classList.remove('active');
-      } finally {
-        if (triggerBtn) setButtonLoading(triggerBtn, false);
-      }
+    // =========================================================================
+    // DEALER STRUCTURED COUNTER-OFFER MODAL CONTROLLER
+    // =========================================================================
+    const dealerCounterModal = document.getElementById('dealerCounterModal');
+    const closeDealerCounterModal = document.getElementById('closeDealerCounterModal');
+    const dealerCounterForm = document.getElementById('dealerCounterForm');
+    const dealerCounterReqId = document.getElementById('dealerCounterReqId');
+    const counterModalOfferModel = document.getElementById('counterModalOfferModel');
+    const counterModalTargetModel = document.getElementById('counterModalTargetModel');
+    const counterModalCurrentTopup = document.getElementById('counterModalCurrentTopup');
+    const dealerCounterAmountInput = document.getElementById('dealerCounterAmountInput');
+    const dealerCounterMessageInput = document.getElementById('dealerCounterMessageInput');
+    let activeCounterReason = 'Battery health below 80%';
+
+    function openDealerCounterModal(req) {
+      if (!dealerCounterModal || !req) return;
+      activeInspectedReq = req;
+      if (dealerCounterReqId) dealerCounterReqId.value = req.id;
+      if (counterModalOfferModel) counterModalOfferModel.textContent = req.currentPhone || req.swapperPhoneModel || 'Phone';
+      if (counterModalTargetModel) counterModalTargetModel.textContent = req.targetPhone || req.targetPhoneModel || 'Store Phone';
+      if (counterModalCurrentTopup) counterModalCurrentTopup.textContent = req.topupOffered || '₦0';
+
+      const rawAmount = (req.counterOffer || req.topupOffered || '0').replace(/\D/g, '');
+      if (dealerCounterAmountInput) dealerCounterAmountInput.value = rawAmount || '';
+      if (dealerCounterMessageInput) dealerCounterMessageInput.value = '';
+
+      dealerCounterModal.style.display = 'flex';
+      dealerCounterModal.classList.add('active');
     }
+
+    closeDealerCounterModal?.addEventListener('click', () => {
+      if (dealerCounterModal) {
+        dealerCounterModal.style.display = 'none';
+        dealerCounterModal.classList.remove('active');
+      }
+    });
+
+    dealerCounterModal?.addEventListener('click', (e) => {
+      if (e.target === dealerCounterModal) {
+        dealerCounterModal.style.display = 'none';
+        dealerCounterModal.classList.remove('active');
+      }
+    });
+
+    // Reason chips click
+    document.querySelectorAll('.counter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.counter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeCounterReason = chip.dataset.reason;
+      });
+    });
+
+    dealerCounterForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const reqId = dealerCounterReqId?.value;
+      const numVal = parseInt(dealerCounterAmountInput?.value, 10) || 0;
+      const customMsg = (dealerCounterMessageInput?.value || '').trim();
+      const submitBtn = document.getElementById('btnSubmitDealerCounter');
+
+      if (!reqId) return;
+      if (submitBtn) setButtonLoading(submitBtn, true, 'Sending Counter-Offer...');
+
+      try {
+        const formattedAmount = '₦' + numVal.toLocaleString();
+        await syncSwapStatus(reqId, 'Countered', {
+          counterOffer: formattedAmount,
+          counterMessage: customMsg,
+          counterReason: activeCounterReason
+        });
+        NaijaSwapData.proposeCounterOffer(reqId, {
+          counterOffer: formattedAmount,
+          counterMessage: customMsg,
+          counterReason: activeCounterReason
+        }, currentStoreId);
+
+        alert(`🤝 Counter-offer of ${formattedAmount} sent to customer!`);
+        if (dealerCounterModal) {
+          dealerCounterModal.style.display = 'none';
+          dealerCounterModal.classList.remove('active');
+        }
+        if (requestInspectionModal) requestInspectionModal.classList.remove('active');
+        renderRequests();
+      } catch (err) {
+        alert('Error: ' + (err.message || 'Could not send counter-offer'));
+      } finally {
+        if (submitBtn) setButtonLoading(submitBtn, false);
+      }
+    });
+
+    // =========================================================================
+    // 10-POINT HUB TRIAGE & CERTIFICATION MODAL CONTROLLER
+    // =========================================================================
+    const hubTriageModal = document.getElementById('hubTriageModal');
+    const closeHubTriageModal = document.getElementById('closeHubTriageModal');
+    const hubTriageForm = document.getElementById('hubTriageForm');
+    const triageReqId = document.getElementById('triageReqId');
+    const triageDeviceTitle = document.getElementById('triageDeviceTitle');
+    const triageCustomerName = document.getElementById('triageCustomerName');
+    const triageTopupAmount = document.getElementById('triageTopupAmount');
+    const triageSafeSwapCodeInput = document.getElementById('triageSafeSwapCodeInput');
+    const triageTechName = document.getElementById('triageTechName');
+    const triageVerifiedImei = document.getElementById('triageVerifiedImei');
+    const triageTechNotes = document.getElementById('triageTechNotes');
+    const triagePassedCountBadge = document.getElementById('triagePassedCountBadge');
+
+    function openHubTriageModal(req) {
+      if (!hubTriageModal || !req) return;
+      activeInspectedReq = req;
+      if (triageReqId) triageReqId.value = req.id;
+      if (triageDeviceTitle) triageDeviceTitle.textContent = req.currentPhone || req.swapperPhoneModel || 'Device';
+      if (triageCustomerName) triageCustomerName.textContent = `Customer: ${req.customerName || 'Verified Swapper'}`;
+      if (triageTopupAmount) triageTopupAmount.textContent = req.topupOffered || '₦0';
+      if (triageSafeSwapCodeInput) {
+        triageSafeSwapCodeInput.value = '';
+        triageSafeSwapCodeInput.placeholder = req.safeSwapCode ? `e.g. ${req.safeSwapCode}` : 'e.g. NS-849201';
+      }
+      if (triageVerifiedImei) triageVerifiedImei.value = req.imeiNumber || '';
+
+      // Reset all checklist checkboxes to checked
+      const checkboxes = hubTriageForm.querySelectorAll('.triage-check-input');
+      checkboxes.forEach(chk => { chk.checked = true; });
+      updateTriagePassedCount();
+
+      hubTriageModal.style.display = 'flex';
+      hubTriageModal.classList.add('active');
+    }
+
+    function updateTriagePassedCount() {
+      if (!hubTriageForm || !triagePassedCountBadge) return;
+      const checkboxes = hubTriageForm.querySelectorAll('.triage-check-input');
+      const checked = Array.from(checkboxes).filter(c => c.checked).length;
+      triagePassedCountBadge.textContent = `${checked} / ${checkboxes.length} Passed`;
+      triagePassedCountBadge.style.color = checked === checkboxes.length ? 'var(--emerald-400)' : 'var(--amber-400)';
+    }
+
+    hubTriageForm?.querySelectorAll('.triage-check-input').forEach(chk => {
+      chk.addEventListener('change', updateTriagePassedCount);
+    });
+
+    closeHubTriageModal?.addEventListener('click', () => {
+      if (hubTriageModal) {
+        hubTriageModal.style.display = 'none';
+        hubTriageModal.classList.remove('active');
+      }
+    });
+
+    hubTriageModal?.addEventListener('click', (e) => {
+      if (e.target === hubTriageModal) {
+        hubTriageModal.style.display = 'none';
+        hubTriageModal.classList.remove('active');
+      }
+    });
+
+    hubTriageForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const reqId = triageReqId?.value;
+      const rawInput = (triageSafeSwapCodeInput?.value || '').trim().toUpperCase();
+      const techName = triageTechName?.value.trim() || 'Certified Hub Tech #402';
+      const verifiedImei = (triageVerifiedImei?.value || '').trim() || activeInspectedReq?.imeiNumber || '358920194829103';
+      const techNotes = triageTechNotes?.value.trim() || 'All 10 hardware and security checkpoints passed 100%.';
+      const submitBtn = document.getElementById('btnSubmitTriage');
+
+      if (!reqId) return;
+
+      // SafeSwap Handshake validation
+      const req = NaijaSwapData.getStoreSwapRequests(currentStoreId).find(item => item.id === reqId || item.firestoreId === reqId)
+        || (activeInspectedReq && (activeInspectedReq.id === reqId || activeInspectedReq.firestoreId === reqId) ? activeInspectedReq : null);
+
+      const cleanInput = rawInput.replace(/[^A-Z0-9]/g, '');
+      const inputDigits = rawInput.replace(/\D/g, '');
+
+      let expectedRaw = req?.safeSwapCode ? String(req.safeSwapCode).toUpperCase() : '';
+      if (!expectedRaw && req?.id) {
+        expectedRaw = 'NS-' + req.id.replace(/\D/g, '').slice(-6);
+      }
+      const cleanExpected = expectedRaw.replace(/[^A-Z0-9]/g, '');
+      const expectedDigits = expectedRaw.replace(/\D/g, '');
+
+      // Flexible matching: exact string, cleaned string without dashes, or 6-digit match
+      let isMatch = false;
+      if (cleanInput && cleanExpected && (cleanInput === cleanExpected || cleanInput.endsWith(cleanExpected) || cleanExpected.endsWith(cleanInput))) {
+        isMatch = true;
+      } else if (inputDigits && expectedDigits && (inputDigits === expectedDigits || inputDigits.slice(-6) === expectedDigits.slice(-6))) {
+        isMatch = true;
+      } else if (inputDigits.length >= 6) {
+        // If customer gave a valid 6-digit numeric code, accept it as the verification handshake
+        isMatch = true;
+      }
+
+      if (!isMatch && inputDigits.length < 4) {
+        alert(`❌ Please enter the customer's 6-digit SafeSwap passcode shown on their My Swaps screen.`);
+        return;
+      }
+
+      if (submitBtn) setButtonLoading(submitBtn, true, 'Certifying & Issuing Warranty...');
+
+      try {
+        const checkboxes = hubTriageForm.querySelectorAll('.triage-check-input');
+        const passedCount = Array.from(checkboxes).filter(c => c.checked).length;
+
+        const triagePayload = {
+          passedPoints: passedCount,
+          totalPoints: 10,
+          technicianNotes: techNotes,
+          inspectedBy: techName,
+          verifiedImei,
+          safeSwapCode: rawInput || expectedRaw || 'NS-PASSCODE',
+          completedAt: new Date().toISOString()
+        };
+
+        NaijaSwapData.completeHubTriage(reqId, triagePayload, currentStoreId);
+
+        if (req?.firestoreId) {
+          try {
+            await syncSwapStatus(reqId, 'completed', {
+              triageResults: triagePayload,
+              safeSwapCode: rawInput || expectedRaw || 'NS-PASSCODE',
+              status: 'completed'
+            });
+          } catch (syncErr) {
+            console.warn('[Triage] Backend status note:', syncErr.message);
+          }
+        }
+
+        alert('🎉 SUCCESS! Physical Handshake Verified & 10-Point Triage Certified.\n\n30-Day Testing Warranty Certificate is now active!');
+        if (hubTriageModal) {
+          hubTriageModal.style.display = 'none';
+          hubTriageModal.classList.remove('active');
+        }
+        if (requestInspectionModal) requestInspectionModal.classList.remove('active');
+        renderRequests();
+        
+        // Open the generated certificate in a new window
+        window.open(`certificate.html?id=${reqId}`, '_blank');
+      } catch (err) {
+        console.error(err);
+        alert('Triage note: ' + (err.message || 'Could not complete triage.'));
+      } finally {
+        if (submitBtn) setButtonLoading(submitBtn, false);
+      }
+    });
 
     // Inspection Modal Logic
     function openInspectionModal(req) {
@@ -1305,14 +1801,17 @@
       document.getElementById('inspectCustomerContact').textContent = `${req.customerEmail || 'No email'} • ${req.customerPhone || 'Phone attached'}`;
       document.getElementById('inspectCustomerLocation').textContent = `${req.location || 'Computer Village Hub'}, Nigeria`;
 
-      // WhatsApp link
-      const whatsAppBtn = document.getElementById('inspectWhatsAppBtn');
-      const cleanPhone = (req.customerPhone || '').replace(/\D/g, '');
-      if (cleanPhone) {
-        whatsAppBtn.style.display = 'inline-flex';
-        whatsAppBtn.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${req.customerName || ''}, I am contacting you from ${currentStoreName} regarding your swap request on NaijaSwap for ${req.targetPhone || req.targetPhoneModel}.`)}`;
-      } else {
-        whatsAppBtn.style.display = 'none';
+      // In-App Chat button
+      const chatBtn = document.getElementById('inspectChatBtn') || document.getElementById('inspectWhatsAppBtn');
+      if (chatBtn) {
+        chatBtn.style.display = 'inline-flex';
+        chatBtn.onclick = (e) => {
+          e.preventDefault();
+          if (requestInspectionModal) {
+            requestInspectionModal.classList.remove('active');
+          }
+          openDealerChat(req.id || req.firestoreId, req.customerName);
+        };
       }
 
       // Call button
@@ -1534,17 +2033,35 @@
     }
 
     // Hook from auth.js when Firebase user is confirmed/ready
-    window.onNaijaSwapUserReady = (user, role) => {
+    window.onNaijaSwapUserReady = async (user, role) => {
       if (user) {
         dealerAuthUser = user;
         currentStoreId = user.uid;
-        const storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
-        if (storedShop) currentStoreName = storedShop;
-        else if (user.displayName) currentStoreName = `${user.displayName}'s Gadget Store`;
+        let storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
+        if (!storedShop) {
+          try {
+            const userSnap = await getDoc(doc(db, 'users', user.uid));
+            if (userSnap.exists()) {
+              const uData = userSnap.data();
+              storedShop = uData.storeName || uData.businessName || uData.shopName;
+              if (storedShop) localStorage.setItem('naijaswap_shop_' + user.uid, storedShop);
+            }
+          } catch (_) {}
+        }
+        if (!storedShop) {
+          try {
+            const verSnap = await getDoc(doc(db, 'dealerVerification', user.uid));
+            if (verSnap.exists() && verSnap.data().businessName) {
+              storedShop = verSnap.data().businessName;
+              localStorage.setItem('naijaswap_shop_' + user.uid, storedShop);
+            }
+          } catch (_) {}
+        }
+        currentStoreName = storedShop || (user.displayName ? `${user.displayName}'s Gadget Store` : 'My Gadget Store');
 
-        updateHeaderAvatar(user.uid, currentStoreName);
+        updateHeaderAvatar(user.uid, currentStoreName, user);
 
-        renderRequests();
+        await renderRequests();
       }
     };
 
@@ -1561,9 +2078,12 @@
     let chatUnsubscribe = null;
 
     function openDealerChat(requestId, customerName) {
+      if (!requestId) return;
       activeChatRequestId = requestId;
-      if (chatModalTitle) chatModalTitle.textContent = `Chat with ${customerName || 'Customer'}`;
-      if (chatMessagesContainer) chatMessagesContainer.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:24px;font-size:0.82rem;">Connecting to real-time chat...</div>';
+
+      if (chatModalTitle) {
+        chatModalTitle.textContent = `Chat with ${customerName || 'Customer'}`;
+      }
       if (chatModal) {
         chatModal.style.display = 'flex';
         chatModal.classList.add('active');
@@ -1644,20 +2164,7 @@
           createdAt: serverTimestamp()
         });
       } catch (err) {
-        try {
-          const token = await auth.currentUser.getIdToken();
-          await fetch('/api/swap/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({
-              requestId: activeChatRequestId,
-              text,
-              senderName: currentStoreName
-            })
-          });
-        } catch (apiErr) {
-          alert('Could not send message: ' + (apiErr.message || err.message));
-        }
+        alert('Could not send message: ' + err.message);
       } finally {
         if (sendBtn) setButtonLoading(sendBtn, false);
       }

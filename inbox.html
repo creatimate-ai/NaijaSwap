@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Inbox & Messages — NaijaSwap</title>
+  <meta name="description" content="Chat directly with verified Nigerian phone dealers, negotiate swap top-ups, and coordinate hub inspections in real time.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    /* ─── INBOX THREADS HUB STYLES ─── */
+    .inbox-container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 16px 16px 120px 16px;
+    }
+
+    .inbox-header-card {
+      background: rgba(13, 20, 29, 0.75);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 22px 24px 18px 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--glass-shadow-lg), var(--glass-specular);
+    }
+
+    .inbox-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .inbox-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #FFF;
+      margin: 0;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .inbox-search-wrap {
+      position: relative;
+      width: 100%;
+      margin-bottom: 14px;
+    }
+
+    .inbox-search-input {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      background: rgba(7, 12, 17, 0.6);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      color: #FFF;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all var(--spring-fast);
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    .inbox-search-input:focus {
+      border-color: var(--cyan-400);
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.25);
+      background: rgba(7, 12, 17, 0.85);
+    }
+
+    .inbox-search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-faint);
+      pointer-events: none;
+    }
+
+    /* Filter tabs */
+    .inbox-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .inbox-filter-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .inbox-tab-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--spring-fast);
+    }
+    .inbox-tab-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFF;
+    }
+    .inbox-tab-pill.active {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.18), rgba(16, 185, 129, 0.12));
+      border-color: var(--cyan-400);
+      color: var(--cyan-400);
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.2);
+    }
+
+    /* ─── CONVERSATIONS STREAM LIST ─── */
+    .inbox-feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .inbox-card-link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .inbox-card {
+      background: rgba(13, 20, 29, 0.72);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all var(--spring-fast);
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    .inbox-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(6, 182, 212, 0.45);
+      background: rgba(18, 28, 40, 0.85);
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45), 0 0 20px rgba(6, 182, 212, 0.12);
+    }
+
+    .inbox-card-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cyan-500), var(--emerald-400));
+      color: #021307;
+      font-weight: 800;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+    .inbox-card-online-dot {
+      position: absolute;
+      bottom: 1px;
+      right: 1px;
+      width: 12px;
+      height: 12px;
+      background: #10b981;
+      border: 2px solid #080C0E;
+      border-radius: 50%;
+    }
+
+    .inbox-card-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .inbox-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .inbox-card-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #FFF;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+
+    .inbox-card-time {
+      font-size: 0.74rem;
+      color: var(--text-faint);
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+
+    .inbox-card-deal-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 2px 0;
+    }
+
+    .deal-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      color: var(--cyan-400);
+      font-size: 0.74rem;
+      font-weight: 700;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topup-badge-pill {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--emerald-400);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 2px 7px;
+      border-radius: 9999px;
+    }
+
+    .inbox-card-snippet {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.4;
+    }
+
+    .inbox-card-arrow {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-faint);
+      flex-shrink: 0;
+      transition: all var(--spring-fast);
+    }
+    .inbox-card:hover .inbox-card-arrow {
+      background: var(--cyan-400);
+      border-color: var(--cyan-400);
+      color: #000;
+      transform: translateX(3px);
+    }
+
+    /* ─── HEADER NOTIFICATION ICON BUTTON ─── */
+    .header-notif-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      color: #FFF;
+      text-decoration: none;
+      transition: all var(--spring-fast);
+      cursor: pointer;
+    }
+    .header-notif-btn:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+    .header-notif-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: #EF4444;
+      color: #FFF;
+      font-size: 0.65rem;
+      font-weight: 800;
+      border-radius: var(--radius-full);
+      min-width: 18px;
+      height: 18px;
+      line-height: 18px;
+      text-align: center;
+      border: 2px solid #080C0E;
+      padding: 0 4px;
+    }
+
+    @media (max-width: 640px) {
+      .inbox-container {
+        padding: 12px 12px 110px 12px;
+      }
+      .inbox-header-card {
+        padding: 16px 14px 14px 14px;
+        border-radius: var(--radius-lg);
+        margin-bottom: 14px;
+      }
+      .inbox-title {
+        font-size: 1.25rem;
+      }
+      .inbox-card {
+        padding: 12px 14px;
+        gap: 12px;
+        border-radius: var(--radius-lg);
+      }
+      .inbox-card-avatar {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+      }
+      .inbox-card-arrow {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glows -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="dash-header">
+    <div class="dash-header-left">
+      <a href="dashboard.html" class="brand-logo" aria-label="NaijaSwap Home" id="headerHomeLogoLink">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span class="brand-name">Naija<span>Swap</span></span>
+      </a>
+      <span class="role-tag role-tag-swapper" id="headerRoleBadge">
+        <span>🔄</span>
+        <span id="headerRoleText">Swapper</span>
+      </span>
+    </div>
+
+    <div class="dash-header-right" style="display: flex; align-items: center; gap: 10px;">
+      <!-- Activity / Alerts Notification Icon Button -->
+      <a href="alerts.html" class="header-notif-btn" id="headerNotifBtn" title="Alerts & Notifications">
+        <span class="header-notif-badge" id="headerNotifBadge" style="display: none;">0</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </a>
+
+      <!-- User Profile Menu -->
+      <div class="user-menu-wrapper">
+        <button type="button" class="user-profile-btn" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
+          <div class="user-avatar" id="headerAvatarFallback"></div>
+          <span class="user-name-text" id="headerUserName">Swapper</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+          <a href="account.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Profile</span>
+          </a>
+          <a href="dashboard.html" class="dropdown-item" id="menuHomeLink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Browse Phones</span>
+          </a>
+          <a href="my-swaps.html" class="dropdown-item" id="menuSwapsLink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+            <span>My Swap Requests</span>
+          </a>
+          <a href="inbox.html" class="dropdown-item" style="color: var(--cyan-400); font-weight: 700;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Inbox &amp; Messages</span>
+          </a>
+          <a href="index.html" class="dropdown-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span>Marketplace Home</span>
+          </a>
+          <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Inbox Container -->
+  <main class="inbox-container">
+
+    <!-- Top Header Control Card -->
+    <section class="inbox-header-card">
+      <div class="inbox-title-row">
+        <h1 class="inbox-title">
+          <span>💬</span>
+          <span>Messages &amp; Chats</span>
+        </h1>
+        <span class="role-badge" id="threadsCountBadge" style="background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); font-size: 0.76rem; padding: 4px 12px; border-radius: var(--radius-full); font-weight: 700;">
+          0 conversations
+        </span>
+      </div>
+
+      <div class="inbox-search-wrap">
+        <svg class="inbox-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="inboxSearchInput" class="inbox-search-input" placeholder="Search conversations by phone, store, or customer..." autocomplete="off">
+      </div>
+
+      <div class="inbox-filter-bar" role="tablist">
+        <button type="button" class="inbox-tab-pill active" data-filter="all">All Conversations</button>
+        <button type="button" class="inbox-tab-pill" data-filter="active">Active Swaps</button>
+        <button type="button" class="inbox-tab-pill" data-filter="completed">Completed</button>
+      </div>
+    </section>
+
+    <!-- Conversation Feed Stream -->
+    <section class="inbox-feed-list" id="inboxFeedList" aria-label="Inbox Conversations List">
+      <!-- Loading Skeleton Shimmer -->
+      <div class="inbox-card" style="opacity: 0.6;">
+        <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 50px; height: 50px;"></div>
+        <div style="flex: 1;">
+          <div class="skeleton-box skeleton-shimmer" style="width: 40%; height: 16px; margin-bottom: 8px;"></div>
+          <div class="skeleton-box skeleton-shimmer" style="width: 70%; height: 14px; margin-bottom: 6px;"></div>
+          <div class="skeleton-box skeleton-shimmer" style="width: 90%; height: 12px;"></div>
+        </div>
+      </div>
+      <div class="inbox-card" style="opacity: 0.4;">
+        <div class="skeleton-box skeleton-shimmer skeleton-circle" style="width: 50px; height: 50px;"></div>
+        <div style="flex: 1;">
+          <div class="skeleton-box skeleton-shimmer" style="width: 40%; height: 16px; margin-bottom: 8px;"></div>
+          <div class="skeleton-box skeleton-shimmer" style="width: 70%; height: 14px; margin-bottom: 6px;"></div>
+          <div class="skeleton-box skeleton-shimmer" style="width: 90%; height: 12px;"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Dynamic Role Mobile Bottom Navigation Container -->
+  <div id="dynamicBottomNavContainer">
+    <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+      <a href="dashboard.html" class="bottom-nav-item" id="navHomeBtn" title="Browse Phones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span>Home</span>
+      </a>
+      <a href="my-swaps.html" class="bottom-nav-item" id="navMySwapsBtn" title="My Swaps">
+        <span class="bottom-nav-badge" id="mobileSwapsBadge" style="display: none;">0</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
+        <span>My Swaps</span>
+      </a>
+      <a href="inbox.html" class="bottom-nav-item active" id="navInboxBtn" title="Messages &amp; Inbox" aria-current="page">
+        <span class="bottom-nav-badge" id="mobileInboxBadge" style="display: none;">0</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span>Inbox</span>
+      </a>
+      <a href="more.html" class="bottom-nav-item" id="navMoreBtn" title="More Options">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+        <span>More</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/app-enhancements.js"></script>
+  <script type="module">
+    import { auth, db, doc, getDoc } from './js/firebase-config.js';
+    import { NaijaSwapData } from './js/dashboard-data.js';
+    import { renderAvatarElement } from './js/profile.js';
+
+    let currentUserId = 'user_guest';
+    let currentUserName = 'Swapper';
+    let currentUserRole = 'customer';
+    let allSwapRequests = [];
+    let currentFilter = 'all';
+
+    // Elements
+    const inboxFeedList = document.getElementById('inboxFeedList');
+    const inboxSearchInput = document.getElementById('inboxSearchInput');
+    const threadsCountBadge = document.getElementById('threadsCountBadge');
+    const headerNotifBadge = document.getElementById('headerNotifBadge');
+    const headerRoleBadge = document.getElementById('headerRoleBadge');
+    const headerRoleText = document.getElementById('headerRoleText');
+    const headerHomeLogoLink = document.getElementById('headerHomeLogoLink');
+    const menuHomeLink = document.getElementById('menuHomeLink');
+    const menuSwapsLink = document.getElementById('menuSwapsLink');
+    const headerNotifBtn = document.getElementById('headerNotifBtn');
+    const dynamicBottomNavContainer = document.getElementById('dynamicBottomNavContainer');
+
+    // Profile Dropdown
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userDropdown = document.getElementById('userDropdown');
+
+    // Cache pre-fill
+    try {
+      const stored = localStorage.getItem('naijaswap_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        currentUserId = u.uid || 'user_guest';
+        currentUserName = u.displayName || (u.email ? u.email.split('@')[0] : 'Swapper');
+
+        const nameEl = document.getElementById('headerUserName');
+        const avatarEl = document.getElementById('headerAvatarFallback');
+        if (nameEl) nameEl.textContent = currentUserName;
+        if (avatarEl) renderAvatarElement(avatarEl, currentUserId, currentUserName, u);
+      }
+      const storedRole = localStorage.getItem('naijaswap_role_' + currentUserId) || localStorage.getItem('naijaswap_role');
+      if (storedRole) currentUserRole = storedRole;
+    } catch (_) {}
+
+    if (userMenuBtn && userDropdown) {
+      userMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('active');
+      });
+      document.addEventListener('click', () => userDropdown.classList.remove('active'));
+    }
+
+    function applyRoleUI(role) {
+      currentUserRole = role;
+      const isDealer = (role === 'dealer');
+
+      if (isDealer) {
+        if (headerRoleBadge) {
+          headerRoleBadge.className = 'role-tag role-tag-dealer';
+          headerRoleBadge.innerHTML = '<span>🏬</span><span>Store Partner</span>';
+        }
+        if (headerHomeLogoLink) headerHomeLogoLink.href = 'dealer-dashboard.html';
+        if (menuHomeLink) {
+          menuHomeLink.href = 'dealer-dashboard.html';
+          menuHomeLink.querySelector('span').textContent = 'Store Dashboard';
+        }
+        if (menuSwapsLink) {
+          menuSwapsLink.href = 'dealer-requests.html';
+          menuSwapsLink.querySelector('span').textContent = 'Swap Requests';
+        }
+        if (headerNotifBtn) {
+          headerNotifBtn.href = 'dealer-activity.html';
+          headerNotifBtn.title = 'Store Activity & Audit Log';
+          headerNotifBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          `;
+        }
+
+        if (dynamicBottomNavContainer) {
+          dynamicBottomNavContainer.innerHTML = `
+            <nav class="mobile-bottom-nav" aria-label="Store Navigation">
+              <a href="dealer-dashboard.html" class="bottom-nav-item" id="navDashBtn" title="Dashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                <span>Dashboard</span>
+              </a>
+              <a href="dealer-listings.html" class="bottom-nav-item" id="navListingsBtn" title="My Listings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                <span>Listings</span>
+              </a>
+              <a href="dealer-requests.html" class="bottom-nav-item" id="navRequestsBtn" title="Swap Requests">
+                <span class="bottom-nav-badge" id="mobileRequestsBadge" style="display: none;">0</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Requests</span>
+              </a>
+              <a href="inbox.html" class="bottom-nav-item active" id="navInboxBtn" title="Inbox & Messages" aria-current="page">
+                <span class="bottom-nav-badge" id="mobileInboxBadge" style="display: none;">0</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span>Inbox</span>
+              </a>
+              <a href="more.html" class="bottom-nav-item" id="navStoreMoreBtn" title="More">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                <span>More</span>
+              </a>
+            </nav>
+          `;
+        }
+      }
+    }
+
+    async function loadConversations() {
+      const isDealer = (currentUserRole === 'dealer');
+      let swaps = [];
+
+      if (isDealer) {
+        try {
+          swaps = await NaijaSwapData.getStoreSwapRequestsRemote(currentUserId);
+        } catch (_) {}
+        if (!swaps || swaps.length === 0) {
+          swaps = NaijaSwapData.getStoreSwapRequests(currentUserId) || [];
+        }
+      } else {
+        try {
+          swaps = await NaijaSwapData.getUserSwapRequestsRemote(currentUserId);
+        } catch (_) {}
+        if (!swaps || swaps.length === 0) {
+          swaps = NaijaSwapData.getUserSwapRequests(currentUserId) || [];
+        }
+      }
+
+      // If user has customer requests as well, include them
+      if (isDealer && (!swaps || swaps.length === 0)) {
+        const customerSwaps = NaijaSwapData.getUserSwapRequests(currentUserId) || [];
+        if (customerSwaps.length > 0) swaps = customerSwaps;
+      }
+
+      allSwapRequests = swaps || [];
+      renderConversationsList();
+      updateNotifBadge();
+    }
+
+    function renderConversationsList() {
+      const queryStr = (inboxSearchInput?.value || '').trim().toLowerCase();
+      const isDealer = (currentUserRole === 'dealer');
+
+      let filtered = allSwapRequests.filter(req => {
+        // Filter by tab
+        if (currentFilter === 'active') {
+          if (['completed', 'cancelled', 'rejected', 'declined'].includes(req.status)) return false;
+        } else if (currentFilter === 'completed') {
+          if (!['completed', 'cancelled', 'rejected', 'declined'].includes(req.status)) return false;
+        }
+
+        // Search query
+        if (!queryStr) return true;
+        const store = (req.storeName || '').toLowerCase();
+        const customer = (req.customerName || '').toLowerCase();
+        const target = (req.targetPhoneModel || req.targetModel || '').toLowerCase();
+        const offer = (req.swapperPhoneModel || req.model || req.currentPhone || '').toLowerCase();
+        return store.includes(queryStr) || customer.includes(queryStr) || target.includes(queryStr) || offer.includes(queryStr);
+      });
+
+      if (threadsCountBadge) {
+        threadsCountBadge.textContent = `${filtered.length} conversation${filtered.length === 1 ? '' : 's'}`;
+      }
+
+      if (filtered.length === 0) {
+        inboxFeedList.innerHTML = `
+          <div style="text-align: center; padding: 48px 20px; background: rgba(13, 20, 29, 0.6); border: 1px solid var(--glass-border); border-radius: var(--radius-xl);">
+            <div style="font-size: 2.2rem; margin-bottom: 12px;">📭</div>
+            <h3 style="color: #FFF; font-size: 1.15rem; font-weight: 800; margin-bottom: 6px;">No Conversations Found</h3>
+            <p style="font-size: 0.85rem; color: var(--text-dim); max-width: 380px; margin: 0 auto 20px; line-height: 1.5;">
+              ${isDealer ? 'Customer trade-in proposals and chat messages on your store listings will appear here.' : 'When you propose a trade-in swap on any phone, a direct conversation with the partner store will open here.'}
+            </p>
+            <a href="${isDealer ? 'dealer-listings.html' : 'dashboard.html'}" class="btn-primary-action" style="text-decoration: none; padding: 10px 22px; display: inline-flex; border-radius: var(--radius-full);">
+              ${isDealer ? 'Manage Store Listings' : 'Explore Available Phones'}
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      inboxFeedList.innerHTML = filtered.map(req => {
+        const isCustomer = (currentUserId === req.customerUid) || (!isDealer);
+        const titleName = isCustomer ? (req.storeName || 'Partner Store Hub') : (req.customerName || 'Verified Swapper');
+        const initial = titleName.charAt(0).toUpperCase() || 'S';
+        const offeredDevice = req.currentPhone || req.swapperPhoneModel || req.model || 'Trade-in Phone';
+        const targetDevice = req.targetPhone || req.targetPhoneModel || req.targetModel || 'Target Phone';
+        const topupStr = req.topupOffered || (req.topupAmount ? `+₦${Number(req.topupAmount).toLocaleString()}` : '+₦0');
+        const timeStr = NaijaSwapData.formatRelativeTime(req.createdAt);
+        
+        let lastMessageText = req.counterMessage || '';
+        if (!lastMessageText) {
+          if (req.status === 'hub_booked') lastMessageText = '📍 Physical hub inspection visit confirmed.';
+          else if (req.status === 'accepted') lastMessageText = '🎉 Deal accepted! Tap to coordinate hub inspection.';
+          else if (req.status === 'countered') lastMessageText = '🤝 Revised top-up proposal offered.';
+          else if (req.status === 'completed') lastMessageText = '✅ 30-Day Testing Warranty Certificate issued.';
+          else if (req.status === 'inquiry') lastMessageText = '💬 Direct chat inquiry with hub.';
+          else lastMessageText = 'Tap to open chat and negotiate trade-in details.';
+        }
+
+        const statusTag = (req.status || 'pending').replace(/_/g, ' ');
+
+        return `
+          <a href="chat.html?id=${encodeURIComponent(req.id || req.firestoreId)}" class="inbox-card-link" aria-label="Open chat with ${escapeHtml(titleName)}">
+            <article class="inbox-card">
+              <div class="inbox-card-avatar">
+                <span>${initial}</span>
+                <span class="inbox-card-online-dot"></span>
+              </div>
+
+              <div class="inbox-card-main">
+                <div class="inbox-card-top">
+                  <span class="inbox-card-title">${escapeHtml(titleName)}</span>
+                  <span class="inbox-card-time">${timeStr}</span>
+                </div>
+
+                <div class="inbox-card-deal-row">
+                  <span class="deal-badge-pill">🔄 ${escapeHtml(offeredDevice)} ➔ ${escapeHtml(targetDevice)}</span>
+                  <span class="topup-badge-pill">${escapeHtml(topupStr)}</span>
+                  <span class="status-badge status-${escapeHtml(req.status || 'pending')}" style="font-size: 0.68rem; padding: 2px 7px;">${escapeHtml(statusTag)}</span>
+                </div>
+
+                <div class="inbox-card-snippet">${escapeHtml(lastMessageText)}</div>
+              </div>
+
+              <div class="inbox-card-arrow" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
+            </article>
+          </a>
+        `;
+      }).join('');
+    }
+
+    function updateNotifBadge() {
+      const notifs = NaijaSwapData.getUserNotifications(currentUserId) || [];
+      const unreadCount = notifs.filter(n => !n.read).length;
+      if (headerNotifBadge) {
+        if (unreadCount > 0) {
+          headerNotifBadge.textContent = unreadCount;
+          headerNotifBadge.style.display = 'inline-block';
+        } else {
+          headerNotifBadge.style.display = 'none';
+        }
+      }
+    }
+
+    // Filter pills event
+    document.querySelectorAll('.inbox-tab-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.inbox-tab-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentFilter = pill.dataset.filter;
+        renderConversationsList();
+      });
+    });
+
+    // Search input
+    if (inboxSearchInput) {
+      inboxSearchInput.addEventListener('input', renderConversationsList);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Auth Hook
+    window.onNaijaSwapUserReady = (user, role) => {
+      if (user) {
+        currentUserId = user.uid;
+        currentUserName = user.displayName || user.email?.split('@')[0] || 'Swapper';
+        applyRoleUI(role || currentUserRole);
+        loadConversations();
+      }
+    };
+
+    applyRoleUI(currentUserRole);
+    loadConversations();
+  </script>
+</body>
+</html>

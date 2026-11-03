@@ -165,12 +165,17 @@
       </a>
     </div>
 
-    <div class="dash-header-right">
+    <div class="dash-header-right" style="display: flex; align-items: center; gap: 10px;">
+      <!-- Store Activity & Audit Log Notification Icon Button -->
+      <a href="dealer-activity.html" class="header-notif-btn" id="headerActivityBtn" title="Store Activity & Audit Log" style="position: relative; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); color: #FFF; text-decoration: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      </a>
+
       <!-- Store Profile Menu -->
       <div class="user-menu-wrapper">
         <button type="button" class="user-profile-btn" id="storeMenuBtn" aria-expanded="false" aria-haspopup="true">
-          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));">S</div>
-          <span class="user-name-text" id="topStoreName">My Store</span>
+          <div class="user-avatar" id="storeAvatarFallback" style="background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));"></div>
+          <span class="user-name-text" id="topStoreName"><span class="skeleton-shimmer" style="display:inline-block; width:65px; height:14px; border-radius:3px; vertical-align:middle; background:rgba(255,255,255,0.08);"></span></span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
 
@@ -305,9 +310,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
       <span>Requests</span>
     </a>
-    <a href="dealer-dashboard.html#activitySection" class="bottom-nav-item" id="navActivityBtn" title="Recent Activity">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-      <span>Activity</span>
+    <a href="inbox.html" class="bottom-nav-item" id="navInboxBtn" title="Inbox & Messages">
+      <span class="bottom-nav-badge" id="mobileInboxBadge" style="display: none;">0</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span>Inbox</span>
     </a>
     <a href="more.html" class="bottom-nav-item" id="navStoreMoreBtn" title="More">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
@@ -331,35 +337,35 @@
       <form id="addPhoneForm" class="dash-form">
         <div class="form-sections-wrapper">
 
-          <!-- SECTION 1: INVENTORY DETAILS -->
+          <!-- SECTION 1: PHONE DETAILS & PRICING -->
           <div class="form-section-card">
             <div class="form-section-header">
               <span class="form-section-num">1</span>
               <div>
-                <h3>Inventory Details</h3>
-                <p>Standardized brand, model, storage, RAM and stock quantity</p>
+                <h3>Phone & Pricing</h3>
+                <p>Select the phone model, storage, condition, and your cash selling price</p>
               </div>
             </div>
 
             <div class="form-row-2">
               <div class="form-group">
-                <label class="form-label" for="dealerDeviceBrand">Brand</label>
+                <label class="form-label" for="dealerDeviceBrand">Phone Brand</label>
                 <select id="dealerDeviceBrand" class="form-select" required>
                   <option value="" disabled selected>-- Select Brand --</option>
                   <!-- Populated dynamically -->
                 </select>
                 <div id="dealerCustomBrandGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="dealerCustomBrand" class="form-input" placeholder="Type Apple iPhone or Samsung brand...">
+                  <input type="text" id="dealerCustomBrand" class="form-input" placeholder="Type Apple, Samsung, etc...">
                   <span class="form-helper-text">Specify brand name if not in list</span>
                 </div>
               </div>
               <div class="form-group">
-                <label class="form-label" for="dealerDeviceModel">Model</label>
+                <label class="form-label" for="dealerDeviceModel">Phone Model</label>
                 <select id="dealerDeviceModel" class="form-select" required disabled>
                   <option value="" disabled selected>-- Select Brand First --</option>
                 </select>
                 <div id="dealerCustomModelGroup" style="display: none; margin-top: 8px;">
-                  <input type="text" id="dealerCustomModel" class="form-input" placeholder="Type phone model name...">
+                  <input type="text" id="dealerCustomModel" class="form-input" placeholder="Type exact phone model name...">
                   <span class="form-helper-text">Specify model if not in list</span>
                 </div>
               </div>
@@ -382,7 +388,7 @@
                 </div>
               </div>
               <div class="form-group" id="dealerRamGroup">
-                <label class="form-label" for="dealerRam">RAM</label>
+                <label class="form-label" for="dealerRam">RAM (Android)</label>
                 <select id="dealerRam" class="form-select">
                   <option value="4GB">4GB</option>
                   <option value="6GB">6GB</option>
@@ -396,53 +402,99 @@
 
             <div class="form-row-2" style="margin-top: 10px;">
               <div class="form-group">
-                <label class="form-label" for="dealerColor">Color / Finish</label>
+                <label class="form-label" for="dealerColor">Color</label>
                 <input type="text" id="dealerColor" class="form-input" placeholder="e.g. Natural Titanium, Deep Purple, Phantom Black" required>
               </div>
               <div class="form-group">
-                <label class="form-label" for="dealerDeviceStatus">Device Status</label>
+                <label class="form-label" for="dealerDeviceStatus">Phone Condition / Stock Type</label>
                 <select id="dealerDeviceStatus" class="form-select" required>
-                  <option value="Brand New Sealed" selected>Brand New Sealed</option>
-                  <option value="UK Used/Pre-owned">UK Used / Pre-owned</option>
-                  <option value="Refurbished">Refurbished</option>
+                  <option value="Brand New Sealed" selected>Brand New (Factory Sealed)</option>
+                  <option value="UK Used/Pre-owned">Direct UK Used (Clean Tokunbo)</option>
+                  <option value="Refurbished">Refurbished / Pre-owned</option>
                 </select>
               </div>
             </div>
 
-            <div class="form-group" style="margin-top: 10px;">
-              <label class="form-label" for="dealerQuantityInStock">Quantity In Stock</label>
-              <input type="number" id="dealerQuantityInStock" class="form-input" value="1" min="1" max="100" required>
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="dealerPrice">Cash Selling Price (₦)</label>
+                <input type="number" id="dealerPrice" class="form-input" placeholder="e.g. 750000" min="0" required>
+                <span class="form-helper-text">Your direct buy-now price without swap</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dealerQuantityInStock">Units in Stock</label>
+                <input type="number" id="dealerQuantityInStock" class="form-input" value="1" min="1" max="100" required>
+                <span class="form-helper-text">Number of available units</span>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="dealerSimType">SIM Card Type</label>
+                <select id="dealerSimType" class="form-select">
+                  <option value="Physical Nano-SIM + eSIM" selected>Physical Nano-SIM + eSIM (Standard Global/UK)</option>
+                  <option value="Dual Physical SIMs (HK/China)">Dual Physical SIMs (2 Nano-SIMs)</option>
+                  <option value="eSIM Only (US Model)">eSIM Only (US Model - No physical SIM slot)</option>
+                  <option value="Single Nano-SIM">Single Physical Nano-SIM</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dealerCarrierLock">Network / SIM Lock</label>
+                <select id="dealerCarrierLock" class="form-select">
+                  <option value="Factory Unlocked (Worldwide)" selected>Factory Unlocked (Works with all SIMs)</option>
+                  <option value="Chip / JV Unlocked (R-SIM)">Chip / JV Unlocked (R-SIM / Gevey)</option>
+                  <option value="Network Locked">Network Locked (Foreign network only)</option>
+                </select>
+              </div>
             </div>
           </div>
 
-          <!-- SECTION 2: STANDARDIZED GRADING & INCLUSIONS -->
+          <!-- SECTION 2: SCREEN, BATTERY & WHAT'S INCLUDED -->
           <div class="form-section-card">
             <div class="form-section-header">
               <span class="form-section-num">2</span>
               <div>
-                <h3>Standardized Grading & Inclusions</h3>
-                <p>Authentic grading condition, verified battery health, accessories, and warranty</p>
+                <h3>Screen, Battery & What's Included</h3>
+                <p>State screen status, battery health, and accessories clearly for fast buyer trust</p>
               </div>
             </div>
 
             <div class="form-row-2">
               <div class="form-group">
-                <label class="form-label" for="dealerConditionGrade">Condition Grade</label>
+                <label class="form-label" for="dealerConditionGrade">Body & Casing Grade</label>
                 <select id="dealerConditionGrade" class="form-select" required>
-                  <option value="Grade A - Pristine" selected>Grade A - Pristine (Like New / Flawless)</option>
-                  <option value="Grade B - Good">Grade B - Good (Minor light marks)</option>
-                  <option value="Grade C - Fair">Grade C - Fair (Noticeable casing wear)</option>
+                  <option value="Grade A - Pristine" selected>Grade A - Pristine (Like New / Flawless body)</option>
+                  <option value="Grade B - Good">Grade B - Very Good (Minor light marks)</option>
+                  <option value="Grade C - Fair">Grade C - Fair (Noticeable casing wear or scuffs)</option>
                 </select>
               </div>
               <div class="form-group">
-                <label class="form-label" for="dealerBatteryHealth">Battery Health %</label>
+                <label class="form-label" for="dealerBatteryHealth">Battery Health (%)</label>
                 <input type="number" id="dealerBatteryHealth" class="form-input" min="50" max="100" value="100" required>
                 <span class="form-helper-text" id="batteryHealthHint">Defaults to 100% for Brand New Sealed stock.</span>
               </div>
             </div>
 
+            <div class="form-row-2" style="margin-top: 10px;">
+              <div class="form-group">
+                <label class="form-label" for="dealerScreenStatus">Screen Status</label>
+                <select id="dealerScreenStatus" class="form-select">
+                  <option value="Original OEM Screen (TrueTone Active)" selected>Original Follow-Come Screen (TrueTone Active)</option>
+                  <option value="Original Replaced Screen">Original OEM Replacement Screen</option>
+                  <option value="High-Quality Replacement Display">High-Quality Changed Display (No TrueTone)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="dealerBiometrics">Face ID / Fingerprint</label>
+                <select id="dealerBiometrics" class="form-select">
+                  <option value="Face ID / Touch ID Working 100%" selected>Face ID / Fingerprint Working 100%</option>
+                  <option value="Biometrics Disabled / Not Working">Face ID / Fingerprint Not Working</option>
+                </select>
+              </div>
+            </div>
+
             <div class="form-group" style="margin-top: 12px;">
-              <label class="form-label">Package Inclusions (Select all included)</label>
+              <label class="form-label">What is included in the deal? (Select all that apply)</label>
               <div class="inclusions-chips-grid">
                 <label class="inclusion-chip-label">
                   <input type="checkbox" name="dealerInclusions" value="Original Box" checked>
@@ -454,42 +506,53 @@
                 </label>
                 <label class="inclusion-chip-label">
                   <input type="checkbox" name="dealerInclusions" value="Charging Brick">
-                  <span class="inclusion-chip-span">⚡ Charging Brick / Adapter</span>
+                  <span class="inclusion-chip-span">⚡ Fast Charger / Adapter</span>
                 </label>
                 <label class="inclusion-chip-label">
                   <input type="checkbox" name="dealerInclusions" value="Earphones">
                   <span class="inclusion-chip-span">🎧 Earphones</span>
                 </label>
+                <label class="inclusion-chip-label">
+                  <input type="checkbox" name="dealerInclusions" value="Receipt & Warranty Slip" checked>
+                  <span class="inclusion-chip-span">🧾 Store Receipt & Warranty</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row-2" style="margin-top: 12px;">
+              <div class="form-group">
+                <label class="form-label" for="dealerStoreWarranty">Store Testing Warranty</label>
+                <select id="dealerStoreWarranty" class="form-select" required>
+                  <option value="None">None (Sold As-Is)</option>
+                  <option value="7 Days">7 Days Hub Testing Warranty</option>
+                  <option value="30 Days" selected>30 Days Full Hub Guarantee (Recommended)</option>
+                  <option value="3 Months">3 Months Store Warranty</option>
+                  <option value="1 Year">1 Year Official / Store Warranty</option>
+                </select>
               </div>
             </div>
 
             <div class="form-group" style="margin-top: 12px;">
-              <label class="form-label" for="dealerStoreWarranty">Store Warranty</label>
-              <select id="dealerStoreWarranty" class="form-select" required>
-                <option value="None">None</option>
-                <option value="7 Days">7 Days Hub Testing Warranty</option>
-                <option value="30 Days" selected>30 Days Full Hub Guarantee</option>
-                <option value="3 Months">3 Months Warranty</option>
-                <option value="1 Year">1 Year Official / Store Warranty</option>
-              </select>
+              <label class="form-label" for="dealerDescription">Seller Notes / Extra Details (Optional)</label>
+              <textarea id="dealerDescription" class="form-input" style="min-height: 70px;" placeholder="e.g. Direct US stock, pristine condition, tempered glass pre-installed, original battery with zero issues."></textarea>
             </div>
           </div>
 
-          <!-- SECTION 3: SWAP & TRADE-IN PREFERENCES -->
+          <!-- SECTION 3: SWAP & TRADE-IN RULES -->
           <div class="form-section-card">
             <div class="form-section-header">
               <span class="form-section-num">3</span>
               <div>
-                <h3>Swap & Trade-In Preferences</h3>
-                <p>Configure trade-in eligibility and minimum acceptable exchange tier</p>
+                <h3>Swap & Trade-In Rules</h3>
+                <p>Choose whether customers can trade in their old phones and set the minimum acceptable model</p>
               </div>
             </div>
 
             <div class="form-group">
               <div class="triage-row">
                 <div class="triage-info">
-                  <span class="triage-q-title">Allow Swaps for this Phone?</span>
-                  <span class="triage-q-desc">Allow customers to propose trade-ins with top-up valuation.</span>
+                  <span class="triage-q-title">Accept Trade-Ins / Swaps for this phone?</span>
+                  <span class="triage-q-desc">Allow customers to propose their old phone plus a top-up cash difference.</span>
                 </div>
                 <div class="toggle-switch-wrapper">
                   <label class="toggle-switch">
@@ -501,7 +564,7 @@
             </div>
 
             <div class="form-group" id="minSwapTierGroup" style="margin-top: 12px;">
-              <label class="form-label" for="dealerMinTradeInTier">Minimum Acceptable Trade-In Tier</label>
+              <label class="form-label" for="dealerMinTradeInTier">Lowest Phone Model You Accept for Swap</label>
               <select id="dealerMinTradeInTier" class="form-select">
                 <option value="iPhone 11 and above" selected>iPhone 11 and above</option>
                 <option value="iPhone X and above">iPhone X and above</option>
@@ -522,9 +585,9 @@
               </select>
               <div id="dealerCustomTradeInTierGroup" style="display: none; margin-top: 8px;">
                 <input type="text" id="dealerCustomTradeInTier" class="form-input" placeholder="e.g. iPhone 12 Pro or Samsung S22 with 85%+ battery">
-                <span class="form-helper-text">Describe the minimum Apple or Samsung phone you will accept.</span>
+                <span class="form-helper-text">Describe the lowest phone model you will accept.</span>
               </div>
-              <span class="form-helper-text">Customers will be guided by this tier when submitting trade-ins.</span>
+              <span class="form-helper-text">Customers will be guided by this minimum model when proposing trade-ins.</span>
             </div>
           </div>
 
@@ -537,8 +600,14 @@
                   <h3 style="margin: 0;">Device Photos & Video (Up to 5)</h3>
                   <span class="tag-badge" id="dealerMediaCounter" style="font-size: 0.72rem; padding: 3px 9px; background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border: 1px solid rgba(6, 182, 212, 0.3);">0 / 5 files</span>
                 </div>
-                <p style="margin: 4px 0 0 0;">Upload high-res photos and short condition inspection clips (Max 5 files total)</p>
+                <p style="margin: 4px 0 0 0;">Upload clear photos of the phone (front screen-on, back, and battery health screen)</p>
               </div>
+            </div>
+
+            <!-- Quick Photo Guide Tip Bar -->
+            <div style="background: rgba(6, 182, 212, 0.08); border: 1px dashed rgba(6, 182, 212, 0.3); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.78rem; color: var(--text-muted); line-height: 1.45;">
+              <strong style="color: var(--cyan-400);">📸 Recommended photo checklist:</strong> 
+              1. Front (screen turned on) &bull; 2. Back & cameras &bull; 3. Battery health in Settings &bull; 4. Sides & frame
             </div>
 
             <div class="media-dropzone" id="dealerDropzone">
@@ -547,7 +616,7 @@
               </div>
               <div class="dropzone-text">
                 <span class="dropzone-prompt"><strong>Click to upload</strong> or drag and drop</span>
-                <span class="dropzone-sub">PNG, JPG, WEBP, or MP4 (Max 5 media files)</span>
+                <span class="dropzone-sub">PNG, JPG, WEBP, or MP4 (Max 5 files total)</span>
               </div>
               <input type="file" id="dealerMediaInput" class="dropzone-file-input" multiple accept="image/*,video/*">
             </div>
@@ -620,17 +689,24 @@
 
   <!-- Scripts -->
   <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/app-enhancements.js"></script>
   <script type="module">
-    import { requireCompleteProfile, isProfileComplete, compressImageFile, resolveMedia, syncDealerVerificationStatus } from './js/profile.js';
+    import { requireCompleteProfile, isProfileComplete, compressImageFile, resolveMedia, syncDealerVerificationStatus, renderAvatarElement } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { createListingBackend } from './js/backend-api.js';
+    import { createListingBackend, deleteListingBackend, restockListingBackend } from './js/backend-api.js';
     import { uploadToCloudinary } from './js/cloudinary-config.js';
     import { db, doc, getDoc, auth } from './js/firebase-config.js';
     import { setButtonLoading } from './js/auth.js';
+    import { getDealerPhone, getDealerShopAddress, getUserLocation } from './js/user-autofill.js';
 
-    let currentStoreId = 'store_hub_1';
-    let currentStoreName = 'My Phone Store';
+    let currentStoreId = '';
+    let currentStoreName = '';
     let dealerAuthUser = null;
+
+    // Elements
+    const topStoreName = document.getElementById('topStoreName');
+    const storeAvatarFallback = document.getElementById('storeAvatarFallback');
+    const storeListingsHeading = document.getElementById('storeListingsHeading');
 
     // Synchronous initial cache read from localStorage
     try {
@@ -641,16 +717,14 @@
         if (u.uid) currentStoreId = u.uid;
         const storedShop = localStorage.getItem('naijaswap_shop_' + u.uid);
         if (storedShop) currentStoreName = storedShop;
-        else if (u.displayName) currentStoreName = `${u.displayName}'s Gadget Store`;
+        else if (u.displayName) currentStoreName = u.displayName;
+
+        if (topStoreName && currentStoreName) topStoreName.textContent = currentStoreName;
+        if (storeAvatarFallback) {
+          renderAvatarElement(storeAvatarFallback, currentStoreId, currentStoreName || 'Store', dealerAuthUser);
+        }
       }
     } catch (e) {}
-
-    // Update Header and Welcome Greeting
-    const topStoreName = document.getElementById('topStoreName');
-    const storeAvatarFallback = document.getElementById('storeAvatarFallback');
-    const storeListingsHeading = document.getElementById('storeListingsHeading');
-    if (topStoreName) topStoreName.textContent = currentStoreName;
-    if (storeAvatarFallback) storeAvatarFallback.textContent = currentStoreName.charAt(0).toUpperCase();
 
     // Elements
     const storeListingsContainer = document.getElementById('storeListingsContainer');
@@ -677,19 +751,19 @@
       if (!storeListingsContainer) return;
       let allListings;
       try {
-        allListings = await NaijaSwapData.getListingsRemote();
+        allListings = await NaijaSwapData.getStoreListingsRemote(currentStoreId);
       } catch (error) {
         console.warn('[NaijaSwap] Remote listings unavailable; using cached listings.', error);
-        allListings = NaijaSwapData.getListings();
+        allListings = NaijaSwapData.getStoreListings(currentStoreId);
       }
       
       const query = (listingSearchInput?.value || '').trim().toLowerCase();
       const selectedBrand = filterBrand ? filterBrand.value : 'All';
       const selectedCondition = filterCondition ? filterCondition.value : 'All';
 
-      let listings = allListings.filter(item => {
+      let listings = (allListings || []).filter(item => {
         // Filter by store
-        if (item.storeId !== currentStoreId) return false;
+        if (currentStoreId && item.storeId !== currentStoreId && item.storeOwnerUid !== currentStoreId && item.dealerUid !== currentStoreId) return false;
 
         // Search query
         if (query) {
@@ -754,23 +828,34 @@
           <div class="listing-actions-row" style="flex-wrap: wrap; gap: 8px;">
             <a href="phone-details.html?id=${encodeURIComponent(item.id)}" target="_blank" style="color: var(--cyan-400); text-decoration: none; font-size: 0.76rem; font-weight: 600;">View Marketplace &rarr;</a>
             <div style="display: flex; gap: 6px; margin-left: auto;">
-              <button type="button" class="btn-restock-listing" data-id="${escapeHtml(item.id)}" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(0, 210, 106, 0.15); border: 1px solid var(--emerald-border); color: var(--emerald-400); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer;">+ Restock (+1)</button>
-              <button type="button" class="btn-delete-listing" data-id="${escapeHtml(item.id)}">Remove</button>
+              <button type="button" class="btn-restock-listing" data-id="${escapeHtml(item.id)}" data-firestore-id="${escapeHtml(item.firestoreId || item.id)}" style="padding: 4px 10px; font-size: 0.74rem; background: rgba(0, 210, 106, 0.15); border: 1px solid var(--emerald-border); color: var(--emerald-400); border-radius: var(--radius-sm); font-weight: 700; cursor: pointer;">+ Restock (+1)</button>
+              <button type="button" class="btn-delete-listing" data-id="${escapeHtml(item.id)}" data-firestore-id="${escapeHtml(item.firestoreId || item.id)}">Remove</button>
             </div>
           </div>
         `;
 
-        card.querySelector('.btn-restock-listing')?.addEventListener('click', (e) => {
+        card.querySelector('.btn-restock-listing')?.addEventListener('click', async (e) => {
           e.stopPropagation();
-          NaijaSwapData.restockListing(item.id, 1, currentStoreId);
-          renderStoreListings();
+          const button = e.currentTarget;
+          try {
+            await restockListingBackend(button.dataset.firestoreId);
+            NaijaSwapData.restockListing(item.id, 1, currentStoreId);
+            renderStoreListings();
+          } catch (error) {
+            alert(error.message || 'Could not restock this listing.');
+          }
         });
 
-        card.querySelector('.btn-delete-listing')?.addEventListener('click', (e) => {
+        card.querySelector('.btn-delete-listing')?.addEventListener('click', async (e) => {
           e.stopPropagation();
           if (confirm(`Remove ${item.model} from your active store inventory?`)) {
-            NaijaSwapData.deleteListing(item.id, currentStoreId);
-            renderStoreListings();
+            try {
+              await deleteListingBackend(e.currentTarget.dataset.firestoreId);
+              NaijaSwapData.deleteListing(item.id, currentStoreId);
+              renderStoreListings();
+            } catch (error) {
+              alert(error.message || 'Could not remove this listing.');
+            }
           }
         });
 
@@ -1075,6 +1160,12 @@
 
         const inclusions = Array.from(document.querySelectorAll('input[name="dealerInclusions"]:checked')).map(c => c.value);
         const color = document.getElementById('dealerColor')?.value.trim() || 'Standard Color';
+        const price = parseInt(document.getElementById('dealerPrice')?.value, 10) || 0;
+        const simType = document.getElementById('dealerSimType')?.value || 'Physical Nano-SIM + eSIM';
+        const carrierLock = document.getElementById('dealerCarrierLock')?.value || 'Factory Unlocked (Worldwide)';
+        const screenStatus = document.getElementById('dealerScreenStatus')?.value || 'Original OEM Screen (TrueTone Active)';
+        const biometrics = document.getElementById('dealerBiometrics')?.value || 'Face ID / Touch ID Working 100%';
+        const description = document.getElementById('dealerDescription')?.value.trim() || '';
         const batteryHealth = parseInt(document.getElementById('dealerBatteryHealth')?.value, 10) || 100;
         const warranty = document.getElementById('dealerStoreWarranty')?.value || '30 Days Full Hub Guarantee';
         const isSwapAllowed = dealerIsSwapAllowed ? dealerIsSwapAllowed.checked : true;
@@ -1122,6 +1213,12 @@
           const primaryPhoto = processedMedia.find(m => !m.isVideo)?.dataUrl;
           const videoMedia = processedMedia.find(m => m.isVideo)?.dataUrl;
 
+          // Auto-detect dealer location, address and phone from stored profile
+          const activeUser = auth.currentUser || dealerAuthUser;
+          const dealerPhone   = getDealerPhone(activeUser);
+          const dealerAddress = getDealerShopAddress(activeUser);
+          const dealerLocation = getUserLocation(activeUser);
+
           newListing = NaijaSwapData.addListing(currentStoreId, currentStoreName, {
             brand: brand,
             deviceBrand: brand,
@@ -1129,11 +1226,18 @@
             deviceModel: model,
             storage: storage,
             storageCapacity: storage,
+            price: price,
+            marketValue: price,
             ram: (dealerRamGroup && dealerRamGroup.style.display !== 'none') ? dealerRam.value : '',
             color: color,
             deviceStatus: deviceStatus,
             conditionGrade: conditionGrade,
             batteryHealth: batteryHealth,
+            simType: simType,
+            carrierLock: carrierLock,
+            screenStatus: screenStatus,
+            biometrics: biometrics,
+            description: description,
             inclusions: inclusions,
             warranty: warranty,
             isSwapAllowed: isSwapAllowed,
@@ -1144,7 +1248,11 @@
             uploadedImage: primaryPhoto || null,
             uploadedVideo: videoMedia || null,
             mediaFiles: processedMedia,
-            allMedia: processedMedia
+            allMedia: processedMedia,
+            // ── Auto-detected from dealer profile ──────────────────────────
+            whatsappNumber: dealerPhone || undefined,
+            hubAddress: dealerAddress || undefined,
+            location: dealerLocation || undefined,
           });
 
           const backendResult = await createListingBackend({
@@ -1156,6 +1264,11 @@
             condition: newListing.condition,
             conditionGrade: newListing.conditionGrade,
             color: newListing.color,
+            price: newListing.price,
+            simType: newListing.simType,
+            carrierLock: newListing.carrierLock,
+            screenStatus: newListing.screenStatus,
+            biometrics: newListing.biometrics,
             battery: newListing.battery,
             marketValue: newListing.marketValue,
             quantityInStock: newListing.quantityInStock,
@@ -1163,9 +1276,15 @@
             image: newListing.image,
             mediaFiles: newListing.mediaFiles,
             description: newListing.description,
-            location: newListing.location
+            location: newListing.location,
+            hubAddress: newListing.hubAddress,
+            whatsappNumber: newListing.whatsappNumber,
           });
-          newListing.firestoreId = backendResult.data.listingId;
+          if (!backendResult.listingId) {
+            throw new Error('The listing was not confirmed by the server. Please try again.');
+          }
+          newListing.firestoreId = backendResult.listingId;
+          NaijaSwapData.attachFirestoreListingId(newListing.id, backendResult.listingId);
         } catch (error) {
           if (newListing) NaijaSwapData.deleteListing(newListing.id, currentStoreId);
           console.error('[NaijaSwap] Dealer listing publish failed:', error);
@@ -1264,30 +1383,39 @@
     }
 
     // Hook from auth.js when Firebase user is confirmed/ready
-    window.onNaijaSwapUserReady = (user, role) => {
+    window.onNaijaSwapUserReady = async (user, role) => {
       if (user) {
         dealerAuthUser = user;
         currentStoreId = user.uid;
-        const storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
-        if (storedShop) currentStoreName = storedShop;
-        else if (user.displayName) currentStoreName = `${user.displayName}'s Gadget Store`;
+        let storedShop = localStorage.getItem('naijaswap_shop_' + user.uid);
+        if (!storedShop) {
+          try {
+            const userSnap = await getDoc(doc(db, 'users', user.uid));
+            if (userSnap.exists()) {
+              const uData = userSnap.data();
+              storedShop = uData.storeName || uData.businessName || uData.shopName;
+              if (storedShop) localStorage.setItem('naijaswap_shop_' + user.uid, storedShop);
+            }
+          } catch (_) {}
+        }
+        if (!storedShop) {
+          try {
+            const verSnap = await getDoc(doc(db, 'dealerVerification', user.uid));
+            if (verSnap.exists() && verSnap.data().businessName) {
+              storedShop = verSnap.data().businessName;
+              localStorage.setItem('naijaswap_shop_' + user.uid, storedShop);
+            }
+          } catch (_) {}
+        }
+        currentStoreName = storedShop || (user.displayName ? `${user.displayName}'s Gadget Store` : 'My Gadget Store');
 
         if (topStoreName) topStoreName.textContent = currentStoreName;
 
-        const storedPhoto = localStorage.getItem('naijaswap_photo_' + user.uid);
         if (storeAvatarFallback) {
-          if (storedPhoto) {
-            resolveMedia(storedPhoto).then(src => {
-              if (src && storeAvatarFallback) {
-                storeAvatarFallback.innerHTML = `<img src="${src}" alt="${currentStoreName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-              }
-            });
-          } else {
-            storeAvatarFallback.textContent = currentStoreName.charAt(0).toUpperCase();
-          }
+          renderAvatarElement(storeAvatarFallback, user.uid, currentStoreName, user);
         }
 
-        renderStoreListings();
+        await renderStoreListings();
       }
     };
 

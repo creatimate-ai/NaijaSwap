@@ -3,136 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Verified Phone Dealer Stores & Swap Inventory — NaijaSwap Nigeria</title>
-  <meta name="description" content="Browse verified phone dealer stores across Nigeria. Find authentic iPhone, Samsung, and Google Pixel swap listings with trusted physical inspection.">
-  <meta name="keywords" content="phone dealer store Nigeria, Computer Village phone shops, verified phone dealers, buy swap phone store Lagos, NaijaSwap store">
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <title>Dealer Reviews & Ratings | NaijaSwap Nigeria</title>
+  <meta name="description" content="View verified customer reviews and ratings for phone dealers on NaijaSwap. Write your honest feedback on phone swaps and inspections.">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#080C0E">
   <link rel="canonical" href="https://naijaswap.web.app/store.html">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="manifest" href="site.webmanifest">
-
-  <!-- Open Graph Protocol -->
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="NaijaSwap">
-  <meta property="og:title" content="Verified Phone Dealer Stores & Swap Inventory — NaijaSwap Nigeria">
-  <meta property="og:description" content="Browse verified phone dealer stores across Nigeria. Find authentic iPhone, Samsung, and Google Pixel swap listings with trusted physical inspection.">
-  <meta property="og:url" content="https://naijaswap.web.app/store.html">
-  <meta property="og:image" content="https://naijaswap.web.app/assets/og-banner.svg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:locale" content="en_NG">
-
-  <!-- Twitter Card Protocol -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Verified Phone Dealer Stores & Swap Inventory — NaijaSwap Nigeria">
-  <meta name="twitter:description" content="Browse verified phone dealer stores across Nigeria. Find authentic iPhone, Samsung, and Google Pixel swap listings with trusted physical inspection.">
-  <meta name="twitter:image" content="https://naijaswap.web.app/assets/og-banner.svg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/dashboard.css">
   <style>
-    /* Custom styling for store header */
-    .store-profile-header {
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      margin-bottom: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+    .store-review-container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 120px 20px;
     }
+
+    .store-profile-header {
+      background: var(--glass-bg, rgba(17, 26, 36, 0.75));
+      border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      border-radius: var(--radius-xl, 20px);
+      padding: 24px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
     .store-profile-top {
       display: flex;
       align-items: center;
       gap: 16px;
+      min-width: 0;
     }
+
     .store-profile-logo {
-      width: 64px;
-      height: 64px;
-      border-radius: var(--radius-full);
-      background: rgba(255,255,255,0.1);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(0, 210, 106, 0.15);
+      border: 2px solid var(--emerald-border, rgba(0, 210, 106, 0.35));
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--emerald-400);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--emerald-400, #00d26a);
       overflow: hidden;
       flex-shrink: 0;
     }
+
     .store-profile-logo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .store-profile-info {
-      flex: 1;
-    }
-    .store-profile-name {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #FFF;
-      margin: 0 0 4px 0;
-    }
-    .store-profile-meta {
-      font-size: 0.85rem;
-      color: var(--text-muted);
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
-    .store-profile-desc {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      line-height: 1.5;
+
+    .store-profile-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #FFF;
       margin: 0;
+      line-height: 1.25;
     }
-    .store-action-btn {
-      display: inline-flex;
+
+    .store-badges-row {
+      display: flex;
       align-items: center;
       gap: 8px;
-      background: #25D366;
-      color: #FFF;
-      padding: 10px 20px;
-      border-radius: var(--radius-lg);
-      font-weight: 600;
-      text-decoration: none;
-      align-self: flex-start;
-      font-size: 0.9rem;
-      transition: opacity 0.2s;
-    }
-    .store-action-btn:hover {
-      opacity: 0.9;
-    }
-    
-    .back-nav {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.9rem;
-      margin-bottom: 16px;
-      transition: color 0.2s;
-    }
-    .back-nav:hover {
-      color: #FFF;
-    }
-    .back-nav svg {
-      width: 16px;
-      height: 16px;
-    }
-    
-    .loading-store {
-      text-align: center;
-      padding: 40px;
-      color: var(--text-muted);
+      flex-wrap: wrap;
+      margin-top: 4px;
     }
 
     .store-rating-badge {
@@ -143,10 +97,11 @@
       border: 1px solid rgba(251, 191, 36, 0.35);
       color: #fbbf24;
       padding: 4px 10px;
-      border-radius: var(--radius-full);
-      font-size: 0.84rem;
+      border-radius: var(--radius-full, 9999px);
+      font-size: 0.82rem;
       font-weight: 700;
     }
+
     .store-verified-pill {
       display: inline-flex;
       align-items: center;
@@ -155,52 +110,160 @@
       border: 1px solid rgba(16, 185, 129, 0.35);
       color: #34d399;
       padding: 4px 10px;
-      border-radius: var(--radius-full);
-      font-size: 0.84rem;
+      border-radius: var(--radius-full, 9999px);
+      font-size: 0.82rem;
       font-weight: 700;
     }
-    .reviews-container {
-      margin-top: 48px;
+
+    .store-location-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-dim, #94a3b8);
+      padding: 4px 10px;
+      border-radius: var(--radius-full, 9999px);
+      font-size: 0.82rem;
     }
+
+    .back-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-full, 9999px);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      color: var(--text-dim, #94a3b8);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-bottom: 20px;
+    }
+
+    .back-nav:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: #FFF;
+      transform: translateX(-3px);
+    }
+
+    /* Write Review Form Card */
+    .write-review-card {
+      background: var(--bg-card, rgba(13, 22, 32, 0.85));
+      border: 1px solid rgba(0, 210, 106, 0.25);
+      border-radius: var(--radius-xl, 20px);
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .write-review-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .star-rating-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 10px 0 16px 0;
+      cursor: pointer;
+    }
+
+    .star-btn {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      color: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      padding: 0 2px;
+      transition: color 0.15s, transform 0.15s;
+    }
+
+    .star-btn:hover {
+      transform: scale(1.15);
+    }
+
+    .star-btn.selected,
+    .star-btn.hovered {
+      color: #fbbf24;
+    }
+
+    .star-text-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fbbf24;
+      margin-left: 8px;
+    }
+
+    /* Reviews List */
+    .reviews-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
     .reviews-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
-      margin-top: 16px;
-    }
-    .review-card {
-      background: var(--surface-card);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
     }
+
+    .review-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+      border-radius: var(--radius-lg, 16px);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s;
+    }
+
+    .review-card:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+
     .review-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
+
     .review-author {
       font-weight: 700;
       color: #FFF;
       font-size: 0.95rem;
     }
+
     .review-stars {
       color: #fbbf24;
       font-size: 0.95rem;
       letter-spacing: 2px;
     }
+
     .review-date {
       font-size: 0.75rem;
-      color: var(--text-dim);
+      color: var(--text-dim, #94a3b8);
     }
+
     .review-comment {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.5;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+      margin: 0;
     }
+
     .review-verified-tag {
       font-size: 0.72rem;
       color: #34d399;
@@ -208,6 +271,12 @@
       align-items: center;
       gap: 4px;
       font-weight: 600;
+    }
+
+    .loading-store {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted, #64748b);
     }
   </style>
 </head>
@@ -230,37 +299,70 @@
     </div>
   </header>
 
-  <main class="dash-main">
-    <a href="dashboard.html" class="back-nav">
+  <main class="store-review-container">
+    <a href="javascript:history.back()" class="back-nav" id="backNavBtn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      Back to Marketplace
+      <span>Back</span>
     </a>
 
+    <!-- Dealer Profile Summary (Header) -->
     <div id="storeHeaderContainer">
-      <div class="loading-store">Loading store profile...</div>
-    </div>
-    
-    <h2 style="color: #FFF; font-size: 1.25rem; font-weight: 700; margin-bottom: 16px;">Store Listings</h2>
-
-    <div class="phones-grid" id="phonesGrid">
-       <!-- skeleton loaded initially -->
-    </div>
-    
-    <div class="empty-state-box" id="emptyState" style="display: none;">
-      <div class="empty-state-icon">📱</div>
-      <h3 class="empty-state-title">No active listings</h3>
-      <p class="empty-state-desc">This store has no active listings yet.</p>
+      <div class="loading-store">Loading dealer profile...</div>
     </div>
 
-    <!-- Verified Customer Reviews Section -->
-    <section class="reviews-container" id="reviewsSection">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+    <!-- Interactive "Write a Review" Card -->
+    <section class="write-review-card" id="writeReviewSection">
+      <div class="write-review-title">
+        <span>⭐</span>
+        <span>Rate & Write a Review for this Dealer</span>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 14px; line-height: 1.45;">
+        Share your experience swapping or trading in a phone with this verified hub. Your review helps build trust for other Nigerian swappers.
+      </p>
+
+      <form id="addReviewForm">
+        <!-- Interactive 5-Star Picker -->
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Your Rating</label>
+          <div class="star-rating-selector" id="starRatingSelector">
+            <button type="button" class="star-btn selected" data-value="1">★</button>
+            <button type="button" class="star-btn selected" data-value="2">★</button>
+            <button type="button" class="star-btn selected" data-value="3">★</button>
+            <button type="button" class="star-btn selected" data-value="4">★</button>
+            <button type="button" class="star-btn selected" data-value="5">★</button>
+            <span class="star-text-label" id="starRatingLabel">5.0 - Excellent</span>
+          </div>
+        </div>
+
+        <!-- Optional Device Swapped -->
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="reviewDeviceModel" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Phone Swapped / Inspected (Optional)</label>
+          <input type="text" id="reviewDeviceModel" class="form-input" placeholder="e.g. iPhone 13 Pro Max (256GB)" style="font-size: 0.9rem; padding: 10px 14px;">
+        </div>
+
+        <!-- Review Comment Textarea -->
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="reviewComment" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Your Review & Experience *</label>
+          <textarea id="reviewComment" class="form-textarea" rows="3" placeholder="How was the phone condition, inspection process, and top-up valuation?" required style="font-size: 0.9rem; padding: 12px 14px;"></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary-action" id="submitReviewBtn" style="justify-content: center; padding: 12px 24px; font-weight: 700;">
+          <span>Submit Review</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- Verified Customer Reviews List -->
+    <section class="reviews-section" id="reviewsSection">
+      <div class="reviews-section-header">
         <div>
-          <h2 style="color:#FFF;font-size:1.25rem;font-weight:700;margin:0;">Verified Customer Reviews</h2>
-          <p style="color:var(--text-dim);font-size:0.85rem;margin:4px 0 0 0;">Feedback from swappers who completed inspections and trades with this hub.</p>
+          <h2 style="color:#FFF;font-size:1.25rem;font-weight:700;margin:0;">Verified Swapper Reviews</h2>
+          <p style="color:var(--text-dim);font-size:0.85rem;margin:4px 0 0 0;">Customer ratings and feedback for this hub.</p>
         </div>
         <div id="reviewsSummaryBadge"></div>
       </div>
+
       <div class="reviews-grid" id="reviewsGrid">
         <div style="color: var(--text-muted); font-size: 0.88rem;">Loading reviews...</div>
       </div>
@@ -289,17 +391,29 @@
   </nav>
 
   <script type="module">
-    import { db, doc, getDoc, collection, query, where, orderBy, getDocs } from './js/firebase-config.js';
+    import { db, doc, getDoc, collection, addDoc, serverTimestamp, auth } from './js/firebase-config.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
+    import { setButtonLoading } from './js/auth.js';
 
     const urlParams = new URLSearchParams(window.location.search);
     const storeId = urlParams.get('storeId');
 
     const storeHeaderContainer = document.getElementById('storeHeaderContainer');
-    const phonesGrid = document.getElementById('phonesGrid');
-    const emptyState = document.getElementById('emptyState');
     const reviewsGrid = document.getElementById('reviewsGrid');
     const reviewsSummaryBadge = document.getElementById('reviewsSummaryBadge');
+    const addReviewForm = document.getElementById('addReviewForm');
+    const submitReviewBtn = document.getElementById('submitReviewBtn');
+
+    let selectedRating = 5;
+    let currentStore = null;
+
+    const ratingDescriptions = {
+      1: '1.0 - Poor Experience',
+      2: '2.0 - Below Expectations',
+      3: '3.0 - Average / Neutral',
+      4: '4.0 - Very Good',
+      5: '5.0 - Excellent & Highly Recommended'
+    };
 
     function escapeHtml(unsafe) {
       if (!unsafe) return '';
@@ -311,74 +425,158 @@
         .replace(/'/g, "&#039;");
     }
 
-    function formatCurrency(amount) {
-      if (!amount) return '₦0';
-      return '₦' + parseInt(amount, 10).toLocaleString('en-NG');
+    // Star Picker Interaction
+    const starBtns = document.querySelectorAll('.star-btn');
+    const starLabel = document.getElementById('starRatingLabel');
+
+    function updateStarsUI(rating) {
+      starBtns.forEach(btn => {
+        const val = parseInt(btn.dataset.value, 10);
+        btn.classList.toggle('selected', val <= rating);
+      });
+      if (starLabel) starLabel.textContent = ratingDescriptions[rating] || `${rating}.0`;
+    }
+
+    starBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedRating = parseInt(btn.dataset.value, 10);
+        updateStarsUI(selectedRating);
+      });
+
+      btn.addEventListener('mouseenter', () => {
+        const val = parseInt(btn.dataset.value, 10);
+        starBtns.forEach(b => {
+          b.classList.toggle('hovered', parseInt(b.dataset.value, 10) <= val);
+        });
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        starBtns.forEach(b => b.classList.remove('hovered'));
+      });
+    });
+
+    function isRawUid(str) {
+      if (!str || typeof str !== 'string') return true;
+      const s = str.trim();
+      if (s.length >= 18 && !s.includes(' ') && /^[a-zA-Z0-9_-]+$/.test(s)) return true;
+      if (/^(store_|user_|dealer_)[a-zA-Z0-9]+$/i.test(s)) return true;
+      return false;
     }
 
     async function loadStoreProfile() {
       if (!storeId) {
-        storeHeaderContainer.innerHTML = '<div class="loading-store">No store specified.</div>';
-        phonesGrid.innerHTML = '';
+        storeHeaderContainer.innerHTML = '<div class="loading-store">No dealer specified.</div>';
         return;
       }
 
       try {
-        let store = null;
+        let store = {};
+
+        // 1. Try dealerProfiles/{storeId}
         try {
-          const docRef = doc(db, 'dealerProfiles', storeId);
-          const docSnap = await getDoc(docRef);
+          const docSnap = await getDoc(doc(db, 'dealerProfiles', storeId));
           if (docSnap.exists()) {
-            store = docSnap.data();
+            store = { ...docSnap.data() };
           }
         } catch (e) {
-          console.warn("Could not fetch dealerProfile doc:", e);
+          console.warn("Could not fetch dealerProfiles doc:", e);
         }
 
-        if (!store) {
-          // Fallback to marketplace store metadata if available
-          store = {
-            storeName: storeId.replace(/_/g, ' ').toUpperCase(),
-            address: 'Verified Hub Partner Center',
-            verified: true,
-            description: 'Certified Nigerian smartphone swap hub and physical inspection desk.'
-          };
+        // 2. Try users/{storeId}
+        if (!store.storeName || isRawUid(store.storeName) || !store.address) {
+          try {
+            const userSnap = await getDoc(doc(db, 'users', storeId));
+            if (userSnap.exists()) {
+              const uData = userSnap.data();
+              store.storeName = store.storeName && !isRawUid(store.storeName) ? store.storeName : (uData.businessName || uData.shopName || uData.displayName || store.storeName);
+              store.address = store.address || uData.shopAddress || uData.address || uData.hubAddress;
+              store.location = store.location || uData.location || uData.city;
+              store.profilePhoto = store.profilePhoto || uData.photoURL || uData.profilePhoto;
+              store.phoneNumber = store.phoneNumber || uData.phoneNumber;
+              store.contactPerson = store.contactPerson || uData.displayName;
+            }
+          } catch (_) {}
         }
 
+        // 3. Try dealerVerification/{storeId}
+        if (!store.storeName || isRawUid(store.storeName) || !store.address) {
+          try {
+            const verifSnap = await getDoc(doc(db, 'dealerVerification', storeId));
+            if (verifSnap.exists()) {
+              const vData = verifSnap.data();
+              store.storeName = store.storeName && !isRawUid(store.storeName) ? store.storeName : (vData.storeName || vData.businessName || store.storeName);
+              store.address = store.address || vData.shopAddress || vData.address;
+              store.location = store.location || vData.geoTag || vData.location;
+              store.phoneNumber = store.phoneNumber || vData.phoneNumber;
+            }
+          } catch (_) {}
+        }
+
+        // 4. Try matching listing from local or remote inventory
+        if (!store.storeName || isRawUid(store.storeName) || !store.address) {
+          try {
+            const allListings = NaijaSwapData.getListings() || [];
+            const matchingListing = allListings.find(l => (l.storeOwnerUid === storeId || l.storeId === storeId || l.id === storeId));
+            if (matchingListing) {
+              if ((!store.storeName || isRawUid(store.storeName)) && matchingListing.storeName && !isRawUid(matchingListing.storeName)) {
+                store.storeName = matchingListing.storeName;
+              }
+              store.address = store.address || matchingListing.hubAddress || matchingListing.address;
+              store.location = store.location || matchingListing.location;
+              store.phoneNumber = store.phoneNumber || matchingListing.whatsappNumber;
+            }
+          } catch (_) {}
+        }
+
+        // 5. Try localStorage cached profile
+        if (!store.storeName || isRawUid(store.storeName) || !store.address) {
+          try {
+            const cachedShop = localStorage.getItem('naijaswap_shop_' + storeId);
+            if (cachedShop && !isRawUid(cachedShop)) {
+              store.storeName = cachedShop;
+            }
+            const storedProf = JSON.parse(localStorage.getItem('naijaswap_profile_' + storeId) || '{}');
+            if (storedProf.businessName && !isRawUid(storedProf.businessName)) store.storeName = storedProf.businessName;
+            if (storedProf.shopAddress) store.address = storedProf.shopAddress;
+            if (storedProf.geoTag || storedProf.location) store.location = storedProf.geoTag || storedProf.location;
+          } catch (_) {}
+        }
+
+        // 6. Sanitize store name: NEVER show a raw UID
+        let resolvedName = store.storeName;
+        if (!resolvedName || isRawUid(resolvedName)) {
+          if (store.contactPerson && !isRawUid(store.contactPerson)) {
+            resolvedName = `${store.contactPerson}'s Hub`;
+          } else if (store.displayName && !isRawUid(store.displayName)) {
+            resolvedName = `${store.displayName}'s Hub`;
+          } else {
+            resolvedName = 'Verified Partner Hub';
+          }
+        }
+        store.storeName = resolvedName;
+
+        // 7. Sanitize location / address
+        const resolvedAddress = store.address || store.shopAddress || store.hubAddress || '';
+        const resolvedLocation = store.location || store.city || store.geoTag || (resolvedAddress ? '' : 'Lagos, Nigeria');
+        store.displayLocation = resolvedAddress || resolvedLocation || 'Lagos, Nigeria';
+
+        currentStore = store;
         renderStoreHeader(store);
-        loadStoreListings(storeId, store.address || '');
         loadStoreReviews(storeId);
       } catch (error) {
         console.error("Error loading store profile:", error);
-        storeHeaderContainer.innerHTML = '<div class="loading-store">Error loading store profile.</div>';
-        phonesGrid.innerHTML = '';
+        storeHeaderContainer.innerHTML = '<div class="loading-store">Error loading dealer profile.</div>';
       }
     }
 
     function renderStoreHeader(store) {
-      const storeName = escapeHtml(store.storeName || 'Unknown Store');
-      const contactPerson = escapeHtml(store.contactPerson || '');
-      const location = escapeHtml(store.address || '');
-      const desc = escapeHtml(store.description || '');
-      const phone = store.phoneNumber ? store.phoneNumber.replace(/\s+/g, '') : '';
-      
-      let logoHtml = `<div class="store-profile-logo">${storeName.charAt(0).toUpperCase()}</div>`;
-      if (store.logoUrl) {
-        logoHtml = `<div class="store-profile-logo"><img src="${escapeHtml(store.logoUrl)}" alt="Logo"></div>`;
-      }
+      const storeName = escapeHtml(store.storeName || 'Verified Partner Hub');
+      const location = escapeHtml(store.displayLocation || store.address || store.location || 'Lagos, Nigeria');
+      const photo = store.profilePhoto || store.photoURL || store.logoUrl || '';
 
-      let whatsappBtn = '';
-      if (phone) {
-        let waPhone = phone;
-        if (waPhone.startsWith('0')) waPhone = '234' + waPhone.substring(1);
-        if (waPhone.startsWith('+')) waPhone = waPhone.substring(1);
-        
-        whatsappBtn = `
-          <a href="https://wa.me/${waPhone}" target="_blank" class="store-action-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-            Chat on WhatsApp
-          </a>
-        `;
+      let logoHtml = `<div class="store-profile-logo">${storeName.charAt(0).toUpperCase()}</div>`;
+      if (photo) {
+        logoHtml = `<div class="store-profile-logo"><img src="${escapeHtml(photo)}" alt="${storeName}"></div>`;
       }
 
       storeHeaderContainer.innerHTML = `
@@ -386,131 +584,21 @@
           <div class="store-profile-top">
             ${logoHtml}
             <div class="store-profile-info">
-              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <h1 class="store-profile-name" style="margin-bottom:0;">${storeName}</h1>
+              <h1 class="store-profile-name">${storeName}</h1>
+              <div class="store-badges-row">
                 <span class="store-verified-pill">🛡️ Verified Partner Hub</span>
-                <span class="store-rating-badge" id="headerRatingBadge">★ 5.0 Rating</span>
-              </div>
-              <div class="store-profile-meta" style="margin-top: 6px;">
-                ${contactPerson ? `<span>👤 ${contactPerson}</span>` : ''}
-                ${location ? `<span>📍 ${location}</span>` : ''}
+                <span class="store-rating-badge" id="headerRatingBadge">Calculating ratings...</span>
+                ${location ? `<span class="store-location-pill">📍 ${location}</span>` : ''}
               </div>
             </div>
           </div>
-          ${desc ? `<p class="store-profile-desc">${desc}</p>` : ''}
-          ${whatsappBtn}
+          <div>
+            <a href="dealer-profile.html?storeId=${encodeURIComponent(storeId)}" class="back-nav-btn" style="margin-bottom:0;text-decoration:none;font-weight:700;color:var(--cyan-400);border-color:rgba(6,182,212,0.3);">
+              View Full Dealer Profile & Inventory &rarr;
+            </a>
+          </div>
         </div>
       `;
-    }
-
-    async function loadStoreListings(storeId, storeLocation) {
-      phonesGrid.innerHTML = `
-        <article class="skeleton-phone-card" aria-hidden="true">
-          <div class="skeleton-media skeleton-shimmer"></div>
-          <div class="skeleton-body">
-            <div class="skeleton-title-line skeleton-shimmer"></div>
-            <div class="skeleton-specs-line skeleton-shimmer"></div>
-            <div class="skeleton-location-line skeleton-shimmer"></div>
-          </div>
-          <div class="skeleton-footer"><div class="skeleton-btn skeleton-shimmer"></div></div>
-        </article>
-      `.repeat(4);
-
-      try {
-        let docs = [];
-        try {
-          const listingsRef = collection(db, 'listings');
-          const q = query(
-            listingsRef,
-            where('storeOwnerUid', '==', storeId)
-          );
-          const snapshot = await getDocs(q);
-          snapshot.forEach(docSnap => {
-            docs.push({ id: docSnap.id, ...docSnap.data() });
-          });
-        } catch (e) {
-          console.warn("Firestore listings query fallback:", e);
-        }
-
-        // Also merge local listings for this store
-        const localListings = NaijaSwapData.getMarketplaceListings();
-        const matchedLocal = localListings.filter(l => l.storeId === storeId || l.storeOwnerUid === storeId);
-        matchedLocal.forEach(loc => {
-          if (!docs.some(d => d.id === loc.id)) docs.push(loc);
-        });
-
-        docs.sort((a, b) => {
-          const aTime = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
-          const bTime = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
-          return bTime - aTime;
-        });
-
-        phonesGrid.innerHTML = '';
-
-        if (docs.length === 0) {
-          emptyState.style.display = 'flex';
-        } else {
-          emptyState.style.display = 'none';
-          docs.forEach(phone => {
-            const card = document.createElement('article');
-            card.className = 'phone-card fade-in-content';
-            card.setAttribute('data-id', phone.id);
-
-            const isOutOfStock = phone.quantityInStock === 0 || phone.status === 'out_of_stock' || phone.status === 'sold';
-            
-            const mainImg = (phone.mediaUrls && phone.mediaUrls.length > 0) 
-                            ? escapeHtml(phone.mediaUrls[0]) 
-                            : (phone.image || 'img/placeholder.png');
-            const location = escapeHtml(phone.location || storeLocation || 'N/A');
-            
-            const brandText = escapeHtml(phone.brand || '');
-            let brandBadge = brandText ? `<span class="tag-badge tag-recent">${brandText}</span>` : '';
-            if (isOutOfStock) {
-              brandBadge += `<span class="tag-badge" style="background: rgba(239, 68, 68, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5);">Swapped</span>`;
-            }
-            
-            card.innerHTML = `
-              <div class="phone-card-media">
-                <div class="phone-tags-floating">${brandBadge}</div>
-                <img src="${mainImg}" alt="${escapeHtml(phone.model)}" class="phone-card-img" loading="lazy" style="${isOutOfStock ? 'filter: grayscale(0.5) opacity(0.8);' : ''}">
-              </div>
-              <div class="phone-card-body">
-                <div class="phone-title-block">
-                  <h3>${escapeHtml(phone.model)}</h3>
-                  <div class="phone-specs-line">
-                    <span>${escapeHtml(phone.storage)}</span>
-                    <span>•</span>
-                    <span>${escapeHtml(phone.condition)}</span>
-                  </div>
-                </div>
-                <div class="phone-price-line" style="margin-top: 8px; font-weight: 700; color: #FFF; font-size: 1.1rem;">
-                  ${formatCurrency(phone.price || phone.marketValue)}
-                </div>
-                <div class="phone-location-line" style="margin-top: 8px;">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  <span>${location}</span>
-                </div>
-              </div>
-              <div class="phone-card-footer">
-                <button type="button" class="btn-view-details" style="${isOutOfStock ? 'background: rgba(255,255,255,0.08); color: var(--text-dim);' : ''}">
-                  <span>${isOutOfStock ? 'Swapped / Out of Stock' : 'View Details & Swap'}</span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </button>
-              </div>
-            `;
-            
-            card.addEventListener('click', () => {
-              window.location.href = `phone-details.html?id=${encodeURIComponent(phone.id)}`;
-            });
-            
-            phonesGrid.appendChild(card);
-          });
-        }
-
-      } catch (error) {
-        console.error("Error loading listings:", error);
-        phonesGrid.innerHTML = '<div style="color: var(--text-muted); padding: 20px;">Failed to load listings.</div>';
-      }
     }
 
     async function loadStoreReviews(storeId) {
@@ -518,28 +606,40 @@
         const reviews = await NaijaSwapData.getStoreReviews(storeId);
         const summary = NaijaSwapData.getStoreRatingSummary(reviews);
 
-        // Update header badge
+        // Update header badge with 100% REAL rating
         const headerBadge = document.getElementById('headerRatingBadge');
         if (headerBadge) {
-          headerBadge.textContent = `${summary.averageRating} ★ (${summary.count} ${summary.count === 1 ? 'review' : 'reviews'})`;
+          if (summary.count > 0) {
+            headerBadge.textContent = `★ ${summary.averageRating} (${summary.count} ${summary.count === 1 ? 'Review' : 'Reviews'})`;
+          } else {
+            headerBadge.textContent = `★ No reviews yet`;
+          }
         }
 
         if (reviewsSummaryBadge) {
-          reviewsSummaryBadge.innerHTML = `
-            <div class="store-rating-badge" style="font-size: 0.95rem; padding: 6px 14px;">
-              <span>⭐</span>
-              <span>${summary.averageRating} out of 5.0</span>
-              <span style="color: var(--text-dim); font-weight: normal;">• ${summary.count} Verified Swaps</span>
-            </div>
-          `;
+          if (summary.count > 0) {
+            reviewsSummaryBadge.innerHTML = `
+              <div class="store-rating-badge" style="font-size: 0.95rem; padding: 6px 14px;">
+                <span>⭐</span>
+                <span>${summary.averageRating} / 5.0</span>
+                <span style="color: var(--text-dim); font-weight: normal;">• ${summary.count} Verified ${summary.count === 1 ? 'Review' : 'Reviews'}</span>
+              </div>
+            `;
+          } else {
+            reviewsSummaryBadge.innerHTML = `
+              <div class="store-rating-badge" style="font-size: 0.85rem; padding: 4px 12px; background: rgba(255,255,255,0.05); color: var(--text-dim); border-color: rgba(255,255,255,0.1);">
+                <span>0 Reviews</span>
+              </div>
+            `;
+          }
         }
 
         if (!reviews || reviews.length === 0) {
           reviewsGrid.innerHTML = `
-            <div style="grid-column: 1 / -1; background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); border-radius: var(--radius-md); padding: 24px; text-align: center; color: var(--text-muted);">
-              <div style="font-size: 1.5rem; margin-bottom: 6px;">✨</div>
-              <strong style="color: #FFF; display: block; margin-bottom: 4px;">No reviews yet</strong>
-              <span>Complete a smartphone swap with this hub to be the first to leave a verified rating and review!</span>
+            <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--glass-border); border-radius: var(--radius-lg); padding: 32px 20px; text-align: center; color: var(--text-muted);">
+              <div style="font-size: 2rem; margin-bottom: 8px;">✨</div>
+              <strong style="color: #FFF; font-size: 1.05rem; display: block; margin-bottom: 4px;">No reviews yet</strong>
+              <span>Have you swapped or inspected a device with this dealer? Be the first to share your review above!</span>
             </div>
           `;
           return;
@@ -547,8 +647,8 @@
 
         reviewsGrid.innerHTML = '';
         reviews.forEach(r => {
-          const stars = '★'.repeat(Math.min(5, Math.max(1, Math.round(Number(r.rating) || 5)))) + 
-                        '☆'.repeat(Math.max(0, 5 - Math.min(5, Math.max(1, Math.round(Number(r.rating) || 5)))));
+          const ratingNum = Math.min(5, Math.max(1, Math.round(Number(r.rating) || 5)));
+          const stars = '★'.repeat(ratingNum) + '☆'.repeat(5 - ratingNum);
           
           let dateStr = 'Recent';
           if (r.createdAt) {
@@ -563,19 +663,19 @@
           card.innerHTML = `
             <div class="review-header">
               <div>
-                <div class="review-author">${escapeHtml(r.customerName || 'Verified Swapper')}</div>
+                <div class="review-author">${escapeHtml(r.authorName || r.customerName || 'Verified Swapper')}</div>
                 <div class="review-verified-tag">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   Verified Swap Trade-in
                 </div>
               </div>
               <div style="text-align: right;">
-                <div class="review-stars" aria-label="${r.rating} stars">${stars}</div>
+                <div class="review-stars" aria-label="${ratingNum} stars">${stars}</div>
                 <div class="review-date">${dateStr}</div>
               </div>
             </div>
             ${r.comment ? `<p class="review-comment">“${escapeHtml(r.comment)}”</p>` : ''}
-            ${r.targetPhoneModel ? `<div style="font-size: 0.76rem; color: var(--cyan-400); margin-top: auto;">Swapped for: ${escapeHtml(r.targetPhoneModel)}</div>` : ''}
+            ${r.targetDeviceModel || r.targetPhoneModel ? `<div style="font-size: 0.78rem; color: var(--cyan-400); margin-top: 4px;">📱 Device: ${escapeHtml(r.targetDeviceModel || r.targetPhoneModel)}</div>` : ''}
           `;
           reviewsGrid.appendChild(card);
         });
@@ -585,37 +685,77 @@
       }
     }
 
-    function updateNavBadges() {
-      try {
-        const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
-        const uid = u.uid || 'user_guest';
-        const mySwaps = NaijaSwapData.getUserSwapRequests(uid);
-        const unreadSwapsCount = (mySwaps || []).filter(r => r.status === 'pending' || r.status === 'countered' || r.isUnread === true).length;
-        const mobileSwapsBadge = document.getElementById('mobileSwapsBadge');
-        if (mobileSwapsBadge) {
-          if (unreadSwapsCount > 0) {
-            mobileSwapsBadge.textContent = unreadSwapsCount;
-            mobileSwapsBadge.style.display = 'inline-block';
-          } else {
-            mobileSwapsBadge.style.display = 'none';
-          }
+    // Submit Review Form
+    if (addReviewForm) {
+      addReviewForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const comment = document.getElementById('reviewComment')?.value.trim();
+        const targetDeviceModel = document.getElementById('reviewDeviceModel')?.value.trim();
+
+        if (!comment) {
+          alert('Please enter your review feedback.');
+          return;
         }
-        const mobileAlertsBadge = document.getElementById('mobileAlertsBadge');
-        const unreadAlertsCount = NaijaSwapData.getUnreadNotificationsCount(uid);
-        if (mobileAlertsBadge) {
-          if (unreadAlertsCount > 0) {
-            mobileAlertsBadge.textContent = unreadAlertsCount;
-            mobileAlertsBadge.style.display = 'inline-block';
-          } else {
-            mobileAlertsBadge.style.display = 'none';
+
+        const user = auth.currentUser;
+        const cachedUser = (() => {
+          try { return JSON.parse(localStorage.getItem('naijaswap_user') || '{}'); } catch (_) { return {}; }
+        })();
+
+        const uid = user ? user.uid : (cachedUser.uid || 'user_guest');
+        const authorName = user ? (user.displayName || user.email?.split('@')[0]) : (cachedUser.displayName || cachedUser.name || 'Verified Swapper');
+
+        setButtonLoading(submitReviewBtn, true, 'Submitting Review...');
+
+        const newReview = {
+          storeId: storeId,
+          requestId: 'review_' + Date.now(),
+          authorUid: uid,
+          authorName: authorName,
+          authorRole: 'customer',
+          rating: selectedRating,
+          comment: comment,
+          targetDeviceModel: targetDeviceModel || '',
+          createdAt: new Date().toISOString()
+        };
+
+        try {
+          // Sync to Firestore if authenticated
+          if (user && db) {
+            try {
+              await addDoc(collection(db, 'reviews'), {
+                ...newReview,
+                createdAt: serverTimestamp()
+              });
+            } catch (err) {
+              console.warn('[NaijaSwap] Remote review write failed, keeping local copy:', err);
+            }
           }
+
+          // Save locally in STORAGE_KEYS.REVIEWS
+          try {
+            const localReviews = JSON.parse(localStorage.getItem('naijaswap_reviews') || '[]');
+            localReviews.unshift(newReview);
+            localStorage.setItem('naijaswap_reviews', JSON.stringify(localReviews));
+          } catch (_) {}
+
+          // Reset form & reload reviews
+          addReviewForm.reset();
+          selectedRating = 5;
+          updateStarsUI(5);
+          alert('Thank you! Your review has been submitted successfully.');
+          loadStoreReviews(storeId);
+        } catch (error) {
+          console.error('[NaijaSwap] Review submission error:', error);
+          alert('Could not submit review. Please try again.');
+        } finally {
+          setButtonLoading(submitReviewBtn, false);
         }
-      } catch (_) {}
+      });
     }
 
     // Initialize
     loadStoreProfile();
-    updateNavBadges();
   </script>
 </body>
 </html>

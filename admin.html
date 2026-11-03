@@ -246,22 +246,14 @@
   </header>
 
   <main class="admin-container">
-    <!-- Dev / Access Privilege Helper Banner -->
-    <div id="devRoleBanner" style="display:none;background:rgba(245,158,11,0.08);border:1px solid var(--amber-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+    <!-- Staff access is assigned by an administrator, never by the signed-in user. -->
+    <div id="devRoleBanner" style="display:none;background:rgba(245,158,11,0.08);border:1px solid var(--amber-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:12px;">
         <span style="font-size:1.4rem;">⚙️</span>
         <div>
-          <div style="font-weight:700;color:#FFF;font-size:0.9rem;" id="devRoleTitle">Testing Mode: Admin &amp; Technician Desk</div>
-          <div style="font-size:0.8rem;color:var(--text-muted);" id="devRoleDesc">You are currently testing. Enable staff permissions to review dealer KYC and issue diagnostic certificates.</div>
+          <div style="font-weight:700;color:#FFF;font-size:0.9rem;" id="devRoleTitle">Staff access required</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);" id="devRoleDesc">Ask an administrator to grant your account the appropriate staff role.</div>
         </div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <button type="button" id="btnMakeAdmin" class="btn-primary-action" style="padding:8px 16px;font-size:0.82rem;">
-          Grant Admin Access
-        </button>
-        <button type="button" id="btnMakeTech" class="btn-cancel" style="padding:8px 16px;font-size:0.82rem;">
-          Grant Technician Access
-        </button>
       </div>
     </div>
 
@@ -506,8 +498,8 @@
        ADMIN CONTROLLER (FIRESTORE & BACKEND API)
        ====================================================================== -->
   <script type="module">
-    import { auth, db, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, limit, onAuthStateChanged } from './js/firebase-config.js';
-    import { apiGet, apiPost } from './js/backend-api.js';
+    import { auth, db, doc, getDoc, onAuthStateChanged } from './js/firebase-config.js';
+    import { adminGetVerifications, adminGetSwaps, adminUpdateVerificationStatus, recordSwapInspectionBackend } from './js/backend-api.js';
     import { setButtonLoading } from './js/auth.js';
 
     let currentAdminUid = null;
@@ -519,8 +511,6 @@
     // Elements
     const portalHeaderBadge = document.getElementById('portalHeaderBadge');
     const devRoleBanner = document.getElementById('devRoleBanner');
-    const btnMakeAdmin = document.getElementById('btnMakeAdmin');
-    const btnMakeTech = document.getElementById('btnMakeTech');
     const verificationsList = document.getElementById('verificationsList');
     const adminSwapsList = document.getElementById('adminSwapsList');
     const activeInspectionPanel = document.getElementById('activeInspectionPanel');
@@ -551,40 +541,6 @@
       });
     });
 
-    // Dev Role Setup (Development / Test accounts)
-    btnMakeAdmin?.addEventListener('click', async () => {
-      if (!currentAdminUid) return alert('Please log in first.');
-      setButtonLoading(btnMakeAdmin, true, 'Setting Role...');
-      try {
-        await apiPost('/api/admin/setup-role', { role: 'admin' });
-        alert('✓ Granted Admin role! Page will now reload with full administrative privileges.');
-        window.location.reload();
-      } catch (e) {
-        // Direct firestore fallback
-        await setDoc(doc(db, 'users', currentAdminUid), { role: 'admin', accountType: 'admin' }, { merge: true });
-        alert('✓ Granted Admin role directly. Reloading...');
-        window.location.reload();
-      } finally {
-        setButtonLoading(btnMakeAdmin, false);
-      }
-    });
-
-    btnMakeTech?.addEventListener('click', async () => {
-      if (!currentAdminUid) return alert('Please log in first.');
-      setButtonLoading(btnMakeTech, true, 'Setting Role...');
-      try {
-        await apiPost('/api/admin/setup-role', { role: 'technician' });
-        alert('✓ Granted Hub Technician role! You can now conduct inspections.');
-        window.location.reload();
-      } catch (e) {
-        await setDoc(doc(db, 'users', currentAdminUid), { role: 'technician', accountType: 'technician', isTechnician: true }, { merge: true });
-        alert('✓ Granted Technician role directly. Reloading...');
-        window.location.reload();
-      } finally {
-        setButtonLoading(btnMakeTech, false);
-      }
-    });
-
     // Initialize Auth Listener
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -608,7 +564,7 @@
             portalHeaderBadge.textContent = '🔬 Hub Technician';
             portalHeaderBadge.className = 'role-badge role-tech';
           } else {
-            // Show dev role banner so tester can immediately self-promote
+            // Roles are assigned by an administrator; there is no self-promotion flow.
             devRoleBanner.style.display = 'flex';
           }
         } else {
@@ -647,24 +603,11 @@
     async function loadVerifications() {
       verificationsList.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Fetching dealer verification queue...</div>';
       try {
-        // Try backend API first
-        const res = await apiGet('/api/admin/verifications?status=all');
-        if (res?.ok && Array.isArray(res.verifications)) {
-          currentVerifications = res.verifications;
-        } else {
-          throw new Error('API fallback');
-        }
+        const res = await adminGetVerifications('all');
+        currentVerifications = res.verifications;
       } catch (err) {
-        // Firestore fallback
-        try {
-          const snap = await getDocs(collection(db, 'dealerVerification'));
-          currentVerifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        } catch (e) {
-          // Local storage fallback for offline demo
-          try {
-            currentVerifications = JSON.parse(localStorage.getItem('naijaswap_verifications') || '[]');
-          } catch (_) { currentVerifications = []; }
-        }
+        verificationsList.innerHTML = `<div style="padding:40px;text-align:center;color:var(--rose-400);">${escapeHtml(err.message || 'Could not load verification records.')}</div>`;
+        return;
       }
 
       updateVerifStats();
@@ -783,15 +726,11 @@
           if (!confirm('Approve this store dealer? They will be granted dealer role and allowed to publish listings.')) return;
           setButtonLoading(e.currentTarget, true, 'Approving...');
           try {
-            await apiPost('/api/admin/verification-status', { uid, status: 'approved' });
-            alert('✓ Dealer successfully approved and notified!');
+            await adminUpdateVerificationStatus({ uid, status: 'approved' });
+            alert('✓ Dealer successfully approved.');
             loadVerifications();
-          } catch (e) {
-            // Firestore direct update fallback
-            await setDoc(doc(db, 'dealerVerification', uid), { status: 'approved', reviewedAt: new Date() }, { merge: true });
-            await setDoc(doc(db, 'users', uid), { role: 'dealer', accountType: 'dealer', verificationStatus: 'approved' }, { merge: true });
-            alert('✓ Dealer approved directly in database!');
-            loadVerifications();
+          } catch (error) {
+            alert(error.message || 'Could not approve this dealer.');
           } finally {
             setButtonLoading(e.currentTarget, false);
           }
@@ -806,14 +745,11 @@
           if (!reason) return;
           setButtonLoading(e.currentTarget, true, 'Rejecting...');
           try {
-            await apiPost('/api/admin/verification-status', { uid, status: 'rejected', reason });
+            await adminUpdateVerificationStatus({ uid, status: 'rejected', reason });
             alert('Dealer verification marked rejected.');
             loadVerifications();
-          } catch (e) {
-            await setDoc(doc(db, 'dealerVerification', uid), { status: 'rejected', rejectReason: reason, reviewedAt: new Date() }, { merge: true });
-            await setDoc(doc(db, 'users', uid), { verificationStatus: 'rejected' }, { merge: true });
-            alert('Dealer rejected directly in database.');
-            loadVerifications();
+          } catch (error) {
+            alert(error.message || 'Could not reject this dealer.');
           } finally {
             setButtonLoading(e.currentTarget, false);
           }
@@ -902,7 +838,7 @@
       const notes = document.getElementById('inputTechnicianNotes').value.trim();
 
       try {
-        const res = await apiPost('/api/swap/inspection', {
+        const res = await recordSwapInspectionBackend({
           requestId: selectedInspectSwap.id,
           passed: true,
           diagnostics,
@@ -915,21 +851,7 @@
         btnViewCertLink.href = `certificate.html?id=${selectedInspectSwap.id}`;
         loadSwaps();
       } catch (err) {
-        // Direct Firestore fallback
-        const certId = 'NS-CERT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-        await setDoc(doc(db, 'swapRequests', selectedInspectSwap.id), {
-          inspectionStatus: 'passed',
-          inspectionReportId: certId,
-          diagnosticDetails: diagnostics,
-          inspectionNotes: notes,
-          status: 'inspection_passed',
-          inspectedAt: new Date()
-        }, { merge: true });
-
-        alert(`✓ Certificate #${certId} issued directly!`);
-        btnViewCertLink.style.display = 'inline-flex';
-        btnViewCertLink.href = `certificate.html?id=${selectedInspectSwap.id}`;
-        loadSwaps();
+        alert(err.message || 'Could not record the inspection.');
       } finally {
         setButtonLoading(btnRecordPass, false);
       }
@@ -942,7 +864,7 @@
 
       setButtonLoading(btnRecordFail, true, 'Recording Failure...');
       try {
-        await apiPost('/api/swap/inspection', {
+        await recordSwapInspectionBackend({
           requestId: selectedInspectSwap.id,
           passed: false,
           notes: reason,
@@ -950,14 +872,8 @@
         });
         alert('Inspection marked as failed.');
         loadSwaps();
-      } catch (e) {
-        await setDoc(doc(db, 'swapRequests', selectedInspectSwap.id), {
-          inspectionStatus: 'failed',
-          inspectionNotes: reason,
-          inspectedAt: new Date()
-        }, { merge: true });
-        alert('Inspection failed recorded.');
-        loadSwaps();
+      } catch (error) {
+        alert(error.message || 'Could not record the failed inspection.');
       } finally {
         setButtonLoading(btnRecordFail, false);
       }
@@ -987,21 +903,11 @@
 
     async function loadSwaps() {
       try {
-        const res = await apiGet('/api/admin/swaps');
-        if (res?.ok && Array.isArray(res.swaps)) {
-          currentSwaps = res.swaps;
-        } else {
-          throw new Error('API fallback');
-        }
+        const res = await adminGetSwaps();
+        currentSwaps = res.swaps;
       } catch (err) {
-        try {
-          const snap = await getDocs(query(collection(db, 'swapRequests'), orderBy('createdAt', 'desc'), limit(100)));
-          currentSwaps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        } catch (e) {
-          try {
-            currentSwaps = JSON.parse(localStorage.getItem('naijaswap_swap_requests') || '[]');
-          } catch (_) { currentSwaps = []; }
-        }
+        adminSwapsList.innerHTML = `<div style="padding:40px;text-align:center;color:var(--rose-400);">${escapeHtml(err.message || 'Could not load swap requests.')}</div>`;
+        return;
       }
 
       renderSwaps();
@@ -1065,8 +971,8 @@
               </div>
               <div style="display:flex;gap:6px;align-items:center;">
                 <span class="role-badge" style="background:rgba(255,255,255,0.06);color:var(--text-dim);">Status: ${status}</span>
-                <span class="role-badge ${payStatus === 'paid' ? 'role-admin' : ''}" style="color:${payStatus === 'paid' ? 'var(--emerald-400)' : 'var(--amber-400)'};">
-                  Payment: ${payStatus}
+                <span class="role-badge ${payStatus === 'escrow_secured' || payStatus === 'paid' ? 'role-admin' : ''}" style="color:${payStatus === 'escrow_secured' || payStatus === 'paid' ? 'var(--emerald-400)' : 'var(--amber-400)'};">
+                  Escrow: ${payStatus}
                 </span>
                 <span class="role-badge ${inspectStatus === 'passed' ? 'role-admin' : ''}" style="color:${inspectStatus === 'passed' ? 'var(--emerald-400)' : 'var(--cyan-400)'};">
                   Inspection: ${inspectStatus}
@@ -1079,6 +985,7 @@
                 Customer: <strong style="color:var(--text-dim);">${escapeHtml(s.customerName || 'Swapper')}</strong> • 
                 Store: <strong style="color:var(--text-dim);">${escapeHtml(s.storeName || 'Store')}</strong> • 
                 Top-Up: <strong style="color:var(--emerald-400);">${s.topupAmount ? `+₦${Number(s.topupAmount).toLocaleString()}` : '₦0'}</strong>
+                ${s.paymentReference ? ` • <span style="font-family:monospace;font-size:0.75rem;color:var(--cyan-400);">Ref: ${escapeHtml(s.paymentReference)}</span>` : ''}
               </div>
 
               <div style="display:flex;gap:8px;">

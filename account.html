@@ -639,7 +639,8 @@
       storeMedia,
       resolveMedia,
       displayMedia,
-      purgeLocalStorageImages
+      purgeLocalStorageImages,
+      getEffectiveUserPhoto
     } from './js/profile.js';
 
     // Page Elements
@@ -779,6 +780,13 @@
         dealerLogoPlaceholder.style.display = 'flex';
         dealerLogoPlaceholder.textContent = shopName.charAt(0).toUpperCase() || '🏬';
       }
+      if (uid && !dealerPhoto) {
+        getEffectiveUserPhoto(uid, user).then(p => {
+          if (p && dealerLogoImg) {
+            displayMedia(dealerLogoImg, p, dealerLogoPlaceholder);
+          }
+        });
+      }
 
       dealerContactVal.textContent = user?.displayName || profile.contactPerson || 'Not Set';
       dealerEmailVal.textContent = user?.email || profile.businessEmail || 'Not Provided';
@@ -912,7 +920,7 @@
       if (detailPreferredHub) detailPreferredHub.textContent = hub;
 
       // Photo
-      const photo = (uid ? localStorage.getItem('naijaswap_photo_' + uid) : null) || user?.photoURL;
+      const photo = (uid ? localStorage.getItem('naijaswap_photo_' + uid) : null) || profile.avatar || profile.photoURL || user?.photoURL;
       if (photo && userPhotoImg) {
         displayMedia(userPhotoImg, photo, userPhotoPlaceholder);
       } else {
@@ -921,6 +929,13 @@
           userPhotoPlaceholder.style.display = 'flex';
           userPhotoPlaceholder.innerHTML = `<span>${displayName.charAt(0).toUpperCase() || 'U'}</span>`;
         }
+      }
+      if (uid && !photo) {
+        getEffectiveUserPhoto(uid, user).then(p => {
+          if (p && userPhotoImg) {
+            displayMedia(userPhotoImg, p, userPhotoPlaceholder);
+          }
+        });
       }
 
       renderSwapperBottomNav();
@@ -938,14 +953,14 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
             <span>Listings</span>
           </a>
-          <a href="dealer-dashboard.html#requestsSection" class="bottom-nav-item" id="navRequestsBtn" title="Swap Requests">
+          <a href="dealer-requests.html" class="bottom-nav-item" id="navRequestsBtn" title="Swap Requests">
             ${metrics.pendingRequests > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${metrics.pendingRequests}</span>` : ''}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             <span>Requests</span>
           </a>
-          <a href="dealer-dashboard.html#activitySection" class="bottom-nav-item" id="navActivityBtn" title="Recent Activity">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-            <span>Activity</span>
+          <a href="inbox.html" class="bottom-nav-item" id="navInboxBtn" title="Inbox & Messages">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Inbox</span>
           </a>
           <a href="more.html" class="bottom-nav-item active" id="navStoreMoreBtn" title="More" aria-current="page">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
@@ -957,17 +972,10 @@
 
     function renderSwapperBottomNav() {
       let unreadSwapsCount = 0;
-      let unreadAlertsCount = 0;
       try {
         const stored = JSON.parse(localStorage.getItem('naijaswap_swap_requests') || '[]');
         if (Array.isArray(stored)) {
           unreadSwapsCount = stored.filter(r => r.status === 'pending' || r.status === 'countered' || r.isUnread === true).length;
-        }
-      } catch (_) {}
-      try {
-        const storedNotifs = JSON.parse(localStorage.getItem('naijaswap_user_notifications') || '[]');
-        if (Array.isArray(storedNotifs)) {
-          unreadAlertsCount = storedNotifs.filter(n => !n.isRead).length;
         }
       } catch (_) {}
 
@@ -982,10 +990,9 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path><path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path></svg>
             <span>My Swaps</span>
           </a>
-          <a href="alerts.html" class="bottom-nav-item" id="navNotifBtn" title="Alerts">
-            ${unreadAlertsCount > 0 ? `<span class="bottom-nav-badge" style="display: inline-block;">${unreadAlertsCount}</span>` : ''}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span>Alerts</span>
+          <a href="inbox.html" class="bottom-nav-item" id="navInboxBtn" title="Inbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            <span>Inbox</span>
           </a>
           <a href="more.html" class="bottom-nav-item active" id="navMoreBtn" title="More" aria-current="page">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
@@ -1138,6 +1145,13 @@
           if (mediaToken.startsWith('https://')) {
             try { await updateProfile(currentUser, { photoURL: mediaToken }); } catch (_) {}
           }
+          try {
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            await setDoc(userDocRef, {
+              photoURL: mediaToken,
+              avatar: mediaToken
+            }, { merge: true });
+          } catch (_) {}
         } else if (removePhotoFlag) {
           localStorage.removeItem('naijaswap_photo_' + currentUser.uid);
           try {
@@ -1146,9 +1160,23 @@
             localStorage.setItem('naijaswap_user', JSON.stringify(u));
           } catch (_) {}
           try { await updateProfile(currentUser, { photoURL: '' }); } catch (_) {}
+          try {
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            await setDoc(userDocRef, {
+              photoURL: '',
+              avatar: ''
+            }, { merge: true });
+          } catch (_) {}
         }
 
         const profile = getStoredProfile(currentUser.uid);
+        if (pendingPhotoFile) {
+          profile.avatar = localStorage.getItem('naijaswap_photo_' + currentUser.uid);
+          profile.photoURL = profile.avatar;
+        } else if (removePhotoFlag) {
+          delete profile.avatar;
+          delete profile.photoURL;
+        }
         profile.preferredHub = newHub;
         saveStoredProfile(currentUser.uid, profile);
 
@@ -1279,11 +1307,15 @@
         profile.bankName = bankName;
         profile.bankAccountNumber = bankAccount;
 
+        let effectiveLogo = profile.avatar || profile.photoURL || '';
+
         if (pendingDealerPhoto) {
           const mediaToken = await storeMedia(`dealer_logo_${uid}`, pendingDealerPhoto, { folder: 'store_logos' });
           localStorage.setItem('naijaswap_photo_' + uid, mediaToken);
           profile.avatar = mediaToken;
           profile.photoURL = mediaToken;
+          profile.storeLogo = mediaToken;
+          effectiveLogo = mediaToken;
           try {
             const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
             u.photoURL = mediaToken;
@@ -1296,6 +1328,8 @@
           localStorage.removeItem('naijaswap_photo_' + uid);
           delete profile.avatar;
           delete profile.photoURL;
+          delete profile.storeLogo;
+          effectiveLogo = '';
           try {
             const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
             delete u.photoURL;
@@ -1319,11 +1353,34 @@
           }
           try {
             const userDocRef = doc(db, 'users', uid);
-            await setDoc(userDocRef, {
+            const uPayload = {
               shopName: storeName,
               phoneNumber: phone,
               displayName: contactPerson || currentUser.displayName || ''
-            }, { merge: true });
+            };
+            if (pendingDealerPhoto) {
+              uPayload.photoURL = effectiveLogo;
+              uPayload.avatar = effectiveLogo;
+              uPayload.storeLogo = effectiveLogo;
+            } else if (removeDealerPhotoFlag) {
+              uPayload.photoURL = '';
+              uPayload.avatar = '';
+              uPayload.storeLogo = '';
+            }
+            await setDoc(userDocRef, uPayload, { merge: true });
+          } catch (_) {}
+
+          try {
+            const dealerDocRef = doc(db, 'dealers', uid);
+            const dPayload = {
+              businessName: storeName,
+              shopName: storeName,
+              phone: phone,
+              shopAddress: address
+            };
+            if (pendingDealerPhoto) dPayload.storeLogo = effectiveLogo;
+            else if (removeDealerPhotoFlag) dPayload.storeLogo = '';
+            await setDoc(dealerDocRef, dPayload, { merge: true });
           } catch (_) {}
         }
 
