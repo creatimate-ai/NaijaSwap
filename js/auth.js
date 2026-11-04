@@ -22,7 +22,7 @@ import { renderAvatarElement, getEffectiveUserPhoto } from './profile.js';
 export { auth };
 
 const DEFAULT_ROLE = "customer";
-const ROLE_LOOKUP_TIMEOUT_MS = 5000;
+const ROLE_LOOKUP_TIMEOUT_MS = 10000;
 const MAX_SESSION_LOGS = 60;
 
 /* ==========================================================================
@@ -127,7 +127,7 @@ function showDealerAuthDiagnostic(message, options = {}) {
 function normalizeRole(role) {
   const normalized = String(role || "").trim().toLowerCase();
   if (normalized === "admin" || normalized === "technician") return normalized;
-  return normalized === "dealer" || normalized === "store" || normalized === "seller" || normalized === "partner"
+  return normalized === "dealer" || normalized === "store" || normalized === "seller" || normalized === "partner" || normalized === "shop"
     ? "dealer"
     : DEFAULT_ROLE;
 }
@@ -209,16 +209,35 @@ export async function getUserRole(user) {
     ]);
     if (snapshot && snapshot.exists()) {
       const data = snapshot.data();
-      const storedRole = normalizeRole(data.accountType || data.role);
-      if (data.shopName) localStorage.setItem("naijaswap_shop_" + user.uid, data.shopName);
+      let rawRole = data.accountType || data.role;
+      if (!rawRole && (data.isDealer === true || data.storeName || data.businessName || data.shopName)) {
+        rawRole = "dealer";
+      }
+      const storedRole = normalizeRole(rawRole);
+      const sName = data.shopName || data.businessName || data.storeName;
+      if (sName) localStorage.setItem("naijaswap_shop_" + user.uid, sName);
       localStorage.setItem("naijaswap_role_" + user.uid, storedRole);
       localStorage.setItem("naijaswap_last_role", storedRole);
-      logNaijaSwap("info", "Auth", `Resolved permanent role from Firestore: "${storedRole}"`);
+      logNaijaSwap("info", "Auth", `Resolved permanent role from Firestore users: "${storedRole}"`);
       return storedRole;
     }
   } catch (err) {
     logNaijaSwap("info", "Auth", `Firestore role lookup note: ${err.message}`);
   }
+
+  // 1b. Also check Firestore dealers collection directly
+  try {
+    const dealerDoc = await getDoc(doc(db, "dealers", user.uid));
+    if (dealerDoc.exists()) {
+      const dData = dealerDoc.data();
+      const sName = dData.shopName || dData.businessName || dData.storeName;
+      if (sName) localStorage.setItem("naijaswap_shop_" + user.uid, sName);
+      localStorage.setItem("naijaswap_role_" + user.uid, "dealer");
+      localStorage.setItem("naijaswap_last_role", "dealer");
+      logNaijaSwap("info", "Auth", `Resolved dealer role from Firestore dealers collection.`);
+      return "dealer";
+    }
+  } catch (_) {}
 
   // 2. Direct local role cache for this specific UID
   const cachedRole = localStorage.getItem("naijaswap_role_" + user.uid);
@@ -272,24 +291,6 @@ export async function redirectUserAfterAuth(user) {
   try {
     const userRole = await getUserRole(user);
 
-    // Compulsory email verification check for email/password users
-    if (user.email && !user.emailVerified) {
-      let isVerifiedInDb = false;
-      try {
-        const uSnap = await getDoc(doc(db, "users", user.uid));
-        if (uSnap.exists() && uSnap.data().emailVerified === true) {
-          isVerifiedInDb = true;
-        }
-      } catch (_) {}
-
-      if (!isVerifiedInDb) {
-        logNaijaSwap("warn", "Auth", `User ${user.email} is unverified. Redirecting to verify-email.html`);
-        sessionStorage.setItem("pending_verif_email", user.email);
-        window.location.assign(`/verify-email.html?email=${encodeURIComponent(user.email)}`);
-        return;
-      }
-    }
-
     const urlParams = typeof window !== "undefined" && window.location ? new URLSearchParams(window.location.search) : null;
     const redirectParam = urlParams ? urlParams.get("redirect") : null;
     const redirectSession = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("post_login_redirect") : null;
@@ -299,15 +300,28 @@ export async function redirectUserAfterAuth(user) {
 
     const candidate = isValidRedirectTarget(redirectParam) ? redirectParam : (isValidRedirectTarget(redirectSession) ? redirectSession : null);
 
-    if (candidate) {
-      logNaijaSwap("info", "Auth", "Redirecting authenticated user to saved destination: " + candidate);
-      window.location.assign(candidate);
-      return;
-    }
-
-    const target = userRole === "admin"
+    let target = userRole === "admin"
       ? "/admin.html"
       : (userRole === "dealer" ? "/dealer-dashboard.html" : "/dashboard.html");
+
+    if (candidate) {
+      const lower = candidate.toLowerCase();
+      // Ensure candidate matches user role
+      if (userRole === "dealer") {
+        if (!lower.includes("dashboard.html") && !lower.includes("my-swaps.html")) {
+          target = candidate;
+        }
+      } else if (userRole === "customer") {
+        if (!lower.includes("dealer-")) {
+          target = candidate;
+        }
+      } else if (userRole === "admin") {
+        if (lower.includes("admin")) {
+          target = candidate;
+        }
+      }
+    }
+
     logNaijaSwap("info", "Auth", "Redirecting authenticated " + userRole + " to " + target);
     console.log("[NaijaSwap Auth] Redirecting " + user.uid + " (" + userRole + ") to " + target);
     window.location.assign(target);
@@ -1010,7 +1024,7 @@ export function initRouteProtection() {
   const isAuthPage = isLoginPage || isSignupPage || isPhoneAuthPage;
 
   const isAdminPage = isCurrentRoute("admin") || !!document.getElementById("adminSwapsList");
-  const isCustomerDash = isCurrentRoute("dashboard") || (!!document.getElementById("dashUserName") && !document.getElementById("dealerAuthDiagnostic"));
+  const isCustomerDash = isCurrentRoute("dashboard");
   const isDealerDash = isCurrentRoute(
     "dealer-dashboard",
     "dealer-listings",
@@ -1019,8 +1033,9 @@ export function initRouteProtection() {
     "dealer-request",
     "dealer-verification",
     "dealer-activities",
-    "dealer-activity"
-  ) || !!document.getElementById("dealerAuthDiagnostic");
+    "dealer-activity",
+    "dealer-subscription"
+  );
   const isAccountPage = isCurrentRoute("account");
   const isCustomerProtectedPage = isCurrentRoute("my-swaps", "alerts");
   const isAnyDash = isAdminPage || isCustomerDash || isDealerDash || isAccountPage || isCustomerProtectedPage;
@@ -1069,66 +1084,8 @@ export function initRouteProtection() {
           // Explicit switch account requested - leave forms open and active
           return;
         }
-
-        // If the account's email is unverified, DO NOT force-redirect away from login/signup pages!
-        // Allow the user to switch accounts or log in as someone else freely.
-        if (user.email && !user.emailVerified) {
-          let isVerifiedInDb = false;
-          try {
-            const uSnap = await getDoc(doc(db, "users", user.uid));
-            if (uSnap.exists() && uSnap.data().emailVerified === true) {
-              isVerifiedInDb = true;
-            }
-          } catch (_) {}
-
-          if (!isVerifiedInDb) {
-            logNaijaSwap("info", "Auth", `Unverified session (${user.email}) on auth page. Keeping login/signup forms accessible.`);
-            const unverifiedNotice = document.getElementById("unverifiedNotice");
-            const unverifiedEmailSpan = document.getElementById("unverifiedEmailSpan");
-            const unverifiedEnterCodeLink = document.getElementById("unverifiedEnterCodeLink");
-            if (unverifiedNotice && unverifiedEmailSpan) {
-              unverifiedEmailSpan.textContent = user.email;
-              if (unverifiedEnterCodeLink) {
-                unverifiedEnterCodeLink.href = `verify-email.html?email=${encodeURIComponent(user.email)}`;
-              }
-              unverifiedNotice.style.display = "block";
-              const btnUnverifiedSignOut = document.getElementById("btnUnverifiedSignOut");
-              if (btnUnverifiedSignOut) {
-                btnUnverifiedSignOut.onclick = async () => {
-                  sessionStorage.removeItem("pending_verif_email");
-                  localStorage.removeItem("naijaswap_user");
-                  await signOut(auth);
-                  unverifiedNotice.style.display = "none";
-                  const alertId = document.getElementById("signupAlert") ? "signupAlert" : "loginAlert";
-                  showAuthAlert(alertId, "Signed out of unverified session. You can now log in or create a new account.", "success");
-                };
-              }
-            }
-            return;
-          }
-        }
-
         await redirectUserAfterAuth(user);
         return;
-      }
-
-      // Enforce email verification on protected dashboards
-      const isVerifyEmailPage = isCurrentRoute("verify-email");
-      if (user.email && !user.emailVerified && !isVerifyEmailPage) {
-        let isVerifiedInDb = false;
-        try {
-          const uSnap = await getDoc(doc(db, "users", user.uid));
-          if (uSnap.exists() && uSnap.data().emailVerified === true) {
-            isVerifiedInDb = true;
-          }
-        } catch (_) {}
-
-        if (!isVerifiedInDb && isAnyDash) {
-          logNaijaSwap("warn", "Auth", `Account ${user.email} is unverified. Directing to verify-email.html`);
-          sessionStorage.setItem("pending_verif_email", user.email);
-          window.location.replace(`verify-email.html?email=${encodeURIComponent(user.email)}`);
-          return;
-        }
       }
 
       // Log login context asynchronously for security & alert monitoring
@@ -1138,25 +1095,18 @@ export function initRouteProtection() {
         body: JSON.stringify({ uid: user.uid, email: user.email || '' })
       }).catch(() => {});
 
-      // ROUTE ACCESS CONTROLLER (Testing Mode):
-      // In testing mode, any signed-in user with credentials can access the admin desk,
-      // dealer portals, and swapper marketplace flows without being blocked.
-      const IS_TESTING_MODE = true;
+      // ROUTE ROLE ENFORCEMENT:
+      // Dealers must go to dealer pages; Swappers must go to swapper pages.
+      if (userRole === "customer" && isDealerDash) {
+        logNaijaSwap("warn", "Auth", `Access denied: Swapper account (${user.uid}) cannot access dealer portal (${window.location.pathname}). Redirecting to swapper dashboard.`);
+        window.location.replace("dashboard.html");
+        return;
+      }
 
-      if (!IS_TESTING_MODE) {
-        if (userRole === "customer" && isDealerDash) {
-          logNaijaSwap("warn", "Auth", `Access denied: Swapper account (${user.uid}) cannot access dealer portal (${window.location.pathname}). Redirecting to swapper dashboard.`);
-          window.location.replace("dashboard.html");
-          return;
-        }
-
-        if (userRole === "dealer" && (isCustomerDash || isCurrentRoute("my-swaps"))) {
-          logNaijaSwap("info", "Auth", `Dealer account (${user.uid}) redirected to store portal.`);
-          window.location.replace("dealer-dashboard.html");
-          return;
-        }
-      } else {
-        logNaijaSwap("info", "Auth", `Testing Mode: User ${user.uid} (${userRole}) granted open route access to ${window.location.pathname}.`);
+      if (userRole === "dealer" && (isCustomerDash || isCurrentRoute("my-swaps"))) {
+        logNaijaSwap("info", "Auth", `Dealer account (${user.uid}) redirected to store portal.`);
+        window.location.replace("dealer-dashboard.html");
+        return;
       }
 
       if (isCustomerDash) {

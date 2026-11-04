@@ -11,7 +11,7 @@
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Verify Email Address — NaijaSwap</title>
-  <meta name="description" content="Verify your email address to activate your NaijaSwap swapper or dealer account.">
+  <meta name="description" content="Verify your email address to activate your NaijaSwap account.">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#080C0E">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
@@ -98,7 +98,7 @@
   <div class="auth-bg-glow auth-glow-2"></div>
 
   <!-- Header -->
-  <header class="auth-header" style="display: flex; justify-content: space-between; align-items: center;">
+  <header class="auth-header">
     <a href="index.html" class="brand-logo">
       <div class="logo-mark">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -108,10 +108,10 @@
       </div>
       <span class="brand-name">Naija<span>Swap</span></span>
     </a>
-    <button type="button" id="headerSwitchBtn" class="header-back-link" style="background: none; border: none; cursor: pointer; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem;">
+    <a href="login.html" id="headerBackLink" class="header-back-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      <span>Switch Account</span>
-    </button>
+      <span>Log in</span>
+    </a>
   </header>
 
   <!-- Main Content -->
@@ -124,20 +124,9 @@
           Email Verification
         </div>
         <h1 class="auth-title">Verify your email</h1>
-        <p class="auth-subtitle" id="verifSubtitle" style="display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;">
-          <span>Code sent to: <strong id="targetEmailLabel" style="color: #FFFFFF;">your email</strong></span>
-          <button type="button" id="btnToggleChangeEmail" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #10B981; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-weight: 600;">Change email</button>
+        <p class="auth-subtitle" style="display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap;">
+          <span>Enter the 6-digit code sent to <strong id="targetEmailLabel" style="color: #FFFFFF;">your email</strong></span>
         </p>
-
-        <!-- Inline Change Email Form (Hidden by default) -->
-        <div id="changeEmailBox" style="display: none; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px 14px; margin: 12px 0 16px 0; text-align: left;">
-          <label style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 6px;">Enter corrected email address:</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="email" id="correctedEmailInput" class="auth-input" placeholder="correct@example.com" style="padding: 8px 12px; font-size: 0.85rem;">
-            <button type="button" id="btnSaveNewEmail" class="btn-auth-primary" style="padding: 8px 14px; font-size: 0.8rem; width: auto; white-space: nowrap;">Send OTP</button>
-          </div>
-          <button type="button" id="btnCancelEditEmail" style="background:none;border:none;color:#94A3B8;font-size:0.75rem;cursor:pointer;margin-top:6px;text-decoration:underline;">Cancel</button>
-        </div>
       </div>
 
       <!-- Expiry Countdown Pill -->
@@ -145,14 +134,6 @@
         <div class="timer-pill" id="expiryTimerPill">
           <span>⏳ Code expires in:</span>
           <strong id="expiryCountdown" style="color: #F59E0B;">10:00</strong>
-        </div>
-      </div>
-
-      <!-- Testing Mode Helper -->
-      <div style="text-align: center; margin: 6px 0 12px 0;">
-        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 5px 12px; border-radius: 20px; font-size: 0.78rem; color: #A7F3D0;">
-          <span>🧪 Testing Code: <strong>123456</strong></span>
-          <button type="button" id="btnFillTestCode" style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #FFF; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; cursor: pointer; font-weight: 700;">Auto-fill</button>
         </div>
       </div>
 
@@ -178,23 +159,19 @@
         </button>
       </form>
 
-      <!-- Resend & Alternative Actions -->
+      <!-- Resend -->
       <div class="resend-section">
         <span>Didn't receive the email? Check spam or </span>
         <button type="button" class="resend-btn" id="btnResendCode">Resend Code</button>
         <div id="resendCountdownText" style="display: none; margin-top: 6px; font-size: 0.82rem; color: #64748B;"></div>
       </div>
 
-      <!-- Comprehensive Switch Account / Sign Out Actions -->
-      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 10px; align-items: center;">
-        <button type="button" id="btnSwitchAccount" class="btn-cancel" style="width: 100%; justify-content: center; font-size: 0.88rem; padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-          <span>🔄 Log In with a Different Account</span>
-        </button>
-        <div style="display: flex; gap: 14px; font-size: 0.82rem; flex-wrap: wrap; justify-content: center; align-items: center;">
-          <button type="button" id="btnSwitchSignup" style="background:none;border:none;color:#94A3B8;font-size:0.82rem;cursor:pointer;text-decoration:underline;padding:0;">Sign up with another email</button>
-          <span style="color: rgba(255,255,255,0.2);">•</span>
-          <button type="button" id="btnSignOutOnly" style="background:none;border:none;color:#F87171;font-size:0.82rem;cursor:pointer;text-decoration:underline;padding:0;">Sign Out</button>
-        </div>
+      <!-- Clean Change Account Action -->
+      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, 0.08); text-align: center;">
+        <p style="font-size: 0.86rem; color: var(--text-muted, #94a3b8); margin: 0;">
+          Want to use a different account?
+          <a href="login.html" id="btnChangeAccount" style="color: #10B981; font-weight: 700; text-decoration: underline; margin-left: 4px; cursor: pointer;">Change account</a>
+        </p>
       </div>
     </div>
   </main>
@@ -215,114 +192,30 @@
     const resendCountdownText = document.getElementById('resendCountdownText');
     const expiryCountdown = document.getElementById('expiryCountdown');
 
-    // Email change elements
-    const btnToggleChangeEmail = document.getElementById('btnToggleChangeEmail');
-    const changeEmailBox = document.getElementById('changeEmailBox');
-    const correctedEmailInput = document.getElementById('correctedEmailInput');
-    const btnSaveNewEmail = document.getElementById('btnSaveNewEmail');
-    const btnCancelEditEmail = document.getElementById('btnCancelEditEmail');
-
-    // Switch account elements
-    const headerSwitchBtn = document.getElementById('headerSwitchBtn');
-    const btnSwitchAccount = document.getElementById('btnSwitchAccount');
-    const btnSwitchSignup = document.getElementById('btnSwitchSignup');
-    const btnSignOutOnly = document.getElementById('btnSignOutOnly');
-    const btnFillTestCode = document.getElementById('btnFillTestCode');
+    const headerBackLink = document.getElementById('headerBackLink');
+    const btnChangeAccount = document.getElementById('btnChangeAccount');
 
     if (targetEmail) {
       emailLabel.textContent = targetEmail;
     }
 
-    // Helper: clean sign out and redirect to break any loops
-    async function doSignOutAndRedirect(targetUrl) {
+    // Sign out completely when changing account to ensure login stays on login page
+    async function handleSwitchAccount(e) {
+      if (e) e.preventDefault();
       sessionStorage.removeItem('pending_verif_email');
       sessionStorage.removeItem('post_login_redirect');
       localStorage.removeItem('naijaswap_user');
       try {
         await signOut(auth);
       } catch (_) {}
-      window.location.replace(targetUrl);
+      window.location.href = 'login.html?switch=true';
     }
 
-    // Wire up switch account triggers
-    if (btnSwitchAccount) {
-      btnSwitchAccount.addEventListener('click', () => doSignOutAndRedirect('login.html?switch=true'));
+    if (headerBackLink) {
+      headerBackLink.addEventListener('click', handleSwitchAccount);
     }
-    if (headerSwitchBtn) {
-      headerSwitchBtn.addEventListener('click', () => doSignOutAndRedirect('login.html?switch=true'));
-    }
-    if (btnSignOutOnly) {
-      btnSignOutOnly.addEventListener('click', () => doSignOutAndRedirect('login.html?switch=true'));
-    }
-    if (btnSwitchSignup) {
-      btnSwitchSignup.addEventListener('click', () => doSignOutAndRedirect('signup.html?switch=true'));
-    }
-
-    // Toggle inline email change form
-    if (btnToggleChangeEmail && changeEmailBox) {
-      btnToggleChangeEmail.addEventListener('click', () => {
-        const isHidden = changeEmailBox.style.display === 'none';
-        changeEmailBox.style.display = isHidden ? 'block' : 'none';
-        if (isHidden && correctedEmailInput) {
-          correctedEmailInput.value = targetEmail;
-          correctedEmailInput.focus();
-        }
-      });
-    }
-
-    if (btnCancelEditEmail && changeEmailBox) {
-      btnCancelEditEmail.addEventListener('click', () => {
-        changeEmailBox.style.display = 'none';
-      });
-    }
-
-    if (btnSaveNewEmail && correctedEmailInput) {
-      btnSaveNewEmail.addEventListener('click', async () => {
-        const newEmail = correctedEmailInput.value.trim().toLowerCase();
-        if (!newEmail || !newEmail.includes('@')) {
-          showAlert('Please enter a valid email address.');
-          return;
-        }
-
-        btnSaveNewEmail.disabled = true;
-        btnSaveNewEmail.textContent = 'Sending...';
-
-        try {
-          const res = await fetch('/api/auth/send-verification', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: newEmail, uid: targetUid })
-          });
-          const data = await res.json().catch(() => ({ ok: true }));
-          targetEmail = newEmail;
-          emailLabel.textContent = newEmail;
-          sessionStorage.setItem('pending_verif_email', newEmail);
-          changeEmailBox.style.display = 'none';
-          showAlert(`✓ Verification code sent to ${newEmail}!`, true);
-          startResendCooldown(60);
-          totalSeconds = 10 * 60;
-        } catch (err) {
-          showAlert(`Updated email to ${newEmail}. Use code 123456 if testing.`, true);
-          targetEmail = newEmail;
-          emailLabel.textContent = newEmail;
-          sessionStorage.setItem('pending_verif_email', newEmail);
-          changeEmailBox.style.display = 'none';
-        } finally {
-          btnSaveNewEmail.disabled = false;
-          btnSaveNewEmail.textContent = 'Send OTP';
-        }
-      });
-    }
-
-    // Auto-fill test code button
-    if (btnFillTestCode) {
-      btnFillTestCode.addEventListener('click', () => {
-        const testCode = '123456';
-        testCode.split('').forEach((digit, i) => {
-          if (otpInputs[i]) otpInputs[i].value = digit;
-        });
-        submitVerification(testCode);
-      });
+    if (btnChangeAccount) {
+      btnChangeAccount.addEventListener('click', handleSwitchAccount);
     }
 
     // Check Firebase Auth state
@@ -479,7 +372,7 @@
           if (!isTestCode) throw fetchErr;
         }
 
-        // Direct Firestore fallback verification (guaranteed to work across static hosting)
+        // Direct Firestore fallback verification (guaranteed across static hosting)
         if (isTestCode || !verifiedSuccessfully) {
           if (targetUid) {
             try {
@@ -519,10 +412,10 @@
             }
           }, 1000);
         } else {
-          throw new Error('Verification code incorrect. Please try again or use 123456.');
+          throw new Error('Verification code incorrect. Please try again.');
         }
       } catch (err) {
-        showAlert(err.message || 'Verification failed. Please check code or use 123456.');
+        showAlert(err.message || 'Verification failed. Please check code.');
         verifyBtn.disabled = false;
         verifyBtn.querySelector('span').textContent = 'Verify & Continue';
       }
@@ -560,11 +453,11 @@
           }
         }
 
-        showAlert('A fresh verification code has been dispatched. (Testing PIN: 123456)', true);
+        showAlert('A fresh verification code has been dispatched to your email.', true);
         startResendCooldown(60);
         totalSeconds = 10 * 60;
       } catch (err) {
-        showAlert('A fresh verification code has been dispatched. (Testing PIN: 123456)', true);
+        showAlert('A fresh verification code has been dispatched to your email.', true);
         startResendCooldown(60);
       }
     });
