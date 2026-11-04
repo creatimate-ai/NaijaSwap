@@ -1923,7 +1923,8 @@ router.post('/api/auth/send-verification', async (request, response) => {
       ok: true,
       message: 'Verification code sent to ' + email,
       expiresInSeconds: result.expiresInSeconds,
-      cooldownSeconds: result.cooldownSeconds
+      cooldownSeconds: result.cooldownSeconds,
+      testCode: IS_TESTING_MODE ? (result.code || '123456') : undefined
     });
   } catch (error) {
     console.error('[API] Send verification code failed:', error.message);

@@ -994,6 +994,16 @@ export function initDashboard() {
 export function initRouteProtection() {
   printPriorSessionLogs();
 
+  const urlParams = typeof window !== "undefined" && window.location ? new URLSearchParams(window.location.search) : null;
+  const isSwitchRequest = urlParams && (urlParams.get("switch") === "true" || urlParams.get("logout") === "true");
+
+  if (isSwitchRequest) {
+    sessionStorage.removeItem("pending_verif_email");
+    sessionStorage.removeItem("post_login_redirect");
+    localStorage.removeItem("naijaswap_user");
+    signOut(auth).catch(() => {});
+  }
+
   const isLoginPage = isCurrentRoute("login") || !!document.getElementById("loginForm");
   const isSignupPage = isCurrentRoute("signup") || !!document.getElementById("signupForm");
   const isPhoneAuthPage = isCurrentRoute("phone-auth") || !!document.getElementById("sendCodeForm");
@@ -1055,6 +1065,49 @@ export function initRouteProtection() {
       });
 
       if (isAuthPage) {
+        if (isSwitchRequest) {
+          // Explicit switch account requested - leave forms open and active
+          return;
+        }
+
+        // If the account's email is unverified, DO NOT force-redirect away from login/signup pages!
+        // Allow the user to switch accounts or log in as someone else freely.
+        if (user.email && !user.emailVerified) {
+          let isVerifiedInDb = false;
+          try {
+            const uSnap = await getDoc(doc(db, "users", user.uid));
+            if (uSnap.exists() && uSnap.data().emailVerified === true) {
+              isVerifiedInDb = true;
+            }
+          } catch (_) {}
+
+          if (!isVerifiedInDb) {
+            logNaijaSwap("info", "Auth", `Unverified session (${user.email}) on auth page. Keeping login/signup forms accessible.`);
+            const unverifiedNotice = document.getElementById("unverifiedNotice");
+            const unverifiedEmailSpan = document.getElementById("unverifiedEmailSpan");
+            const unverifiedEnterCodeLink = document.getElementById("unverifiedEnterCodeLink");
+            if (unverifiedNotice && unverifiedEmailSpan) {
+              unverifiedEmailSpan.textContent = user.email;
+              if (unverifiedEnterCodeLink) {
+                unverifiedEnterCodeLink.href = `verify-email.html?email=${encodeURIComponent(user.email)}`;
+              }
+              unverifiedNotice.style.display = "block";
+              const btnUnverifiedSignOut = document.getElementById("btnUnverifiedSignOut");
+              if (btnUnverifiedSignOut) {
+                btnUnverifiedSignOut.onclick = async () => {
+                  sessionStorage.removeItem("pending_verif_email");
+                  localStorage.removeItem("naijaswap_user");
+                  await signOut(auth);
+                  unverifiedNotice.style.display = "none";
+                  const alertId = document.getElementById("signupAlert") ? "signupAlert" : "loginAlert";
+                  showAuthAlert(alertId, "Signed out of unverified session. You can now log in or create a new account.", "success");
+                };
+              }
+            }
+            return;
+          }
+        }
+
         await redirectUserAfterAuth(user);
         return;
       }
