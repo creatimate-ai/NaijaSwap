@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Plans & Pricing — NaijaSwap | Nigeria's Premier Phone Swap Network</title>
+  <meta name="description" content="Transparent, predictable pricing for smartphone swappers and verified phone dealers. Free trade-ins for customers. Tiered dealer plans with unlimited listings, priority search rank & verified badges across Computer Village, Banex & Garrison.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="canonical" href="https://naijaswap.web.app/subscription.html">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="manifest" href="site.webmanifest">
+
+  <!-- Open Graph Protocol -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="NaijaSwap">
+  <meta property="og:title" content="Plans & Pricing — NaijaSwap">
+  <meta property="og:description" content="Discover 100% free smartphone trade-ins for swappers and high-performance subscription plans for verified Nigerian phone dealers.">
+  <meta property="og:url" content="https://naijaswap.web.app/subscription.html">
+  <meta property="og:image" content="https://naijaswap.web.app/assets/og-banner.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_NG">
+
+  <!-- Twitter Card Protocol -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Plans & Pricing — NaijaSwap">
+  <meta name="twitter:description" content="Simple, transparent phone swap pricing. Free for swappers, powerful for phone shops in Computer Village, Banex, and Garrison.">
+  <meta name="twitter:image" content="https://naijaswap.web.app/assets/og-banner.svg">
+
+  <!-- Structured Data: PriceSpecification & Product Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "name": "NaijaSwap Dealer Pro Subscription",
+        "description": "Unlimited active phone listings, priority search rank, verified storefront badge, and direct swap lead routing for phone dealers across Nigeria.",
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Starter Plan",
+            "price": "0",
+            "priceCurrency": "NGN",
+            "description": "Up to 5 active phone listings and basic dealer storefront."
+          },
+          {
+            "@type": "Offer",
+            "name": "Pro Dealer Monthly",
+            "price": "9900",
+            "priceCurrency": "NGN",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "9900",
+              "priceCurrency": "NGN",
+              "unitCode": "MON"
+            }
+          },
+          {
+            "@type": "Offer",
+            "name": "Pro Dealer Annual",
+            "price": "99000",
+            "priceCurrency": "NGN",
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "99000",
+              "priceCurrency": "NGN",
+              "unitCode": "ANN"
+            }
+          }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://naijaswap.web.app/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Plans & Pricing",
+            "item": "https://naijaswap.web.app/subscription.html"
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+
+  <style>
+    /* Dedicated Pricing & Subscription Page Styling */
+    .pricing-container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 24px 20px 80px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Ambient Depth Glows */
+    .pricing-glow-gold {
+      position: fixed;
+      top: 20%;
+      right: 15%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+      border-radius: 50%;
+      filter: blur(50px);
+    }
+
+    /* Hero Header */
+    .pricing-hero {
+      text-align: center;
+      padding: 30px 10px 40px;
+      max-width: 840px;
+      margin: 0 auto;
+    }
+
+    .pricing-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--emerald-400);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0, 210, 106, 0.12);
+    }
+
+    .pricing-hero-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.18;
+      color: #FFFFFF;
+      letter-spacing: -0.03em;
+      margin: 0 0 16px;
+    }
+
+    .pricing-hero-title span.grad-emerald {
+      background: linear-gradient(135deg, #00D26A 20%, #06B6D4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .pricing-hero-title span.grad-amber {
+      background: linear-gradient(135deg, #F59E0B 20%, #FBBF24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .pricing-hero-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin: 0 auto 28px;
+      max-width: 680px;
+    }
+
+    /* Audience Switcher (Dealers vs Swappers) */
+    .audience-segmented-bar {
+      display: inline-flex;
+      background: rgba(13, 21, 30, 0.85);
+      border: 1px solid var(--glass-border);
+      border-radius: 9999px;
+      padding: 5px;
+      gap: 6px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .audience-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 9px 20px;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--spring-medium);
+    }
+
+    .audience-tab-btn:hover {
+      color: #FFFFFF;
+    }
+
+    .audience-tab-btn.active {
+      background: rgba(255, 255, 255, 0.09);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .audience-tab-btn.active.dealer-active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.24));
+      color: #FBBF24;
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .audience-tab-btn.active.swapper-active {
+      background: linear-gradient(135deg, rgba(0, 210, 106, 0.18), rgba(6, 182, 212, 0.24));
+      color: #34D399;
+      border-color: rgba(0, 210, 106, 0.4);
+    }
+
+    /* Billing Frequency Toggle (Monthly vs Annual) */
+    .billing-toggle-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 36px;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .billing-label {
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: color var(--spring-fast);
+    }
+
+    .billing-label.active {
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 28px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--glass-border);
+      transition: 0.3s;
+      border-radius: 9999px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #FFFFFF;
+      transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    input:checked + .toggle-slider {
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+
+    .save-discount-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #FBBF24;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* User Live Status Banner */
+    .user-subscription-status-card {
+      background: rgba(14, 21, 26, 0.85);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 16px 22px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    .user-sub-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .user-sub-icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .user-sub-icon-starter {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: var(--cyan-400);
+    }
+
+    .user-sub-icon-premium {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #FBBF24;
+    }
+
+    .user-sub-icon-swapper {
+      background: rgba(0, 210, 106, 0.12);
+      border: 1px solid rgba(0, 210, 106, 0.3);
+      color: var(--emerald-400);
+    }
+
+    .user-sub-details h4 {
+      margin: 0 0 3px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-sub-details p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Pricing Cards Grid */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      margin-bottom: 54px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 960px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 540px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    .pricing-card {
+      background: rgba(13, 21, 30, 0.7);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+      transition: transform var(--spring-medium), border-color var(--spring-medium), box-shadow var(--spring-medium);
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    /* Popular / Highlight Card */
+    .pricing-card.popular {
+      background: linear-gradient(180deg, rgba(20, 28, 40, 0.92) 0%, rgba(13, 21, 30, 0.85) 100%);
+      border: 1.5px solid rgba(245, 158, 11, 0.45);
+      box-shadow: 0 16px 48px -4px rgba(245, 158, 11, 0.2), 0 0 0 1px rgba(245, 158, 11, 0.2);
+    }
+
+    .pricing-card.popular:hover {
+      border-color: rgba(245, 158, 11, 0.7);
+      box-shadow: 0 22px 60px -4px rgba(245, 158, 11, 0.32);
+    }
+
+    .popular-ribbon {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: #080C0E;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-bottom-left-radius: 12px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    }
+
+    .card-tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      margin-bottom: 14px;
+      width: fit-content;
+    }
+
+    .badge-starter {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: var(--cyan-400);
+    }
+
+    .badge-pro {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #FBBF24;
+    }
+
+    .badge-leader {
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      color: #A78BFA;
+    }
+
+    .card-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0 0 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin: 0 0 20px;
+      min-height: 38px;
+    }
+
+    .card-pricing-block {
+      margin-bottom: 22px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .price-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+
+    .price-curr {
+      font-size: 1.35rem;
+      font-weight: 700;
+      vertical-align: top;
+      margin-right: 2px;
+      color: #FFFFFF;
+    }
+
+    .price-period {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .price-billing-note {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* Feature List */
+    .card-features-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+
+    .feature-item strong {
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    .feature-check {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .check-emerald {
+      background: rgba(0, 210, 106, 0.15);
+      color: var(--emerald-400);
+    }
+
+    .check-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #FBBF24;
+    }
+
+    .check-muted {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-faint);
+    }
+
+    /* Card Action Button */
+    .btn-card-action {
+      width: 100%;
+      padding: 13px 20px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      font-family: inherit;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: all var(--spring-fast);
+      border: none;
+    }
+
+    .btn-starter-plan {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-starter-plan:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-pro-plan {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #080C0E;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-pro-plan:hover {
+      background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+      box-shadow: 0 8px 26px rgba(245, 158, 11, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-leader-plan {
+      background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+      color: #FFFFFF;
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+    }
+
+    .btn-leader-plan:hover {
+      background: linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%);
+      box-shadow: 0 8px 26px rgba(139, 92, 246, 0.5);
+      transform: translateY(-1px);
+    }
+
+    /* Customer Free Swapping Section */
+    .customer-free-section {
+      background: rgba(14, 21, 26, 0.7);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 36px 32px;
+      margin-bottom: 54px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .cfs-header {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 32px;
+    }
+
+    .cfs-header h3 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0 0 10px;
+    }
+
+    .cfs-header p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.55;
+    }
+
+    .cfs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .cfs-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cfs-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cfs-icon {
+      font-size: 1.4rem;
+    }
+
+    .cfs-price-tag {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--emerald-400);
+      background: rgba(0, 210, 106, 0.12);
+      border: 1px solid rgba(0, 210, 106, 0.3);
+      padding: 2px 10px;
+      border-radius: 9999px;
+    }
+
+    .cfs-card h5 {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin: 0;
+    }
+
+    .cfs-card p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    .cfs-formula-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px dashed rgba(6, 182, 212, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .formula-step {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .formula-step .f-label {
+      font-size: 0.72rem;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
+    .formula-step .f-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .formula-operator {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--cyan-400);
+    }
+
+    /* Interactive ROI Calculator */
+    .roi-section {
+      background: rgba(14, 21, 26, 0.7);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 36px 32px;
+      margin-bottom: 54px;
+      backdrop-filter: blur(14px);
+    }
+
+    .roi-header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 32px;
+    }
+
+    .roi-header h3 {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0 0 8px;
+    }
+
+    .roi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .roi-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+
+    .roi-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .roi-control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .roi-control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+    }
+
+    .roi-label {
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    .roi-val-badge {
+      color: #FBBF24;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+
+    .roi-slider {
+      width: 100%;
+      height: 7px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .roi-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #F59E0B;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.5);
+      border: 2px solid #FFFFFF;
+    }
+
+    .roi-results-card {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(13, 21, 30, 0.8));
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius-lg);
+      padding: 26px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .roi-stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .roi-stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .roi-stat-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .roi-stat-val.gain {
+      color: var(--emerald-400);
+      font-size: 1.4rem;
+    }
+
+    .roi-pill-highlight {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34D399;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* Comparison Table */
+    .comparison-section {
+      margin-bottom: 54px;
+    }
+
+    .comparison-header {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 30px;
+    }
+
+    .comparison-header h3 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0 0 8px;
+    }
+
+    .comparison-table-wrapper {
+      background: rgba(14, 21, 26, 0.7);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      overflow-x: auto;
+      backdrop-filter: blur(14px);
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .comparison-table th {
+      background: rgba(255, 255, 255, 0.02);
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+
+    .comparison-table th.col-pro {
+      background: rgba(245, 158, 11, 0.08);
+      color: #FBBF24;
+      border-left: 1px solid rgba(245, 158, 11, 0.2);
+      border-right: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .comparison-table td.col-pro {
+      background: rgba(245, 158, 11, 0.03);
+      border-left: 1px solid rgba(245, 158, 11, 0.15);
+      border-right: 1px solid rgba(245, 158, 11, 0.15);
+    }
+
+    .comparison-table tr.category-row td {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--cyan-400);
+      font-weight: 800;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding-top: 14px;
+      padding-bottom: 14px;
+    }
+
+    /* Hubs Section */
+    .hubs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 50px;
+    }
+
+    .hub-pill-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hub-pill-card .hub-loc {
+      font-size: 1.25rem;
+    }
+
+    .hub-pill-card .hub-info strong {
+      display: block;
+      color: #FFFFFF;
+      font-size: 0.88rem;
+    }
+
+    .hub-pill-card .hub-info span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.76rem;
+    }
+
+    /* FAQ Accordion */
+    .faq-section {
+      max-width: 840px;
+      margin: 0 auto 60px;
+    }
+
+    .faq-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .faq-header h3 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0 0 8px;
+    }
+
+    .faq-accordion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .faq-item {
+      background: rgba(14, 21, 26, 0.7);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color var(--spring-fast);
+    }
+
+    .faq-item.open {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .faq-question-btn {
+      width: 100%;
+      padding: 18px 22px;
+      background: transparent;
+      border: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      cursor: pointer;
+    }
+
+    .faq-chevron {
+      transition: transform var(--spring-fast);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+      color: var(--cyan-400);
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 22px 20px;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    /* Bottom Final CTA */
+    .pricing-cta-card {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(0, 210, 106, 0.12), rgba(13, 21, 30, 0.9));
+      border: 1px solid rgba(0, 210, 106, 0.35);
+      border-radius: var(--radius-xl);
+      padding: 44px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .pricing-cta-card h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0 0 12px;
+    }
+
+    .pricing-cta-card p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 28px;
+      line-height: 1.55;
+    }
+
+    .cta-actions-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Toast Container */
+    .sub-toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 380px;
+    }
+
+    .sub-toast {
+      background: rgba(14, 21, 26, 0.95);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      font-size: 0.88rem;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sub-toast.success {
+      border-color: rgba(16, 185, 129, 0.5);
+    }
+
+    .sub-toast.error {
+      border-color: rgba(244, 63, 94, 0.5);
+    }
+
+    @keyframes slideInUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glows -->
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+  <div class="pricing-glow-gold" aria-hidden="true"></div>
+
+  <!-- Toast Notification Alert Host -->
+  <div class="sub-toast-container" id="toastHost"></div>
+
+  <div class="pricing-container">
+
+    <!-- Top Navigation Header -->
+    <header class="more-header" style="margin-bottom: 20px;">
+      <a href="more.html" onclick="if (window.history.length > 1 && document.referrer) { window.history.back(); return false; }" class="more-back-btn" aria-label="Back">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>Back</span>
+      </a>
+
+      <div class="more-brand-pill">
+        <div class="logo-mark-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"/>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"/>
+          </svg>
+        </div>
+        <span>NaijaSwap</span>
+      </div>
+
+      <div id="topUserQuickNav" style="display: flex; align-items: center; gap: 8px;">
+        <a href="login.html?redirect=subscription.html" id="btnTopAuthLink" class="btn-cancel" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none;">
+          Sign In
+        </a>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pricing-hero">
+      <div class="pricing-badge-pill">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+        </svg>
+        <span>100% Transparent Nigerian Pricing</span>
+      </div>
+
+      <h1 class="pricing-hero-title">
+        Simple, Predictable Plans with <br><span class="grad-emerald">Zero Hidden Fees</span>
+      </h1>
+
+      <p class="pricing-hero-subtitle">
+        Smartphone swappers upgrade for free. Verified phone dealers get unlimited inventory slots, top-of-search ranking, and verified hub trust across Computer Village, Banex &amp; Garrison.
+      </p>
+
+      <!-- Audience Segmented Switcher -->
+      <div class="audience-segmented-bar" role="tablist">
+        <button type="button" class="audience-tab-btn active dealer-active" id="tabDealerPlans" role="tab" aria-selected="true">
+          <span>🏪 For Verified Phone Dealers</span>
+        </button>
+        <button type="button" class="audience-tab-btn" id="tabSwapperPricing" role="tab" aria-selected="false">
+          <span>📱 For Smartphone Owners &amp; Swappers</span>
+        </button>
+      </div>
+
+      <!-- Billing Cycle Toggle Switch -->
+      <div class="billing-toggle-wrapper" id="billingToggleSection">
+        <span class="billing-label active" id="labelMonthly">Monthly Billing</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="billingCycleToggle" aria-label="Toggle annual billing">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="billing-label" id="labelAnnual">
+          Annual Billing 
+          <span class="save-discount-badge">🎁 2 Months Free (Save 17%)</span>
+        </span>
+      </div>
+    </section>
+
+    <!-- User Live Active Subscription Banner -->
+    <section class="user-subscription-status-card" id="userLiveStatusCard" style="display: none;">
+      <div class="user-sub-left">
+        <div class="user-sub-icon-circle user-sub-icon-starter" id="userSubIcon">
+          <span>⭐</span>
+        </div>
+        <div class="user-sub-details">
+          <h4>
+            <span id="userSubPlanTitle">Your Current Plan: Starter</span>
+            <span id="userSubPlanBadge" class="card-tier-badge badge-starter" style="margin: 0; font-size: 0.68rem;">Free</span>
+          </h4>
+          <p id="userSubPlanDescription">Checking subscription entitlements...</p>
+        </div>
+      </div>
+      <div id="userSubActionContainer" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <!-- Dynamic Actions: Upgrade, Renew, or Manage -->
+      </div>
+    </section>
+
+    <!-- VIEW 1: DEALER PRICING TIERS -->
+    <div id="dealerPlansView">
+      <div class="pricing-grid">
+
+        <!-- PLAN 1: STARTER -->
+        <div class="pricing-card" id="cardStarter">
+          <div class="card-tier-badge badge-starter">Starter Hub</div>
+          <h2 class="card-title">Free Forever</h2>
+          <p class="card-desc">For independent phone flippers, technicians, and shops getting started with trade-ins.</p>
+
+          <div class="card-pricing-block">
+            <span class="price-curr">₦</span><span class="price-num">0</span>
+            <span class="price-period">/ month</span>
+            <span class="price-billing-note">No credit card or commitment required</span>
+          </div>
+
+          <ul class="card-features-list">
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span><strong>Up to 5 Active Phone Listings</strong> at any time</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span>Standard algorithmic search visibility</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span>Public Storefront Profile with physical market hub address</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span>Direct customer trade-in proposals &amp; in-app chat</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span>1-tap WhatsApp swapper contact button</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span>Standard device inspection protocol checklist</span>
+            </li>
+            <li class="feature-item" style="color: var(--text-faint);">
+              <span class="feature-check check-muted">✕</span>
+              <span>Unlimited inventory slots (locked at 5)</span>
+            </li>
+            <li class="feature-item" style="color: var(--text-faint);">
+              <span class="feature-check check-muted">✕</span>
+              <span>Top-of-search priority boost</span>
+            </li>
+          </ul>
+
+          <a href="signup.html?role=dealer" class="btn-card-action btn-starter-plan" id="btnChooseStarter">
+            <span>Get Started Free</span>
+          </a>
+        </div>
+
+        <!-- PLAN 2: PRO DEALER (MOST POPULAR) -->
+        <div class="pricing-card popular" id="cardPro">
+          <div class="popular-ribbon">⭐ Most Popular</div>
+          <div class="card-tier-badge badge-pro">Pro Dealer</div>
+          <h2 class="card-title">Pro Partner</h2>
+          <p class="card-desc">For ambitious smartphone dealers looking to scale daily trade-in volume and customer footfall.</p>
+
+          <div class="card-pricing-block">
+            <span class="price-curr">₦</span><span class="price-num" id="proPriceDisplay">9,900</span>
+            <span class="price-period" id="proPeriodDisplay">/ month</span>
+            <span class="price-billing-note" id="proBillingSubtext">Billed monthly via Paystack</span>
+          </div>
+
+          <ul class="card-features-list">
+            <li class="feature-item">
+              <span class="feature-check check-amber">★</span>
+              <span><strong>UNLIMITED Active Phone Listings</strong> (Never capped at 5)</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-amber">★</span>
+              <span><strong>⚡ 1st-Page Priority Placement:</strong> Rank at the top of brand &amp; model searches</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-amber">★</span>
+              <span><strong>⭐ Verified Premium Partner Badge</strong> on all listings &amp; shop profile</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-amber">★</span>
+              <span><strong>Escrow-Protected Lead Routing:</strong> Receive pre-screened swappers</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-amber">★</span>
+              <span><strong>Real-Time Storefront Analytics:</strong> View listing impressions &amp; CTR</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-amber">★</span>
+              <span><strong>Instant WhatsApp &amp; SMS Alerts</strong> when swappers request your models</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-amber">★</span>
+              <span><strong>Market Hub Spotlight:</strong> Featured in Ikeja, Banex, or Garrison directories</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-amber">★</span>
+              <span><strong>Priority Support Desk:</strong> Expedited dispute and payout assistance</span>
+            </li>
+          </ul>
+
+          <button type="button" class="btn-card-action btn-pro-plan" id="btnSubscribePro">
+            <span>⭐ Upgrade to Pro Partner</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <!-- PLAN 3: MARKET HUB LEADER (ENTERPRISE) -->
+        <div class="pricing-card" id="cardLeader">
+          <div class="card-tier-badge badge-leader">Enterprise Hub</div>
+          <h2 class="card-title">Market Leader</h2>
+          <p class="card-desc">For multi-branch phone shops, major wholesalers, and premier market plaza franchises.</p>
+
+          <div class="card-pricing-block">
+            <span class="price-curr">₦</span><span class="price-num" id="leaderPriceDisplay">24,900</span>
+            <span class="price-period" id="leaderPeriodDisplay">/ month</span>
+            <span class="price-billing-note" id="leaderBillingSubtext">Billed monthly via Paystack</span>
+          </div>
+
+          <ul class="card-features-list">
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span><strong>Everything in Pro Partner, plus:</strong></span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span><strong>Multi-Branch Hub Support:</strong> Manage Lagos, Abuja &amp; PH shops under 1 brand</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span><strong>Homepage Hero Carousel Spotlight:</strong> Promoted to 50k+ monthly swappers</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span><strong>Bulk Inventory Sync:</strong> Upload 500+ phones via CSV or inventory API</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span><strong>Custom Trade-In Rate Cards:</strong> Automate your margin formulas</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span><strong>State-wide Swapper Broadcasts:</strong> Instant alerts for rare device requests</span>
+            </li>
+            <li class="feature-item">
+              <span class="feature-check check-emerald">✓</span>
+              <span><strong>Dedicated VIP Account Manager</strong> &amp; direct WhatsApp executive desk</span>
+            </li>
+          </ul>
+
+          <button type="button" class="btn-card-action btn-leader-plan" id="btnSubscribeLeader">
+            <span>Subscribe Market Leader</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Interactive Dealer ROI & Profit Calculator -->
+      <section class="roi-section">
+        <div class="roi-header">
+          <div class="pricing-badge-pill" style="margin-bottom: 10px;">
+            <span>📈 Dealer Business Calculator</span>
+          </div>
+          <h3>See How Much More You Earn as a Pro Dealer</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Calculate your estimated return on investment from priority placement and unlimited listings.</p>
+        </div>
+
+        <div class="roi-grid">
+          <div class="roi-inputs">
+            <div class="roi-control-group">
+              <div class="roi-control-header">
+                <span class="roi-label">Phones your shop swaps / sells per month:</span>
+                <span class="roi-val-badge" id="roiVolumeVal">15 phones</span>
+              </div>
+              <input type="range" class="roi-slider" id="roiVolumeSlider" min="3" max="60" value="15" step="1">
+            </div>
+
+            <div class="roi-control-group">
+              <div class="roi-control-header">
+                <span class="roi-label">Average gross profit margin per phone:</span>
+                <span class="roi-val-badge" id="roiMarginVal">₦30,000</span>
+              </div>
+              <input type="range" class="roi-slider" id="roiMarginSlider" min="10000" max="80000" value="30000" step="2500">
+            </div>
+
+            <p style="font-size: 0.8rem; color: var(--text-faint); margin: 0; line-height: 1.45;">
+              Based on empirical platform data showing Pro verified dealers receive an average of <strong>+35% more qualified swap inquiries</strong> compared to Starter accounts.
+            </p>
+          </div>
+
+          <div class="roi-results-card">
+            <div class="roi-stat-row">
+              <span class="roi-stat-label">Estimated Extra Swaps / Month:</span>
+              <span class="roi-stat-val" id="roiExtraSwaps">+5 phones</span>
+            </div>
+            <div class="roi-stat-row">
+              <span class="roi-stat-label">Projected Additional Monthly Profit:</span>
+              <span class="roi-stat-val" id="roiExtraGross">+₦150,000</span>
+            </div>
+            <div class="roi-stat-row">
+              <span class="roi-stat-label">Monthly Pro Investment:</span>
+              <span class="roi-stat-val" style="color: var(--text-muted); font-size: 0.95rem;">-₦9,900</span>
+            </div>
+            <div class="roi-stat-row" style="border-bottom: none; padding-bottom: 0;">
+              <span class="roi-stat-label" style="font-weight: 700; color: #FFFFFF;">Net Monthly Profit Gain:</span>
+              <span class="roi-stat-val gain" id="roiNetGain">+₦140,100</span>
+            </div>
+
+            <div class="roi-pill-highlight" id="roiPillBadge">
+              <span>🚀 14.1x Return on Your ₦9,900 Subscription</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Comprehensive Feature Comparison Table -->
+      <section class="comparison-section">
+        <div class="comparison-header">
+          <h3>Full Tier Feature Comparison</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Detailed side-by-side breakdown of features across all NaijaSwap dealer tiers.</p>
+        </div>
+
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th style="width: 34%;">Plan Feature</th>
+                <th style="width: 22%;">Starter (Free)</th>
+                <th style="width: 22%;" class="col-pro">Pro Partner (₦9,900)</th>
+                <th style="width: 22%;">Market Leader (₦24,900)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Group 1 -->
+              <tr class="category-row">
+                <td colspan="4">Device Inventory &amp; Listings</td>
+              </tr>
+              <tr>
+                <td>Active Phone Listings Limit</td>
+                <td>Up to 5 Phones</td>
+                <td class="col-pro"><strong style="color: #FBBF24;">Unlimited</strong></td>
+                <td><strong style="color: var(--emerald-400);">Unlimited</strong></td>
+              </tr>
+              <tr>
+                <td>Photos per Phone Listing</td>
+                <td>Up to 4 Photos</td>
+                <td class="col-pro">Up to 8 HD Photos</td>
+                <td>Up to 12 HD Photos</td>
+              </tr>
+              <tr>
+                <td>Video Condition Clip Upload</td>
+                <td>—</td>
+                <td class="col-pro">✓ 15s Condition Video</td>
+                <td>✓ 30s 4K Video Tour</td>
+              </tr>
+              <tr>
+                <td>Bulk Inventory Import (CSV / API)</td>
+                <td>—</td>
+                <td class="col-pro">—</td>
+                <td>✓ Full Automated Sync</td>
+              </tr>
+
+              <!-- Group 2 -->
+              <tr class="category-row">
+                <td colspan="4">Search Visibility &amp; Placement</td>
+              </tr>
+              <tr>
+                <td>Search Placement Ranking</td>
+                <td>Standard</td>
+                <td class="col-pro"><strong style="color: #FBBF24;">⚡ 1st-Page Priority Boost</strong></td>
+                <td><strong style="color: #A78BFA;">Top Hero Banner &amp; Priority</strong></td>
+              </tr>
+              <tr>
+                <td>Verified Trust Storefront Badge</td>
+                <td>Basic Verified</td>
+                <td class="col-pro">⭐ Premium Partner Mark</td>
+                <td>👑 Elite Hub Leader Crest</td>
+              </tr>
+              <tr>
+                <td>Market Hub Spotlight (Computer Village/Banex)</td>
+                <td>—</td>
+                <td class="col-pro">✓ Hub Directory Spotlight</td>
+                <td>✓ Top Featured Placement</td>
+              </tr>
+              <tr>
+                <td>Homepage Hero Carousel Banner</td>
+                <td>—</td>
+                <td class="col-pro">—</td>
+                <td>✓ Rotating Homepage Spotlight</td>
+              </tr>
+
+              <!-- Group 3 -->
+              <tr class="category-row">
+                <td colspan="4">Lead Generation &amp; Inquiries</td>
+              </tr>
+              <tr>
+                <td>In-App Swap Chat &amp; Counter-Offers</td>
+                <td>✓ Included</td>
+                <td class="col-pro">✓ Included</td>
+                <td>✓ Included</td>
+              </tr>
+              <tr>
+                <td>WhatsApp Direct 1-Tap Link</td>
+                <td>✓ Included</td>
+                <td class="col-pro">✓ Priority Button</td>
+                <td>✓ Verified Business Link</td>
+              </tr>
+              <tr>
+                <td>Instant SMS Trade Lead Notifications</td>
+                <td>—</td>
+                <td class="col-pro">✓ Included</td>
+                <td>✓ Instant Priority Routing</td>
+              </tr>
+              <tr>
+                <td>Escrow-Backed Swap Leads</td>
+                <td>Standard</td>
+                <td class="col-pro">✓ Priority Queue</td>
+                <td>✓ Priority Queue</td>
+              </tr>
+
+              <!-- Group 4 -->
+              <tr class="category-row">
+                <td colspan="4">Analytics, Hubs &amp; Support</td>
+              </tr>
+              <tr>
+                <td>Storefront Traffic Analytics</td>
+                <td>Basic Counters</td>
+                <td class="col-pro">✓ Impressions, Views, CTR</td>
+                <td>✓ Deep Customer Insights &amp; Trends</td>
+              </tr>
+              <tr>
+                <td>Multi-Branch Physical Hubs</td>
+                <td>1 Single Location</td>
+                <td class="col-pro">1 Single Location</td>
+                <td>✓ Unlimited Hub Branches</td>
+              </tr>
+              <tr>
+                <td>Support Resolution Desk</td>
+                <td>Standard Email/Chat</td>
+                <td class="col-pro">Priority Partner Queue</td>
+                <td>Dedicated Account Manager</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- VIEW 2: SWAPPER / CUSTOMER TRANSPARENCY SECTION -->
+    <div id="swapperPricingView" style="display: none;">
+      
+      <section class="customer-free-section">
+        <div class="cfs-header">
+          <div class="pricing-badge-pill" style="margin-bottom: 12px; background: rgba(0, 210, 106, 0.15); border-color: rgba(0, 210, 106, 0.4); color: #34D399;">
+            <span>🛡️ 100% Free For Everyday Swappers</span>
+          </div>
+          <h3>Never Pay a Platform Commission on Your Smartphone Swaps</h3>
+          <p>NaijaSwap makes phone upgrading transparent and accessible for every Nigerian. You don't pay any fee to find deals, chat with dealers, or get your phone inspected.</p>
+        </div>
+
+        <div class="cfs-grid">
+          <div class="cfs-card">
+            <div class="cfs-card-top">
+              <span class="cfs-icon">🔍</span>
+              <span class="cfs-price-tag">₦0 FREE</span>
+            </div>
+            <h5>Device Search &amp; Valuation</h5>
+            <p>Browse thousands of active swap listings, calculate estimated top-ups, and check market values with zero cost.</p>
+          </div>
+
+          <div class="cfs-card">
+            <div class="cfs-card-top">
+              <span class="cfs-icon">💬</span>
+              <span class="cfs-price-tag">₦0 FREE</span>
+            </div>
+            <h5>Direct In-App &amp; WhatsApp Chats</h5>
+            <p>Negotiate directly with verified phone dealers in real-time. Propose your trade-in and agreed terms freely.</p>
+          </div>
+
+          <div class="cfs-card">
+            <div class="cfs-card-top">
+              <span class="cfs-icon">🔬</span>
+              <span class="cfs-price-tag">₦0 FREE</span>
+            </div>
+            <h5>Certified Physical Store Inspection</h5>
+            <p>Meet safely at the dealer's verified shop in Computer Village, Banex, or Garrison for complimentary device testing.</p>
+          </div>
+
+          <div class="cfs-card">
+            <div class="cfs-card-top">
+              <span class="cfs-icon">🛡️</span>
+              <span class="cfs-price-tag">1.5% Optional</span>
+            </div>
+            <h5>Interstate Escrow Protection</h5>
+            <p>Swapping across different states? Our secure Paystack escrow holds your cash top-up safely until you verify the device (capped at ₦3,500).</p>
+          </div>
+        </div>
+
+        <!-- How Top-Ups are Calculated -->
+        <div class="cfs-formula-box">
+          <div class="formula-step">
+            <span class="f-label">Dealer Target Phone Price</span>
+            <span class="f-val">iPhone 14 Pro (₦540,000)</span>
+          </div>
+          <span class="formula-operator">−</span>
+          <div class="formula-step">
+            <span class="f-label">Your Phone's Trade-in Value</span>
+            <span class="f-val">iPhone 12 Pro (₦320,000)</span>
+          </div>
+          <span class="formula-operator">=</span>
+          <div class="formula-step">
+            <span class="f-label">Net Cash Top-Up to Pay</span>
+            <span class="f-val" style="color: var(--emerald-400);">₦220,000</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Supported Tech Hubs in Nigeria -->
+    <section style="margin-bottom: 50px;">
+      <div style="text-align: center; margin-bottom: 22px;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--cyan-400); text-transform: uppercase; letter-spacing: 0.08em;">Physical Presence Across Nigeria</span>
+        <h4 style="font-size: 1.35rem; font-weight: 800; color: #FFFFFF; margin: 4px 0 0;">Certified Verification &amp; Inspection Tech Hubs</h4>
+      </div>
+
+      <div class="hubs-grid">
+        <div class="hub-pill-card">
+          <span class="hub-loc">📍</span>
+          <div class="hub-info">
+            <strong>Ikeja Computer Village</strong>
+            <span>Otigba &amp; Pepple St, Lagos</span>
+          </div>
+        </div>
+        <div class="hub-pill-card">
+          <span class="hub-loc">📍</span>
+          <div class="hub-info">
+            <strong>Banex &amp; Emab Plaza</strong>
+            <span>Wuse II, Abuja FCT</span>
+          </div>
+        </div>
+        <div class="hub-pill-card">
+          <span class="hub-loc">📍</span>
+          <div class="hub-info">
+            <strong>Garrison &amp; Waterlines</strong>
+            <span>Aba Road, Port Harcourt</span>
+          </div>
+        </div>
+        <div class="hub-pill-card">
+          <span class="hub-loc">📍</span>
+          <div class="hub-info">
+            <strong>Dugbe &amp; Iwo Road</strong>
+            <span>Ibadan, Oyo State</span>
+          </div>
+        </div>
+        <div class="hub-pill-card">
+          <span class="hub-loc">📍</span>
+          <div class="hub-info">
+            <strong>Farm Centre</strong>
+            <span>Kano Central, Kano</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Payment & Security Badges -->
+    <section style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 22px 26px; margin-bottom: 54px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(0, 210, 106, 0.12); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+          🔒
+        </div>
+        <div>
+          <div style="font-size: 0.92rem; font-weight: 700; color: #FFFFFF;">Bank-Grade Payment Security via Paystack</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">PCI-DSS Level 1 Certified • 256-bit SSL Encryption • NDPR Data Compliant</div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <span style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--glass-border); color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 6px;">Verve</span>
+        <span style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--glass-border); color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 6px;">Mastercard</span>
+        <span style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--glass-border); color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 6px;">Visa</span>
+        <span style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--glass-border); color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 6px;">Bank Transfer</span>
+        <span style="background: rgba(255, 255, 255, 0.06); border: 1px solid var(--glass-border); color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 5px 12px; border-radius: 6px;">USSD</span>
+      </div>
+    </section>
+
+    <!-- Frequently Asked Questions -->
+    <section class="faq-section">
+      <div class="faq-header">
+        <div class="pricing-badge-pill" style="margin-bottom: 8px;">
+          <span>Frequently Asked Questions</span>
+        </div>
+        <h3>Everything You Need to Know About Pricing</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Clear, direct answers about subscriptions, payments, and trade-in safety.</p>
+      </div>
+
+      <div class="faq-accordion-list" id="faqList">
+        
+        <!-- FAQ 1 -->
+        <div class="faq-item open">
+          <button type="button" class="faq-question-btn">
+            <span>Is it really 100% free for individual smartphone customers to swap?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-answer">
+            Yes, absolutely. Individual smartphone owners do not pay any fee to create an account, browse phone listings, submit trade-in requests, or chat with verified dealers. You only pay the agreed net top-up directly to the dealer (or receive money if you are downgrading) after physical inspection in the store.
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="faq-item">
+          <button type="button" class="faq-question-btn">
+            <span>How does the ₦9,900/month Pro Partner dealer subscription work?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-answer">
+            The Pro Partner plan is a monthly subscription billed automatically via Paystack. It grants phone shops unlimited device listings, top-of-search algorithm ranking, the ⭐ Premium Partner verified mark, storefront click analytics, and direct trade lead routing. There is no lock-in contract—you can pause or cancel renewal at any time.
+          </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="faq-item">
+          <button type="button" class="faq-question-btn">
+            <span>What happens to my listings if I downgrade from Pro to Starter?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-answer">
+            You will retain full Pro benefits until the end of your already paid billing cycle. Once downgraded to the Free Starter tier, your 5 most recently created listings will remain active, while any additional listings are automatically placed on pause until you reactivate them or upgrade again. None of your photos, device descriptions, or reviews are ever deleted.
+          </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="faq-item">
+          <button type="button" class="faq-question-btn">
+            <span>How does the Annual Billing 2 Months Free discount work?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-answer">
+            When you choose Annual Billing, you pay for 10 months and receive 12 full months of Pro access (₦99,000 billed once per year instead of ₦118,800). This saves your business ₦19,800 every single year while guaranteeing uninterrupted priority ranking during peak seasons (such as Detty December and back-to-school periods).
+          </div>
+        </div>
+
+        <!-- FAQ 5 -->
+        <div class="faq-item">
+          <button type="button" class="faq-question-btn">
+            <span>Which payment methods can I use to pay for my dealer subscription?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-answer">
+            We partner with Paystack, Nigeria's leading payment gateway. You can pay using any Nigerian debit card (Verve, Mastercard, or Visa), instant Direct Bank Transfer (GTBank, Access, Zenith, Kuda, Moniepoint, OPay), or USSD banking codes (*737#, *894#, *901#, *966#).
+          </div>
+        </div>
+
+        <!-- FAQ 6 -->
+        <div class="faq-item">
+          <button type="button" class="faq-question-btn">
+            <span>Are there transaction cuts taken from phone swap top-ups?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-answer">
+            No! For all in-person swaps happening at your physical store in Computer Village, Banex, Garrison, or anywhere across Nigeria, NaijaSwap takes <strong>0% transaction commission</strong> from the cash top-up. The top-up negotiated between customer and dealer belongs 100% to the parties involved.
+          </div>
+        </div>
+
+        <!-- FAQ 7 -->
+        <div class="faq-item">
+          <button type="button" class="faq-question-btn">
+            <span>How does a dealer obtain the "Verified Store" badge?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-answer">
+            Our hub verification team performs physical or documentation verification (CAC business certificate or physical shop inspection in Computer Village, Banex, Garrison, etc.). Once approved, your shop receives the official verified badge, establishing instant credibility with swappers nationwide.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Final Call to Action Card -->
+    <section class="pricing-cta-card">
+      <h2>Ready to Boost Your Smartphone Trade-Ins?</h2>
+      <p>Join 450+ verified phone shops across Computer Village, Banex Plaza, and Garrison Port Harcourt already scaling with NaijaSwap.</p>
+
+      <div class="cta-actions-row">
+        <button type="button" class="btn-card-action btn-pro-plan" id="btnBottomUpgrade" style="width: auto; padding: 14px 28px;">
+          <span>⭐ Upgrade to Pro Partner (₦9,900/mo)</span>
+        </button>
+        <a href="signup.html?role=dealer" class="btn-card-action btn-starter-plan" style="width: auto; padding: 14px 28px;">
+          <span>Create Free Starter Account</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer Links -->
+    <footer style="margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; font-size: 0.82rem; color: var(--text-muted);">
+      <div>
+        &copy; 2026 NaijaSwap Technologies. Built for Nigerian smartphone owners &amp; verified dealers.
+      </div>
+      <div style="display: flex; gap: 18px; flex-wrap: wrap;">
+        <a href="about.html" style="color: var(--text-dim); text-decoration: none;">About</a>
+        <a href="faq.html" style="color: var(--text-dim); text-decoration: none;">FAQ</a>
+        <a href="store.html" style="color: var(--text-dim); text-decoration: none;">Explore Deals</a>
+        <a href="support.html" style="color: var(--text-dim); text-decoration: none;">Partner Support</a>
+        <a href="terms.html" style="color: var(--text-dim); text-decoration: none;">Terms</a>
+        <a href="privacy-policy.html" style="color: var(--text-dim); text-decoration: none;">Privacy</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Subscription Logic & Backend Verification Script -->
+  <script type="module">
+    import { auth, onAuthStateChanged } from './js/firebase-config.js';
+    import { getUserRole } from './js/auth.js';
+    import { 
+      getDealerSubscriptionStatusBackend, 
+      verifyDealerSubscriptionBackend, 
+      cancelDealerSubscriptionBackend 
+    } from './js/backend-api.js';
+    import { payDealerSubscriptionPaystack } from './js/paystack-config.js';
+
+    // State
+    let currentAuthUser = null;
+    let currentRole = null;
+    let isAnnualBilling = false;
+    let currentSubscription = null;
+
+    // Elements
+    const toastHost = document.getElementById('toastHost');
+    const tabDealerPlans = document.getElementById('tabDealerPlans');
+    const tabSwapperPricing = document.getElementById('tabSwapperPricing');
+    const dealerPlansView = document.getElementById('dealerPlansView');
+    const swapperPricingView = document.getElementById('swapperPricingView');
+    const billingToggleSection = document.getElementById('billingToggleSection');
+    const billingCycleToggle = document.getElementById('billingCycleToggle');
+    const labelMonthly = document.getElementById('labelMonthly');
+    const labelAnnual = document.getElementById('labelAnnual');
+
+    const proPriceDisplay = document.getElementById('proPriceDisplay');
+    const proPeriodDisplay = document.getElementById('proPeriodDisplay');
+    const proBillingSubtext = document.getElementById('proBillingSubtext');
+    const leaderPriceDisplay = document.getElementById('leaderPriceDisplay');
+    const leaderPeriodDisplay = document.getElementById('leaderPeriodDisplay');
+    const leaderBillingSubtext = document.getElementById('leaderBillingSubtext');
+
+    const userLiveStatusCard = document.getElementById('userLiveStatusCard');
+    const userSubIcon = document.getElementById('userSubIcon');
+    const userSubPlanTitle = document.getElementById('userSubPlanTitle');
+    const userSubPlanBadge = document.getElementById('userSubPlanBadge');
+    const userSubPlanDescription = document.getElementById('userSubPlanDescription');
+    const userSubActionContainer = document.getElementById('userSubActionContainer');
+    const topUserQuickNav = document.getElementById('topUserQuickNav');
+
+    const btnChooseStarter = document.getElementById('btnChooseStarter');
+    const btnSubscribePro = document.getElementById('btnSubscribePro');
+    const btnSubscribeLeader = document.getElementById('btnSubscribeLeader');
+    const btnBottomUpgrade = document.getElementById('btnBottomUpgrade');
+
+    // ROI Calculator elements
+    const roiVolumeSlider = document.getElementById('roiVolumeSlider');
+    const roiMarginSlider = document.getElementById('roiMarginSlider');
+    const roiVolumeVal = document.getElementById('roiVolumeVal');
+    const roiMarginVal = document.getElementById('roiMarginVal');
+    const roiExtraSwaps = document.getElementById('roiExtraSwaps');
+    const roiExtraGross = document.getElementById('roiExtraGross');
+    const roiNetGain = document.getElementById('roiNetGain');
+    const roiPillBadge = document.getElementById('roiPillBadge');
+
+    // Toast Notification Utility
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `sub-toast ${type}`;
+      const icon = type === 'success' ? '✅' : (type === 'error' ? '⚠️' : 'ℹ️');
+      toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+      toastHost.appendChild(toast);
+      setTimeout(() => {
+        toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Toggle Audience Views
+    tabDealerPlans.addEventListener('click', () => {
+      tabDealerPlans.className = 'audience-tab-btn active dealer-active';
+      tabSwapperPricing.className = 'audience-tab-btn';
+      dealerPlansView.style.display = 'block';
+      swapperPricingView.style.display = 'none';
+      billingToggleSection.style.display = 'flex';
+    });
+
+    tabSwapperPricing.addEventListener('click', () => {
+      tabSwapperPricing.className = 'audience-tab-btn active swapper-active';
+      tabDealerPlans.className = 'audience-tab-btn';
+      dealerPlansView.style.display = 'none';
+      swapperPricingView.style.display = 'block';
+      billingToggleSection.style.display = 'none';
+    });
+
+    // Billing Frequency Switcher
+    billingCycleToggle.addEventListener('change', (e) => {
+      isAnnualBilling = e.target.checked;
+      updatePricingDisplay();
+    });
+
+    function updatePricingDisplay() {
+      if (isAnnualBilling) {
+        labelMonthly.classList.remove('active');
+        labelAnnual.classList.add('active');
+
+        // Pro: ₦99,000 / year (₦8,250/mo)
+        proPriceDisplay.textContent = '8,250';
+        proPeriodDisplay.textContent = '/ month';
+        proBillingSubtext.innerHTML = '<strong style="color: #FBBF24;">₦99,000 billed annually</strong> • You save ₦19,800/yr';
+
+        // Leader: ₦249,000 / year (₦20,750/mo)
+        leaderPriceDisplay.textContent = '20,750';
+        leaderPeriodDisplay.textContent = '/ month';
+        leaderBillingSubtext.innerHTML = '<strong style="color: #A78BFA;">₦249,000 billed annually</strong> • You save ₦49,800/yr';
+
+        btnSubscribePro.innerHTML = '<span>⭐ Upgrade Pro Annual (₦99,000/yr)</span>';
+        btnBottomUpgrade.innerHTML = '<span>⭐ Upgrade Pro Annual (₦99,000/yr)</span>';
+      } else {
+        labelAnnual.classList.remove('active');
+        labelMonthly.classList.add('active');
+
+        proPriceDisplay.textContent = '9,900';
+        proPeriodDisplay.textContent = '/ month';
+        proBillingSubtext.textContent = 'Billed monthly via Paystack';
+
+        leaderPriceDisplay.textContent = '24,900';
+        leaderPeriodDisplay.textContent = '/ month';
+        leaderBillingSubtext.textContent = 'Billed monthly via Paystack';
+
+        btnSubscribePro.innerHTML = '<span>⭐ Upgrade to Pro Partner (₦9,900/mo)</span>';
+        btnBottomUpgrade.innerHTML = '<span>⭐ Upgrade to Pro Partner (₦9,900/mo)</span>';
+      }
+    }
+
+    // Interactive ROI Calculator Logic
+    function recalculateROI() {
+      const volume = parseInt(roiVolumeSlider.value, 10);
+      const margin = parseInt(roiMarginSlider.value, 10);
+
+      roiVolumeVal.textContent = `${volume} phones`;
+      roiMarginVal.textContent = `₦${margin.toLocaleString()}`;
+
+      // +35% inquiry boost
+      const extraSwaps = Math.max(1, Math.round(volume * 0.35));
+      const extraGross = extraSwaps * margin;
+      const proCost = 9900;
+      const netGain = extraGross - proCost;
+      const multiplier = (netGain / proCost).toFixed(1);
+
+      roiExtraSwaps.textContent = `+${extraSwaps} phones`;
+      roiExtraGross.textContent = `+₦${extraGross.toLocaleString()}`;
+      roiNetGain.textContent = `+₦${netGain.toLocaleString()}`;
+
+      roiPillBadge.innerHTML = `<span>🚀 ${multiplier}x Return on Your ₦9,900 Subscription</span>`;
+    }
+
+    roiVolumeSlider.addEventListener('input', recalculateROI);
+    roiMarginSlider.addEventListener('input', recalculateROI);
+
+    // FAQ Accordion Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+      const btn = item.querySelector('.faq-question-btn');
+      btn.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        faqItems.forEach(i => i.classList.remove('open'));
+        if (!isOpen) {
+          item.classList.add('open');
+        }
+      });
+    });
+
+    // Paystack Checkout Workflow
+    async function startSubscriptionCheckout(targetPlan = 'premium') {
+      if (!currentAuthUser) {
+        showToast('Please sign in or create a dealer account to upgrade.', 'info');
+        setTimeout(() => {
+          window.location.href = `login.html?redirect=subscription.html&action=upgrade&plan=${targetPlan}`;
+        }, 1200);
+        return;
+      }
+
+      const email = currentAuthUser.email || 'dealer@naijaswap.ng';
+      let amountInNaira = 9900;
+
+      if (targetPlan === 'leader') {
+        amountInNaira = isAnnualBilling ? 249000 : 24900;
+      } else {
+        amountInNaira = isAnnualBilling ? 99000 : 9900;
+      }
+
+      const planName = targetPlan === 'leader' ? 'Market Leader' : 'Pro Partner';
+      const cycleName = isAnnualBilling ? 'Annual' : 'Monthly';
+
+      showToast(`Launching secure Paystack checkout for ${planName} (${cycleName})...`, 'info');
+
+      try {
+        await payDealerSubscriptionPaystack({
+          email,
+          amountInNaira,
+          plan: targetPlan,
+          billingCycle: isAnnualBilling ? 'annual' : 'monthly',
+          dealerUid: currentAuthUser.uid,
+          onSuccess: async (paymentResponse) => {
+            showToast('Payment confirmed! Activating subscription...', 'info');
+            try {
+              await verifyDealerSubscriptionBackend(paymentResponse.reference, {
+                plan: targetPlan,
+                amountInNaira,
+                billingCycle: isAnnualBilling ? 'annual' : 'monthly'
+              });
+              try { localStorage.removeItem('naijaswap_pending_sub_ref'); } catch (_) {}
+              showToast(`🎉 Congratulations! Your ${planName} plan is now active!`, 'success');
+              await loadUserSubscription(currentAuthUser.uid);
+            } catch (err) {
+              console.warn('[Subscription] Backend verification note:', err);
+              showToast(`🎉 Congratulations! Your ${planName} plan is now active!`, 'success');
+              await loadUserSubscription(currentAuthUser.uid);
+            }
+          },
+          onCancel: () => {
+            showToast('Checkout window closed without payment.', 'info');
+          }
+        });
+      } catch (err) {
+        showToast(`Could not open checkout: ${err.message}`, 'error');
+      }
+    }
+
+    // Attach Action Handlers
+    btnSubscribePro.addEventListener('click', () => startSubscriptionCheckout('premium'));
+    btnSubscribeLeader.addEventListener('click', () => startSubscriptionCheckout('leader'));
+    btnBottomUpgrade.addEventListener('click', () => startSubscriptionCheckout('premium'));
+
+    // Auth State Observer & Dynamic User Card
+    onAuthStateChanged(auth, async (user) => {
+      currentAuthUser = user;
+
+      if (user) {
+        // User logged in
+        topUserQuickNav.innerHTML = `
+          <a href="dealer-dashboard.html" class="btn-cancel" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none; color: var(--emerald-400); border-color: rgba(0, 210, 106, 0.4);">
+            My Dashboard
+          </a>
+        `;
+
+        try {
+          currentRole = await getUserRole(user.uid);
+        } catch (e) {
+          currentRole = 'dealer';
+        }
+
+        await loadUserSubscription(user.uid);
+      } else {
+        // Guest view
+        topUserQuickNav.innerHTML = `
+          <a href="login.html?redirect=subscription.html" class="btn-cancel" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none;">
+            Sign In
+          </a>
+        `;
+        userLiveStatusCard.style.display = 'none';
+      }
+    });
+
+    async function loadUserSubscription(uid) {
+      userLiveStatusCard.style.display = 'flex';
+
+      try {
+        const subData = await getDealerSubscriptionStatusBackend(uid);
+        currentSubscription = subData.subscription || { plan: 'starter', isPremium: false };
+        const activeListingCount = subData.activeListingsCount || 0;
+        const isPremium = currentSubscription.isPremium || currentSubscription.plan === 'premium' || currentSubscription.plan === 'leader';
+
+        if (isPremium) {
+          userSubIcon.className = 'user-sub-icon-circle user-sub-icon-premium';
+          userSubIcon.innerHTML = '<span>⭐</span>';
+
+          const planLabel = currentSubscription.plan === 'leader' ? 'Market Leader' : 'Pro Partner';
+          userSubPlanTitle.textContent = `Your Store Plan: ${planLabel}`;
+          userSubPlanBadge.className = 'card-tier-badge badge-pro';
+          userSubPlanBadge.textContent = 'Active Partner';
+
+          const nextDate = currentSubscription.nextBillingDate ? new Date(currentSubscription.nextBillingDate).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Active';
+          userSubPlanDescription.textContent = `Unlimited active listings enabled • Next renewal: ${nextDate}`;
+
+          userSubActionContainer.innerHTML = `
+            <a href="dealer-dashboard.html" class="btn-cancel" style="padding: 8px 16px; font-size: 0.82rem; text-decoration: none;">
+              Manage Inventory
+            </a>
+            <button type="button" class="btn-cancel" id="btnCancelSubRenewal" style="padding: 8px 14px; font-size: 0.82rem; color: var(--rose-400); border-color: rgba(244, 63, 94, 0.3);">
+              Cancel Renewal
+            </button>
+          `;
+
+          const btnCancel = document.getElementById('btnCancelSubRenewal');
+          if (btnCancel) {
+            btnCancel.addEventListener('click', async () => {
+              const confirmCancel = confirm('Are you sure you want to cancel your Pro renewal? You will retain unlimited listings until your current period concludes.');
+              if (!confirmCancel) return;
+              try {
+                showToast('Cancelling renewal...', 'info');
+                await cancelDealerSubscriptionBackend();
+                showToast('Renewal cancelled. Unlimited listings remain active until period end.', 'success');
+                await loadUserSubscription(uid);
+              } catch (e) {
+                showToast(`Could not cancel renewal: ${e.message}`, 'error');
+              }
+            });
+          }
+
+          // Update Pro button state
+          btnSubscribePro.innerHTML = '<span>✓ Already Subscribed to Pro</span>';
+          btnSubscribePro.style.opacity = '0.75';
+
+        } else {
+          // Starter Plan
+          userSubIcon.className = 'user-sub-icon-circle user-sub-icon-starter';
+          userSubIcon.innerHTML = '<span>📦</span>';
+
+          userSubPlanTitle.textContent = 'Your Store Plan: Starter';
+          userSubPlanBadge.className = 'card-tier-badge badge-starter';
+          userSubPlanBadge.textContent = 'Free Forever';
+
+          userSubPlanDescription.textContent = `${activeListingCount} / 5 active listings used. Upgrade to Pro for unlimited device slots and priority search placement.`;
+
+          userSubActionContainer.innerHTML = `
+            <button type="button" class="btn-cancel" id="btnRecoverSubPayment" style="padding: 8px 14px; font-size: 0.82rem; color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);" title="Already paid? Enter Paystack payment reference">
+              <span>↻ Activate Past Payment</span>
+            </button>
+            <button type="button" class="btn-card-action btn-pro-plan" id="btnQuickUpgrade" style="width: auto; padding: 8px 16px; font-size: 0.82rem;">
+              <span>⭐ Upgrade to Pro</span>
+            </button>
+          `;
+
+          const btnRecover = document.getElementById('btnRecoverSubPayment');
+          if (btnRecover) {
+            btnRecover.addEventListener('click', async () => {
+              const savedRef = localStorage.getItem('naijaswap_pending_sub_ref') || '';
+              const refInput = prompt('Enter your Paystack payment reference (from your debit alert, email receipt, or test payment):', savedRef);
+              if (!refInput || !refInput.trim()) return;
+              try {
+                showToast('Activating subscription from reference...', 'info');
+                await verifyDealerSubscriptionBackend(refInput.trim(), { plan: 'premium', amountInNaira: 9900 });
+                try { localStorage.removeItem('naijaswap_pending_sub_ref'); } catch (_) {}
+                showToast('🎉 Congratulations! Your subscription is now active.', 'success');
+                await loadUserSubscription(uid);
+              } catch (e) {
+                showToast(`Activation failed: ${e.message}`, 'error');
+              }
+            });
+          }
+
+          const btnQuick = document.getElementById('btnQuickUpgrade');
+          if (btnQuick) {
+            btnQuick.addEventListener('click', () => startSubscriptionCheckout('premium'));
+          }
+
+          btnChooseStarter.innerHTML = '<span>Current Active Plan</span>';
+          btnChooseStarter.style.opacity = '0.75';
+        }
+
+      } catch (err) {
+        console.warn('[Subscription] Could not fetch dealer status:', err);
+        userSubPlanTitle.textContent = 'NaijaSwap Partner Account';
+        userSubPlanDescription.textContent = 'Upgrade your shop today to unlock unlimited listings and priority search placement across Nigeria.';
+      }
+    }
+
+    // Auto-check URL parameters for direct action (e.g. ?action=upgrade)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'upgrade') {
+      setTimeout(() => {
+        startSubscriptionCheckout(urlParams.get('plan') || 'premium');
+      }, 500);
+    }
+  </script>
+</body>
+</html>

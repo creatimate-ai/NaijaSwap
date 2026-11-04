@@ -29,7 +29,6 @@ Disallow: /dealer-activity.html
 Disallow: /dealer-verification.html
 Disallow: /my-swaps.html
 Disallow: /settings.html
-Disallow: /admin.html
 Disallow: /phone-auth.html
 Disallow: /dealer-listing.html
 Disallow: /dealer-request.html

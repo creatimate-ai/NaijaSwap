@@ -55,7 +55,6 @@ app.use(express.static(publicRoot, {
 }));
 
 // Route aliases for clean URLs
-app.get('/admin', (req, res) => res.sendFile(path.join(publicRoot, 'admin.html')));
 app.get('/dashboard', (req, res) => res.sendFile(path.join(publicRoot, 'dashboard.html')));
 app.get('/dealer-dashboard', (req, res) => res.sendFile(path.join(publicRoot, 'dealer-dashboard.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(publicRoot, 'login.html')));

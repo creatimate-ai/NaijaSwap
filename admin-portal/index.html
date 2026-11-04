@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>NaijaSwap Admin — Backoffice Command Center</title>
+  <meta name="description" content="NaijaSwap Standalone Admin Command Center: Review dealer verification documents, manage users and moderate marketplace.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div id="adminAuthGate" style="position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;background:#080c0e;padding:24px;overflow-y:auto;">
+    <div style="width:min(440px,100%);padding:28px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(16,26,37,.95);color:#fff;box-shadow:0 20px 50px rgba(0,0,0,0.6);backdrop-filter:blur(16px);">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(0,210,106,0.25),rgba(6,182,212,0.25));border:1px solid rgba(0,210,106,0.4);display:flex;align-items:center;justify-content:center;color:#00d26a;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div>
+          <h1 style="margin:0;font-size:1.35rem;font-weight:800;letter-spacing:-0.02em;">NaijaSwap Admin</h1>
+          <p style="margin:2px 0 0;color:#94a3b8;font-size:.82rem;">Backoffice Control &amp; Moderation</p>
+        </div>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div style="display:flex;background:rgba(0,0,0,0.4);padding:4px;border-radius:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.08);">
+        <button type="button" id="tabLoginBtn" style="flex:1;padding:8px 12px;border:0;border-radius:7px;background:#00d26a;color:#06100a;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all 0.2s;">Sign In</button>
+        <button type="button" id="tabSignupBtn" style="flex:1;padding:8px 12px;border:0;border-radius:7px;background:transparent;color:#94a3b8;font-weight:700;font-size:0.84rem;cursor:pointer;transition:all 0.2s;">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="adminLoginForm" style="display:block;">
+        <p style="margin:0 0 16px;color:#94a3b8;font-size:.86rem;">Sign in with your administrator account.</p>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#94a3b8;margin-bottom:6px;">Admin Email</label>
+          <input id="adminLoginEmail" type="email" required placeholder="admin@naijaswap.ng" style="width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:#0b1218;color:#fff;font-size:0.9rem;outline:none;">
+        </div>
+        <div style="margin-bottom:18px;">
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#94a3b8;margin-bottom:6px;">Password</label>
+          <input id="adminLoginPassword" type="password" required placeholder="••••••••" style="width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:#0b1218;color:#fff;font-size:0.9rem;outline:none;">
+        </div>
+        <button type="submit" id="adminLoginSubmitBtn" style="width:100%;padding:12px;border:0;border-radius:8px;background:#00d26a;color:#06100a;font-weight:800;font-size:0.92rem;cursor:pointer;transition:background 0.2s;">Sign In to Admin</button>
+        <p id="adminLoginError" style="display:none;color:#fb7185;font-size:.82rem;margin:12px 0 0;padding:8px 10px;background:rgba(244,63,94,0.1);border-radius:6px;border:1px solid rgba(244,63,94,0.25);"></p>
+        <div style="margin-top:16px;text-align:center;">
+          <span style="color:#64748b;font-size:0.82rem;">Need to register a new admin? </span>
+          <button type="button" id="goToSignupLink" style="background:none;border:none;color:#00d26a;font-weight:700;font-size:0.82rem;cursor:pointer;text-decoration:underline;">Create account</button>
+        </div>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="adminSignupForm" style="display:none;">
+        <p style="margin:0 0 16px;color:#94a3b8;font-size:.86rem;">Register a new administrator account.</p>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#94a3b8;margin-bottom:6px;">Full Name</label>
+          <input id="adminSignupName" type="text" required placeholder="e.g. John Doe" style="width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:#0b1218;color:#fff;font-size:0.9rem;outline:none;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#94a3b8;margin-bottom:6px;">Admin Email</label>
+          <input id="adminSignupEmail" type="email" required placeholder="admin@naijaswap.ng" style="width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:#0b1218;color:#fff;font-size:0.9rem;outline:none;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#94a3b8;margin-bottom:6px;">Password (Min 6 characters)</label>
+          <input id="adminSignupPassword" type="password" required minlength="6" placeholder="••••••••" style="width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:#0b1218;color:#fff;font-size:0.9rem;outline:none;">
+        </div>
+        <div style="margin-bottom:18px;">
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#94a3b8;margin-bottom:6px;">Confirm Password</label>
+          <input id="adminSignupConfirm" type="password" required minlength="6" placeholder="••••••••" style="width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:#0b1218;color:#fff;font-size:0.9rem;outline:none;">
+        </div>
+        <button type="submit" id="adminSignupSubmitBtn" style="width:100%;padding:12px;border:0;border-radius:8px;background:#00d26a;color:#06100a;font-weight:800;font-size:0.92rem;cursor:pointer;transition:background 0.2s;">Create Admin Account</button>
+        <p id="adminSignupError" style="display:none;color:#fb7185;font-size:.82rem;margin:12px 0 0;padding:8px 10px;background:rgba(244,63,94,0.1);border-radius:6px;border:1px solid rgba(244,63,94,0.25);"></p>
+        <p id="adminSignupSuccess" style="display:none;color:#00d26a;font-size:.82rem;margin:12px 0 0;padding:8px 10px;background:rgba(0,210,106,0.1);border-radius:6px;border:1px solid rgba(0,210,106,0.25);"></p>
+        <div style="margin-top:16px;text-align:center;">
+          <span style="color:#64748b;font-size:0.82rem;">Already have an account? </span>
+          <button type="button" id="goToLoginLink" style="background:none;border:none;color:#00d26a;font-weight:700;font-size:0.82rem;cursor:pointer;text-decoration:underline;">Sign in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <div class="admin-container">
+
+    <!-- Top Admin Header -->
+    <header class="admin-header">
+      <div class="admin-brand-wrap">
+        <div class="admin-logo-mark">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="admin-brand-title">
+            NaijaSwap Backoffice
+            <span class="admin-badge-pill">🛡️ Dedicated Admin</span>
+          </div>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
+            Platform Governance, Dealer KYC Approvals &amp; User Directory
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-header-actions">
+        <button id="refreshDataBtn" class="btn-primary-action">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh Live Data
+        </button>
+        <button id="adminSignOutBtn" style="padding:9px 14px;border-radius:10px;border:1px solid rgba(244,63,94,0.35);background:rgba(244,63,94,0.1);color:#fb7185;font-size:0.82rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </header>
+
+    <!-- Global Alert Area -->
+    <div id="adminAlert" class="auth-alert" role="alert"></div>
+
+    <section aria-label="Platform analytics">
+      <div class="admin-section-heading">
+        <h2>Platform analytics</h2>
+        <span>Computed from Firestore user records where tracking data exists</span>
+      </div>
+      <div class="admin-kpi-grid analytics-kpi-grid">
+        <article class="admin-kpi-card analytics-card">
+          <div class="admin-kpi-icon" style="background:rgba(6,182,212,0.15);color:var(--cyan-400);">👥</div>
+          <div><div class="admin-kpi-number" id="analyticsTotalUsers">—</div><div class="admin-kpi-label">Registered users</div></div>
+        </article>
+        <article class="admin-kpi-card analytics-card">
+          <div class="admin-kpi-icon" style="background:rgba(0,210,106,0.15);color:var(--emerald-400);">🔄</div>
+          <div><div class="admin-kpi-number" id="analyticsSwappers">—</div><div class="admin-kpi-label">Swappers</div></div>
+        </article>
+        <article class="admin-kpi-card analytics-card">
+          <div class="admin-kpi-icon" style="background:rgba(6,182,212,0.15);color:var(--cyan-400);">🏪</div>
+          <div><div class="admin-kpi-number" id="analyticsDealers">—</div><div class="admin-kpi-label">Dealers</div></div>
+        </article>
+        <article class="admin-kpi-card analytics-card">
+          <div class="admin-kpi-icon" style="background:rgba(245,158,11,0.15);color:var(--amber-400);">✨</div>
+          <div><div class="admin-kpi-number" id="analyticsNewSignups">—</div><div class="admin-kpi-label">New sign-ups today</div></div>
+        </article>
+        <article class="admin-kpi-card analytics-card analytics-unavailable" title="No daily activity tracking fields or events are defined in this admin workspace.">
+          <div class="admin-kpi-icon" style="background:rgba(255,255,255,0.06);color:var(--text-muted);">◷</div>
+          <div><div class="admin-kpi-number">Not tracked</div><div class="admin-kpi-label">Daily active users</div></div>
+        </article>
+        <article class="admin-kpi-card analytics-card analytics-unavailable" title="No session duration analytics source is defined in this admin workspace.">
+          <div class="admin-kpi-icon" style="background:rgba(255,255,255,0.06);color:var(--text-muted);">⏱</div>
+          <div><div class="admin-kpi-number">Not tracked</div><div class="admin-kpi-label">Average session time</div></div>
+        </article>
+      </div>
+      <p class="analytics-note">DAU and session duration are unavailable because this project has no documented activity-event or session-duration data source.</p>
+      <p class="analytics-note">Role counts and sign-ups are marked incomplete when Firestore user profiles lack a recognized role or a valid creation date. Moderation controls below save Firestore flags; the mobile app and security rules must enforce those flags for them to restrict access.</p>
+    </section>
+
+    <!-- Overview KPI Grid -->
+    <section class="admin-kpi-grid">
+      <div class="admin-kpi-card" data-tab="tabVerifications">
+        <div class="admin-kpi-icon" style="background:rgba(245,158,11,0.15);color:var(--amber-400);border:1px solid rgba(245,158,11,0.35);">
+          ⏳
+        </div>
+        <div>
+          <div class="admin-kpi-number" id="countPendingDealers" style="color:var(--amber-400);">—</div>
+          <div class="admin-kpi-label">Pending Dealer KYC</div>
+        </div>
+      </div>
+
+      <div class="admin-kpi-card" data-tab="tabVerifications">
+        <div class="admin-kpi-icon" style="background:rgba(0,210,106,0.15);color:var(--emerald-400);border:1px solid rgba(0,210,106,0.35);">
+          🏪
+        </div>
+        <div>
+          <div class="admin-kpi-number" id="countApprovedDealers">—</div>
+          <div class="admin-kpi-label">Verified Dealers</div>
+        </div>
+      </div>
+
+      <div class="admin-kpi-card" data-tab="tabUsers">
+        <div class="admin-kpi-icon" style="background:rgba(6,182,212,0.15);color:var(--cyan-400);border:1px solid rgba(6,182,212,0.35);">
+          👥
+        </div>
+        <div>
+          <div class="admin-kpi-number" id="countTotalUsers">—</div>
+          <div class="admin-kpi-label">Total Users</div>
+        </div>
+      </div>
+
+      <div class="admin-kpi-card" data-tab="tabListings">
+        <div class="admin-kpi-icon" style="background:rgba(168,85,247,0.15);color:#C084FC;border:1px solid rgba(168,85,247,0.35);">
+          📱
+        </div>
+        <div>
+          <div class="admin-kpi-number" id="countListings">—</div>
+          <div class="admin-kpi-label">Marketplace Phones</div>
+        </div>
+      </div>
+
+      <div class="admin-kpi-card" data-tab="tabSwaps">
+        <div class="admin-kpi-icon" style="background:rgba(244,63,94,0.15);color:var(--rose-400);border:1px solid rgba(244,63,94,0.35);">
+          🔄
+        </div>
+        <div>
+          <div class="admin-kpi-number" id="countSwaps">—</div>
+          <div class="admin-kpi-label">Swap Trade-Ins</div>
+        </div>
+      </div>
+
+      <div class="admin-kpi-card" data-tab="tabSubscriptions">
+        <div class="admin-kpi-icon" style="background:rgba(245,158,11,0.18);color:#FCD34D;border:1px solid rgba(245,158,11,0.4);">
+          ⭐
+        </div>
+        <div>
+          <div class="admin-kpi-number" id="countActivePremium" style="color:#FCD34D;">—</div>
+          <div class="admin-kpi-label">Active Premium (₦9,900/mo)</div>
+        </div>
+      </div>
+
+      <div class="admin-kpi-card" data-tab="tabSubscriptions">
+        <div class="admin-kpi-icon" style="background:rgba(148,163,184,0.15);color:#94A3B8;border:1px solid rgba(148,163,184,0.3);">
+          🆓
+        </div>
+        <div>
+          <div class="admin-kpi-number" id="countStarterDealers">—</div>
+          <div class="admin-kpi-label">Starter Dealers (Free)</div>
+        </div>
+      </div>
+
+      <div class="admin-kpi-card" data-tab="tabSubscriptions">
+        <div class="admin-kpi-icon" style="background:rgba(0,210,106,0.15);color:var(--emerald-400);border:1px solid rgba(0,210,106,0.35);">
+          💰
+        </div>
+        <div>
+          <div class="admin-kpi-number" id="countSubscriptionRevenue" style="color:var(--emerald-400);font-size:1.45rem;">—</div>
+          <div class="admin-kpi-label">Monthly Revenue (MRR)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs Bar -->
+    <nav class="admin-tabs-bar" aria-label="Admin Sections">
+      <button class="admin-tab-btn active" data-tab="tabVerifications">
+        <span>🪪 Dealer KYC Verification Queue</span>
+        <span class="tab-badge-count zero" id="badgePendingCount">—</span>
+      </button>
+      <button class="admin-tab-btn" data-tab="tabSubscriptions">
+        <span>⭐ Dealer Subscriptions</span>
+        <span class="tab-badge-count" id="badgePremiumCount">—</span>
+      </button>
+      <button class="admin-tab-btn" data-tab="tabUsers">
+        <span>👥 Users Directory</span>
+      </button>
+      <button class="admin-tab-btn" data-tab="tabListings">
+        <span>📱 Marketplace Inventory</span>
+      </button>
+      <button class="admin-tab-btn" data-tab="tabSwaps">
+        <span>🔄 Swap Activity</span>
+      </button>
+    </nav>
+
+    <!-- TAB 1: DEALER KYC VERIFICATIONS -->
+    <section class="admin-panel active" id="tabVerifications">
+      <div class="admin-toolbar">
+        <div class="admin-search-wrap">
+          <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="verifSearchInput" class="admin-search-input" placeholder="Search store name, business email, NIN, or UID...">
+        </div>
+        <div style="display:flex;gap:10px;">
+          <select id="verifStatusFilter" class="admin-filter-select">
+            <option value="all">All Verification Statuses</option>
+            <option value="pending">Pending Review (Needs Attention)</option>
+            <option value="approved">Approved &amp; Verified</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="admin-table-card">
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Store &amp; Contact</th>
+                <th>National Identity</th>
+                <th>Physical Address</th>
+                <th>KYC Documents</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="verifTableBody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: USER MANAGEMENT -->
+    <section class="admin-panel" id="tabUsers">
+      <div class="admin-toolbar">
+        <div class="admin-search-wrap">
+          <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="userSearchInput" class="admin-search-input" placeholder="Search users by name, email, phone, or UID...">
+        </div>
+        <div style="display:flex;gap:10px;">
+          <select id="userRoleFilter" class="admin-filter-select">
+            <option value="all">All Roles</option>
+            <option value="customer">Swappers (Customers)</option>
+            <option value="dealer">Dealers (Store Owners)</option>
+            <option value="admin">Administrators</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="admin-table-card">
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>User Profile</th>
+                <th>Email / Phone</th>
+                <th>Role</th>
+                <th>Verification</th>
+                <th>UID</th>
+                <th style="text-align:right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MARKETPLACE MODERATION -->
+    <section class="admin-panel" id="tabListings">
+      <div class="admin-toolbar">
+        <div class="admin-search-wrap">
+          <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="listingSearchInput" class="admin-search-input" placeholder="Search phones by model, brand, or store...">
+        </div>
+      </div>
+
+      <div class="admin-table-card">
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Phone Model</th>
+                <th>Seller Store</th>
+                <th>Listed Price</th>
+                <th>Condition</th>
+                <th>Date Listed</th>
+                <th style="text-align:right;">Moderate</th>
+              </tr>
+            </thead>
+            <tbody id="listingTableBody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: SWAP TRANSACTIONS -->
+    <section class="admin-panel" id="tabSwaps">
+      <div class="admin-toolbar">
+        <div class="admin-search-wrap">
+          <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="swapSearchInput" class="admin-search-input" placeholder="Search by phone, customer, status, or request ID...">
+        </div>
+      </div>
+      <div class="admin-table-card">
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Target Phone</th>
+                <th>Trade-In Offered</th>
+                <th>Cash Adjustment</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th style="text-align:right;">Details</th>
+              </tr>
+            </thead>
+            <tbody id="swapTableBody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: DEALER SUBSCRIPTIONS & MONETISATION -->
+    <section class="admin-panel" id="tabSubscriptions">
+      <!-- Subscription Summary Stats -->
+      <div class="sub-stats-row">
+        <div class="sub-stat-card">
+          <div class="sub-stat-title">⭐ Active Premium</div>
+          <div class="sub-stat-val" id="statSubActivePremium" style="color:#FCD34D;">—</div>
+          <div class="sub-stat-desc">Unlimited listings (₦9,900/mo)</div>
+        </div>
+        <div class="sub-stat-card">
+          <div class="sub-stat-title">🆓 Starter Plan</div>
+          <div class="sub-stat-val" id="statSubStarterDealers">—</div>
+          <div class="sub-stat-desc">Free forever (5 listing limit)</div>
+        </div>
+        <div class="sub-stat-card">
+          <div class="sub-stat-title">💰 Monthly Revenue (MRR)</div>
+          <div class="sub-stat-val" id="statSubMrr" style="color:var(--emerald-400);">—</div>
+          <div class="sub-stat-desc">Recurring dealer income</div>
+        </div>
+        <div class="sub-stat-card">
+          <div class="sub-stat-title">⌛ Expired Subscriptions</div>
+          <div class="sub-stat-val" id="statSubExpired" style="color:var(--rose-400);">—</div>
+          <div class="sub-stat-desc">Downgraded to Starter</div>
+        </div>
+        <div class="sub-stat-card">
+          <div class="sub-stat-title">💳 Pending Payments</div>
+          <div class="sub-stat-val" id="statSubPending" style="color:var(--cyan-400);">—</div>
+          <div class="sub-stat-desc">Awaiting gateway verification</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="admin-toolbar">
+        <div class="admin-search-wrap">
+          <svg class="admin-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="subSearchInput" class="admin-search-input" placeholder="Search dealer name, store, email, Paystack reference, or UID...">
+        </div>
+        <div style="display:flex;gap:10px;">
+          <select id="subFilterSelect" class="admin-filter-select">
+            <option value="all">All Plans &amp; Subscriptions</option>
+            <option value="premium">⭐ Active Premium (Paying ₦9,900/mo)</option>
+            <option value="starter">🆓 Starter (Free Forever)</option>
+            <option value="expired">⌛ Expired Subscriptions</option>
+            <option value="cancelled">⚠️ Cancelled (Retains Period)</option>
+            <option value="pending">⏳ Pending Payments</option>
+            <option value="past_due">❗ Past Due</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="admin-table-card">
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Dealer &amp; Store</th>
+                <th>Current Plan</th>
+                <th>Subscription Status</th>
+                <th>Start Date</th>
+                <th>Renewal / Expiry Date</th>
+                <th>Payment Reference</th>
+                <th>Billing Fee</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="subTableBody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /admin-container -->
+
+  <div class="modal-backdrop" id="swapDetailModal" role="dialog" aria-modal="true" aria-labelledby="swapDetailTitle" style="display:none;">
+    <div class="modal-card swap-detail-modal">
+      <div class="swap-detail-header">
+        <div>
+          <span class="badge-status badge-pending" id="swapDetailStatus">Status unavailable</span>
+          <h2 id="swapDetailTitle">Swap request details</h2>
+          <p id="swapDetailId"></p>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeSwapDetail" aria-label="Close transaction details">&times;</button>
+      </div>
+      <div class="swap-detail-grid">
+        <section class="admin-detail-box">
+          <h3>Swapper profile information</h3>
+          <div id="swapSwapperProfile" class="record-fields"></div>
+        </section>
+        <section class="admin-detail-box">
+          <h3>Dealer profile information</h3>
+          <div id="swapDealerProfile" class="record-fields"></div>
+        </section>
+        <section class="admin-detail-box">
+          <h3>Trade and device details</h3>
+          <div id="swapDeviceDetails" class="record-fields"></div>
+        </section>
+        <section class="admin-detail-box">
+          <h3>Listing diagnostics and verification</h3>
+          <div id="swapVerificationDetails" class="record-fields"></div>
+          <p class="analytics-note">Only fields stored on this swap request are shown. The admin workspace does not define a separate diagnostic or listing-verification schema.</p>
+        </section>
+        <section class="admin-detail-box swap-record-section">
+          <h3>All stored request fields</h3>
+          <div id="swapAllFields" class="record-fields"></div>
+        </section>
+      </div>
+      <section class="admin-detail-box chat-monitor">
+        <h3>Transaction chat</h3>
+        <p>Chat history cannot be loaded: no chat collection or message path is defined in the available application schema.</p>
+      </section>
+      <form id="swapStatusForm" class="swap-status-form">
+        <label for="swapStatusInput">Update request status</label>
+        <div>
+          <input id="swapStatusInput" class="admin-search-input" type="text" required maxlength="80" autocomplete="off">
+          <button class="btn-primary-action" type="submit">Save status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- INSPECTION MODAL: DEALER KYC DOSSIER -->
+  <div class="modal-backdrop" id="dossierModal" role="dialog" aria-modal="true" style="display:none;">
+    <div class="modal-card" style="max-width:760px;padding:26px 24px;max-height:92vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div>
+          <span class="badge-status badge-pending" id="modalDossierBadge">Pending Review</span>
+          <h2 id="modalDossierBizName" style="font-size:1.35rem;font-weight:800;color:#FFF;margin-top:8px;">Store Name</h2>
+          <div id="modalDossierEmail" style="font-size:0.84rem;color:var(--text-muted);">store@email.com</div>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeDossierModal">&times;</button>
+      </div>
+
+      <div class="admin-modal-grid">
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">National ID Number (NIN)</div>
+          <div class="admin-detail-val" id="modalDossierNin">---</div>
+          <button type="button" class="btn-admin-action btn-action-view" data-reveal-target="modalDossierNin" style="margin-top:6px;">Reveal</button>
+        </div>
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Bank Verification Number (BVN)</div>
+          <div class="admin-detail-val" id="modalDossierBvn">---</div>
+          <button type="button" class="btn-admin-action btn-action-view" data-reveal-target="modalDossierBvn" style="margin-top:6px;">Reveal</button>
+        </div>
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">CAC Registration</div>
+          <div class="admin-detail-val" id="modalDossierCac">Not Provided</div>
+        </div>
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Bank Settlement Account</div>
+          <div class="admin-detail-val" id="modalDossierBank">---</div>
+          <button type="button" class="btn-admin-action btn-action-view" data-reveal-target="modalDossierBank" style="margin-top:6px;">Reveal</button>
+        </div>
+      </div>
+
+      <div class="admin-detail-box" style="margin-bottom:16px;">
+        <div class="admin-detail-label">Physical Shop Address &amp; Geo-tag</div>
+        <div class="admin-detail-val" id="modalDossierAddress" style="margin-bottom:6px;">---</div>
+        <a id="modalDossierMapLink" href="#" target="_blank" rel="noopener" style="color:var(--cyan-400);font-size:0.82rem;font-weight:600;display:inline-flex;align-items:center;gap:4px;">
+          📍 Open Location on Google Maps &rarr;
+        </a>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div class="admin-detail-label" style="margin-bottom:10px;">KYC Uploaded Documents (Tap image to zoom in high-res)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <!-- Gov ID -->
+          <div class="doc-preview-card">
+            <img id="modalGovIdImg" class="doc-preview-img" src="" alt="Government ID">
+            <div class="doc-preview-meta">
+              <span style="font-size:0.75rem;font-weight:700;color:#FFF;">Government ID</span>
+              <a id="modalGovIdLink" href="#" target="_blank" rel="noopener" style="color:var(--cyan-400);font-size:0.75rem;text-decoration:underline;">Cloud URL</a>
+            </div>
+          </div>
+          <!-- Proof of Address -->
+          <div class="doc-preview-card">
+            <img id="modalPoaImg" class="doc-preview-img" src="" alt="Proof of Address">
+            <div class="doc-preview-meta">
+              <span style="font-size:0.75rem;font-weight:700;color:#FFF;">Proof of Address</span>
+              <a id="modalPoaLink" href="#" target="_blank" rel="noopener" style="color:var(--cyan-400);font-size:0.75rem;text-decoration:underline;">Cloud URL</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decision Buttons -->
+      <div style="display:flex;gap:12px;justify-content:flex-end;border-top:1px solid rgba(255,255,255,0.08);padding-top:18px;">
+        <button type="button" class="btn-admin-action btn-action-reject" id="dossierRejectBtn" style="padding:11px 22px;font-size:0.88rem;">
+          ❌ Reject Application
+        </button>
+        <button type="button" class="btn-admin-action btn-action-approve" id="dossierApproveBtn" style="padding:11px 24px;font-size:0.88rem;">
+          ✅ Approve &amp; Verify Dealer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REJECTION REASON PROMPT MODAL -->
+  <div class="modal-backdrop" id="rejectModal" role="dialog" aria-modal="true" style="display:none;z-index:1100;">
+    <div class="modal-card" style="max-width:440px;padding:24px;">
+      <h3 style="font-size:1.15rem;font-weight:800;color:#FFF;margin-bottom:6px;">Reject Dealer Verification</h3>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;">Select or write a reason why this application is rejected. The dealer will see this feedback.</p>
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">Common Reason</label>
+        <select id="rejectReasonSelect" class="admin-filter-select" style="width:100%;">
+          <option value="ID Document is blurry or illegible. Please re-upload a clear photo.">ID Document is blurry or illegible</option>
+          <option value="Proof of Address is expired or does not match shop location.">Proof of Address invalid or expired</option>
+          <option value="NIN or BVN details could not be matched with business name.">NIN/BVN verification mismatch</option>
+          <option value="Physical shop location could not be verified in the area specified.">Physical shop address unverified</option>
+          <option value="other">Other reason (type below)</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">Additional Note</label>
+        <textarea id="rejectReasonText" style="width:100%;padding:10px 12px;border-radius:var(--radius-md);background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:#FFF;font-family:inherit;font-size:0.85rem;" rows="2" placeholder="Optional explanation..."></textarea>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="button" class="btn-cancel" id="cancelRejectBtn">Cancel</button>
+        <button type="button" class="btn-primary-action" id="confirmRejectBtn" style="background:var(--rose-400);color:#FFF;">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBSCRIPTION DETAIL INSPECTION MODAL -->
+  <div class="modal-backdrop" id="subscriptionDetailModal" role="dialog" aria-modal="true" style="display:none;z-index:1200;">
+    <div class="modal-card" style="max-width:680px;padding:26px 24px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;">
+        <div>
+          <span class="badge-status" id="modalSubBadge">Active</span>
+          <h2 id="modalSubDealerName" style="font-size:1.35rem;font-weight:800;color:#FFF;margin-top:8px;">Dealer Name</h2>
+          <div id="modalSubStoreName" style="font-size:0.84rem;color:var(--text-muted);">Store Name &bull; email@domain.com</div>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeSubModal">&times;</button>
+      </div>
+
+      <div class="admin-modal-grid" style="margin-bottom:16px;">
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Current Plan</div>
+          <div class="admin-detail-val" id="modalSubPlan">Starter</div>
+        </div>
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Billing Amount</div>
+          <div class="admin-detail-val" id="modalSubAmount" style="color:var(--emerald-400);">₦0 / month</div>
+        </div>
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Subscription Start Date</div>
+          <div class="admin-detail-val" id="modalSubStartDate">—</div>
+        </div>
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Next Billing / Expiration</div>
+          <div class="admin-detail-val" id="modalSubEndDate">—</div>
+        </div>
+      </div>
+
+      <div class="admin-modal-grid" style="margin-bottom:16px;">
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Payment Gateway</div>
+          <div class="admin-detail-val">Paystack (NGN)</div>
+        </div>
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Payment Reference</div>
+          <div class="admin-detail-val" id="modalSubRef" style="font-family:monospace;font-size:0.82rem;word-break:break-all;">—</div>
+        </div>
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Paystack Auth Code</div>
+          <div class="admin-detail-val" id="modalSubAuthCode" style="font-family:monospace;font-size:0.82rem;">—</div>
+        </div>
+        <div class="admin-detail-box">
+          <div class="admin-detail-label">Active Listings Limit</div>
+          <div class="admin-detail-val" id="modalSubListingsLimit">5 Listings</div>
+        </div>
+      </div>
+
+      <div class="admin-detail-box" style="margin-bottom:18px;">
+        <div class="admin-detail-label">Dealer Account UID</div>
+        <div class="admin-detail-val" id="modalSubUid" style="font-family:monospace;font-size:0.8rem;word-break:break-all;">—</div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;">
+        <button type="button" class="btn-primary-action" id="closeSubModalBtn">Close Details</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div class="lightbox-overlay" id="lightbox">
+    <button class="lightbox-close" id="closeLightbox">&times;</button>
+    <img id="lightboxImg" class="lightbox-img" src="" alt="Zoomed KYC document">
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

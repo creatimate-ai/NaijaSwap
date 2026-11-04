@@ -227,11 +227,24 @@ class VerificationService {
         const userRef = this.db.collection('users').doc(targetUid);
         const userDoc = await userRef.get();
         if (userDoc.exists) {
-          const udata = userDoc.data();
-          userRole = udata.accountType || udata.role || 'customer';
-          userShop = udata.shopName || '';
+          const udata = userDoc.data() || {};
+          const isDealer = udata.isDealer === true
+            || udata.accountType === 'dealer'
+            || udata.role === 'dealer'
+            || Boolean(udata.storeName || udata.shopName || udata.businessName);
+          userRole = isDealer ? 'dealer' : (udata.accountType || udata.role || 'customer');
+          userShop = udata.storeName || udata.shopName || udata.businessName || '';
           userDisplayName = udata.displayName || '';
         }
+
+        const dealerRef = this.db.collection('dealers').doc(targetUid);
+        const dealerDoc = await dealerRef.get();
+        if (dealerDoc.exists) {
+          userRole = 'dealer';
+          const ddata = dealerDoc.data() || {};
+          if (!userShop) userShop = ddata.storeName || ddata.shopName || ddata.businessName || '';
+        }
+
         await userRef.set({
           emailVerified: true,
           emailVerifiedAt: new Date()

@@ -177,7 +177,12 @@
         moreMainTitle.textContent = 'More';
         moreMainSubtitle.textContent = 'App preferences, swap history, support channels, and legal policies.';
 
-        const name = user?.displayName || (user?.email ? user.email.split('@')[0] : '');
+        let storedName = '';
+        try {
+          const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
+          storedName = u.displayName || '';
+        } catch (_) {}
+        const name = user?.displayName || storedName || profile.displayName || profile.name || (user?.email ? user.email.split('@')[0] : '');
         if (name) {
           moreUserName.textContent = name;
         } else {
@@ -228,6 +233,20 @@
           <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
         </a>
 
+        <!-- Dealer Subscription & Pricing -->
+        <a href="subscription.html" class="more-menu-item" id="menuSubscriptionDealer">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Subscription &amp; Pricing Plans</span>
+              <span class="more-item-sub">Manage Pro tier, listing limits &amp; Paystack billing</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
 
         <!-- 7. Partner Support -->
         <a href="support.html" class="more-menu-item" id="menuSupport">
@@ -238,20 +257,6 @@
             <div class="more-item-texts">
               <span class="more-item-title">Partner Support Desk</span>
               <span class="more-item-sub">In-app messaging & live ticket resolution</span>
-            </div>
-          </div>
-          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-        </a>
-
-        <!-- Admin & Hub Inspection Desk -->
-        <a href="admin.html" class="more-menu-item" id="menuAdminDeskDealer">
-          <div class="more-item-left">
-            <div class="more-item-icon tint-emerald">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            </div>
-            <div class="more-item-texts">
-              <span class="more-item-title">Admin &amp; Hub Inspection Desk</span>
-              <span class="more-item-sub">Dealer KYC review, diagnostic triage &amp; live swaps</span>
             </div>
           </div>
           <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
@@ -345,6 +350,20 @@
           <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
         </a>
 
+        <!-- 5. Transparent Pricing & Plans -->
+        <a href="subscription.html" class="more-menu-item" id="menuSubscriptionSwapper">
+          <div class="more-item-left">
+            <div class="more-item-icon tint-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <div class="more-item-texts">
+              <span class="more-item-title">Plans &amp; Transparent Pricing</span>
+              <span class="more-item-sub">Free swapper perks, dealer tiers &amp; escrow details</span>
+            </div>
+          </div>
+          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+        </a>
+
         <!-- 6. Support -->
         <a href="support.html" class="more-menu-item" id="menuSupport">
           <div class="more-item-left">
@@ -368,20 +387,6 @@
             <div class="more-item-texts">
               <span class="more-item-title">Help &amp; FAQ</span>
               <span class="more-item-sub">Learn how device swaps, valuation & delivery work</span>
-            </div>
-          </div>
-          <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-        </a>
-
-        <!-- Admin & Hub Inspection Desk -->
-        <a href="admin.html" class="more-menu-item" id="menuAdminDeskSwapper">
-          <div class="more-item-left">
-            <div class="more-item-icon tint-emerald">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            </div>
-            <div class="more-item-texts">
-              <span class="more-item-title">Admin &amp; Hub Inspection Desk</span>
-              <span class="more-item-sub">Dealer KYC review, diagnostic triage &amp; live swaps</span>
             </div>
           </div>
           <div class="more-item-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"></polyline></svg></div>

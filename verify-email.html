@@ -127,6 +127,9 @@
         <p class="auth-subtitle" style="display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap;">
           <span>Enter the 6-digit code sent to <strong id="targetEmailLabel" style="color: #FFFFFF;">your email</strong></span>
         </p>
+        <p style="font-size: 0.85rem; color: #94A3B8; margin-top: 6px; line-height: 1.4;">
+          ✉️ You can either <strong>enter the 6-digit code</strong> or <strong>click the verification link</strong> in your inbox to continue automatically.
+        </p>
       </div>
 
       <!-- Expiry Countdown Pill -->
@@ -178,10 +181,13 @@
 
   <script type="module">
     import { auth, onAuthStateChanged, signOut, db, doc, getDoc, setDoc } from './js/firebase-config.js';
+    import { dispatchVerificationEmail, validateOtpCode, startEmailVerificationWatcher } from './js/email-dispatcher.js';
 
     const urlParams = new URLSearchParams(window.location.search);
     let targetEmail = urlParams.get('email') || sessionStorage.getItem('pending_verif_email') || '';
     let targetUid = null;
+    let stopWatcher = null;
+    let verifiedCompleted = false;
 
     const emailLabel = document.getElementById('targetEmailLabel');
     const alertBox = document.getElementById('verifAlert');
@@ -218,19 +224,83 @@
       btnChangeAccount.addEventListener('click', handleSwitchAccount);
     }
 
+    async function determineUserRole(uid) {
+      let role = localStorage.getItem('naijaswap_role_' + (uid || '')) ||
+        sessionStorage.getItem('pending_signup_role') ||
+        localStorage.getItem('naijaswap_last_role') ||
+        'customer';
+
+      if (uid) {
+        try {
+          const [uSnap, dSnap] = await Promise.allSettled([
+            getDoc(doc(db, 'users', uid)),
+            getDoc(doc(db, 'dealers', uid))
+          ]);
+          const udata = (uSnap.status === 'fulfilled' && uSnap.value?.exists()) ? uSnap.value.data() : {};
+          const isDealer = (dSnap.status === 'fulfilled' && dSnap.value?.exists()) ||
+            udata.isDealer === true ||
+            udata.accountType === 'dealer' ||
+            udata.role === 'dealer' ||
+            Boolean(udata.storeName || udata.shopName || udata.businessName);
+          if (isDealer) role = 'dealer';
+        } catch (_) {}
+      }
+
+      return role;
+    }
+
+    function redirectToDashboard(role) {
+      if (role === 'dealer') {
+        window.location.replace('dealer-dashboard.html');
+      } else {
+        window.location.replace('dashboard.html');
+      }
+    }
+
+    async function handleVerifiedSuccess(role) {
+      if (verifiedCompleted) return;
+      verifiedCompleted = true;
+
+      showAlert('✓ Email successfully verified! Redirecting to your dashboard...', true);
+      otpInputs.forEach(i => i.disabled = true);
+      if (expiryInterval) clearInterval(expiryInterval);
+      if (stopWatcher) stopWatcher();
+
+      sessionStorage.removeItem('pending_verif_email');
+      sessionStorage.removeItem('naijaswap_active_code');
+      if (targetUid) {
+        localStorage.setItem('naijaswap_role_' + targetUid, role);
+      }
+      localStorage.setItem('naijaswap_last_role', role);
+
+      setTimeout(() => {
+        redirectToDashboard(role);
+      }, 1000);
+    }
+
     // Check Firebase Auth state
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         targetUid = user.uid;
         if (!targetEmail && user.email) {
           targetEmail = user.email;
           emailLabel.textContent = targetEmail;
         }
+
+        const role = await determineUserRole(user.uid);
+
         // If already verified, direct to appropriate dashboard
         if (user.emailVerified) {
-          const role = localStorage.getItem('naijaswap_role_' + user.uid) || 'customer';
-          window.location.replace(role === 'dealer' ? 'dealer-dashboard.html' : 'dashboard.html');
+          handleVerifiedSuccess(role);
+          return;
         }
+
+        // Start real-time background watcher for email link verification
+        if (stopWatcher) stopWatcher();
+        stopWatcher = startEmailVerificationWatcher(user, async () => {
+          const verifiedRole = await determineUserRole(user.uid);
+          handleVerifiedSuccess(verifiedRole);
+        });
       }
     });
 
@@ -329,7 +399,8 @@
     // Submit Verification
     async function submitVerification(code) {
       clearAlert();
-      if (!targetEmail) {
+      const email = targetEmail || auth.currentUser?.email;
+      if (!email) {
         showAlert('Please provide an email address.');
         return;
       }
@@ -341,81 +412,12 @@
       verifyBtn.disabled = true;
       verifyBtn.querySelector('span').textContent = 'Verifying...';
 
-      const isTestCode = String(code).trim() === '123456';
-
       try {
-        let verifiedSuccessfully = false;
-        let role = 'customer';
-
-        try {
-          const res = await fetch('/api/auth/verify-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: targetEmail,
-              code,
-              uid: targetUid
-            })
-          });
-
-          const contentType = res.headers.get('content-type') || '';
-          if (contentType.includes('application/json')) {
-            const data = await res.json();
-            if (res.ok && data.ok) {
-              verifiedSuccessfully = true;
-              if (data.role) role = data.role;
-            } else if (!isTestCode) {
-              throw new Error(data.error || 'Verification failed. Please check the code.');
-            }
-          }
-        } catch (fetchErr) {
-          if (!isTestCode) throw fetchErr;
-        }
-
-        // Direct Firestore fallback verification (guaranteed across static hosting)
-        if (isTestCode || !verifiedSuccessfully) {
-          if (targetUid) {
-            try {
-              const uRef = doc(db, 'users', targetUid);
-              const uSnap = await getDoc(uRef);
-              if (uSnap.exists()) {
-                const udata = uSnap.data();
-                role = udata.accountType || udata.role || 'customer';
-              }
-              await setDoc(uRef, {
-                emailVerified: true,
-                emailVerifiedAt: new Date()
-              }, { merge: true });
-              verifiedSuccessfully = true;
-            } catch (fsErr) {
-              if (isTestCode) verifiedSuccessfully = true;
-              else throw fsErr;
-            }
-          } else if (isTestCode) {
-            verifiedSuccessfully = true;
-          }
-        }
-
-        if (verifiedSuccessfully) {
-          showAlert('✓ Email successfully verified! Redirecting...', true);
-          otpInputs.forEach(i => i.disabled = true);
-          clearInterval(expiryInterval);
-
-          sessionStorage.removeItem('pending_verif_email');
-          localStorage.setItem('naijaswap_last_role', role);
-
-          setTimeout(() => {
-            if (role === 'dealer') {
-              window.location.replace('dealer-dashboard.html');
-            } else {
-              window.location.replace('dashboard.html');
-            }
-          }, 1000);
-        } else {
-          throw new Error('Verification code incorrect. Please try again.');
-        }
+        await validateOtpCode(email, code, auth.currentUser);
+        const role = await determineUserRole(targetUid);
+        await handleVerifiedSuccess(role);
       } catch (err) {
-        showAlert(err.message || 'Verification failed. Please check code.');
+        showAlert(err.message || 'Verification failed. Please check your code.');
         verifyBtn.disabled = false;
         verifyBtn.querySelector('span').textContent = 'Verify & Continue';
       }
@@ -430,34 +432,24 @@
     // Resend Code Action
     resendBtn.addEventListener('click', async () => {
       clearAlert();
-      if (!targetEmail) {
+      const email = targetEmail || auth.currentUser?.email;
+      if (!email) {
         showAlert('Email is missing.');
         return;
       }
 
       resendBtn.disabled = true;
       try {
-        const res = await fetch('/api/auth/resend-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: targetEmail, uid: targetUid })
+        const cachedRole = await determineUserRole(targetUid);
+        await dispatchVerificationEmail(auth.currentUser, {
+          firstName: '',
+          role: cachedRole
         });
-        const contentType = res.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-          const data = await res.json();
-          if (!res.ok) {
-            if (data.remainingSeconds) {
-              startResendCooldown(data.remainingSeconds);
-            }
-            throw new Error(data.error || 'Could not resend verification code.');
-          }
-        }
-
-        showAlert('A fresh verification code has been dispatched to your email.', true);
+        showAlert('✓ A fresh verification email and code have been sent to ' + email + '. Please check your inbox and spam folder.', true);
         startResendCooldown(60);
         totalSeconds = 10 * 60;
       } catch (err) {
-        showAlert('A fresh verification code has been dispatched to your email.', true);
+        showAlert(err.message || 'Could not resend verification email. Please try again.', false);
         startResendCooldown(60);
       }
     });

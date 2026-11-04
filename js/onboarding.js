@@ -4,12 +4,14 @@
  * and interactive "Getting Started" dashboard checklists for Swappers and Dealers.
  */
 
-import { db, doc, getDoc, setDoc } from './firebase-config.js';
+import { auth, db, doc, getDoc, setDoc, updateProfile } from './firebase-config.js';
 import { NaijaSwapData, BRANDS_AND_MODELS } from './dashboard-data.js';
 import { setButtonLoading } from './auth.js';
+import { getStoredProfile } from './profile.js';
 
 const ONBOARDING_VERSION = 'v2';
 const KEY_PREFIX_DONE = `naijaswap_onboarded_${ONBOARDING_VERSION}_`;
+const KEY_PREFIX_LEGACY = 'naijaswap_onboarded_';
 const KEY_PREFIX_DISMISSED = `naijaswap_checklist_dismissed_`;
 
 // Popular Nigerian smartphone trading hubs
@@ -61,15 +63,20 @@ export const NIGERIAN_STATES_CITIES = {
   'Zamfara': ['Gusau']
 };
 
-
 export function getOnboardingStatus(uid) {
   if (!uid) return false;
-  return localStorage.getItem(KEY_PREFIX_DONE + uid) === 'true';
+  return (
+    localStorage.getItem(KEY_PREFIX_DONE + uid) === 'true' ||
+    localStorage.getItem(KEY_PREFIX_LEGACY + uid) === 'true' ||
+    localStorage.getItem(`naijaswap_onboarded_v1_${uid}`) === 'true'
+  );
 }
 
 export function setOnboardingStatus(uid, isDone = true) {
   if (!uid) return;
-  localStorage.setItem(KEY_PREFIX_DONE + uid, isDone ? 'true' : 'false');
+  const val = isDone ? 'true' : 'false';
+  localStorage.setItem(KEY_PREFIX_DONE + uid, val);
+  localStorage.setItem(KEY_PREFIX_LEGACY + uid, val);
   sessionStorage.removeItem('naijaswap_first_signup');
 }
 
@@ -79,27 +86,86 @@ export function setOnboardingStatus(uid, isDone = true) {
 export async function initOnboarding(user, role = 'customer') {
   if (!user || !user.uid) return;
   const uid = user.uid;
-  const isFirstSignup = sessionStorage.getItem('naijaswap_first_signup') === 'true';
-  let isDone = getOnboardingStatus(uid);
 
-  // Check remote Firestore if local is not set
-  if (!isDone && !isFirstSignup) {
-    try {
-      const snap = await getDoc(doc(db, 'users', uid));
-      if (snap && snap.exists() && snap.data().onboardingCompleted) {
-        isDone = true;
+  // 1. If already marked completed in local storage, do not show
+  if (getOnboardingStatus(uid)) {
+    sessionStorage.removeItem('naijaswap_first_signup');
+    return;
+  }
+
+  const isDealer = role === 'dealer'
+    || localStorage.getItem('naijaswap_role_' + uid) === 'dealer'
+    || localStorage.getItem('naijaswap_last_role') === 'dealer'
+    || Boolean(localStorage.getItem('naijaswap_shop_' + uid));
+
+  const localProfile = getStoredProfile(uid);
+
+  // 2. Check if user already has necessary details stored locally
+  if (isDealer) {
+    const cachedShop = localStorage.getItem('naijaswap_shop_' + uid) || localProfile.businessName || localProfile.storeName;
+    const cachedPhone = localStorage.getItem('naijaswap_dealer_phone_' + uid) || localStorage.getItem('naijaswap_phone_' + uid) || localProfile.phone;
+    if (cachedShop && cachedPhone) {
+      setOnboardingStatus(uid, true);
+      return;
+    }
+  } else {
+    const cachedName = user.displayName || localProfile.displayName || localProfile.name;
+    const cachedPhone = user.phoneNumber || localStorage.getItem('naijaswap_user_whatsapp_' + uid) || localStorage.getItem('naijaswap_phone_' + uid) || localProfile.phone;
+    if (cachedName && cachedPhone) {
+      setOnboardingStatus(uid, true);
+      return;
+    }
+  }
+
+  // 3. Check remote Firestore for existing onboarding completion or full details
+  try {
+    const [userSnapRes, dealerSnapRes, profileSnapRes] = await Promise.allSettled([
+      getDoc(doc(db, 'users', uid)),
+      getDoc(doc(db, 'dealers', uid)),
+      getDoc(doc(db, 'dealerProfiles', uid))
+    ]);
+
+    const uData = userSnapRes.status === 'fulfilled' && userSnapRes.value?.exists() ? userSnapRes.value.data() : null;
+    const dData = dealerSnapRes.status === 'fulfilled' && dealerSnapRes.value?.exists() ? dealerSnapRes.value.data() : null;
+    const pData = profileSnapRes.status === 'fulfilled' && profileSnapRes.value?.exists() ? profileSnapRes.value.data() : null;
+
+    if (uData?.onboardingCompleted || dData?.onboardingCompleted) {
+      setOnboardingStatus(uid, true);
+      return;
+    }
+
+    if (isDealer) {
+      const shop = uData?.shopName || uData?.storeName || uData?.businessName || dData?.shopName || dData?.storeName || pData?.storeName;
+      const phone = uData?.phoneNumber || dData?.phoneNumber || dData?.hotline || pData?.phoneNumber;
+      if (shop && phone) {
+        if (shop) localStorage.setItem('naijaswap_shop_' + uid, shop);
+        if (phone) {
+          localStorage.setItem('naijaswap_dealer_phone_' + uid, phone);
+          localStorage.setItem('naijaswap_phone_' + uid, phone);
+        }
         setOnboardingStatus(uid, true);
+        return;
       }
-    } catch (_) {}
+    } else {
+      const name = uData?.displayName || user.displayName;
+      const phone = uData?.phoneNumber || user.phoneNumber;
+      if (name && phone) {
+        if (phone) {
+          localStorage.setItem('naijaswap_user_whatsapp_' + uid, phone);
+          localStorage.setItem('naijaswap_phone_' + uid, phone);
+        }
+        setOnboardingStatus(uid, true);
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('[NaijaSwap Onboarding] Remote check note:', err?.message || err);
   }
 
-
-  // If first-time user, automatically pop up the onboarding wizard
-  if (!isDone || isFirstSignup) {
-    setTimeout(() => {
-      openOnboardingModal(user, role);
-    }, 450);
-  }
+  // Only open wizard if user genuinely has not completed setup
+  setTimeout(() => {
+    openOnboardingModal(user, isDealer ? 'dealer' : 'customer');
+  }, 450);
 }
 
 /**
@@ -220,11 +286,11 @@ function getSwapperStepsHTML() {
       </div>
     </div>
 
-    <!-- STEP 2: NAME & WHATSAPP CONTACT -->
+    <!-- STEP 2: NAME, WHATSAPP & LOCATION -->
     <div class="onboarding-step-panel" data-step="2">
-      <div class="onboarding-badge">👤 Step 2 of 3 &bull; Contact Info</div>
-      <h2 class="onboarding-title">Let's connect your WhatsApp</h2>
-      <p class="onboarding-subtitle">Provide your WhatsApp contact so verified stores can coordinate swap trade offers and appointments with you.</p>
+      <div class="onboarding-badge">👤 Step 2 of 3 &bull; Profile & Contact</div>
+      <h2 class="onboarding-title">Let's connect your details</h2>
+      <p class="onboarding-subtitle">Provide your contact info and preferred trading location so verified stores can coordinate swap offers and appointments with you.</p>
 
       <div class="onboarding-form-group">
         <label class="onboarding-label" for="obFullName">Your Full Name</label>
@@ -240,34 +306,48 @@ function getSwapperStepsHTML() {
         <span class="onboarding-hint">Used strictly for swap trade updates and store appointment confirmations.</span>
       </div>
 
+      <div class="onboarding-form-group">
+        <label class="onboarding-label" for="obPreferredHub">Preferred Trading Hub</label>
+        <select class="onboarding-select" id="obPreferredHub">
+          <option value="Computer Village, Ikeja, Lagos">Lagos — Computer Village, Ikeja</option>
+          <option value="Lekki & Victoria Island, Lagos">Lagos — Lekki & Victoria Island / Ajah</option>
+          <option value="Banex & Wuse 2, Abuja">Abuja — Banex Plaza & Wuse 2</option>
+          <option value="Garrison, Port Harcourt">Port Harcourt — Garrison & Aba Road</option>
+          <option value="Other Locations across Nigeria">Other Locations across Nigeria</option>
+        </select>
+        <span class="onboarding-hint">Stores near your chosen hub will be prioritized for your swaps.</span>
+      </div>
+
       <div class="onboarding-actions-row">
         <button type="button" class="btn-onboarding-secondary" id="btnStep2Back">&larr; Back</button>
         <button type="button" class="btn-onboarding-primary" id="btnStep2Next">
-          <span>Continue</span>
+          <span>Save Details &amp; Continue</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </button>
       </div>
     </div>
 
-    <!-- STEP 3: EXPLORE PHONES (FINAL STEP) -->
+    <!-- STEP 3: ALL DETAILS SAVED & READY TO SWAP -->
     <div class="onboarding-step-panel" data-step="3">
-      <div class="onboarding-badge">🚀 Step 3 of 3 &bull; Ready to Swap</div>
-      <h2 class="onboarding-title">Ready to find your next phone?</h2>
-      <p class="onboarding-subtitle">Your contact details are saved. Browse phones listed by verified dealers and submit a swap request for the one you want.</p>
+      <div class="onboarding-badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3);">✓ Details Saved Completely</div>
+      <h2 class="onboarding-title">You're all set to swap!</h2>
+      <p class="onboarding-subtitle">Your details have been saved completely. Browse certified phones listed by verified dealers and submit swap proposals directly.</p>
 
       <div class="onboarding-choice-container" style="display: flex; flex-direction: column; gap: 14px; margin: 22px 0 24px 0;">
-        <button type="button" class="launch-card-btn" id="btnStep3Explore">
+        <button type="button" class="launch-card-btn highlight" id="btnStep3Explore" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(16, 185, 129, 0.15)); border: 1px solid var(--emerald-500, #10b981);">
           <div class="launch-icon">🔍</div>
           <div class="launch-info">
-            <strong>Explore Phones</strong>
-            <span>Browse available iPhones and Samsung devices on the marketplace</span>
+            <strong>Explore Available Phones</strong>
+            <span>Browse certified iPhones and Samsung devices on the marketplace</span>
           </div>
           <div class="launch-arrow">&rarr;</div>
         </button>
       </div>
 
       <div class="onboarding-actions-row">
-        <button type="button" class="btn-onboarding-secondary" id="btnStep3Back">&larr; Back</button>
+        <button type="button" class="btn-onboarding-secondary" id="btnStep3Done" style="flex: 1; justify-content: center;">
+          <span>Done (Go to Dashboard)</span>
+        </button>
       </div>
     </div>
   `;
@@ -361,7 +441,7 @@ function getDealerStepsHTML() {
       <div class="onboarding-actions-row">
         <button type="button" class="btn-onboarding-secondary" id="btnDealerStep2Back">&larr; Back</button>
         <button type="button" class="btn-onboarding-primary" id="btnDealerStep2Next">
-          <span>Continue</span>
+          <span>Save Store Details &amp; Continue</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </button>
       </div>
@@ -416,7 +496,7 @@ function getDealerStepsHTML() {
     <div class="onboarding-step-panel" data-step="4">
       <div class="onboarding-success-icon">🚀</div>
       <h2 class="onboarding-title">Store Profile Configured!</h2>
-      <p class="onboarding-subtitle">Your store details have been saved. You can now complete your verification or start exploring incoming swap requests.</p>
+      <p class="onboarding-subtitle">Your store details have been saved completely. You can now complete your verification or start managing your store.</p>
 
       <div class="onboarding-launch-cards">
         <a href="dealer-verification.html" class="launch-card-btn highlight" id="btnLaunchVerification">
@@ -447,7 +527,7 @@ function getDealerStepsHTML() {
 function setupOnboardingWizardLogic(modal, user, role) {
   let currentStep = 1;
   const isDealer = role === 'dealer';
-  const uid = user ? user.uid : '';
+  const uid = user ? user.uid : (auth.currentUser ? auth.currentUser.uid : '');
 
   const stepPanels = modal.querySelectorAll('.onboarding-step-panel');
   const stepDots = modal.querySelectorAll('.step-dot');
@@ -465,13 +545,32 @@ function setupOnboardingWizardLogic(modal, user, role) {
     });
   }
 
+  // Helper: cleanly close and record completion in Firestore & localStorage
+  const handleModalClose = async () => {
+    setOnboardingStatus(uid, true);
+    if (uid) {
+      try {
+        await setDoc(doc(db, 'users', uid), {
+          uid: uid,
+          onboardingCompleted: true,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (_) {}
+    }
+    closeOnboardingModal();
+  };
+
   // Close Button
   if (closeBtn) {
-    closeBtn.addEventListener('click', () => {
-      setOnboardingStatus(uid, true);
-      closeOnboardingModal();
-    });
+    closeBtn.addEventListener('click', handleModalClose);
   }
+
+  // Backdrop click to close safely
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      handleModalClose();
+    }
+  });
 
   // Step Dots navigation (only to previously completed steps)
   stepDots.forEach(d => {
@@ -486,16 +585,27 @@ function setupOnboardingWizardLogic(modal, user, role) {
     const btnStep1Next = modal.querySelector('#btnStep1Next');
     const btnStep2Back = modal.querySelector('#btnStep2Back');
     const btnStep2Next = modal.querySelector('#btnStep2Next');
-    const btnStep3Back = modal.querySelector('#btnStep3Back');
     const btnStep3Explore = modal.querySelector('#btnStep3Explore');
+    const btnStep3Done = modal.querySelector('#btnStep3Done');
 
     const inputName = modal.querySelector('#obFullName');
     const inputWhatsApp = modal.querySelector('#obWhatsApp');
+    const selectHub = modal.querySelector('#obPreferredHub');
 
     // Pre-fill existing user info
-    if (inputName && user && user.displayName) inputName.value = user.displayName;
-    if (inputWhatsApp && user && user.phoneNumber) {
-      inputWhatsApp.value = user.phoneNumber.replace(/^\+234/, '').replace(/^0/, '');
+    const localProfile = uid ? getStoredProfile(uid) : {};
+    if (inputName) {
+      inputName.value = user?.displayName || localProfile.displayName || localProfile.name || '';
+    }
+    if (inputWhatsApp) {
+      const existingPhone = user?.phoneNumber || localStorage.getItem('naijaswap_phone_' + uid) || localStorage.getItem('naijaswap_user_whatsapp_' + uid) || localProfile.phone || '';
+      if (existingPhone) {
+        inputWhatsApp.value = existingPhone.replace(/^\+234/, '').replace(/^0/, '');
+      }
+    }
+    if (selectHub) {
+      const existingHub = localStorage.getItem('naijaswap_default_location') || localProfile.preferredHub;
+      if (existingHub) selectHub.value = existingHub;
     }
 
     // Step 1 -> Step 2
@@ -514,35 +624,67 @@ function setupOnboardingWizardLogic(modal, user, role) {
           return;
         }
 
-        setButtonLoading(btnStep2Next, true, 'Saving...');
+        setButtonLoading(btnStep2Next, true, 'Saving details...');
         try {
-          const fullName = inputName?.value.trim() || (user && user.displayName) || 'Swapper';
+          const fullName = inputName?.value.trim() || user?.displayName || 'Swapper';
           const phone = rawPhone.startsWith('234') ? `+${rawPhone}` : `+234${rawPhone.replace(/^0/, '')}`;
+          const hub = selectHub?.value || 'Computer Village, Ikeja, Lagos';
 
-          // Save contact info locally
+          // 1. Mark onboarding completed immediately
+          setOnboardingStatus(uid, true);
+          sessionStorage.removeItem('naijaswap_first_signup');
+
+          // 2. Update Firebase Auth displayName
+          if (auth.currentUser && fullName) {
+            try {
+              await updateProfile(auth.currentUser, { displayName: fullName });
+            } catch (_) {}
+          }
+
+          // 3. Save contact & location locally
           localStorage.setItem('naijaswap_user_whatsapp_' + uid, phone);
           localStorage.setItem('naijaswap_phone_' + uid, phone);
+          localStorage.setItem('naijaswap_default_location', hub);
 
-          // Update profile in local cache
           try {
             const userObj = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
             userObj.displayName = fullName;
             userObj.phoneNumber = phone;
+            userObj.uid = uid;
             localStorage.setItem('naijaswap_user', JSON.stringify(userObj));
           } catch (_) {}
 
-          // Asynchronously sync contact with Firestore
+          try {
+            const profileKey = 'naijaswap_profile_' + uid;
+            const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
+            profile.displayName = fullName;
+            profile.name = fullName;
+            profile.phone = phone;
+            profile.phoneNumber = phone;
+            profile.preferredHub = hub;
+            profile.onboardingCompleted = true;
+            localStorage.setItem(profileKey, JSON.stringify(profile));
+          } catch (_) {}
+
+          // 4. Update Firestore users collection with full details
           if (uid) {
             try {
-              setDoc(doc(db, 'users', uid), {
+              await setDoc(doc(db, 'users', uid), {
+                uid: uid,
                 displayName: fullName,
                 phoneNumber: phone,
+                preferredHub: hub,
+                onboardingCompleted: true,
                 updatedAt: new Date().toISOString()
               }, { merge: true });
             } catch (err) {
-              console.warn('[NaijaSwap Onboarding] Firestore sync note:', err.message);
+              console.warn('[NaijaSwap Onboarding] Firestore sync note:', err?.message || err);
             }
           }
+
+          // 5. Update UI header name immediately
+          const nameEl = document.getElementById('headerUserName');
+          if (nameEl) nameEl.textContent = fullName;
 
           goToStep(3);
         } finally {
@@ -552,42 +694,28 @@ function setupOnboardingWizardLogic(modal, user, role) {
     }
 
     // Step 3 Actions
-    if (btnStep3Back) btnStep3Back.addEventListener('click', () => goToStep(2));
-
-    async function finishSwapperOnboarding() {
+    function handleSwapperFinish(redirectLocation = true) {
       setOnboardingStatus(uid, true);
       closeOnboardingModal();
 
-      if (uid) {
-        try {
-          await setDoc(doc(db, 'users', uid), {
-            onboardingCompleted: true,
-            updatedAt: new Date().toISOString()
-          }, { merge: true });
-        } catch (err) {
-          console.warn('[NaijaSwap Onboarding] Firestore completion note:', err.message);
+      if (redirectLocation) {
+        if (window.location.pathname.toLowerCase().includes('dashboard')) {
+          const phonesSection = document.getElementById('phonesGrid') || document.querySelector('.phones-grid') || document.querySelector('.search-container');
+          if (phonesSection) {
+            phonesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        } else {
+          window.location.href = 'dashboard.html#phonesGrid';
         }
       }
     }
 
-    // Button: "Explore Phones" -> Scroll to phonesGrid or redirect to dashboard.html#phonesGrid
     if (btnStep3Explore) {
-      btnStep3Explore.addEventListener('click', async () => {
-        setButtonLoading(btnStep3Explore, true, 'Loading...');
-        try {
-          await finishSwapperOnboarding();
-          if (window.location.pathname.toLowerCase().includes('dashboard')) {
-            const phonesSection = document.getElementById('phonesGrid') || document.querySelector('.phones-grid') || document.querySelector('.search-container');
-            if (phonesSection) {
-              phonesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          } else {
-            window.location.href = 'dashboard.html#phonesGrid';
-          }
-        } finally {
-          setButtonLoading(btnStep3Explore, false);
-        }
-      });
+      btnStep3Explore.addEventListener('click', () => handleSwapperFinish(true));
+    }
+
+    if (btnStep3Done) {
+      btnStep3Done.addEventListener('click', () => handleSwapperFinish(false));
     }
 
   } else {
@@ -674,7 +802,18 @@ function setupOnboardingWizardLogic(modal, user, role) {
         try {
           const phone = rawPhone ? (rawPhone.startsWith('234') ? `+${rawPhone}` : `+234${rawPhone.replace(/^0/, '')}`) : '';
 
-          // Save store details locally
+          // 1. Mark onboarding completed immediately
+          setOnboardingStatus(uid, true);
+          sessionStorage.removeItem('naijaswap_first_signup');
+
+          // 2. Update Firebase Auth displayName
+          if (auth.currentUser && shopName) {
+            try {
+              await updateProfile(auth.currentUser, { displayName: shopName });
+            } catch (_) {}
+          }
+
+          // 3. Save store details locally
           localStorage.setItem('naijaswap_shop_' + uid, shopName);
           localStorage.setItem('naijaswap_dealer_state_' + uid, state);
           localStorage.setItem('naijaswap_dealer_city_' + uid, city);
@@ -685,40 +824,77 @@ function setupOnboardingWizardLogic(modal, user, role) {
             localStorage.setItem('naijaswap_phone_' + uid, phone);
           }
 
-          // Also update stored profile object for Edit Profile compatibility
-          if (uid) {
-            try {
-              const profileKey = 'naijaswap_profile_' + uid;
-              const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
-              profile.businessName = shopName;
-              if (address) profile.shopAddress = address;
-              if (phone) profile.phone = phone;
-              profile.state = state;
-              profile.city = city;
-              localStorage.setItem(profileKey, JSON.stringify(profile));
-            } catch (_) {}
-          }
+          try {
+            const profileKey = 'naijaswap_profile_' + uid;
+            const profile = JSON.parse(localStorage.getItem(profileKey) || '{}');
+            profile.businessName = shopName;
+            profile.storeName = shopName;
+            if (address) profile.shopAddress = address;
+            if (phone) profile.phone = phone;
+            profile.state = state;
+            profile.city = city;
+            profile.preferredHub = hub;
+            profile.onboardingCompleted = true;
+            localStorage.setItem(profileKey, JSON.stringify(profile));
+          } catch (_) {}
 
-          // Asynchronously sync with Firestore
+          // 4. Asynchronously sync across Firestore collections
           if (uid) {
-            try {
-              await setDoc(doc(db, 'dealers', uid), {
-                shopName,
-                state,
-                city,
-                hub,
-                shopAddress: address || '',
-                hotline: phone,
+            const nowIso = new Date().toISOString();
+            await Promise.allSettled([
+              // users doc
+              setDoc(doc(db, 'users', uid), {
+                uid: uid,
+                displayName: shopName,
+                shopName: shopName,
+                storeName: shopName,
+                businessName: shopName,
                 phoneNumber: phone,
+                state: state,
+                city: city,
+                hub: hub,
+                preferredHub: hub,
+                shopAddress: address || '',
                 onboardingCompleted: true,
-                updatedAt: new Date().toISOString()
-              }, { merge: true });
-            } catch (err) {
-              console.warn('[NaijaSwap Onboarding] Dealer sync note:', err.message);
-            }
+                updatedAt: nowIso
+              }, { merge: true }),
+
+              // dealers doc
+              setDoc(doc(db, 'dealers', uid), {
+                uid: uid,
+                shopName: shopName,
+                storeName: shopName,
+                businessName: shopName,
+                displayName: shopName,
+                phoneNumber: phone,
+                hotline: phone,
+                state: state,
+                city: city,
+                hub: hub,
+                shopAddress: address || '',
+                onboardingCompleted: true,
+                updatedAt: nowIso
+              }, { merge: true }),
+
+              // dealerProfiles doc
+              setDoc(doc(db, 'dealerProfiles', uid), {
+                storeOwnerUid: uid,
+                storeName: shopName,
+                phoneNumber: phone,
+                address: address || '',
+                state: state,
+                city: city,
+                hub: hub,
+                onboardingCompleted: true,
+                updatedAt: nowIso
+              }, { merge: true })
+            ]);
           }
 
-          setOnboardingStatus(uid, true);
+          // 5. Update active DOM store header
+          const topName = document.getElementById('topStoreName');
+          if (topName) topName.textContent = shopName;
+
           goToStep(3);
         } finally {
           setButtonLoading(btnDStep2Next, false);

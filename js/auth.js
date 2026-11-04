@@ -13,11 +13,13 @@ import {
   RecaptchaVerifier,
   signOut,
   sendPasswordResetEmail,
+  sendEmailVerification,
   onAuthStateChanged
 } from './firebase-config.js';
 import { db, doc, getDoc, setDoc } from './firebase-config.js';
 import { resolveMedia } from './media-storage.js';
 import { renderAvatarElement, getEffectiveUserPhoto } from './profile.js';
+import { dispatchVerificationEmail } from './email-dispatcher.js';
 
 export { auth };
 
@@ -148,50 +150,66 @@ export function isCurrentRoute(...routeNames) {
 export async function saveUserRole(user, role, shopName = "") {
   if (!user || !user.uid) return;
   const requestedRole = normalizeRole(role);
+  const sName = String(shopName || localStorage.getItem("naijaswap_shop_" + user.uid) || "").trim();
 
-  // Guard: Once a user has signed up, their role is PERMANENT and IMMUTABLE.
-  // Check if this user already has an existing role in local storage or Firestore.
-  let establishedRole = null;
-  const cachedRole = localStorage.getItem("naijaswap_role_" + user.uid);
-  if (cachedRole) {
-    establishedRole = normalizeRole(cachedRole);
-  }
-
-  try {
-    const userDocRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userDocRef);
-    if (snap && snap.exists()) {
-      const data = snap.data();
-      const firestoreRole = normalizeRole(data.accountType || data.role);
-      if (firestoreRole) {
-        establishedRole = firestoreRole;
-      }
-    }
-  } catch (_) {}
-
-  // If a role is already established for this user, do not allow switching!
-  const finalRole = establishedRole || requestedRole;
+  // If the user signed up as a dealer or provided a shop name, they are unequivocally a dealer
+  const isDealerRole = requestedRole === "dealer" || Boolean(sName);
+  const finalRole = isDealerRole ? "dealer" : requestedRole;
 
   localStorage.setItem("naijaswap_role_" + user.uid, finalRole);
   localStorage.setItem("naijaswap_last_role", finalRole);
-  if (finalRole === "dealer" && shopName) {
-    localStorage.setItem("naijaswap_shop_" + user.uid, shopName);
+  if (isDealerRole && sName) {
+    localStorage.setItem("naijaswap_shop_" + user.uid, sName);
   }
 
-  logNaijaSwap("info", "Auth", `User ${user.uid} locked to permanent role "${finalRole}".`);
+  logNaijaSwap("info", "Auth", `User ${user.uid} role configured as "${finalRole}".`);
 
-  // Persist to Firestore asynchronously
+  // Persist to Firestore
   try {
     const userDocRef = doc(db, "users", user.uid);
-    await setDoc(userDocRef, {
+    const userPayload = {
       uid: user.uid,
       accountType: finalRole,
       role: finalRole,
+      isDealer: isDealerRole,
       email: user.email || "",
-      displayName: user.displayName || "",
+      displayName: user.displayName || (isDealerRole ? (sName || "Dealer") : ""),
       phoneNumber: user.phoneNumber || "",
-      ...(shopName && finalRole === "dealer" ? { shopName } : {})
-    }, { merge: true });
+      ...(isDealerRole ? {
+        storeName: sName || "My Phone Store",
+        shopName: sName || "My Phone Store",
+        businessName: sName || "My Phone Store"
+      } : {}),
+      updatedAt: new Date().toISOString()
+    };
+    await setDoc(userDocRef, userPayload, { merge: true });
+
+    if (isDealerRole) {
+      try {
+        await setDoc(doc(db, "dealers", user.uid), {
+          uid: user.uid,
+          storeName: sName || "My Phone Store",
+          shopName: sName || "My Phone Store",
+          businessName: sName || "My Phone Store",
+          email: user.email || "",
+          displayName: user.displayName || sName || "Dealer",
+          phoneNumber: user.phoneNumber || "",
+          role: "dealer",
+          accountType: "dealer",
+          isDealer: true,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (_) {}
+
+      try {
+        await setDoc(doc(db, "dealerProfiles", user.uid), {
+          storeOwnerUid: user.uid,
+          storeName: sName || "My Phone Store",
+          businessEmail: user.email || "",
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+      } catch (_) {}
+    }
   } catch (err) {
     logNaijaSwap("warn", "Auth", `Firestore role sync note: ${err.message}`);
   }
@@ -200,66 +218,95 @@ export async function saveUserRole(user, role, shopName = "") {
 export async function getUserRole(user) {
   if (!user || !user.uid) return DEFAULT_ROLE;
 
-  // 1. Primary Source of Truth: Check Firestore user document
+  // 1. Direct local cache check for this specific UID first
+  const cachedRole = localStorage.getItem("naijaswap_role_" + user.uid);
+  const cachedShop = localStorage.getItem("naijaswap_shop_" + user.uid);
+  if (cachedRole === "dealer" || cachedShop) {
+    return "dealer";
+  }
+
+  // 2. Check pending role from initial signup session
+  const pendingRole = localStorage.getItem("naijaswap_role_pending") || sessionStorage.getItem("pending_signup_role");
+  if (pendingRole && normalizeRole(pendingRole) === "dealer") {
+    localStorage.setItem("naijaswap_role_" + user.uid, "dealer");
+    localStorage.setItem("naijaswap_last_role", "dealer");
+    return "dealer";
+  }
+
+  // 3. Primary Source of Truth: Check Firestore users, dealers, dealerProfiles, and dealerVerification in parallel
   try {
-    const userRef = doc(db, "users", user.uid);
-    const snapshot = await Promise.race([
-      getDoc(userRef),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("Lookup timeout")), ROLE_LOOKUP_TIMEOUT_MS))
+    const [userSnapRes, dealerSnapRes, profileSnapRes, verifSnapRes] = await Promise.allSettled([
+      getDoc(doc(db, "users", user.uid)),
+      getDoc(doc(db, "dealers", user.uid)),
+      getDoc(doc(db, "dealerProfiles", user.uid)),
+      getDoc(doc(db, "dealerVerification", user.uid))
     ]);
-    if (snapshot && snapshot.exists()) {
-      const data = snapshot.data();
-      let rawRole = data.accountType || data.role;
-      if (!rawRole && (data.isDealer === true || data.storeName || data.businessName || data.shopName)) {
-        rawRole = "dealer";
-      }
-      const storedRole = normalizeRole(rawRole);
-      const sName = data.shopName || data.businessName || data.storeName;
-      if (sName) localStorage.setItem("naijaswap_shop_" + user.uid, sName);
-      localStorage.setItem("naijaswap_role_" + user.uid, storedRole);
-      localStorage.setItem("naijaswap_last_role", storedRole);
-      logNaijaSwap("info", "Auth", `Resolved permanent role from Firestore users: "${storedRole}"`);
-      return storedRole;
+
+    const hasDealerDoc = dealerSnapRes.status === "fulfilled" && dealerSnapRes.value?.exists();
+    const hasProfileDoc = profileSnapRes.status === "fulfilled" && profileSnapRes.value?.exists();
+    const hasVerifDoc = verifSnapRes.status === "fulfilled" && verifSnapRes.value?.exists();
+
+    let uData = {};
+    if (userSnapRes.status === "fulfilled" && userSnapRes.value?.exists()) {
+      uData = userSnapRes.value.data() || {};
+    }
+
+    if (uData.role === "admin" || uData.accountType === "admin") {
+      localStorage.setItem("naijaswap_role_" + user.uid, "admin");
+      localStorage.setItem("naijaswap_last_role", "admin");
+      return "admin";
+    }
+
+    const isDealer = hasDealerDoc
+      || hasProfileDoc
+      || hasVerifDoc
+      || uData.isDealer === true
+      || normalizeRole(uData.accountType) === "dealer"
+      || normalizeRole(uData.role) === "dealer"
+      || Boolean(uData.storeName || uData.shopName || uData.businessName);
+
+    if (uData.onboardingCompleted || (hasDealerDoc && dealerSnapRes.value.data()?.onboardingCompleted)) {
+      localStorage.setItem("naijaswap_onboarded_v2_" + user.uid, "true");
+      localStorage.setItem("naijaswap_onboarded_" + user.uid, "true");
+    }
+    if (uData.displayName) {
+      try {
+        const uObj = JSON.parse(localStorage.getItem("naijaswap_user") || "{}");
+        uObj.displayName = uData.displayName;
+        localStorage.setItem("naijaswap_user", JSON.stringify(uObj));
+      } catch (_) {}
+    }
+    if (uData.phoneNumber) {
+      localStorage.setItem("naijaswap_phone_" + user.uid, uData.phoneNumber);
+      localStorage.setItem("naijaswap_user_whatsapp_" + user.uid, uData.phoneNumber);
+    }
+
+    if (isDealer) {
+      const storeName = uData.storeName || uData.shopName || uData.businessName ||
+        (hasDealerDoc && (dealerSnapRes.value.data()?.storeName || dealerSnapRes.value.data()?.shopName || dealerSnapRes.value.data()?.businessName)) ||
+        (hasProfileDoc && (profileSnapRes.value.data()?.storeName || profileSnapRes.value.data()?.businessName)) ||
+        "";
+      if (storeName) localStorage.setItem("naijaswap_shop_" + user.uid, storeName);
+      localStorage.setItem("naijaswap_role_" + user.uid, "dealer");
+      localStorage.setItem("naijaswap_last_role", "dealer");
+      logNaijaSwap("info", "Auth", `Resolved permanent role: "dealer" for UID=${user.uid}`);
+      return "dealer";
+    }
+
+    if (uData.accountType || uData.role) {
+      const norm = normalizeRole(uData.accountType || uData.role);
+      localStorage.setItem("naijaswap_role_" + user.uid, norm);
+      localStorage.setItem("naijaswap_last_role", norm);
+      return norm;
     }
   } catch (err) {
     logNaijaSwap("info", "Auth", `Firestore role lookup note: ${err.message}`);
   }
 
-  // 1b. Also check Firestore dealers collection directly
-  try {
-    const dealerDoc = await getDoc(doc(db, "dealers", user.uid));
-    if (dealerDoc.exists()) {
-      const dData = dealerDoc.data();
-      const sName = dData.shopName || dData.businessName || dData.storeName;
-      if (sName) localStorage.setItem("naijaswap_shop_" + user.uid, sName);
-      localStorage.setItem("naijaswap_role_" + user.uid, "dealer");
-      localStorage.setItem("naijaswap_last_role", "dealer");
-      logNaijaSwap("info", "Auth", `Resolved dealer role from Firestore dealers collection.`);
-      return "dealer";
-    }
-  } catch (_) {}
-
-  // 2. Direct local role cache for this specific UID
-  const cachedRole = localStorage.getItem("naijaswap_role_" + user.uid);
   if (cachedRole) {
-    const norm = normalizeRole(cachedRole);
-    logNaijaSwap("info", "Auth", `Resolved permanent role from local cache: "${norm}"`);
-    return norm;
+    return normalizeRole(cachedRole);
   }
 
-  // 3. Check pending role from initial signup
-  const pendingRole = localStorage.getItem("naijaswap_role_pending") || sessionStorage.getItem("pending_signup_role");
-  if (pendingRole) {
-    const norm = normalizeRole(pendingRole);
-    localStorage.setItem("naijaswap_role_" + user.uid, norm);
-    localStorage.setItem("naijaswap_last_role", norm);
-    localStorage.removeItem("naijaswap_role_pending");
-    sessionStorage.removeItem("pending_signup_role");
-    logNaijaSwap("info", "Auth", `Resolved role from pending signup: "${norm}"`);
-    return norm;
-  }
-
-  // 4. Fallback default
   return DEFAULT_ROLE;
 }
 
@@ -300,9 +347,7 @@ export async function redirectUserAfterAuth(user) {
 
     const candidate = isValidRedirectTarget(redirectParam) ? redirectParam : (isValidRedirectTarget(redirectSession) ? redirectSession : null);
 
-    let target = userRole === "admin"
-      ? "/admin.html"
-      : (userRole === "dealer" ? "/dealer-dashboard.html" : "/dashboard.html");
+    let target = userRole === "dealer" ? "/dealer-dashboard.html" : "/dashboard.html";
 
     if (candidate) {
       const lower = candidate.toLowerCase();
@@ -313,10 +358,6 @@ export async function redirectUserAfterAuth(user) {
         }
       } else if (userRole === "customer") {
         if (!lower.includes("dealer-")) {
-          target = candidate;
-        }
-      } else if (userRole === "admin") {
-        if (lower.includes("admin")) {
           target = candidate;
         }
       }
@@ -508,6 +549,7 @@ export function initLoginForm() {
       try {
         setButtonLoading(submitBtn, true, "Signing in...");
         const userCred = await signInWithEmailAndPassword(auth, email, password);
+        sessionStorage.removeItem("naijaswap_first_signup");
         await redirectUserAfterAuth(userCred.user);
       } catch (err) {
         setButtonLoading(submitBtn, false);
@@ -531,6 +573,7 @@ export function initLoginForm() {
         console.log("[NaijaSwap Auth] Triggering signInWithPopup...");
         const result = await signInWithPopup(auth, googleProvider);
         console.log("[NaijaSwap Auth] Google sign-in success, UID:", result.user?.uid);
+        sessionStorage.removeItem("naijaswap_first_signup");
         await redirectUserAfterAuth(result.user);
       } catch (err) {
         console.error("[NaijaSwap Auth] Google sign-in failed:", err.code, err.message);
@@ -695,15 +738,18 @@ export function initSignupForm() {
 
       try {
         setButtonLoading(submitBtn, true, "Creating account...");
+        window.__naijaswap_signing_up = true;
         // Set this before Firebase emits auth state so the observer cannot default a dealer to customer.
         localStorage.setItem("naijaswap_role_pending", selectedRole);
+        sessionStorage.setItem("pending_signup_role", selectedRole);
         sessionStorage.setItem("naijaswap_first_signup", "true");
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCred.user;
 
-        // Persist user role
+        // Persist user role to Firestore and local storage
         await saveUserRole(user, selectedRole, shopName);
         localStorage.removeItem("naijaswap_role_pending");
+        sessionStorage.setItem("pending_verif_email", email);
 
         // Record optional marketing consent if checked
         const consented = document.getElementById("marketingConsentCheck")?.checked === true;
@@ -719,25 +765,20 @@ export function initSignupForm() {
           })
         }).catch(() => {});
 
-        // Send 6-digit email verification code
+        // Dispatch verification email (Google Firebase native email + 6-digit Firestore code)
         try {
-          await fetch('/api/auth/send-verification', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email,
-              uid: user.uid,
-              firstName: shopName || ''
-            })
+          await dispatchVerificationEmail(user, {
+            firstName: shopName || '',
+            role: selectedRole
           });
         } catch (vErr) {
           console.warn("Verification dispatch warning:", vErr);
         }
 
-        sessionStorage.setItem("pending_verif_email", email);
         // Redirect to 6-digit email verification screen
         window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
       } catch (err) {
+        window.__naijaswap_signing_up = false;
         setButtonLoading(submitBtn, false);
         showAuthAlert("signupAlert", err?.code?.startsWith("firestore/")
           ? "Account created, but the account type could not be saved. Enable Firestore Database and check its rules before signing in again."
@@ -1023,7 +1064,6 @@ export function initRouteProtection() {
   const isPhoneAuthPage = isCurrentRoute("phone-auth") || !!document.getElementById("sendCodeForm");
   const isAuthPage = isLoginPage || isSignupPage || isPhoneAuthPage;
 
-  const isAdminPage = isCurrentRoute("admin") || !!document.getElementById("adminSwapsList");
   const isCustomerDash = isCurrentRoute("dashboard");
   const isDealerDash = isCurrentRoute(
     "dealer-dashboard",
@@ -1038,7 +1078,7 @@ export function initRouteProtection() {
   );
   const isAccountPage = isCurrentRoute("account");
   const isCustomerProtectedPage = isCurrentRoute("my-swaps", "alerts");
-  const isAnyDash = isAdminPage || isCustomerDash || isDealerDash || isAccountPage || isCustomerProtectedPage;
+  const isAnyDash = isCustomerDash || isDealerDash || isAccountPage || isCustomerProtectedPage;
 
   logNaijaSwap("info", "Auth", `Route initialized: ${window.location.pathname}`);
 
@@ -1080,10 +1120,20 @@ export function initRouteProtection() {
       });
 
       if (isAuthPage) {
-        if (isSwitchRequest) {
-          // Explicit switch account requested - leave forms open and active
+        // If on signup page, or if a signup is in flight, NEVER auto-redirect to dashboard!
+        // The signup form handler manages saving the role, requesting OTP, and navigating to verify-email.html.
+        if (isSignupPage || window.__naijaswap_signing_up || isSwitchRequest) {
           return;
         }
+
+        // On login page: If user arrived on login page directly or wants to change account,
+        // do not forcibly bounce them away; let them enter credentials or click Log in.
+        // If they click 'Continue with Google' or submit the login form, the form handlers
+        // call redirectUserAfterAuth(user) directly.
+        if (isLoginPage) {
+          return;
+        }
+
         await redirectUserAfterAuth(user);
         return;
       }

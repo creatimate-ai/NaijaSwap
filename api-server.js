@@ -14,6 +14,12 @@ const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'naijaswap1';
 const IS_TESTING_MODE = true;
 const DEALER_PREMIUM_MONTHLY_PRICE_NAIRA = 9900;
 const DEALER_PREMIUM_MONTHLY_PRICE_KOBO = 990000;
+const DEALER_PREMIUM_ANNUAL_PRICE_NAIRA = 99000;
+const DEALER_PREMIUM_ANNUAL_PRICE_KOBO = 9900000;
+const DEALER_LEADER_MONTHLY_PRICE_NAIRA = 24900;
+const DEALER_LEADER_MONTHLY_PRICE_KOBO = 2490000;
+const DEALER_LEADER_ANNUAL_PRICE_NAIRA = 249000;
+const DEALER_LEADER_ANNUAL_PRICE_KOBO = 24900000;
 const STARTER_MAX_ACTIVE_LISTINGS = 5;
 
 // Helper: retrieve dealer subscription and compute plan entitlements
@@ -658,19 +664,33 @@ router.post('/api/subscription/verify', authenticate, async (request, response) 
       }
       transactionData = result.data;
 
-      // Validate currency, exact amount (₦9,900 / 990,000 kobo) and authenticated account
-      if (transactionData.currency !== 'NGN' || Number(transactionData.amount) !== DEALER_PREMIUM_MONTHLY_PRICE_KOBO) {
-        return response.status(409).json({ error: 'Payment amount does not match the ₦9,900 monthly subscription fee.' });
+      const validAmounts = [
+        DEALER_PREMIUM_MONTHLY_PRICE_KOBO,
+        DEALER_PREMIUM_ANNUAL_PRICE_KOBO,
+        DEALER_LEADER_MONTHLY_PRICE_KOBO,
+        DEALER_LEADER_ANNUAL_PRICE_KOBO
+      ];
+
+      // Validate currency, exact amount and authenticated account
+      const transAmount = Number(transactionData.amount);
+      if (transactionData.currency !== 'NGN' || !validAmounts.includes(transAmount)) {
+        return response.status(409).json({ error: 'Payment amount does not match an active dealer subscription tier.' });
       }
       const transDealerUid = transactionData.metadata?.dealerUid || transactionData.metadata?.uid;
       if (transDealerUid && transDealerUid !== uid) {
         return response.status(403).json({ error: 'This payment belongs to a different dealer account.' });
       }
     } else {
+      const requestedPlan = request.body.plan === 'leader' ? 'leader' : 'premium';
+      const isReqAnnual = request.body.billingCycle === 'annual' || Number(request.body.amountInNaira) >= 90000;
+      let mockAmount = requestedPlan === 'leader'
+        ? (isReqAnnual ? DEALER_LEADER_ANNUAL_PRICE_KOBO : DEALER_LEADER_MONTHLY_PRICE_KOBO)
+        : (isReqAnnual ? DEALER_PREMIUM_ANNUAL_PRICE_KOBO : DEALER_PREMIUM_MONTHLY_PRICE_KOBO);
+
       transactionData = {
         status: 'success',
         currency: 'NGN',
-        amount: DEALER_PREMIUM_MONTHLY_PRICE_KOBO,
+        amount: mockAmount,
         reference
       };
     }
@@ -678,17 +698,25 @@ router.post('/api/subscription/verify', authenticate, async (request, response) 
     const firebase = getFirebaseAdmin();
     const db = getFirestore(firebase);
 
+    const transAmount = Number(transactionData.amount);
+    const isAnnual = transAmount === DEALER_PREMIUM_ANNUAL_PRICE_KOBO || transAmount === DEALER_LEADER_ANNUAL_PRICE_KOBO;
+    const isLeader = transAmount === DEALER_LEADER_MONTHLY_PRICE_KOBO || transAmount === DEALER_LEADER_ANNUAL_PRICE_KOBO;
+    const plan = isLeader ? 'leader' : 'premium';
+    const billingCycle = isAnnual ? 'annual' : 'monthly';
+    const amountNaira = Math.round(transAmount / 100);
+
     const now = new Date();
-    const periodEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const durationDays = isAnnual ? 365 : 30;
+    const periodEnd = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
 
     const subRef = db.collection('dealerSubscriptions').doc(uid);
     await subRef.set({
       dealerUid: uid,
-      plan: 'premium',
+      plan,
       status: 'active',
-      amount: DEALER_PREMIUM_MONTHLY_PRICE_NAIRA,
+      amount: amountNaira,
       currency: 'NGN',
-      billingCycle: 'monthly',
+      billingCycle,
       startDate: FieldValue.serverTimestamp(),
       currentPeriodStart: FieldValue.serverTimestamp(),
       currentPeriodEnd: periodEnd,
@@ -704,7 +732,7 @@ router.post('/api/subscription/verify', authenticate, async (request, response) 
     // Update dealer profile with premium indicator flag
     await db.collection('dealerProfiles').doc(uid).set({
       isPremium: true,
-      plan: 'premium',
+      plan,
       subscriptionStatus: 'active',
       updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });

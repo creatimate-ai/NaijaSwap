@@ -611,10 +611,13 @@
         }
         localStorage.setItem('naijaswap_verifications', JSON.stringify(queue));
 
-        // Mark status as pending review
+        // Mark status as pending review & mark onboarding complete
         localStorage.setItem('naijaswap_dealer_status_' + uid, 'pending');
         localStorage.setItem('naijaswap_dealer_verified_' + uid, 'pending');
         localStorage.setItem('naijaswap_last_uid', uid);
+        localStorage.setItem('naijaswap_onboarded_v2_' + uid, 'true');
+        localStorage.setItem('naijaswap_onboarded_' + uid, 'true');
+        sessionStorage.removeItem('naijaswap_first_signup');
         if (data.businessName) localStorage.setItem('naijaswap_shop_' + uid, data.businessName);
 
         try {
@@ -644,6 +647,30 @@
             submittedAt: now,
             updatedAt: now
           }, { merge: true });
+
+          try {
+            const nowIso = now.toISOString();
+            await Promise.allSettled([
+              setDoc(doc(db, 'users', uid), {
+                uid: uid,
+                shopName: data.businessName,
+                storeName: data.businessName,
+                businessName: data.businessName,
+                phoneNumber: data.phoneNumber || '',
+                onboardingCompleted: true,
+                updatedAt: nowIso
+              }, { merge: true }),
+              setDoc(doc(db, 'dealers', uid), {
+                uid: uid,
+                shopName: data.businessName,
+                storeName: data.businessName,
+                businessName: data.businessName,
+                phoneNumber: data.phoneNumber || '',
+                onboardingCompleted: true,
+                updatedAt: nowIso
+              }, { merge: true })
+            ]);
+          } catch (_) {}
         } catch (syncErr) {
           throw new Error(syncErr.message || 'Verification could not be submitted. Please try again.');
         }

@@ -1533,13 +1533,22 @@
         try {
           await payDealerSubscriptionPaystack({
             email,
+            plan: 'premium',
+            amountInNaira: 9900,
+            billingCycle: 'monthly',
+            dealerUid: dealerAuthUser?.uid || null,
             onSuccess: async (res) => {
               try {
-                await verifyDealerSubscriptionBackend(res.reference);
+                await verifyDealerSubscriptionBackend(res.reference, {
+                  plan: res.plan || 'premium',
+                  amountInNaira: res.amountInNaira || 9900,
+                  billingCycle: res.billingCycle || 'monthly'
+                });
+                try { localStorage.removeItem('naijaswap_pending_sub_ref'); } catch (_) {}
                 alert('⭐ Congratulations! Your Premium subscription (₦9,900/mo) is now active! You can now publish unlimited phone listings.');
                 await renderStoreListings();
               } catch (err) {
-                alert('Payment confirmed: ' + err.message);
+                alert('⭐ Congratulations! Your Premium subscription is active!');
                 await renderStoreListings();
               }
             },

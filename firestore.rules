@@ -51,9 +51,9 @@ service cloud.firestore {
       allow read: if isOwner(uid) || isAdmin();
       allow update: if isAdmin()
         || (isOwner(uid)
-          && request.resource.data.uid == resource.data.uid
+          && (!('uid' in resource.data) || request.resource.data.uid == resource.data.uid || request.resource.data.uid == uid)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
-            ['displayName', 'phoneNumber', 'businessName', 'shopName', 'photoURL', 'avatar', 'preferences', 'preferredHub', 'currentDevice', 'updatedAt'])
+            ['uid', 'displayName', 'phoneNumber', 'businessName', 'shopName', 'storeName', 'contactPerson', 'photoURL', 'avatar', 'storeLogo', 'preferences', 'preferredHub', 'state', 'city', 'hub', 'shopAddress', 'currentDevice', 'onboardingCompleted', 'updatedAt', 'emailVerified', 'emailVerifiedAt', 'dealerPlan', 'subscriptionStatus'])
           && !('role' in request.resource.data.diff(resource.data).affectedKeys())
           && !('accountType' in request.resource.data.diff(resource.data).affectedKeys())
           && !('verificationStatus' in request.resource.data.diff(resource.data).affectedKeys())
@@ -73,14 +73,20 @@ service cloud.firestore {
         && request.resource.data.storeOwnerUid == uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
           ['storeName', 'contactPerson', 'businessEmail', 'phoneNumber',
-           'address', 'description', 'logoUrl']);
+           'address', 'description', 'logoUrl', 'isPremium', 'plan', 'subscriptionStatus', 'updatedAt', 'state', 'city', 'hub', 'onboardingCompleted']);
       allow delete: if false;
+    }
+
+    match /dealerSubscriptions/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if isSignedIn() && request.auth.uid == uid;
+      allow delete: if isAdmin();
     }
 
     // Legacy/admin dashboard collection. Keep this admin-readable only.
     match /dealers/{dealerId} {
       allow read: if isAdmin() || isOwner(dealerId);
-      allow create, update: if isAdmin();
+      allow create, update: if isAdmin() || isOwner(dealerId);
       allow delete: if false;
     }
 
@@ -117,7 +123,7 @@ service cloud.firestore {
           'condition', 'conditionGrade', 'color', 'battery', 'marketValue',
           'quantityInStock', 'isSwapAllowed', 'image', 'mediaFiles',
           'description', 'location', 'hubAddress', 'whatsappNumber', 'status',
-          'createdAt', 'updatedAt'])
+          'createdAt', 'updatedAt', 'isPremiumDealer'])
         && request.resource.data.brand in ['Apple', 'Samsung']
         && request.resource.data.model is string
         && request.resource.data.model.size() > 0
@@ -136,7 +142,7 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(
           ['model', 'storage', 'condition', 'conditionGrade', 'color', 'battery',
            'marketValue', 'quantityInStock', 'isSwapAllowed', 'image', 'mediaFiles',
-          'description', 'location', 'hubAddress', 'whatsappNumber', 'updatedAt', 'status'])
+          'description', 'location', 'hubAddress', 'whatsappNumber', 'updatedAt', 'status', 'isPremiumDealer'])
         && request.resource.data.status in ['active', 'out_of_stock', 'archived'];
       allow delete: if isSignedIn() && resource.data.storeOwnerUid == request.auth.uid;
     }
@@ -319,6 +325,10 @@ service cloud.firestore {
           'device', 'targetDevice', 'storeName'])
         && request.resource.data.reportId == certificateId;
       allow update, delete: if isAdmin();
+    }
+
+    match /emailVerifications/{emailDoc} {
+      allow read, write: if isSignedIn();
     }
 
     match /stolenDevices/{imei} {

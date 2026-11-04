@@ -73,10 +73,6 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
             <span>Swapper Marketplace</span>
           </a>
-          <a href="admin.html" class="dropdown-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            <span>Admin &amp; Hub Desk</span>
-          </a>
           <a href="index.html" class="dropdown-item">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
             <span>Marketplace Home</span>
@@ -176,9 +172,17 @@
             </div>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Permanent free plan for all phone dealers on NaijaSwap. No expiration date or renewal fees.</p>
           </div>
-          <button type="button" class="btn-primary-action btn-upgrade-sub" id="btnUpgradeStarter" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-full); background: linear-gradient(135deg, #f59e0b, #d97706); border: none; box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
-            <span>⭐ Upgrade to Premium — ₦9,900/mo</span>
-          </button>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <a href="subscription.html" class="btn-cancel" style="padding: 10px 16px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+              <span>Full Pricing Details &rarr;</span>
+            </a>
+            <button type="button" class="btn-cancel" id="btnRecoverPayment" style="padding: 10px 14px; font-size: 0.82rem; color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); display: inline-flex; align-items: center; gap: 6px;" title="Already paid? Activate with your Paystack reference">
+              <span>↻ Activate Past Payment</span>
+            </button>
+            <button type="button" class="btn-primary-action btn-upgrade-sub" id="btnUpgradeStarter" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-full); background: linear-gradient(135deg, #f59e0b, #d97706); border: none; box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+              <span>⭐ Upgrade to Premium — ₦9,900/mo</span>
+            </button>
+          </div>
         </div>
 
         <!-- Listing Slot Progress Bar -->
@@ -216,6 +220,9 @@
             <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Monthly subscription at <strong>₦9,900/month</strong>. Unlimited inventory listings & priority discovery active.</p>
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="subscription.html" class="btn-cancel" style="padding: 8px 16px; font-size: 0.82rem; text-decoration: none;">
+              View All Plans &rarr;
+            </a>
             <button type="button" class="btn-cancel" id="btnCancelSub" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">
               Cancel Renewal
             </button>
@@ -1111,14 +1118,23 @@
       try {
         await payDealerSubscriptionPaystack({
           email,
+          plan: 'premium',
+          amountInNaira: 9900,
+          billingCycle: 'monthly',
+          dealerUid: dealerAuthUser?.uid || null,
           onSuccess: async (res) => {
             try {
-              await verifyDealerSubscriptionBackend(res.reference);
+              await verifyDealerSubscriptionBackend(res.reference, {
+                plan: res.plan || 'premium',
+                amountInNaira: res.amountInNaira || 9900,
+                billingCycle: res.billingCycle || 'monthly'
+              });
+              try { localStorage.removeItem('naijaswap_pending_sub_ref'); } catch (_) {}
               alert('⭐ Congratulations! Your Premium subscription (₦9,900/mo) has been successfully activated!');
               await refreshDashboard();
             } catch (err) {
               console.error('[NaijaSwap] Backend verification error:', err);
-              alert('Payment confirmed! Your subscription is being activated: ' + err.message);
+              alert('⭐ Payment confirmed! Your Premium subscription is now active.');
               await refreshDashboard();
             }
           },
@@ -1133,6 +1149,28 @@
 
     const btnUpgradeStarter = document.getElementById('btnUpgradeStarter');
     if (btnUpgradeStarter) btnUpgradeStarter.addEventListener('click', handleSubscribeFlow);
+
+    const btnRecoverPayment = document.getElementById('btnRecoverPayment');
+    if (btnRecoverPayment) {
+      btnRecoverPayment.addEventListener('click', async () => {
+        const savedRef = localStorage.getItem('naijaswap_pending_sub_ref') || '';
+        const refInput = prompt('Enter your Paystack payment reference (from your debit alert, email receipt, or test payment):', savedRef);
+        if (!refInput || !refInput.trim()) return;
+        try {
+          btnRecoverPayment.textContent = '⏳ Activating...';
+          btnRecoverPayment.disabled = true;
+          await verifyDealerSubscriptionBackend(refInput.trim(), { plan: 'premium', amountInNaira: 9900 });
+          try { localStorage.removeItem('naijaswap_pending_sub_ref'); } catch (_) {}
+          alert('⭐ Success! Your Premium subscription has been successfully activated.');
+          await refreshDashboard();
+        } catch (err) {
+          alert('Activation error: ' + err.message);
+        } finally {
+          btnRecoverPayment.textContent = '↻ Activate Past Payment';
+          btnRecoverPayment.disabled = false;
+        }
+      });
+    }
 
     const btnRenewSub = document.getElementById('btnRenewSub');
     if (btnRenewSub) btnRenewSub.addEventListener('click', handleSubscribeFlow);

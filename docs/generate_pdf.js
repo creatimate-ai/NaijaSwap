@@ -249,7 +249,7 @@ const htmlContent = `<!DOCTYPE html>
     <p style="margin:2px 0 4px 0;">Mandatory physical triage at certified verification benches (e.g. Computer Village Hub, Ikeja) before trade clearance.</p>
     <ul>
       <li>Hardware checklist: Screen condition, battery health %, biometrics (TouchID/FaceID), camera functions, iCloud sign-out status, and physical IMEI matching.</li>
-      <li>Implementation: <span class="code-loc">admin.html (Hub Desk)</span> | <span class="code-loc">js/backend-api.js</span> | <span class="code-loc">firestore.rules</span></li>
+      <li>Implementation: <span class="code-loc">admin-portal/ (Hub Desk)</span> | <span class="code-loc">js/backend-api.js</span> | <span class="code-loc">firestore.rules</span></li>
     </ul>
   </div>
 

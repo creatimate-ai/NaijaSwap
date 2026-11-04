@@ -1134,9 +1134,25 @@
           } catch (_) {}
         }
 
+        const profile = getStoredProfile(currentUser.uid);
+        if (newName) {
+          profile.displayName = newName;
+          profile.name = newName;
+        }
+        if (newPhone) {
+          profile.phone = newPhone;
+          profile.phoneNumber = newPhone;
+        }
+        profile.preferredHub = newHub;
+
+        let effectivePhoto = profile.avatar || profile.photoURL || '';
+
         if (pendingPhotoFile) {
           const mediaToken = await storeMedia(`avatar_${currentUser.uid}`, pendingPhotoFile, { folder: 'user_avatars' });
           localStorage.setItem('naijaswap_photo_' + currentUser.uid, mediaToken);
+          profile.avatar = mediaToken;
+          profile.photoURL = mediaToken;
+          effectivePhoto = mediaToken;
           try {
             const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
             u.photoURL = mediaToken;
@@ -1145,40 +1161,42 @@
           if (mediaToken.startsWith('https://')) {
             try { await updateProfile(currentUser, { photoURL: mediaToken }); } catch (_) {}
           }
-          try {
-            const userDocRef = doc(db, 'users', currentUser.uid);
-            await setDoc(userDocRef, {
-              photoURL: mediaToken,
-              avatar: mediaToken
-            }, { merge: true });
-          } catch (_) {}
         } else if (removePhotoFlag) {
           localStorage.removeItem('naijaswap_photo_' + currentUser.uid);
+          delete profile.avatar;
+          delete profile.photoURL;
+          effectivePhoto = '';
           try {
             const u = JSON.parse(localStorage.getItem('naijaswap_user') || '{}');
             delete u.photoURL;
             localStorage.setItem('naijaswap_user', JSON.stringify(u));
           } catch (_) {}
           try { await updateProfile(currentUser, { photoURL: '' }); } catch (_) {}
-          try {
-            const userDocRef = doc(db, 'users', currentUser.uid);
-            await setDoc(userDocRef, {
-              photoURL: '',
-              avatar: ''
-            }, { merge: true });
-          } catch (_) {}
         }
 
-        const profile = getStoredProfile(currentUser.uid);
-        if (pendingPhotoFile) {
-          profile.avatar = localStorage.getItem('naijaswap_photo_' + currentUser.uid);
-          profile.photoURL = profile.avatar;
-        } else if (removePhotoFlag) {
-          delete profile.avatar;
-          delete profile.photoURL;
-        }
-        profile.preferredHub = newHub;
         saveStoredProfile(currentUser.uid, profile);
+
+        // Always sync complete swapper profile to Firestore
+        try {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const updatePayload = {
+            uid: currentUser.uid,
+            displayName: newName || currentUser.displayName || '',
+            phoneNumber: newPhone || currentUser.phoneNumber || '',
+            preferredHub: newHub,
+            updatedAt: new Date().toISOString()
+          };
+          if (pendingPhotoFile) {
+            updatePayload.photoURL = effectivePhoto;
+            updatePayload.avatar = effectivePhoto;
+          } else if (removePhotoFlag) {
+            updatePayload.photoURL = '';
+            updatePayload.avatar = '';
+          }
+          await setDoc(userDocRef, updatePayload, { merge: true });
+        } catch (fErr) {
+          console.warn('[NaijaSwap Account] Firestore swapper update note:', fErr.message);
+        }
 
         setButtonLoading(saveBtn, false);
         showAuthAlert('editProfileAlert', 'Profile updated successfully!', 'success');
@@ -1373,14 +1391,33 @@
           try {
             const dealerDocRef = doc(db, 'dealers', uid);
             const dPayload = {
+              uid: uid,
               businessName: storeName,
               shopName: storeName,
+              storeName: storeName,
               phone: phone,
-              shopAddress: address
+              phoneNumber: phone,
+              shopAddress: address,
+              updatedAt: new Date().toISOString()
             };
             if (pendingDealerPhoto) dPayload.storeLogo = effectiveLogo;
             else if (removeDealerPhotoFlag) dPayload.storeLogo = '';
             await setDoc(dealerDocRef, dPayload, { merge: true });
+          } catch (_) {}
+
+          try {
+            const profileDocRef = doc(db, 'dealerProfiles', uid);
+            const dpPayload = {
+              storeOwnerUid: uid,
+              storeName: storeName,
+              contactPerson: contactPerson,
+              phoneNumber: phone,
+              address: address,
+              updatedAt: new Date().toISOString()
+            };
+            if (pendingDealerPhoto) dpPayload.logoUrl = effectiveLogo;
+            else if (removeDealerPhotoFlag) dpPayload.logoUrl = '';
+            await setDoc(profileDocRef, dpPayload, { merge: true });
           } catch (_) {}
         }
 

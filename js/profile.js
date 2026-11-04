@@ -229,8 +229,9 @@ export function isProfileComplete(user, role = 'customer') {
     return false;
   }
 
-  const email = user?.email || profile.email;
-  const name = user?.displayName || profile.businessName || profile.name || profile.displayName;
+  const profile = uid ? getStoredProfile(uid) : {};
+  const email = user?.email || profile.email || profile.businessEmail;
+  const name = user?.displayName || profile.displayName || profile.name || profile.businessName || profile.storeName;
   return Boolean(email && name);
 }
 

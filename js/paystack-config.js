@@ -108,16 +108,28 @@ export async function payWithPaystack({ email, amountInNaira, reference, metadat
 }
 
 /**
- * Opens Paystack Inline Popup for Dealer Premium Subscription (₦9,900/month)
+ * Opens Paystack Inline Popup for Dealer Subscription
  * 
  * @param {Object} options
  * @param {string} options.email - Dealer email address
+ * @param {number} [options.amountInNaira=9900] - Amount in Naira (e.g. 9900 for monthly, 99000 for annual)
+ * @param {string} [options.plan='premium'] - Subscription plan name ('premium' | 'leader')
+ * @param {string} [options.billingCycle='monthly'] - Billing cycle ('monthly' | 'annual')
  * @param {Function} options.onSuccess - Callback on verified payment (response) => {}
  * @param {Function} [options.onCancel] - Callback on popup cancellation
  */
-export async function payDealerSubscriptionPaystack({ email, onSuccess, onCancel }) {
-  const amountInNaira = 9900;
-  const paystackRef = `NS-PREMIUM-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+export async function payDealerSubscriptionPaystack({ email, amountInNaira = 9900, plan = 'premium', billingCycle = 'monthly', dealerUid = null, onSuccess, onCancel }) {
+  const amount = Number(amountInNaira) || 9900;
+  const planLabel = plan === 'leader' ? 'Market Leader' : 'Premium';
+  const paystackRef = `NS-${plan.toUpperCase()}-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+  // Store pending reference in localStorage for instant recovery
+  try {
+    localStorage.setItem('naijaswap_pending_sub_ref', paystackRef);
+    localStorage.setItem('naijaswap_pending_sub_plan', plan);
+    localStorage.setItem('naijaswap_pending_sub_amount', String(amount));
+    localStorage.setItem('naijaswap_pending_sub_cycle', billingCycle);
+  } catch (_) {}
 
   await loadPaystackInlineScript();
 
@@ -128,7 +140,7 @@ export async function payDealerSubscriptionPaystack({ email, onSuccess, onCancel
   const handler = window.PaystackPop.setup({
     key: PAYSTACK_CONFIG.publicKey,
     email: String(email || '').trim() || 'dealer@naijaswap.ng',
-    amount: Math.round(amountInNaira * 100), // 990,000 kobo (₦9,900)
+    amount: Math.round(amount * 100), // in kobo
     currency: PAYSTACK_CONFIG.currency,
     ref: paystackRef,
     metadata: {
@@ -136,17 +148,20 @@ export async function payDealerSubscriptionPaystack({ email, onSuccess, onCancel
         {
           display_name: "Platform",
           variable_name: "platform",
-          value: "NaijaSwap Dealer Premium Subscription"
+          value: "NaijaSwap Dealer Subscription"
         },
         {
           display_name: "Plan",
           variable_name: "plan",
-          value: "Premium (₦9,900/mo)"
+          value: `${planLabel} (₦${amount.toLocaleString()}/${billingCycle === 'annual' ? 'yr' : 'mo'})`
         }
       ],
       type: 'dealer_subscription',
-      plan: 'premium',
-      amountNaira: amountInNaira
+      dealerUid: dealerUid || '',
+      uid: dealerUid || '',
+      plan: plan,
+      billingCycle: billingCycle,
+      amountNaira: amount
     },
     callback: function(response) {
       if (typeof onSuccess === 'function') {
@@ -154,7 +169,9 @@ export async function payDealerSubscriptionPaystack({ email, onSuccess, onCancel
           reference: response.reference || paystackRef,
           status: response.status || 'success',
           trans: response.trans || '',
-          amountInNaira
+          amountInNaira: amount,
+          plan: plan,
+          billingCycle: billingCycle
         });
       }
     },

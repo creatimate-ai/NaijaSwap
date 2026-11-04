@@ -4,9 +4,37 @@
  * asynchronous queuing, and Firestore audit logging.
  */
 
+const fs = require('fs');
+const path = require('path');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const templates = require('./email-templates');
+
+// Auto-load .env if present
+try {
+  const envCandidates = [
+    path.resolve(__dirname, '..', '.env'),
+    path.resolve(__dirname, '.env'),
+    path.resolve(process.cwd(), '.env')
+  ];
+  for (const envFile of envCandidates) {
+    if (fs.existsSync(envFile)) {
+      const content = fs.readFileSync(envFile, 'utf8');
+      content.split(/\r?\n/).forEach((line) => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#')) {
+          const eq = trimmed.indexOf('=');
+          if (eq > 0) {
+            const k = trimmed.slice(0, eq).trim();
+            const v = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, '');
+            if (!process.env[k]) process.env[k] = v;
+          }
+        }
+      });
+      break;
+    }
+  }
+} catch (_) {}
 
 // Configuration
 const DEFAULT_FROM = process.env.EMAIL_FROM || 'NaijaSwap <noreply@naijaswap.ng>';
