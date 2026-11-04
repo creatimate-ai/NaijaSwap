@@ -106,3 +106,65 @@ export async function payWithPaystack({ email, amountInNaira, reference, metadat
   handler.openIframe();
   return paystackRef;
 }
+
+/**
+ * Opens Paystack Inline Popup for Dealer Premium Subscription (₦9,900/month)
+ * 
+ * @param {Object} options
+ * @param {string} options.email - Dealer email address
+ * @param {Function} options.onSuccess - Callback on verified payment (response) => {}
+ * @param {Function} [options.onCancel] - Callback on popup cancellation
+ */
+export async function payDealerSubscriptionPaystack({ email, onSuccess, onCancel }) {
+  const amountInNaira = 9900;
+  const paystackRef = `NS-PREMIUM-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+  await loadPaystackInlineScript();
+
+  if (!window.PaystackPop || typeof window.PaystackPop.setup !== 'function') {
+    throw new Error('Paystack checkout could not be initialized.');
+  }
+
+  const handler = window.PaystackPop.setup({
+    key: PAYSTACK_CONFIG.publicKey,
+    email: String(email || '').trim() || 'dealer@naijaswap.ng',
+    amount: Math.round(amountInNaira * 100), // 990,000 kobo (₦9,900)
+    currency: PAYSTACK_CONFIG.currency,
+    ref: paystackRef,
+    metadata: {
+      custom_fields: [
+        {
+          display_name: "Platform",
+          variable_name: "platform",
+          value: "NaijaSwap Dealer Premium Subscription"
+        },
+        {
+          display_name: "Plan",
+          variable_name: "plan",
+          value: "Premium (₦9,900/mo)"
+        }
+      ],
+      type: 'dealer_subscription',
+      plan: 'premium',
+      amountNaira: amountInNaira
+    },
+    callback: function(response) {
+      if (typeof onSuccess === 'function') {
+        onSuccess({
+          reference: response.reference || paystackRef,
+          status: response.status || 'success',
+          trans: response.trans || '',
+          amountInNaira
+        });
+      }
+    },
+    onClose: function() {
+      if (typeof onCancel === 'function') {
+        onCancel();
+      }
+    }
+  });
+
+  handler.openIframe();
+  return paystackRef;
+}

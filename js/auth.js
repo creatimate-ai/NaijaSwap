@@ -271,6 +271,25 @@ export async function redirectUserAfterAuth(user) {
   if (!user || !user.uid) return;
   try {
     const userRole = await getUserRole(user);
+
+    // Compulsory email verification check for email/password users
+    if (user.email && !user.emailVerified) {
+      let isVerifiedInDb = false;
+      try {
+        const uSnap = await getDoc(doc(db, "users", user.uid));
+        if (uSnap.exists() && uSnap.data().emailVerified === true) {
+          isVerifiedInDb = true;
+        }
+      } catch (_) {}
+
+      if (!isVerifiedInDb) {
+        logNaijaSwap("warn", "Auth", `User ${user.email} is unverified. Redirecting to verify-email.html`);
+        sessionStorage.setItem("pending_verif_email", user.email);
+        window.location.assign(`/verify-email.html?email=${encodeURIComponent(user.email)}`);
+        return;
+      }
+    }
+
     const urlParams = typeof window !== "undefined" && window.location ? new URLSearchParams(window.location.search) : null;
     const redirectParam = urlParams ? urlParams.get("redirect") : null;
     const redirectSession = typeof sessionStorage !== "undefined" ? sessionStorage.getItem("post_login_redirect") : null;
@@ -672,12 +691,38 @@ export function initSignupForm() {
         await saveUserRole(user, selectedRole, shopName);
         localStorage.removeItem("naijaswap_role_pending");
 
-        // Redirect based on role
-        if (selectedRole === "dealer") {
-          window.location.href = "dealer-dashboard.html";
-        } else {
-          window.location.href = "dashboard.html";
+        // Record optional marketing consent if checked
+        const consented = document.getElementById("marketingConsentCheck")?.checked === true;
+        fetch('/api/marketing/record-consent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            uid: user.uid,
+            consented,
+            source: 'signup_form',
+            wordingVersion: 'v1.0-2026'
+          })
+        }).catch(() => {});
+
+        // Send 6-digit email verification code
+        try {
+          await fetch('/api/auth/send-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email,
+              uid: user.uid,
+              firstName: shopName || ''
+            })
+          });
+        } catch (vErr) {
+          console.warn("Verification dispatch warning:", vErr);
         }
+
+        sessionStorage.setItem("pending_verif_email", email);
+        // Redirect to 6-digit email verification screen
+        window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
       } catch (err) {
         setButtonLoading(submitBtn, false);
         showAuthAlert("signupAlert", err?.code?.startsWith("firestore/")
@@ -1013,6 +1058,32 @@ export function initRouteProtection() {
         await redirectUserAfterAuth(user);
         return;
       }
+
+      // Enforce email verification on protected dashboards
+      const isVerifyEmailPage = isCurrentRoute("verify-email");
+      if (user.email && !user.emailVerified && !isVerifyEmailPage) {
+        let isVerifiedInDb = false;
+        try {
+          const uSnap = await getDoc(doc(db, "users", user.uid));
+          if (uSnap.exists() && uSnap.data().emailVerified === true) {
+            isVerifiedInDb = true;
+          }
+        } catch (_) {}
+
+        if (!isVerifiedInDb && isAnyDash) {
+          logNaijaSwap("warn", "Auth", `Account ${user.email} is unverified. Directing to verify-email.html`);
+          sessionStorage.setItem("pending_verif_email", user.email);
+          window.location.replace(`verify-email.html?email=${encodeURIComponent(user.email)}`);
+          return;
+        }
+      }
+
+      // Log login context asynchronously for security & alert monitoring
+      fetch('/api/auth/log-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: user.uid, email: user.email || '' })
+      }).catch(() => {});
 
       // ROUTE ACCESS CONTROLLER (Testing Mode):
       // In testing mode, any signed-in user with credentials can access the admin desk,

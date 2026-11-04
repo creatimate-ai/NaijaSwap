@@ -160,6 +160,149 @@
       </div>
     </div>
 
+    <!-- Dedicated Dealer Subscription Management Card -->
+    <section class="dealer-subscription-card" id="subscriptionSection" style="margin-bottom: 24px; background: rgba(14, 21, 26, 0.7); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 22px 24px; position: relative; overflow: hidden; backdrop-filter: blur(12px);">
+      <div id="subscriptionContentLoading" style="color: var(--text-muted); font-size: 0.9rem; padding: 10px 0;">
+        <span>⏳ Checking dealer subscription status...</span>
+      </div>
+
+      <!-- Starter View -->
+      <div id="starterSubscriptionView" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 18px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+              <span style="font-size: 1.15rem; font-weight: 800; color: #FFF;">Current Plan: <span style="color: var(--cyan-400);">Starter</span></span>
+              <span style="background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.3); color: var(--cyan-400); font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">Free Forever</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Permanent free plan for all phone dealers on NaijaSwap. No expiration date or renewal fees.</p>
+          </div>
+          <button type="button" class="btn-primary-action btn-upgrade-sub" id="btnUpgradeStarter" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-full); background: linear-gradient(135deg, #f59e0b, #d97706); border: none; box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+            <span>⭐ Upgrade to Premium — ₦9,900/mo</span>
+          </button>
+        </div>
+
+        <!-- Listing Slot Progress Bar -->
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.86rem; margin-bottom: 8px;">
+            <span style="color: #FFF; font-weight: 600;">Active Phone Listings</span>
+            <span style="color: var(--text-muted);" id="starterSlotText"><strong style="color: var(--cyan-400);" id="starterActiveCount">0</strong> / 5 active listings used</span>
+          </div>
+          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 9999px; overflow: hidden;">
+            <div id="starterSlotBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan-500), var(--emerald-400)); border-radius: 9999px; transition: width 0.4s ease;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-dim); margin-top: 6px;">
+            <span id="starterAvailableSlotsText">5 available listing slots remaining</span>
+            <span>Upgrade to unlock unlimited listings</span>
+          </div>
+        </div>
+
+        <!-- Premium Benefits Preview Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; font-size: 0.82rem; color: var(--text-muted);">
+          <div style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--amber-400);">★</span> <strong>Unlimited Listings:</strong> No 5-listing cap</div>
+          <div style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--amber-400);">★</span> <strong>Priority Placement:</strong> Top search placement</div>
+          <div style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--amber-400);">★</span> <strong>Storefront Badge:</strong> ⭐ Premium Partner mark</div>
+          <div style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--amber-400);">★</span> <strong>Store Analytics:</strong> Total listing views & stats</div>
+        </div>
+      </div>
+
+      <!-- Premium View -->
+      <div id="premiumSubscriptionView" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 18px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+              <span style="font-size: 1.15rem; font-weight: 800; color: #FFF;">Current Plan: <span style="color: #fbbf24;">⭐ Premium</span></span>
+              <span id="premiumStatusBadge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">Active</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Monthly subscription at <strong>₦9,900/month</strong>. Unlimited inventory listings & priority discovery active.</p>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn-cancel" id="btnCancelSub" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">
+              Cancel Renewal
+            </button>
+            <button type="button" class="btn-primary-action btn-upgrade-sub" id="btnRenewSub" style="display: none; padding: 8px 16px; font-size: 0.82rem; font-weight: 700; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
+              Renew Subscription (₦9,900)
+            </button>
+          </div>
+        </div>
+
+        <!-- Premium Details Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 16px;">
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Active Phone Listings</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin-top: 2px;"><span id="premiumActiveCount">0</span> <span style="font-size: 0.82rem; color: #34d399; font-weight: 700;">(Unlimited Slots)</span></div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Billing Price</div>
+            <div style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin-top: 2px;">₦9,900 <span style="font-size: 0.82rem; color: var(--text-dim); font-weight: 400;">/ month</span></div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Next Billing Date</div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: #FFF; margin-top: 4px;" id="premiumNextBillingText">—</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Search Visibility</div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: #34d399; margin-top: 4px;">⚡ Priority Placement</div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.82rem; color: var(--text-muted);">
+          <span style="color: #34d399;">✓ Unlimited store inventory</span>
+          <span style="color: #34d399;">✓ ⭐ Premium Storefront mark</span>
+          <span style="color: #34d399;">✓ Preferential customer search ranking</span>
+          <span style="color: #34d399;">✓ Real-time store performance analytics</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dealer Performance Analytics Section (Plan B Requirement 4) -->
+    <section class="dealer-analytics-card" id="analyticsSection" style="margin-bottom: 24px; background: rgba(14, 21, 26, 0.7); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 22px 24px; backdrop-filter: blur(12px);">
+      <div class="section-header-row" style="margin-bottom: 16px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h2 class="section-title" style="margin: 0; font-size: 1.15rem;">Dealer Performance Analytics</h2>
+            <span id="analyticsTierBadge" style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; font-size: 0.72rem; font-weight: 700; padding: 2px 7px; border-radius: 9999px;">⭐ Premium</span>
+          </div>
+          <p class="section-subtitle" style="margin: 3px 0 0 0;">Actual store traffic, phone engagement, and swap performance metrics.</p>
+        </div>
+      </div>
+
+      <div class="overview-grid" style="margin-bottom: 0;">
+        <div class="overview-card">
+          <div class="overview-icon-box" style="background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">👁️</div>
+          <div class="overview-info">
+            <span class="overview-number" id="analyticsTotalViews">0</span>
+            <span class="overview-label">Total Listing Views</span>
+          </div>
+        </div>
+        <div class="overview-card">
+          <div class="overview-icon-box" style="background: rgba(6, 182, 212, 0.12); color: var(--cyan-400); border: 1px solid rgba(6, 182, 212, 0.3);">📥</div>
+          <div class="overview-info">
+            <span class="overview-number" id="analyticsRequestsReceived">0</span>
+            <span class="overview-label">Swap Requests Received</span>
+          </div>
+        </div>
+        <div class="overview-card">
+          <div class="overview-icon-box" style="background: rgba(16, 185, 129, 0.12); color: var(--emerald-400); border: 1px solid var(--emerald-border);">🔄</div>
+          <div class="overview-info">
+            <span class="overview-number" id="analyticsCompletedSwaps">0</span>
+            <span class="overview-label">Completed Swaps</span>
+          </div>
+        </div>
+        <div class="overview-card">
+          <div class="overview-icon-box" style="background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">⚡</div>
+          <div class="overview-info">
+            <span class="overview-number" id="analyticsEngagementRate">0%</span>
+            <span class="overview-label">Request / View Rate</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="analyticsStarterTeaser" style="display: none; margin-top: 14px; background: rgba(245, 158, 11, 0.05); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: var(--radius-md); padding: 12px 16px; font-size: 0.82rem; color: var(--text-muted); align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <span>🔒 Starter dealers have access to basic store counters. Upgrade to Premium for full customer view engagement data and priority discovery tracking.</span>
+        <a href="#subscriptionSection" style="color: #fbbf24; font-weight: 700; text-decoration: none;">View Subscription &rarr;</a>
+      </div>
+    </section>
+
     <!-- Layout Grid: Swap Requests & Recent Activity -->
     <div class="dealer-layout-grid" id="requestsSection">
       
@@ -398,6 +541,12 @@
     import { logNaijaSwap, setButtonLoading } from './js/auth.js';
     import { db, collection, getDocs, query, where, orderBy, limit, doc, getDoc } from './js/firebase-config.js';
     import { initOnboarding, openOnboardingModal } from './js/onboarding.js';
+    import {
+      getDealerSubscriptionStatusBackend,
+      verifyDealerSubscriptionBackend,
+      cancelDealerSubscriptionBackend
+    } from './js/backend-api.js';
+    import { payDealerSubscriptionPaystack } from './js/paystack-config.js';
 
     let currentStoreId = '';
     let currentStoreName = '';
@@ -820,10 +969,190 @@
         renderActivityTimeline();
         await refreshStats();
         const uid = dealerAuthUser?.uid || currentStoreId || localStorage.getItem('naijaswap_last_uid');
-        if (uid) await renderVerificationBanner(uid);
+        if (uid) {
+          await Promise.all([
+            renderVerificationBanner(uid),
+            renderSubscriptionAndAnalytics(uid)
+          ]);
+        }
       } catch (error) {
         console.error('[NaijaSwap Dealer] Failed to refresh dashboard:', error);
       }
+    }
+
+    async function renderSubscriptionAndAnalytics(uid) {
+      if (!uid) return;
+      try {
+        const loadingEl = document.getElementById('subscriptionContentLoading');
+        const starterView = document.getElementById('starterSubscriptionView');
+        const premiumView = document.getElementById('premiumSubscriptionView');
+
+        const subRes = await getDealerSubscriptionStatusBackend(uid);
+        const sub = subRes.subscription || { plan: 'starter', isPremium: false };
+        const activeCount = typeof subRes.activeCount === 'number' ? subRes.activeCount : 0;
+        const analytics = subRes.analytics || { totalViews: 0, swapRequestsReceived: 0, completedSwaps: 0 };
+
+        if (loadingEl) loadingEl.style.display = 'none';
+
+        if (sub.isPremium) {
+          if (starterView) starterView.style.display = 'none';
+          if (premiumView) premiumView.style.display = 'block';
+
+          const premiumActiveCount = document.getElementById('premiumActiveCount');
+          if (premiumActiveCount) premiumActiveCount.textContent = activeCount;
+
+          const premiumNextBillingText = document.getElementById('premiumNextBillingText');
+          if (premiumNextBillingText) {
+            if (sub.currentPeriodEnd) {
+              const d = sub.currentPeriodEnd.toDate ? sub.currentPeriodEnd.toDate() : new Date(sub.currentPeriodEnd);
+              premiumNextBillingText.textContent = d.toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' });
+            } else {
+              premiumNextBillingText.textContent = 'Auto-Renews Monthly';
+            }
+          }
+
+          const premiumStatusBadge = document.getElementById('premiumStatusBadge');
+          const btnCancelSub = document.getElementById('btnCancelSub');
+          const btnRenewSub = document.getElementById('btnRenewSub');
+
+          if (sub.status === 'cancelled') {
+            if (premiumStatusBadge) {
+              premiumStatusBadge.textContent = 'Cancels at Period End';
+              premiumStatusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+              premiumStatusBadge.style.color = '#fbbf24';
+              premiumStatusBadge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+            }
+            if (btnCancelSub) btnCancelSub.style.display = 'none';
+            if (btnRenewSub) btnRenewSub.style.display = 'inline-flex';
+          } else {
+            if (premiumStatusBadge) {
+              premiumStatusBadge.textContent = 'Active (₦9,900/mo)';
+              premiumStatusBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+              premiumStatusBadge.style.color = '#34d399';
+              premiumStatusBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+            }
+            if (btnCancelSub) btnCancelSub.style.display = 'inline-flex';
+            if (btnRenewSub) btnRenewSub.style.display = 'none';
+          }
+
+          // Analytics in Premium Mode
+          const tierBadge = document.getElementById('analyticsTierBadge');
+          if (tierBadge) {
+            tierBadge.textContent = '⭐ Premium Active';
+            tierBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+            tierBadge.style.color = '#34d399';
+          }
+          const teaser = document.getElementById('analyticsStarterTeaser');
+          if (teaser) teaser.style.display = 'none';
+
+        } else {
+          // Starter Plan
+          if (starterView) starterView.style.display = 'block';
+          if (premiumView) premiumView.style.display = 'none';
+
+          const starterActiveCount = document.getElementById('starterActiveCount');
+          if (starterActiveCount) starterActiveCount.textContent = activeCount;
+
+          const starterSlotBar = document.getElementById('starterSlotBar');
+          const percent = Math.min(100, Math.round((activeCount / 5) * 100));
+          if (starterSlotBar) {
+            starterSlotBar.style.width = percent + '%';
+            if (activeCount >= 5) {
+              starterSlotBar.style.background = 'linear-gradient(90deg, #f59e0b, #ef4444)';
+            } else {
+              starterSlotBar.style.background = 'linear-gradient(90deg, var(--cyan-500), var(--emerald-400))';
+            }
+          }
+
+          const starterAvailableSlotsText = document.getElementById('starterAvailableSlotsText');
+          if (starterAvailableSlotsText) {
+            const left = Math.max(0, 5 - activeCount);
+            starterAvailableSlotsText.textContent = `${left} available listing slot${left === 1 ? '' : 's'} remaining`;
+          }
+
+          const teaser = document.getElementById('analyticsStarterTeaser');
+          if (teaser) teaser.style.display = 'flex';
+
+          const tierBadge = document.getElementById('analyticsTierBadge');
+          if (tierBadge) {
+            tierBadge.textContent = 'Starter (Basic)';
+            tierBadge.style.background = 'rgba(255, 255, 255, 0.08)';
+            tierBadge.style.color = 'var(--text-muted)';
+            tierBadge.style.borderColor = 'var(--glass-border)';
+          }
+        }
+
+        // Populate real analytics
+        const totalViewsEl = document.getElementById('analyticsTotalViews');
+        if (totalViewsEl) totalViewsEl.textContent = analytics.totalViews || 0;
+
+        const reqsEl = document.getElementById('analyticsRequestsReceived');
+        if (reqsEl) reqsEl.textContent = analytics.swapRequestsReceived || 0;
+
+        const completedEl = document.getElementById('analyticsCompletedSwaps');
+        if (completedEl) completedEl.textContent = analytics.completedSwaps || 0;
+
+        const rateEl = document.getElementById('analyticsEngagementRate');
+        if (rateEl) {
+          const views = Number(analytics.totalViews || 0);
+          const reqs = Number(analytics.swapRequestsReceived || 0);
+          rateEl.textContent = views > 0 ? ((reqs / views) * 100).toFixed(1) + '%' : '0.0%';
+        }
+      } catch (err) {
+        console.warn('[NaijaSwap Dealer] Subscription/Analytics render fallback:', err);
+      }
+    }
+
+    // Subscription Action Handlers
+    async function handleSubscribeFlow() {
+      const activeUser = dealerAuthUser || { email: localStorage.getItem('naijaswap_user_email') || 'dealer@naijaswap.ng' };
+      const email = activeUser.email || 'dealer@naijaswap.ng';
+
+      try {
+        await payDealerSubscriptionPaystack({
+          email,
+          onSuccess: async (res) => {
+            try {
+              await verifyDealerSubscriptionBackend(res.reference);
+              alert('⭐ Congratulations! Your Premium subscription (₦9,900/mo) has been successfully activated!');
+              await refreshDashboard();
+            } catch (err) {
+              console.error('[NaijaSwap] Backend verification error:', err);
+              alert('Payment confirmed! Your subscription is being activated: ' + err.message);
+              await refreshDashboard();
+            }
+          },
+          onCancel: () => {
+            console.info('[NaijaSwap] Dealer subscription checkout closed without payment.');
+          }
+        });
+      } catch (err) {
+        alert('Could not open subscription checkout: ' + err.message);
+      }
+    }
+
+    const btnUpgradeStarter = document.getElementById('btnUpgradeStarter');
+    if (btnUpgradeStarter) btnUpgradeStarter.addEventListener('click', handleSubscribeFlow);
+
+    const btnRenewSub = document.getElementById('btnRenewSub');
+    if (btnRenewSub) btnRenewSub.addEventListener('click', handleSubscribeFlow);
+
+    const btnCancelSub = document.getElementById('btnCancelSub');
+    if (btnCancelSub) {
+      btnCancelSub.addEventListener('click', async () => {
+        const confirmed = confirm('Are you sure you want to cancel your monthly subscription renewal? You will retain unlimited listings and Premium benefits until your current billing period ends.');
+        if (!confirmed) return;
+        try {
+          setButtonLoading(btnCancelSub, true, 'Cancelling...');
+          await cancelDealerSubscriptionBackend();
+          alert('Your subscription renewal has been cancelled. You retain Premium access until the end of your billing cycle.');
+          await refreshDashboard();
+        } catch (err) {
+          alert('Could not cancel subscription: ' + err.message);
+        } finally {
+          setButtonLoading(btnCancelSub, false);
+        }
+      });
     }
 
     async function renderVerificationBanner(uid) {

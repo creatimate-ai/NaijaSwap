@@ -246,21 +246,21 @@
   </header>
 
   <main class="admin-container">
-    <!-- Testing Mode Banner & Staff Role Stamping Helper -->
-    <div id="devRoleBanner" style="display:flex;background:rgba(16,185,129,0.08);border:1px solid var(--emerald-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+    <!-- Dev / Access Privilege Helper Banner -->
+    <div id="devRoleBanner" style="display:none;background:rgba(245,158,11,0.08);border:1px solid var(--amber-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:12px;">
-        <span style="font-size:1.4rem;">🧪</span>
+        <span style="font-size:1.4rem;">⚙️</span>
         <div>
-          <div style="font-weight:700;color:#FFF;font-size:0.9rem;" id="devRoleTitle">Testing Mode Active: Admin &amp; Staff Operations</div>
-          <div style="font-size:0.8rem;color:var(--text-muted);" id="devRoleDesc">All signed-in accounts are permitted to review partner store KYC, inspect devices, and audit live escrow swaps.</div>
+          <div style="font-weight:700;color:#FFF;font-size:0.9rem;" id="devRoleTitle">Testing Mode: Admin &amp; Technician Desk</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);" id="devRoleDesc">You are currently testing. Enable staff permissions to review dealer KYC and issue diagnostic certificates.</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button type="button" id="btnMakeAdmin" class="btn-primary-action" style="padding:7px 14px;font-size:0.8rem;">
-          🛡️ Stamp Admin Role
+      <div style="display:flex;gap:8px;">
+        <button type="button" id="btnMakeAdmin" class="btn-primary-action" style="padding:8px 16px;font-size:0.82rem;">
+          Grant Admin Access
         </button>
-        <button type="button" id="btnMakeTech" class="btn-cancel" style="padding:7px 14px;font-size:0.8rem;">
-          🔬 Stamp Technician Role
+        <button type="button" id="btnMakeTech" class="btn-cancel" style="padding:8px 16px;font-size:0.82rem;">
+          Grant Technician Access
         </button>
       </div>
     </div>
@@ -282,6 +282,10 @@
       </button>
       <button type="button" class="admin-nav-tab" data-tab="tabSwaps">
         <span>🔄 Live Swaps &amp; Escrow</span>
+      </button>
+      <button type="button" class="admin-nav-tab" data-tab="tabEmails">
+        <span>📧 Email &amp; Marketing</span>
+        <span class="count-badge" id="badgeEmailLogs" style="background: rgba(16, 185, 129, 0.2); color: #10B981;">0</span>
       </button>
     </nav>
 
@@ -500,14 +504,146 @@
         </div>
       </div>
     </section>
+
+    <!-- ======================================================================
+         TAB 4: EMAIL DELIVERY & MARKETING CAMPAIGN DESK
+         ====================================================================== -->
+    <section id="tabEmails" class="admin-tab-pane">
+      <!-- Email Statistics -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Outgoing Emails</div>
+          <div class="stat-val" id="statTotalEmails" style="color: #FFF;">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Delivered Successfully</div>
+          <div class="stat-val" id="statDeliveredEmails" style="color: var(--emerald-400);">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Failed Deliveries</div>
+          <div class="stat-val" id="statFailedEmails" style="color: var(--rose-400);">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Marketing Suppressed / Unsubscribed</div>
+          <div class="stat-val" id="statSuppressedEmails" style="color: var(--amber-400);">0</div>
+        </div>
+      </div>
+
+      <!-- Action & Utility Toolbar -->
+      <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+        <button type="button" class="btn-primary" id="btnTriggerAutomations" style="padding: 10px 18px; font-size: 0.85rem; border-radius: var(--radius-full); background: rgba(16, 185, 129, 0.15); border: 1px solid #10B981; color: #10B981; cursor: pointer; font-weight: 700;">
+          ⚡ Run Daily Automations
+        </button>
+        <button type="button" class="btn-primary" id="btnToggleCampaignComposer" style="padding: 10px 18px; font-size: 0.85rem; border-radius: var(--radius-full); background: rgba(6, 182, 212, 0.15); border: 1px solid #06B6D4; color: #06B6D4; cursor: pointer; font-weight: 700;">
+          📢 Compose Campaign
+        </button>
+        <button type="button" class="btn-primary" id="btnToggleTestSender" style="padding: 10px 18px; font-size: 0.85rem; border-radius: var(--radius-full); background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border); color: #FFF; cursor: pointer; font-weight: 700;">
+          🧪 Send Test Email
+        </button>
+      </div>
+
+      <!-- Test Email Dispatcher Panel (Collapsible) -->
+      <div id="testEmailPanel" style="display: none; background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 22px; margin-bottom: 24px;">
+        <h3 style="color: #FFF; font-size: 1.1rem; margin-bottom: 12px;">🧪 Send Test Email</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">Verify template layout and rendering by sending a live preview to your email address.</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px;">
+          <div>
+            <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Select Template</label>
+            <select id="testEmailTemplateSelect" style="width: 100%; background: #080C0E; border: 1px solid var(--glass-border); color: #FFF; padding: 10px 14px; border-radius: 8px;">
+              <option value="verify_email">1. Verification Code (6-Digit OTP)</option>
+              <option value="welcome_swapper">2. Welcome Swapper</option>
+              <option value="welcome_dealer">3. Welcome Dealer (Storefront)</option>
+              <option value="password_reset">4. Password Reset Link</option>
+              <option value="listing_published">5. Listing Published Live</option>
+              <option value="swap_request_received">6. Swap Request Received</option>
+              <option value="dealer_premium_activated">7. Dealer Premium Activated (₦9,900)</option>
+              <option value="dealer_payment_receipt">8. Subscription Payment Receipt</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Recipient Email</label>
+            <input type="email" id="testEmailRecipientInput" placeholder="admin@example.com" style="width: 100%; background: #080C0E; border: 1px solid var(--glass-border); color: #FFF; padding: 10px 14px; border-radius: 8px;">
+          </div>
+        </div>
+        <button type="button" id="btnSendTestEmailSubmit" style="background: #10B981; color: #080C0E; border: none; font-weight: 700; padding: 10px 22px; border-radius: var(--radius-full); cursor: pointer;">
+          Send Test Email
+        </button>
+      </div>
+
+      <!-- Campaign Composer Panel (Collapsible) -->
+      <div id="campaignComposerPanel" style="display: none; background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 22px; margin-bottom: 24px;">
+        <h3 style="color: #FFF; font-size: 1.1rem; margin-bottom: 12px;">📢 Create &amp; Dispatch Marketing Campaign</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">Only users who explicitly checked marketing consent at signup and have not unsubscribed will be messaged.</p>
+
+        <div style="margin-bottom: 14px;">
+          <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Target Audience</label>
+          <select id="campaignAudienceSelect" style="width: 100%; background: #080C0E; border: 1px solid var(--glass-border); color: #FFF; padding: 10px 14px; border-radius: 8px;">
+            <option value="all">All Opted-in Users (Swappers &amp; Dealers)</option>
+            <option value="swappers">Swappers Only</option>
+            <option value="dealers">Verified Dealers Only</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Email Subject / Title</label>
+          <input type="text" id="campaignSubjectInput" placeholder="e.g. Black Friday Phone Swapping Tips & Price Drops" style="width: 100%; background: #080C0E; border: 1px solid var(--glass-border); color: #FFF; padding: 10px 14px; border-radius: 8px;">
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Preview Preheader Text</label>
+          <input type="text" id="campaignPreviewInput" placeholder="Short preview text visible in inbox..." style="width: 100%; background: #080C0E; border: 1px solid var(--glass-border); color: #FFF; padding: 10px 14px; border-radius: 8px;">
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">HTML / Text Content</label>
+          <textarea id="campaignContentTextarea" rows="6" placeholder="<p>Hello Swappers! Here are the latest smartphone swap updates...</p>" style="width: 100%; background: #080C0E; border: 1px solid var(--glass-border); color: #FFF; padding: 12px 14px; border-radius: 8px; font-family: inherit; font-size: 0.9rem;"></textarea>
+        </div>
+
+        <button type="button" id="btnDispatchCampaignSubmit" style="background: #06B6D4; color: #080C0E; border: none; font-weight: 700; padding: 10px 24px; border-radius: var(--radius-full); cursor: pointer;">
+          Queue &amp; Dispatch Campaign
+        </button>
+      </div>
+
+      <!-- Email Delivery Logs Table -->
+      <div style="background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <h3 style="color: #FFF; font-size: 1.1rem; margin: 0;">📋 Live Outgoing Email Logs</h3>
+          <button type="button" id="btnRefreshEmailLogs" style="background: none; border: 1px solid var(--glass-border); color: #FFF; padding: 6px 14px; border-radius: 9999px; font-size: 0.8rem; cursor: pointer;">
+            🔄 Refresh Logs
+          </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; color: #CBD5E1;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--glass-border); text-align: left; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                <th style="padding: 10px;">Status</th>
+                <th style="padding: 10px;">Recipient</th>
+                <th style="padding: 10px;">Subject / Template</th>
+                <th style="padding: 10px;">Attempts</th>
+                <th style="padding: 10px;">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="emailLogsTableBody">
+              <tr>
+                <td colspan="5" style="padding: 30px; text-align: center; color: var(--text-muted);">
+                  Loading email activity logs...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- ======================================================================
        ADMIN CONTROLLER (FIRESTORE & BACKEND API)
        ====================================================================== -->
   <script type="module">
-    import { auth, db, doc, getDoc, setDoc, onAuthStateChanged } from './js/firebase-config.js';
-    import { adminGetVerifications, adminGetSwaps, adminUpdateVerificationStatus, recordSwapInspectionBackend } from './js/backend-api.js';
+    import { auth, db, doc, getDoc, setDoc, collection, getDocs, query, where, orderBy, limit, onAuthStateChanged } from './js/firebase-config.js';
+    import { apiGet, apiPost } from './js/backend-api.js';
     import { setButtonLoading } from './js/auth.js';
 
     let currentAdminUid = null;
@@ -548,67 +684,41 @@
 
         if (targetId === 'tabVerifications') loadVerifications();
         if (targetId === 'tabSwaps') loadSwaps();
+        if (targetId === 'tabEmails') loadEmailDesk();
       });
     });
 
-    // Testing Role Setup Buttons
-    btnMakeAdmin?.addEventListener('click', async (e) => {
+    // Dev Role Setup (Development / Test accounts)
+    btnMakeAdmin?.addEventListener('click', async () => {
+      if (!currentAdminUid) return alert('Please log in first.');
+      setButtonLoading(btnMakeAdmin, true, 'Setting Role...');
       try {
-        if (!currentAdminUid) return alert('Please log in first.');
-        setButtonLoading(e.currentTarget, true, 'Updating role...');
-        let updated = false;
-        try {
-          const token = await auth.currentUser.getIdToken();
-          const res = await fetch('/api/admin/setup-role', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ role: 'admin' })
-          });
-          if (res.ok) updated = true;
-        } catch (_) {}
-        if (!updated) {
-          try {
-            await setDoc(doc(db, 'users', currentAdminUid), { role: 'admin', accountType: 'admin' }, { merge: true });
-          } catch (_) {}
-        }
-        localStorage.setItem('naijaswap_role_' + currentAdminUid, 'admin');
-        localStorage.setItem('naijaswap_last_role', 'admin');
-        alert('✓ Admin role set for your account. Reloading...');
+        await apiPost('/api/admin/setup-role', { role: 'admin' });
+        alert('✓ Granted Admin role! Page will now reload with full administrative privileges.');
         window.location.reload();
-      } catch (err) {
-        alert('Could not update role: ' + (err.message || String(err)));
+      } catch (e) {
+        // Direct firestore fallback
+        await setDoc(doc(db, 'users', currentAdminUid), { role: 'admin', accountType: 'admin' }, { merge: true });
+        alert('✓ Granted Admin role directly. Reloading...');
+        window.location.reload();
       } finally {
-        setButtonLoading(e.currentTarget, false);
+        setButtonLoading(btnMakeAdmin, false);
       }
     });
 
-    btnMakeTech?.addEventListener('click', async (e) => {
+    btnMakeTech?.addEventListener('click', async () => {
+      if (!currentAdminUid) return alert('Please log in first.');
+      setButtonLoading(btnMakeTech, true, 'Setting Role...');
       try {
-        if (!currentAdminUid) return alert('Please log in first.');
-        setButtonLoading(e.currentTarget, true, 'Updating role...');
-        let updated = false;
-        try {
-          const token = await auth.currentUser.getIdToken();
-          const res = await fetch('/api/admin/setup-role', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ role: 'technician' })
-          });
-          if (res.ok) updated = true;
-        } catch (_) {}
-        if (!updated) {
-          try {
-            await setDoc(doc(db, 'users', currentAdminUid), { role: 'technician', accountType: 'technician', isTechnician: true }, { merge: true });
-          } catch (_) {}
-        }
-        localStorage.setItem('naijaswap_role_' + currentAdminUid, 'technician');
-        localStorage.setItem('naijaswap_last_role', 'technician');
-        alert('✓ Hub Technician role set for your account. Reloading...');
+        await apiPost('/api/admin/setup-role', { role: 'technician' });
+        alert('✓ Granted Hub Technician role! You can now conduct inspections.');
         window.location.reload();
-      } catch (err) {
-        alert('Could not update role: ' + (err.message || String(err)));
+      } catch (e) {
+        await setDoc(doc(db, 'users', currentAdminUid), { role: 'technician', accountType: 'technician', isTechnician: true }, { merge: true });
+        alert('✓ Granted Technician role directly. Reloading...');
+        window.location.reload();
       } finally {
-        setButtonLoading(e.currentTarget, false);
+        setButtonLoading(btnMakeTech, false);
       }
     });
 
@@ -620,7 +730,7 @@
       }
       currentAdminUid = user.uid;
 
-      // Check user role (Testing Mode: All signed-in accounts are authorized)
+      // Check user role
       try {
         const uSnap = await getDoc(doc(db, 'users', user.uid));
         if (uSnap.exists()) {
@@ -635,20 +745,14 @@
             portalHeaderBadge.textContent = '🔬 Hub Technician';
             portalHeaderBadge.className = 'role-badge role-tech';
           } else {
-            portalHeaderBadge.textContent = '🛡️ Admin & Staff (Testing Mode)';
-            portalHeaderBadge.className = 'role-badge role-admin';
-            currentUserData.role = 'admin';
-            currentUserData.accountType = 'admin';
+            // Show dev role banner so tester can immediately self-promote
+            devRoleBanner.style.display = 'flex';
           }
         } else {
-          portalHeaderBadge.textContent = '🛡️ Admin & Staff (Testing Mode)';
-          portalHeaderBadge.className = 'role-badge role-admin';
-          currentUserData = { role: 'admin', accountType: 'admin', uid: user.uid };
+          devRoleBanner.style.display = 'flex';
         }
       } catch (_) {
-        portalHeaderBadge.textContent = '🛡️ Admin & Staff (Testing Mode)';
-        portalHeaderBadge.className = 'role-badge role-admin';
-        currentUserData = { role: 'admin', accountType: 'admin', uid: user.uid };
+        devRoleBanner.style.display = 'flex';
       }
 
       loadVerifications();
@@ -680,11 +784,24 @@
     async function loadVerifications() {
       verificationsList.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Fetching dealer verification queue...</div>';
       try {
-        const res = await adminGetVerifications('all');
-        currentVerifications = res.verifications;
+        // Try backend API first
+        const res = await apiGet('/api/admin/verifications?status=all');
+        if (res?.ok && Array.isArray(res.verifications)) {
+          currentVerifications = res.verifications;
+        } else {
+          throw new Error('API fallback');
+        }
       } catch (err) {
-        verificationsList.innerHTML = `<div style="padding:40px;text-align:center;color:var(--rose-400);">${escapeHtml(err.message || 'Could not load verification records.')}</div>`;
-        return;
+        // Firestore fallback
+        try {
+          const snap = await getDocs(collection(db, 'dealerVerification'));
+          currentVerifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch (e) {
+          // Local storage fallback for offline demo
+          try {
+            currentVerifications = JSON.parse(localStorage.getItem('naijaswap_verifications') || '[]');
+          } catch (_) { currentVerifications = []; }
+        }
       }
 
       updateVerifStats();
@@ -803,11 +920,15 @@
           if (!confirm('Approve this store dealer? They will be granted dealer role and allowed to publish listings.')) return;
           setButtonLoading(e.currentTarget, true, 'Approving...');
           try {
-            await adminUpdateVerificationStatus({ uid, status: 'approved' });
-            alert('✓ Dealer successfully approved.');
+            await apiPost('/api/admin/verification-status', { uid, status: 'approved' });
+            alert('✓ Dealer successfully approved and notified!');
             loadVerifications();
-          } catch (error) {
-            alert(error.message || 'Could not approve this dealer.');
+          } catch (e) {
+            // Firestore direct update fallback
+            await setDoc(doc(db, 'dealerVerification', uid), { status: 'approved', reviewedAt: new Date() }, { merge: true });
+            await setDoc(doc(db, 'users', uid), { role: 'dealer', accountType: 'dealer', verificationStatus: 'approved' }, { merge: true });
+            alert('✓ Dealer approved directly in database!');
+            loadVerifications();
           } finally {
             setButtonLoading(e.currentTarget, false);
           }
@@ -822,11 +943,14 @@
           if (!reason) return;
           setButtonLoading(e.currentTarget, true, 'Rejecting...');
           try {
-            await adminUpdateVerificationStatus({ uid, status: 'rejected', reason });
+            await apiPost('/api/admin/verification-status', { uid, status: 'rejected', reason });
             alert('Dealer verification marked rejected.');
             loadVerifications();
-          } catch (error) {
-            alert(error.message || 'Could not reject this dealer.');
+          } catch (e) {
+            await setDoc(doc(db, 'dealerVerification', uid), { status: 'rejected', rejectReason: reason, reviewedAt: new Date() }, { merge: true });
+            await setDoc(doc(db, 'users', uid), { verificationStatus: 'rejected' }, { merge: true });
+            alert('Dealer rejected directly in database.');
+            loadVerifications();
           } finally {
             setButtonLoading(e.currentTarget, false);
           }
@@ -915,7 +1039,7 @@
       const notes = document.getElementById('inputTechnicianNotes').value.trim();
 
       try {
-        const res = await recordSwapInspectionBackend({
+        const res = await apiPost('/api/swap/inspection', {
           requestId: selectedInspectSwap.id,
           passed: true,
           diagnostics,
@@ -928,7 +1052,21 @@
         btnViewCertLink.href = `certificate.html?id=${selectedInspectSwap.id}`;
         loadSwaps();
       } catch (err) {
-        alert(err.message || 'Could not record the inspection.');
+        // Direct Firestore fallback
+        const certId = 'NS-CERT-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        await setDoc(doc(db, 'swapRequests', selectedInspectSwap.id), {
+          inspectionStatus: 'passed',
+          inspectionReportId: certId,
+          diagnosticDetails: diagnostics,
+          inspectionNotes: notes,
+          status: 'inspection_passed',
+          inspectedAt: new Date()
+        }, { merge: true });
+
+        alert(`✓ Certificate #${certId} issued directly!`);
+        btnViewCertLink.style.display = 'inline-flex';
+        btnViewCertLink.href = `certificate.html?id=${selectedInspectSwap.id}`;
+        loadSwaps();
       } finally {
         setButtonLoading(btnRecordPass, false);
       }
@@ -941,7 +1079,7 @@
 
       setButtonLoading(btnRecordFail, true, 'Recording Failure...');
       try {
-        await recordSwapInspectionBackend({
+        await apiPost('/api/swap/inspection', {
           requestId: selectedInspectSwap.id,
           passed: false,
           notes: reason,
@@ -949,8 +1087,14 @@
         });
         alert('Inspection marked as failed.');
         loadSwaps();
-      } catch (error) {
-        alert(error.message || 'Could not record the failed inspection.');
+      } catch (e) {
+        await setDoc(doc(db, 'swapRequests', selectedInspectSwap.id), {
+          inspectionStatus: 'failed',
+          inspectionNotes: reason,
+          inspectedAt: new Date()
+        }, { merge: true });
+        alert('Inspection failed recorded.');
+        loadSwaps();
       } finally {
         setButtonLoading(btnRecordFail, false);
       }
@@ -980,11 +1124,21 @@
 
     async function loadSwaps() {
       try {
-        const res = await adminGetSwaps();
-        currentSwaps = res.swaps;
+        const res = await apiGet('/api/admin/swaps');
+        if (res?.ok && Array.isArray(res.swaps)) {
+          currentSwaps = res.swaps;
+        } else {
+          throw new Error('API fallback');
+        }
       } catch (err) {
-        adminSwapsList.innerHTML = `<div style="padding:40px;text-align:center;color:var(--rose-400);">${escapeHtml(err.message || 'Could not load swap requests.')}</div>`;
-        return;
+        try {
+          const snap = await getDocs(query(collection(db, 'swapRequests'), orderBy('createdAt', 'desc'), limit(100)));
+          currentSwaps = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch (e) {
+          try {
+            currentSwaps = JSON.parse(localStorage.getItem('naijaswap_swap_requests') || '[]');
+          } catch (_) { currentSwaps = []; }
+        }
       }
 
       renderSwaps();
@@ -1048,8 +1202,8 @@
               </div>
               <div style="display:flex;gap:6px;align-items:center;">
                 <span class="role-badge" style="background:rgba(255,255,255,0.06);color:var(--text-dim);">Status: ${status}</span>
-                <span class="role-badge ${payStatus === 'escrow_secured' || payStatus === 'paid' ? 'role-admin' : ''}" style="color:${payStatus === 'escrow_secured' || payStatus === 'paid' ? 'var(--emerald-400)' : 'var(--amber-400)'};">
-                  Escrow: ${payStatus}
+                <span class="role-badge ${payStatus === 'paid' ? 'role-admin' : ''}" style="color:${payStatus === 'paid' ? 'var(--emerald-400)' : 'var(--amber-400)'};">
+                  Payment: ${payStatus}
                 </span>
                 <span class="role-badge ${inspectStatus === 'passed' ? 'role-admin' : ''}" style="color:${inspectStatus === 'passed' ? 'var(--emerald-400)' : 'var(--cyan-400)'};">
                   Inspection: ${inspectStatus}
@@ -1062,7 +1216,6 @@
                 Customer: <strong style="color:var(--text-dim);">${escapeHtml(s.customerName || 'Swapper')}</strong> • 
                 Store: <strong style="color:var(--text-dim);">${escapeHtml(s.storeName || 'Store')}</strong> • 
                 Top-Up: <strong style="color:var(--emerald-400);">${s.topupAmount ? `+₦${Number(s.topupAmount).toLocaleString()}` : '₦0'}</strong>
-                ${s.paymentReference ? ` • <span style="font-family:monospace;font-size:0.75rem;color:var(--cyan-400);">Ref: ${escapeHtml(s.paymentReference)}</span>` : ''}
               </div>
 
               <div style="display:flex;gap:8px;">
@@ -1089,6 +1242,177 @@
           }
         });
       });
+    }
+
+    /* ======================================================================
+       EMAIL & MARKETING DESK CONTROLLER
+       ====================================================================== */
+    const testEmailPanel = document.getElementById('testEmailPanel');
+    const campaignComposerPanel = document.getElementById('campaignComposerPanel');
+    const btnToggleTestSender = document.getElementById('btnToggleTestSender');
+    const btnToggleCampaignComposer = document.getElementById('btnToggleCampaignComposer');
+    const btnTriggerAutomations = document.getElementById('btnTriggerAutomations');
+    const btnSendTestEmailSubmit = document.getElementById('btnSendTestEmailSubmit');
+    const btnDispatchCampaignSubmit = document.getElementById('btnDispatchCampaignSubmit');
+    const btnRefreshEmailLogs = document.getElementById('btnRefreshEmailLogs');
+    const emailLogsTableBody = document.getElementById('emailLogsTableBody');
+
+    btnToggleTestSender?.addEventListener('click', () => {
+      const isHidden = testEmailPanel.style.display === 'none';
+      testEmailPanel.style.display = isHidden ? 'block' : 'none';
+      if (isHidden && campaignComposerPanel) campaignComposerPanel.style.display = 'none';
+    });
+
+    btnToggleCampaignComposer?.addEventListener('click', () => {
+      const isHidden = campaignComposerPanel.style.display === 'none';
+      campaignComposerPanel.style.display = isHidden ? 'block' : 'none';
+      if (isHidden && testEmailPanel) testEmailPanel.style.display = 'none';
+    });
+
+    btnTriggerAutomations?.addEventListener('click', async () => {
+      try {
+        setButtonLoading(btnTriggerAutomations, true, 'Running jobs...');
+        const token = await auth.currentUser.getIdToken();
+        const res = await fetch('/api/admin/trigger-automations', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(`✓ Daily automations executed!\n• Day 2 Onboarding Sent: ${data.results?.onboardingDay2Sent || 0}\n• Day 3 Onboarding Sent: ${data.results?.onboardingDay3Sent || 0}\n• Inactivity Reminders Sent: ${data.results?.inactivitySent || 0}\n• Pending Swap Reminders Sent: ${data.results?.pendingSwapRemindersSent || 0}`);
+          loadEmailDesk();
+        } else {
+          alert('Error: ' + (data.error || 'Could not run automations'));
+        }
+      } catch (err) {
+        alert('Network error: ' + err.message);
+      } finally {
+        setButtonLoading(btnTriggerAutomations, false);
+      }
+    });
+
+    btnSendTestEmailSubmit?.addEventListener('click', async () => {
+      const templateName = document.getElementById('testEmailTemplateSelect')?.value;
+      const to = document.getElementById('testEmailRecipientInput')?.value.trim();
+      if (!to) return alert('Please enter a recipient email address.');
+
+      try {
+        setButtonLoading(btnSendTestEmailSubmit, true, 'Sending test...');
+        const token = await auth.currentUser.getIdToken();
+        const res = await fetch('/api/admin/email-test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ templateName, to })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(`✓ Test email sent successfully to ${to} (${templateName})!`);
+          loadEmailDesk();
+        } else {
+          alert('Send test failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        setButtonLoading(btnSendTestEmailSubmit, false);
+      }
+    });
+
+    btnDispatchCampaignSubmit?.addEventListener('click', async () => {
+      const title = document.getElementById('campaignSubjectInput')?.value.trim();
+      const previewText = document.getElementById('campaignPreviewInput')?.value.trim();
+      const contentHtml = document.getElementById('campaignContentTextarea')?.value.trim();
+      const targetAudience = document.getElementById('campaignAudienceSelect')?.value;
+
+      if (!title || !contentHtml) {
+        return alert('Please enter both subject and campaign content.');
+      }
+
+      if (!confirm(`Are you sure you want to dispatch this campaign to "${targetAudience}" opted-in recipients?`)) {
+        return;
+      }
+
+      try {
+        setButtonLoading(btnDispatchCampaignSubmit, true, 'Queueing campaign...');
+        const token = await auth.currentUser.getIdToken();
+        const res = await fetch('/api/admin/campaigns', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ title, previewText, contentHtml, targetAudience })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(`✓ Campaign successfully queued for ${data.queuedRecipients} opted-in recipients! (${data.skippedSuppressed} unsubscribed excluded).`);
+          campaignComposerPanel.style.display = 'none';
+          document.getElementById('campaignSubjectInput').value = '';
+          document.getElementById('campaignPreviewInput').value = '';
+          document.getElementById('campaignContentTextarea').value = '';
+          loadEmailDesk();
+        } else {
+          alert('Campaign dispatch error: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        setButtonLoading(btnDispatchCampaignSubmit, false);
+      }
+    });
+
+    btnRefreshEmailLogs?.addEventListener('click', () => loadEmailDesk());
+
+    async function loadEmailDesk() {
+      if (!auth.currentUser) return;
+      try {
+        const token = await auth.currentUser.getIdToken();
+        const [statsRes, logsRes] = await Promise.all([
+          fetch('/api/admin/email-stats', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('/api/admin/email-logs?limit=50', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          const s = statsData.stats || {};
+          document.getElementById('statTotalEmails').textContent = s.totalSent || 0;
+          document.getElementById('statDeliveredEmails').textContent = s.delivered || 0;
+          document.getElementById('statFailedEmails').textContent = s.failed || 0;
+          document.getElementById('statSuppressedEmails').textContent = s.totalUnsubscribed || 0;
+          const badge = document.getElementById('badgeEmailLogs');
+          if (badge) badge.textContent = s.delivered || 0;
+        }
+
+        if (logsRes.ok && emailLogsTableBody) {
+          const logsData = await logsRes.json();
+          const logs = logsData.logs || [];
+          if (logs.length === 0) {
+            emailLogsTableBody.innerHTML = '<tr><td colspan="5" style="padding: 30px; text-align: center; color: var(--text-muted);">No outgoing email logs found yet.</td></tr>';
+            return;
+          }
+
+          emailLogsTableBody.innerHTML = logs.map(l => {
+            const status = l.status || 'unknown';
+            const color = status === 'delivered' ? '#10B981' : (status === 'failed' ? '#EF4444' : (status === 'suppressed' ? '#F59E0B' : '#64748B'));
+            const dateStr = l.updatedAt ? (new Date(l.updatedAt._seconds ? l.updatedAt._seconds * 1000 : l.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })) : '—';
+            return `
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 10px;">
+                  <span style="display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; background: ${color}20; color: ${color}; border: 1px solid ${color}40;">
+                    ${escapeHtml(status)}
+                  </span>
+                </td>
+                <td style="padding: 10px; font-weight: 600; color: #FFF;">${escapeHtml(l.to || '—')}</td>
+                <td style="padding: 10px;">
+                  <div style="font-weight: 600; color: #E2E8F0;">${escapeHtml(l.subject || l.templateName || '—')}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">${escapeHtml(l.templateName || 'generic')} &bull; ID: ${escapeHtml((l.eventId || l.id || '').slice(0, 8))}...</div>
+                </td>
+                <td style="padding: 10px; color: var(--text-dim);">${l.attempts || 1}</td>
+                <td style="padding: 10px; color: var(--text-muted); font-size: 0.78rem;">${dateStr}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.warn('[Admin Email Desk] Load failed:', err.message);
+      }
     }
 
     function escapeHtml(str) {

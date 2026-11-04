@@ -1074,6 +1074,15 @@
       detailsLoadingState.style.display = 'none';
       phoneContentGrid.style.display = 'grid';
 
+      // Record genuine listing view (deduplicated, triggers dealer milestone alerts)
+      if (targetPhone.id) {
+        fetch('/api/listing/record-view', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ listingId: targetPhone.id })
+        }).catch(() => {});
+      }
+
       document.title = `${targetPhone.model} (${targetPhone.storage}) - Swap on NaijaSwap`;
 
       // Gallery is built dynamically inside initGallery() from mediaFiles

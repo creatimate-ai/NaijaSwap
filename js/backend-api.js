@@ -84,6 +84,39 @@ export async function createListingBackend(payload = {}) {
   if (mediaFiles.some(media => !media || typeof media.dataUrl !== 'string' || !media.dataUrl.startsWith('https://'))) {
     throw new Error('All listing photos and videos must finish uploading before publishing.');
   }
+
+  // Enforce 5-active-listing limit for Starter plan
+  let isPremium = false;
+  try {
+    const subSnap = await getDoc(doc(db, 'dealerSubscriptions', user.uid));
+    if (subSnap.exists()) {
+      const subData = subSnap.data();
+      const now = Date.now();
+      const endMillis = subData.currentPeriodEnd?.toMillis ? subData.currentPeriodEnd.toMillis() : new Date(subData.currentPeriodEnd || 0).getTime();
+      if (subData.plan === 'premium' && (subData.status === 'active' || subData.status === 'cancelled') && endMillis > now) {
+        isPremium = true;
+      }
+    }
+  } catch (err) {
+    console.warn('[BackendAPI] Could not check dealer subscription:', err);
+  }
+
+  if (!isPremium) {
+    const activeListingsQuery = query(
+      collection(db, 'listings'),
+      where('storeOwnerUid', '==', user.uid),
+      where('status', '==', 'active')
+    );
+    const activeListingsSnap = await getDocs(activeListingsQuery);
+    if (activeListingsSnap.size >= 5) {
+      const error = new Error("You've reached your Starter plan listing limit. Upgrade to Premium to unlock unlimited phone listings and additional dealer benefits.");
+      error.limitReached = true;
+      error.activeCount = activeListingsSnap.size;
+      error.limit = 5;
+      throw error;
+    }
+  }
+
   const listing = {
     storeOwnerUid: user.uid,
     storeId: user.uid,
@@ -105,6 +138,7 @@ export async function createListingBackend(payload = {}) {
     hubAddress: cleanString(payload.hubAddress, 240),
     whatsappNumber: cleanString(payload.whatsappNumber, 16),
     status: 'active',
+    isPremiumDealer: isPremium,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
@@ -643,4 +677,138 @@ export async function getPublicCertificate(id) {
   } catch (_) {}
 
   throw new Error('Inspection Certificate not found.');
+}
+
+/**
+ * --- DEALER SUBSCRIPTION API INTEGRATION ---
+ */
+
+export async function getDealerSubscriptionStatusBackend(dealerUid = null) {
+  const user = requireUser();
+  const uid = dealerUid || user.uid;
+  try {
+    const token = await user.getIdToken();
+    const res = await fetch('/api/subscription/status', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({})
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+    console.warn('[BackendAPI] API /api/subscription/status error, falling back to Firestore:', e);
+  }
+
+  // Fallback direct Firestore lookup
+  const subSnap = await getDoc(doc(db, 'dealerSubscriptions', uid));
+  let subData = subSnap.exists() ? subSnap.data() : { plan: 'starter', status: 'active' };
+  const now = Date.now();
+  const endMillis = subData.currentPeriodEnd?.toMillis ? subData.currentPeriodEnd.toMillis() : new Date(subData.currentPeriodEnd || 0).getTime();
+  const isPremium = subData.plan === 'premium' && (subData.status === 'active' || subData.status === 'cancelled') && (endMillis > now);
+
+  const activeSnap = await getDocs(query(collection(db, 'listings'), where('storeOwnerUid', '==', uid), where('status', '==', 'active')));
+  const activeCount = activeSnap.size;
+
+  return {
+    ok: true,
+    subscription: {
+      dealerUid: uid,
+      plan: isPremium ? 'premium' : 'starter',
+      status: subData.status || 'active',
+      isPremium,
+      activeListingLimit: isPremium ? Infinity : 5,
+      currentPeriodEnd: subData.currentPeriodEnd || null,
+      nextBillingDate: subData.nextBillingDate || null
+    },
+    activeCount,
+    activeLimit: isPremium ? Infinity : 5,
+    slotsAvailable: isPremium ? 'Unlimited' : Math.max(0, 5 - activeCount),
+    needsDowngradeSelection: !isPremium && activeCount > 5,
+    analytics: {
+      totalViews: 0,
+      swapRequestsReceived: 0,
+      activeListingsCount: activeCount
+    }
+  };
+}
+
+export async function initializeDealerSubscriptionBackend(email) {
+  const user = requireUser();
+  const token = await user.getIdToken();
+  const res = await fetch('/api/subscription/initialize', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ email })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to initialize subscription.');
+  return data;
+}
+
+export async function verifyDealerSubscriptionBackend(reference) {
+  const user = requireUser();
+  const token = await user.getIdToken();
+  const res = await fetch('/api/subscription/verify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ reference })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to verify subscription.');
+  return data;
+}
+
+export async function cancelDealerSubscriptionBackend() {
+  const user = requireUser();
+  const token = await user.getIdToken();
+  const res = await fetch('/api/subscription/cancel', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({})
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to cancel subscription.');
+  return data;
+}
+
+export async function selectDowngradeActiveListingsBackend(selectedListingIds) {
+  const user = requireUser();
+  const token = await user.getIdToken();
+  const res = await fetch('/api/subscription/select-active-listings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ selectedListingIds })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to update active listings.');
+  return data;
+}
+
+export async function adminGetSubscriptionsBackend() {
+  const user = await requireAdmin();
+  const token = await user.getIdToken();
+  const res = await fetch('/api/admin/subscriptions', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to load subscriptions.');
+  return data.subscriptions || [];
 }

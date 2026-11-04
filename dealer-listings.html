@@ -219,12 +219,28 @@
     <!-- Page Header & Simple Plus Action Button -->
     <div class="dealer-page-header-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; gap: 14px; flex-wrap: wrap;">
       <div>
-        <h1 id="storeListingsHeading" style="font-size: 1.55rem; font-weight: 800; color: #FFF; margin: 0; letter-spacing: -0.02em;">My Phone Listings</h1>
+        <h1 id="storeListingsHeading" style="font-size: 1.55rem; font-weight: 800; color: #FFF; margin: 0; letter-spacing: -0.02em; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <span>My Phone Listings</span>
+          <span id="listingPlanQuotaBadge" style="font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid var(--glass-border);">Starter: 0/5</span>
+        </h1>
       </div>
 
       <button type="button" class="btn-primary-action btn-add-phone-plus" id="openAddPhoneModalBtn" title="Add Phone" aria-label="Add Phone" style="background: linear-gradient(135deg, var(--cyan-500, #06b6d4), var(--emerald-400)); border: none; box-shadow: 0 4px 16px rgba(6, 182, 212, 0.3); padding: 10px 20px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 8px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         <span>+ Add Phone</span>
+      </button>
+    </div>
+
+    <!-- Downgrade Alert Banner (Section 5) -->
+    <div id="downgradeBanner" style="display: none; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.3rem;">⚠️</span>
+        <div style="font-size: 0.86rem; color: #FFF;">
+          <strong>Premium Plan Ended:</strong> Starter plan allows up to 5 active listings. Select the 5 listings to keep active; your remaining inventory is preserved.
+        </div>
+      </div>
+      <button type="button" class="btn-cancel" id="btnOpenDowngradeSelection" style="background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; font-weight: 700; padding: 6px 14px; font-size: 0.82rem;">
+        Choose 5 Active Listings &rarr;
       </button>
     </div>
 
@@ -687,13 +703,90 @@
     </div>
   </div>
 
+  <!-- MODAL: STARTER PLAN LISTING LIMIT PROMPT -->
+  <div class="modal-backdrop" id="upgradePlanModal" role="dialog" aria-modal="true" aria-labelledby="upgradePlanTitle">
+    <div class="modal-card modal-card-sm" style="text-align: center; max-width: 460px; padding: 28px 24px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 16px;">
+        ⭐
+      </div>
+      <div style="margin-bottom: 8px;">
+        <span class="tag-badge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.74rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px;">
+          Starter Limit Reached
+        </span>
+      </div>
+      <h2 class="modal-title" id="upgradePlanTitle" style="font-size: 1.35rem; font-weight: 800; color: #FFF; margin-bottom: 12px; line-height: 1.3;">
+        You've reached your Starter plan listing limit
+      </h2>
+      <p style="color: var(--text-dim, #cbd5e1); font-size: 0.92rem; line-height: 1.6; margin-bottom: 20px;">
+        Upgrade to Premium to unlock unlimited phone listings and additional dealer benefits.
+      </p>
+
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 20px; text-align: left; font-size: 0.82rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="color: #fbbf24;">✓</span> <strong>Unlimited Phone Listings</strong> (no 5-listing cap)</div>
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="color: #fbbf24;">✓</span> <strong>Priority Placement</strong> in customer search & discovery</div>
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="color: #fbbf24;">✓</span> <strong>Featured Storefront</strong> with ⭐ Premium Partner mark</div>
+        <div style="display: flex; align-items: center; gap: 8px;"><span style="color: #fbbf24;">✓</span> <strong>In-depth Performance Analytics</strong> & total views</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button type="button" class="btn-primary-action" id="btnUpgradeModalPay" style="justify-content: center; padding: 14px 20px; font-size: 0.98rem; font-weight: 800; border-radius: var(--radius-md); background: linear-gradient(135deg, #f59e0b, #d97706); border: none; box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35); cursor: pointer;">
+          <span>Upgrade to Premium — ₦9,900/mo</span>
+        </button>
+        <button type="button" class="btn-cancel" id="closeUpgradeModalBtn" style="justify-content: center; padding: 12px 18px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.02); color: var(--text-muted); font-size: 0.88rem; cursor: pointer;">
+          <span>Manage Existing Listings (5 Active)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DOWNGRADE 5-ACTIVE-LISTINGS SELECTION (Section 5) -->
+  <div class="modal-backdrop" id="downgradeSelectModal" role="dialog" aria-modal="true" aria-labelledby="downgradeSelectTitle">
+    <div class="modal-card modal-card-md" style="max-width: 560px; padding: 26px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+        <div>
+          <h2 class="modal-title" id="downgradeSelectTitle" style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin: 0 0 4px 0;">
+            Choose 5 Active Listings (Starter Plan)
+          </h2>
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin: 0;">
+            Your Premium subscription has ended. Choose up to 5 phone listings to keep active on the marketplace. Your remaining inventory is safely preserved.
+          </p>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeDowngradeModalBtn">&times;</button>
+      </div>
+
+      <div style="margin: 14px 0 10px 0; font-size: 0.85rem; font-weight: 700; color: #FFF; display: flex; justify-content: space-between;">
+        <span>Select up to 5 listings:</span>
+        <span id="downgradeSelectedCountText" style="color: var(--cyan-400);">0 / 5 Selected</span>
+      </div>
+
+      <div id="downgradeListingsContainer" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; padding-right: 4px;">
+        <!-- Populated dynamically -->
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+        <button type="button" class="btn-cancel" id="btnCancelDowngradeModal">Cancel</button>
+        <button type="button" class="btn-primary-action" id="btnSaveDowngradeSelection" style="background: linear-gradient(135deg, var(--cyan-500), var(--emerald-400)); border: none; padding: 10px 20px;">
+          <span>Save Active Listings</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script type="module" src="js/auth.js"></script>
   <script type="module" src="js/app-enhancements.js"></script>
   <script type="module">
     import { requireCompleteProfile, isProfileComplete, compressImageFile, resolveMedia, syncDealerVerificationStatus, renderAvatarElement } from './js/profile.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
-    import { createListingBackend, deleteListingBackend, restockListingBackend } from './js/backend-api.js';
+    import {
+      createListingBackend,
+      deleteListingBackend,
+      restockListingBackend,
+      getDealerSubscriptionStatusBackend,
+      verifyDealerSubscriptionBackend,
+      selectDowngradeActiveListingsBackend
+    } from './js/backend-api.js';
+    import { payDealerSubscriptionPaystack } from './js/paystack-config.js';
     import { uploadToCloudinary } from './js/cloudinary-config.js';
     import { db, doc, getDoc, auth } from './js/firebase-config.js';
     import { setButtonLoading } from './js/auth.js';
@@ -702,6 +795,8 @@
     let currentStoreId = '';
     let currentStoreName = '';
     let dealerAuthUser = null;
+    let currentStoreSubscription = { plan: 'starter', isPremium: false };
+    let currentActiveListingCount = 0;
 
     // Elements
     const topStoreName = document.getElementById('topStoreName');
@@ -755,6 +850,45 @@
       } catch (error) {
         console.warn('[NaijaSwap] Remote listings unavailable; using cached listings.', error);
         allListings = NaijaSwapData.getStoreListings(currentStoreId);
+      }
+
+      // Check subscription quota & downgrade status
+      try {
+        const subRes = await getDealerSubscriptionStatusBackend(currentStoreId);
+        currentStoreSubscription = subRes.subscription || { plan: 'starter', isPremium: false };
+        currentActiveListingCount = typeof subRes.activeCount === 'number' ? subRes.activeCount : (allListings || []).filter(l => l.status === 'active').length;
+
+        const quotaBadge = document.getElementById('listingPlanQuotaBadge');
+        if (quotaBadge) {
+          if (currentStoreSubscription.isPremium) {
+            quotaBadge.textContent = '⭐ Premium: Unlimited Listings';
+            quotaBadge.style.background = 'rgba(245, 158, 11, 0.16)';
+            quotaBadge.style.color = '#fbbf24';
+            quotaBadge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+          } else {
+            quotaBadge.textContent = `Starter: ${currentActiveListingCount}/5 Active`;
+            if (currentActiveListingCount >= 5) {
+              quotaBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+              quotaBadge.style.color = '#fca5a5';
+              quotaBadge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            } else {
+              quotaBadge.style.background = 'rgba(6, 182, 212, 0.12)';
+              quotaBadge.style.color = 'var(--cyan-400)';
+              quotaBadge.style.borderColor = 'rgba(6, 182, 212, 0.3)';
+            }
+          }
+        }
+
+        const downgradeBanner = document.getElementById('downgradeBanner');
+        if (downgradeBanner) {
+          if (subRes.needsDowngradeSelection) {
+            downgradeBanner.style.display = 'flex';
+          } else {
+            downgradeBanner.style.display = 'none';
+          }
+        }
+      } catch (err) {
+        console.warn('[NaijaSwap Listings] Subscription status check error:', err);
       }
       
       const query = (listingSearchInput?.value || '').trim().toLowerCase();
@@ -1288,6 +1422,13 @@
         } catch (error) {
           if (newListing) NaijaSwapData.deleteListing(newListing.id, currentStoreId);
           console.error('[NaijaSwap] Dealer listing publish failed:', error);
+          if (error.limitReached || String(error.message).includes('Starter plan listing limit')) {
+            const upgradePlanModal = document.getElementById('upgradePlanModal');
+            if (upgradePlanModal) {
+              upgradePlanModal.classList.add('active');
+              return;
+            }
+          }
           alert(`${error.message || 'The listing could not be published.'} Your form and selected files are still here; submit again to retry.`);
           return;
         } finally {
@@ -1352,6 +1493,18 @@
         }
         return;
       }
+
+      // Check Starter plan 5-active-listing limit
+      if (!currentStoreSubscription.isPremium && currentActiveListingCount >= 5) {
+        const upgradePlanModal = document.getElementById('upgradePlanModal');
+        if (upgradePlanModal) {
+          upgradePlanModal.classList.add('active');
+        } else {
+          alert("You've reached your Starter plan listing limit. Upgrade to Premium to unlock unlimited phone listings and additional dealer benefits.");
+        }
+        return;
+      }
+
       if (addPhoneModal) addPhoneModal.classList.add('active');
     }
 
@@ -1365,7 +1518,128 @@
     if (closeVerificationModal) closeVerificationModal.addEventListener('click', () => dealerVerificationModal.classList.remove('active'));
     if (dismissVerificationModalBtn) dismissVerificationModalBtn.addEventListener('click', () => dealerVerificationModal.classList.remove('active'));
 
-    [addPhoneModal, dealerVerificationModal].forEach(modal => {
+    // Upgrade Plan Modal Handlers
+    const upgradePlanModal = document.getElementById('upgradePlanModal');
+    const closeUpgradeModalBtn = document.getElementById('closeUpgradeModalBtn');
+    const btnUpgradeModalPay = document.getElementById('btnUpgradeModalPay');
+
+    if (closeUpgradeModalBtn) closeUpgradeModalBtn.addEventListener('click', () => upgradePlanModal.classList.remove('active'));
+
+    if (btnUpgradeModalPay) {
+      btnUpgradeModalPay.addEventListener('click', async () => {
+        if (upgradePlanModal) upgradePlanModal.classList.remove('active');
+        const activeUser = dealerAuthUser || { email: localStorage.getItem('naijaswap_user_email') || 'dealer@naijaswap.ng' };
+        const email = activeUser.email || 'dealer@naijaswap.ng';
+        try {
+          await payDealerSubscriptionPaystack({
+            email,
+            onSuccess: async (res) => {
+              try {
+                await verifyDealerSubscriptionBackend(res.reference);
+                alert('⭐ Congratulations! Your Premium subscription (₦9,900/mo) is now active! You can now publish unlimited phone listings.');
+                await renderStoreListings();
+              } catch (err) {
+                alert('Payment confirmed: ' + err.message);
+                await renderStoreListings();
+              }
+            },
+            onCancel: () => {
+              console.info('Subscription checkout closed.');
+            }
+          });
+        } catch (err) {
+          alert('Could not start subscription checkout: ' + err.message);
+        }
+      });
+    }
+
+    // Downgrade Selection Modal Handlers
+    const downgradeSelectModal = document.getElementById('downgradeSelectModal');
+    const closeDowngradeModalBtn = document.getElementById('closeDowngradeModalBtn');
+    const btnCancelDowngradeModal = document.getElementById('btnCancelDowngradeModal');
+    const btnSaveDowngradeSelection = document.getElementById('btnSaveDowngradeSelection');
+    const btnOpenDowngradeSelection = document.getElementById('btnOpenDowngradeSelection');
+    const downgradeListingsContainer = document.getElementById('downgradeListingsContainer');
+    const downgradeSelectedCountText = document.getElementById('downgradeSelectedCountText');
+
+    let downgradeSelectedIds = new Set();
+
+    function openDowngradeModal(listings) {
+      downgradeSelectedIds.clear();
+      if (!downgradeListingsContainer) return;
+      downgradeListingsContainer.innerHTML = '';
+
+      const activeList = (listings || []).filter(l => l.status === 'active');
+      activeList.slice(0, 5).forEach(l => downgradeSelectedIds.add(l.id));
+
+      (listings || []).forEach(item => {
+        const row = document.createElement('label');
+        row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:var(--radius-sm);cursor:pointer;user-select:none;';
+        
+        const isChecked = downgradeSelectedIds.has(item.id);
+        row.innerHTML = `
+          <input type="checkbox" class="downgrade-checkbox" value="${escapeHtml(item.id)}" ${isChecked ? 'checked' : ''} style="width:18px;height:18px;accent-color:var(--cyan-400);cursor:pointer;">
+          <img src="${escapeHtml(item.image || 'assets/naijaswap-icon.png')}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;">
+          <div style="flex:1;">
+            <div style="font-weight:700;color:#FFF;font-size:0.86rem;">${escapeHtml(item.model)}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">${escapeHtml(item.storage || '')} • ${escapeHtml(item.condition || '')} • ₦${(item.marketValue || 0).toLocaleString()}</div>
+          </div>
+        `;
+
+        const chk = row.querySelector('.downgrade-checkbox');
+        chk.addEventListener('change', () => {
+          if (chk.checked) {
+            if (downgradeSelectedIds.size >= 5) {
+              chk.checked = false;
+              alert('Starter plan permits up to 5 active listings. Uncheck another listing first.');
+              return;
+            }
+            downgradeSelectedIds.add(item.id);
+          } else {
+            downgradeSelectedIds.delete(item.id);
+          }
+          if (downgradeSelectedCountText) {
+            downgradeSelectedCountText.textContent = `${downgradeSelectedIds.size} / 5 Selected`;
+          }
+        });
+
+        downgradeListingsContainer.appendChild(row);
+      });
+
+      if (downgradeSelectedCountText) {
+        downgradeSelectedCountText.textContent = `${downgradeSelectedIds.size} / 5 Selected`;
+      }
+      if (downgradeSelectModal) downgradeSelectModal.classList.add('active');
+    }
+
+    if (btnOpenDowngradeSelection) {
+      btnOpenDowngradeSelection.addEventListener('click', async () => {
+        const allListings = await NaijaSwapData.getStoreListingsRemote(currentStoreId);
+        openDowngradeModal(allListings);
+      });
+    }
+
+    if (closeDowngradeModalBtn) closeDowngradeModalBtn.addEventListener('click', () => downgradeSelectModal.classList.remove('active'));
+    if (btnCancelDowngradeModal) btnCancelDowngradeModal.addEventListener('click', () => downgradeSelectModal.classList.remove('active'));
+
+    if (btnSaveDowngradeSelection) {
+      btnSaveDowngradeSelection.addEventListener('click', async () => {
+        try {
+          setButtonLoading(btnSaveDowngradeSelection, true, 'Saving Active Listings...');
+          const ids = Array.from(downgradeSelectedIds);
+          await selectDowngradeActiveListingsBackend(ids);
+          alert(`Saved! ${ids.length} active listing(s) retained. Remaining inventory is safely stored.`);
+          if (downgradeSelectModal) downgradeSelectModal.classList.remove('active');
+          await renderStoreListings();
+        } catch (err) {
+          alert('Could not save listing selection: ' + err.message);
+        } finally {
+          setButtonLoading(btnSaveDowngradeSelection, false);
+        }
+      });
+    }
+
+    [addPhoneModal, dealerVerificationModal, upgradePlanModal, downgradeSelectModal].forEach(modal => {
       if (modal) {
         modal.addEventListener('click', (e) => {
           if (e.target === modal) modal.classList.remove('active');

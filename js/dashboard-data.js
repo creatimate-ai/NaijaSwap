@@ -67,11 +67,13 @@ function mapRemoteListing(snapshot) {
   const data = snapshot.data() || {};
   const storeId = data.storeId || data.storeOwnerUid || data.dealerUid || '';
   const storeOwnerUid = data.storeOwnerUid || data.storeId || data.dealerUid || '';
+  const isPremiumDealer = Boolean(data.isPremiumDealer || data.isPremium || data.premium);
   return {
     id: snapshot.id,
     ...data,
     storeId,
     storeOwnerUid,
+    isPremiumDealer,
     status: String(data.status || 'active').toLowerCase(),
     createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt || new Date().toISOString()
   };

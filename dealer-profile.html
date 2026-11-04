@@ -416,6 +416,7 @@
               </div>
               <div class="dealer-badges-row">
                 <span class="badge-verified-hub">🛡️ Verified Partner Hub</span>
+                <span class="badge-premium-partner" id="dealerPremiumBadge" style="display: none; background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(217, 119, 6, 0.22)); border: 1px solid rgba(245, 158, 11, 0.45); color: #fbbf24; padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.76rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);">⭐ Premium Partner</span>
                 <span class="badge-location-pill" id="dealerLocationPill">📍 Ikeja, Lagos</span>
               </div>
             </div>
@@ -743,6 +744,31 @@
           }
         }
         if (locationPill) locationPill.textContent = `📍 ${location}`;
+
+        // Check dealer subscription for Premium Badge & Featured styling
+        const dealerPremiumBadge = document.getElementById('dealerPremiumBadge');
+        const heroCardEl = document.getElementById('dealerHeroCard');
+        try {
+          const subSnap = await getDoc(doc(db, 'dealerSubscriptions', storeId));
+          if (subSnap.exists()) {
+            const subData = subSnap.data() || {};
+            const now = Date.now();
+            const endMillis = subData.currentPeriodEnd?.toMillis ? subData.currentPeriodEnd.toMillis() : new Date(subData.currentPeriodEnd || 0).getTime();
+            if (subData.plan === 'premium' && (subData.status === 'active' || subData.status === 'cancelled') && (endMillis > now)) {
+              dealer.isPremium = true;
+            }
+          }
+        } catch (_) {}
+
+        if (dealer.isPremium || dealer.plan === 'premium') {
+          if (dealerPremiumBadge) dealerPremiumBadge.style.display = 'inline-flex';
+          if (heroCardEl) {
+            heroCardEl.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+            heroCardEl.style.boxShadow = '0 0 24px rgba(245, 158, 11, 0.08)';
+          }
+        } else {
+          if (dealerPremiumBadge) dealerPremiumBadge.style.display = 'none';
+        }
 
         if (avatarBox) {
           if (photo) {

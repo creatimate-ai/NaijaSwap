@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NaijaSwap — Brand Identity & Design System Specification</title>
+  <meta name="description" content="Official Brand Identity & Design System Handover Specification for NaijaSwap.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand-primary: #008751;
+      --brand-dark: #005c37;
+      --brand-light: #059669;
+      --brand-accent: #10b981;
+      --emerald-400: #00D26A;
+      --cyan-400: #06B6D4;
+      --whatsapp: #25D366;
+      --bg-dark: #05080B;
+      --bg-card-dark: #090E14;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-700: #334155;
+      --slate-900: #0f172a;
+      --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: var(--font-main);
+      background-color: #05080B;
+      color: #E2E8F0;
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+
+    .guide-container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #090E14;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 48px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+    }
+
+    .brand-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding-bottom: 28px;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .brand-title-area h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-title-area h1 span {
+      color: #00D26A;
+    }
+
+    .brand-title-area p {
+      color: #94A3B8;
+      font-size: 1.05rem;
+      margin-top: 6px;
+    }
+
+    .version-badge {
+      display: inline-block;
+      background: rgba(0, 210, 106, 0.15);
+      border: 1px solid rgba(0, 210, 106, 0.3);
+      color: #00D26A;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 40px 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid #00D26A;
+      padding-left: 14px;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #F1F5F9;
+      margin: 24px 0 12px;
+    }
+
+    p, li {
+      color: #CBD5E1;
+      font-size: 0.95rem;
+    }
+
+    ul {
+      margin-left: 24px;
+      margin-bottom: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    /* Color Grid */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 20px 0 32px;
+    }
+
+    .color-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+
+    .color-swatch {
+      height: 90px;
+      width: 100%;
+    }
+
+    .color-details {
+      padding: 14px;
+    }
+
+    .color-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .color-code {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: #94A3B8;
+      display: block;
+    }
+
+    .color-role {
+      font-size: 0.75rem;
+      color: #64748B;
+      margin-top: 6px;
+      line-height: 1.3;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0 32px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    th, td {
+      padding: 14px 18px;
+      text-align: left;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.05);
+      color: #FFFFFF;
+      font-weight: 700;
+    }
+
+    td code {
+      font-family: var(--font-mono);
+      color: #00D26A;
+      background: rgba(0, 210, 106, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    /* Typography Showcase Box */
+    .type-sample {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px;
+      margin: 20px 0 30px;
+    }
+
+    .type-sample-row {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .type-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    /* Button Previews */
+    .button-preview-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 20px 0 30px;
+      align-items: center;
+    }
+
+    .btn-demo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-demo-primary {
+      background: linear-gradient(135deg, #008751 0%, #005c37 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 135, 81, 0.35);
+    }
+
+    .btn-demo-whatsapp {
+      background: #25D366;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+    }
+
+    .btn-demo-dealer {
+      background: #ECFDF5;
+      color: #005C37;
+      border: 1px solid #A7F3D0;
+    }
+
+    .btn-demo-secondary {
+      background: #1E293B;
+      color: #ffffff;
+    }
+
+    /* Logo Box */
+    .logo-showcase {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px;
+      margin: 20px 0 30px;
+    }
+
+    .logo-mark-demo {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #10B981, #059669 50%, #0284C7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .logo-text-demo {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+    }
+
+    .logo-text-demo span {
+      color: #10B981;
+    }
+
+    .callout-box {
+      background: rgba(0, 210, 106, 0.08);
+      border-left: 4px solid #00D26A;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 20px 0;
+    }
+
+    .callout-box strong {
+      color: #00D26A;
+    }
+
+    @media print {
+      body { background: #ffffff; color: #1a202c; padding: 0; }
+      .guide-container { border: none; box-shadow: none; padding: 0; background: #ffffff; }
+      .brand-title-area h1, h2, h3, .color-name { color: #000000 !important; }
+      p, li, td, th { color: #333333 !important; }
+      table { border-color: #cccccc; }
+      th { background: #f0f0f0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="guide-container">
+    
+    <!-- Header -->
+    <header class="brand-header">
+      <div class="brand-title-area">
+        <h1>Naija<span>Swap</span> Design Handover Guide</h1>
+        <p>Master Brand Identity, Graphic Design, Typography &amp; UI System</p>
+      </div>
+      <div>
+        <span class="version-badge">VERSION 1.0 • NOV 2026</span>
+      </div>
+    </header>
+
+    <!-- Overview -->
+    <section>
+      <h2>1. Brand Overview &amp; Identity</h2>
+      <p>
+        <strong>NaijaSwap</strong> is Nigeria's premier phone swap network, providing an automated algorithmic valuation engine and connecting phone owners with verified dealer hubs across Lagos (Computer Village), Abuja (Banex Plaza), and Port Harcourt (Garrison).
+      </p>
+      
+      <div class="callout-box">
+        <strong>Core Rule:</strong> The brand name is always written as <strong>NaijaSwap</strong> (Capital "N", Capital "S", no space). In marketing headlines, always pair with the Nigerian Naira symbol (<code>₦</code>) with comma-separated values (e.g., <code>₦125,000</code>).
+      </div>
+
+      <div class="logo-showcase">
+        <div class="logo-mark-demo">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 16L3 12M3 12L7 8M3 12L17 12"></path>
+            <path d="M17 8L21 12M21 12L17 16M21 12L7 12"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="logo-text-demo">Naija<span>Swap</span></div>
+          <p style="font-size: 0.85rem; color: #94A3B8; margin-top: 4px;">Official Master Vector: <code>assets/logo.svg</code> | App Icon: <code>assets/favicon.svg</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Colors -->
+    <section>
+      <h2>2. Master Color Palette</h2>
+      <p>Use these precise hex codes across Figma, Adobe Creative Cloud, CSS stylesheets, and video lower thirds:</p>
+
+      <div class="color-grid">
+        <div class="color-card">
+          <div class="color-swatch" style="background-color: #008751;"></div>
+          <div class="color-details">
+            <div class="color-name">Heritage Emerald</div>
+            <span class="color-code">#008751</span>
+            <div class="color-role">Primary Nigerian Flag Green, Brand CTAs, Official Badges</div>
+          </div>
+        </div>
+
+        <div class="color-card">
+          <div class="color-swatch" style="background-color: #00D26A;"></div>
+          <div class="color-details">
+            <div class="color-name">Cyber Mint</div>
+            <span class="color-code">#00D26A</span>
+            <div class="color-role">Dark Theme Primary, Verification Ticks, Glow Effects</div>
+          </div>
+        </div>
+
+        <div class="color-card">
+          <div class="color-swatch" style="background-color: #10B981;"></div>
+          <div class="color-details">
+            <div class="color-name">Neon Emerald</div>
+            <span class="color-code">#10B981</span>
+            <div class="color-role">Logo "Swap" Wordmark Accent, Active Filters</div>
+          </div>
+        </div>
+
+        <div class="color-card">
+          <div class="color-swatch" style="background-color: #06B6D4;"></div>
+          <div class="color-details">
+            <div class="color-name">Tech Cyan</div>
+            <span class="color-code">#06B6D4</span>
+            <div class="color-role">Algorithmic Valuation Highlights, Secondary Glow</div>
+          </div>
+        </div>
+
+        <div class="color-card">
+          <div class="color-swatch" style="background-color: #25D366;"></div>
+          <div class="color-details">
+            <div class="color-name">WhatsApp Green</div>
+            <span class="color-code">#25D366</span>
+            <div class="color-role">Official WhatsApp Direct Chat Integration</div>
+          </div>
+        </div>
+
+        <div class="color-card">
+          <div class="color-swatch" style="background-color: #05080B;"></div>
+          <div class="color-details">
+            <div class="color-name">Obsidian Black</div>
+            <span class="color-code">#05080B</span>
+            <div class="color-role">Main App &amp; Dashboard Canvas Background</div>
+          </div>
+        </div>
+
+        <div class="color-card">
+          <div class="color-swatch" style="background-color: #F8FAFC;"></div>
+          <div class="color-details">
+            <div class="color-name">Slate Light</div>
+            <span class="color-code">#F8FAFC</span>
+            <div class="color-role">Light Mode Surface Background</div>
+          </div>
+        </div>
+
+        <div class="color-card">
+          <div class="color-swatch" style="background-color: #F59E0B;"></div>
+          <div class="color-details">
+            <div class="color-name">Amber Gold</div>
+            <span class="color-code">#F59E0B</span>
+            <div class="color-role">Verified Dealer Gold Tier, Warranty Seals</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section>
+      <h2>3. Typography &amp; Font System</h2>
+      
+      <div class="type-sample">
+        <div class="type-sample-row">
+          <div class="type-label">Primary UI &amp; Brand Font: Plus Jakarta Sans (Weight 800)</div>
+          <div style="font-family: var(--font-main); font-size: 2.2rem; font-weight: 800; color: #FFFFFF; letter-spacing: -0.03em;">
+            Swap Your Phone for The One You Want.
+          </div>
+        </div>
+
+        <div class="type-sample-row">
+          <div class="type-label">Body &amp; Descriptions: Plus Jakarta Sans (Weight 400 &amp; 600)</div>
+          <div style="font-family: var(--font-main); font-size: 1.05rem; color: #CBD5E1; line-height: 1.6;">
+            Discover verified dealer swap offers across Computer Village, Banex Plaza &amp; Garrison with transparent algorithmic top-up estimates.
+          </div>
+        </div>
+
+        <div class="type-sample-row">
+          <div class="type-label">Monospace Data &amp; Prices: JetBrains Mono (Weight 700)</div>
+          <div style="font-family: var(--font-mono); font-size: 1.4rem; color: #00D26A; font-weight: 700;">
+            TOP-UP: ₦185,000 | IMEI: 356892-09-482104-1 | HEALTH: 89%
+          </div>
+        </div>
+
+        <div>
+          <div class="type-label">Prestigious Warranty &amp; Seals: Playfair Display (Weight 700)</div>
+          <div style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #F59E0B; font-weight: 700;">
+            Official 30-Day Physical Inspection Warranty
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Elements & Buttons -->
+    <section>
+      <h2>4. Component Buttons &amp; Interactive States</h2>
+      <p>Standardized action buttons for web, marketing banners, and video CTAs:</p>
+
+      <div class="button-preview-row">
+        <button class="btn-demo btn-demo-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Find My Phone Swap
+        </button>
+
+        <button class="btn-demo btn-demo-whatsapp">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Chat with Verified Dealer
+        </button>
+
+        <button class="btn-demo btn-demo-dealer">
+          Join as a Store Dealer
+        </button>
+
+        <button class="btn-demo btn-demo-secondary">
+          Cancel / Back
+        </button>
+      </div>
+    </section>
+
+    <!-- Role Handover Checklists -->
+    <section>
+      <h2>5. Role-Specific Handover Guidelines</h2>
+
+      <h3>💻 For Code &amp; Frontend Developers</h3>
+      <ul>
+        <li>Import <code>css/variables.css</code> or <code>css/dashboard.css</code> in every page.</li>
+        <li>Always use semantic CSS variables instead of hardcoded hex values (e.g. <code>var(--brand-primary)</code> instead of <code>#008751</code>).</li>
+        <li>Format all prices through <code>formatNaira(amount)</code> to guarantee consistency across customer and dealer dashboards.</li>
+        <li>Ensure responsive breakpoints for mobile (&lt;640px), tablet (640-1024px), and desktop (&gt;1024px).</li>
+      </ul>
+
+      <h3>🎨 For Graphic Designers &amp; Social Media Marketers</h3>
+      <ul>
+        <li>Use <strong>Plus Jakarta Sans ExtraBold</strong> for main headers and marketing copy.</li>
+        <li>Maintain minimum logo clear space (at least 20px padding around all sides of <code>assets/logo.svg</code>).</li>
+        <li>Canvas dimensions: <code>1080x1080</code> (Feed Post), <code>1080x1920</code> (Stories/Reels), <code>1200x630</code> (Web banner).</li>
+        <li>Always include the verified hub badges: <em>Lagos (Computer Village) • Abuja (Banex) • Port Harcourt (Garrison)</em>.</li>
+      </ul>
+
+      <h3>🎬 For Video Editors &amp; Motion Artists</h3>
+      <ul>
+        <li>Opening/Closing Stinger: 1.5-second animation of the dual-arrow squircle badge scaling in with spring physics, followed by an emerald bloom glow and wordmark wipe.</li>
+        <li>Color Grade: High contrast, dark obsidian backgrounds with neon emerald and cyan particle lighting.</li>
+        <li>Lower Thirds: Rounded glass badge (14px radius) with white bold text and emerald accent top-up numbers.</li>
+      </ul>
+    </section>
+
+    <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; color: #64748B; font-size: 0.85rem;">
+      NaijaSwap Platform Design Specification • Generated from codebase tokens &amp; assets • Ready for Google Docs Handover
+    </footer>
+
+  </div>
+
+</body>
+</html>

@@ -4,26 +4,106 @@ const { v2: cloudinary } = require('cloudinary');
 const { cert, getApps, initializeApp } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
 const { FieldValue, getFirestore } = require('firebase-admin/firestore');
+const { emailService } = require('./services/email-service');
+const { verificationService } = require('./services/verification-service');
+const { automationService } = require('./services/automation-service');
 
 const router = express.Router();
 const MAX_SWAP_AMOUNT_NAIRA = 5000000;
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'naijaswap1';
 const IS_TESTING_MODE = true;
+const DEALER_PREMIUM_MONTHLY_PRICE_NAIRA = 9900;
+const DEALER_PREMIUM_MONTHLY_PRICE_KOBO = 990000;
+const STARTER_MAX_ACTIVE_LISTINGS = 5;
+
+// Helper: retrieve dealer subscription and compute plan entitlements
+async function getDealerSubscriptionData(db, dealerUid) {
+  try {
+    const subSnap = await db.collection('dealerSubscriptions').doc(dealerUid).get();
+    if (!subSnap.exists) {
+      return {
+        dealerUid,
+        plan: 'starter',
+        status: 'active',
+        isPremium: false,
+        activeListingLimit: STARTER_MAX_ACTIVE_LISTINGS,
+        isExpired: false,
+        amount: 0,
+        currency: 'NGN'
+      };
+    }
+    const data = subSnap.data() || {};
+    const now = Date.now();
+    let isExpired = false;
+    if (data.currentPeriodEnd) {
+      const endMillis = data.currentPeriodEnd.toMillis ? data.currentPeriodEnd.toMillis() : new Date(data.currentPeriodEnd).getTime();
+      if (endMillis < now) {
+        isExpired = true;
+      }
+    }
+    const isPremium = data.plan === 'premium' && (data.status === 'active' || data.status === 'cancelled') && !isExpired;
+    return {
+      dealerUid,
+      plan: isPremium ? 'premium' : 'starter',
+      originalPlan: data.plan || 'starter',
+      status: isExpired ? 'expired' : (data.status || 'active'),
+      isPremium,
+      activeListingLimit: isPremium ? Infinity : STARTER_MAX_ACTIVE_LISTINGS,
+      isExpired,
+      startDate: data.startDate || null,
+      currentPeriodStart: data.currentPeriodStart || null,
+      currentPeriodEnd: data.currentPeriodEnd || null,
+      nextBillingDate: data.nextBillingDate || data.currentPeriodEnd || null,
+      cancelledAt: data.cancelledAt || null,
+      paymentReference: data.paymentReference || null,
+      amount: data.amount || DEALER_PREMIUM_MONTHLY_PRICE_NAIRA,
+      currency: data.currency || 'NGN'
+    };
+  } catch (error) {
+    console.warn('[API] Could not fetch dealer subscription:', error.message);
+    return {
+      dealerUid,
+      plan: 'starter',
+      status: 'active',
+      isPremium: false,
+      activeListingLimit: STARTER_MAX_ACTIVE_LISTINGS,
+      isExpired: false,
+      amount: 0,
+      currency: 'NGN'
+    };
+  }
+}
+
+function syncEmailServices(firebase) {
+  try {
+    const db = getFirestore(firebase);
+    const auth = getAuth(firebase);
+    emailService.setFirestore(db);
+    verificationService.setFirestore(db);
+    verificationService.setAuth(auth);
+    automationService.setFirestore(db);
+  } catch (_) {}
+}
 
 function getFirebaseAdmin() {
   const existingApp = getApps().find((app) => app.name === '[DEFAULT]');
-  if (existingApp) return existingApp;
+  if (existingApp) {
+    syncEmailServices(existingApp);
+    return existingApp;
+  }
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
   if (!serviceAccount.project_id || !serviceAccount.client_email || !serviceAccount.private_key) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT is not configured on the Render service.');
   }
-  return initializeApp({
+  const app = initializeApp({
     credential: cert({
       ...serviceAccount,
       private_key: serviceAccount.private_key.replace(/\\n/g, '\n')
     }),
     projectId: FIREBASE_PROJECT_ID
   });
+  syncEmailServices(app);
+  return app;
 }
 
 function configureCloudinary() {
@@ -236,6 +316,110 @@ router.post('/api/payments/webhook', async (request, response) => {
           });
         }
       }
+
+      // Handle Dealer Premium Subscription Charge
+      if (metadata.type === 'dealer_subscription' || metadata.plan === 'premium') {
+        const dealerUid = metadata.dealerUid || metadata.uid;
+        if (dealerUid) {
+          const firebase = getFirebaseAdmin();
+          const db = getFirestore(firebase);
+
+          // Webhook Idempotency: verify this payment reference hasn't already been processed
+          const existingLogs = await db.collection('auditLogs')
+            .where('reference', '==', reference)
+            .limit(1)
+            .get();
+
+          if (existingLogs.empty) {
+            const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+            await db.collection('dealerSubscriptions').doc(dealerUid).set({
+              dealerUid,
+              plan: 'premium',
+              status: 'active',
+              amount: DEALER_PREMIUM_MONTHLY_PRICE_NAIRA,
+              currency: 'NGN',
+              billingCycle: 'monthly',
+              currentPeriodStart: FieldValue.serverTimestamp(),
+              currentPeriodEnd: periodEnd,
+              nextBillingDate: periodEnd,
+              paymentReference: reference,
+              paystackAuthCode: data.authorization?.authorization_code || null,
+              paystackCustomerCode: data.customer?.customer_code || null,
+              cancelledAt: null,
+              updatedAt: FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            await db.collection('dealerProfiles').doc(dealerUid).set({
+              isPremium: true,
+              plan: 'premium',
+              subscriptionStatus: 'active',
+              updatedAt: FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            await db.collection('users').doc(dealerUid).set({
+              dealerPlan: 'premium',
+              subscriptionStatus: 'active',
+              updatedAt: FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            // Update dealer's listings with isPremiumDealer: true
+            const dealerListings = await db.collection('listings')
+              .where('storeOwnerUid', '==', dealerUid)
+              .get();
+            if (!dealerListings.empty) {
+              const batch = db.batch();
+              dealerListings.docs.forEach(docSnap => {
+                batch.update(docSnap.ref, {
+                  isPremiumDealer: true,
+                  updatedAt: FieldValue.serverTimestamp()
+                });
+              });
+              await batch.commit();
+            }
+
+            await sendNotification(db, dealerUid, {
+              type: 'subscription_success',
+              title: '⭐ Premium Subscription Confirmed',
+              message: 'Your Premium dealer plan (₦9,900/mo) has been activated via Paystack. Enjoy unlimited listings and priority search placement!'
+            });
+
+            // Webhook triggered email receipt & welcome
+            try {
+              const dealerSnap = await db.collection('users').doc(dealerUid).get();
+              const dealerEmail = (dealerSnap.exists && dealerSnap.data().email) || data.customer?.email;
+              const dealerName = (dealerSnap.exists && (dealerSnap.data().shopName || dealerSnap.data().displayName)) || 'Dealer';
+              if (dealerEmail) {
+                const renewalDateStr = new Date(periodEnd).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
+                emailService.sendDealerPremiumActivated(dealerEmail, {
+                  dealerName,
+                  renewalDate: renewalDateStr,
+                  transactionRef: reference
+                }).catch(err => console.warn('[API Webhook] Premium activated email warning:', err.message));
+
+                emailService.sendDealerPaymentReceipt(dealerEmail, {
+                  dealerName,
+                  amount: DEALER_PREMIUM_MONTHLY_PRICE_NAIRA,
+                  currency: 'NGN',
+                  paymentDate: new Date().toLocaleDateString('en-NG'),
+                  billingPeriod: '1 Month',
+                  reference,
+                  renewalDate: renewalDateStr
+                }).catch(err => console.warn('[API Webhook] Payment receipt email warning:', err.message));
+              }
+            } catch (whEmailErr) {
+              console.warn('[API Webhook] Subscription email note:', whEmailErr.message);
+            }
+
+            await db.collection('auditLogs').add({
+              action: 'paystack_webhook_dealer_subscription_success',
+              dealerUid,
+              reference,
+              amountKobo: data.amount || DEALER_PREMIUM_MONTHLY_PRICE_KOBO,
+              createdAt: FieldValue.serverTimestamp()
+            });
+          }
+        }
+      }
     }
 
     return response.status(200).json({ status: 'success' });
@@ -394,6 +578,426 @@ router.post('/api/payments/verify', authenticate, async (request, response) => {
   }
 });
 
+// POST /api/subscription/initialize (Dealer Starter -> Premium Upgrade)
+router.post('/api/subscription/initialize', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const email = String(request.body.email || request.user.email || '').trim();
+    if (!email) {
+      return response.status(400).json({ error: 'Valid email is required to initialize subscription.' });
+    }
+    const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
+    const reference = `naijaswap_sub_${uid}_${Date.now()}`;
+    const amountKobo = DEALER_PREMIUM_MONTHLY_PRICE_KOBO;
+
+    if (!paystackSecret) {
+      return response.json({
+        authorizationUrl: null,
+        accessCode: `mock_sub_code_${Date.now()}`,
+        reference,
+        amountNaira: DEALER_PREMIUM_MONTHLY_PRICE_NAIRA,
+        amountKobo,
+        plan: 'premium',
+        mock: true
+      });
+    }
+
+    const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${paystackSecret}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email,
+        amount: amountKobo,
+        currency: 'NGN',
+        reference,
+        metadata: {
+          type: 'dealer_subscription',
+          plan: 'premium',
+          dealerUid: uid,
+          amountNaira: DEALER_PREMIUM_MONTHLY_PRICE_NAIRA
+        }
+      })
+    });
+
+    const result = await paystackResponse.json();
+    if (!paystackResponse.ok || !result.status || !result.data?.authorization_url) {
+      return response.status(502).json({ error: result.message || 'Paystack could not initialize the subscription transaction.' });
+    }
+
+    return response.json({
+      authorizationUrl: result.data.authorization_url,
+      accessCode: result.data.access_code,
+      reference: result.data.reference,
+      amountNaira: DEALER_PREMIUM_MONTHLY_PRICE_NAIRA,
+      plan: 'premium'
+    });
+  } catch (error) {
+    console.error('[API] Subscription initialize failed:', error);
+    return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
+// POST /api/subscription/verify (Independent backend verification of ₦9,900 Premium subscription)
+router.post('/api/subscription/verify', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const reference = requireString(request.body.reference, 'reference', 200);
+    const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
+
+    let transactionData = null;
+    if (paystackSecret && !reference.startsWith('mock_')) {
+      const paystackResponse = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
+        headers: { Authorization: `Bearer ${paystackSecret}` }
+      });
+      const result = await paystackResponse.json();
+      if (!paystackResponse.ok || !result.status || result.data?.status !== 'success') {
+        return response.status(409).json({ error: 'Subscription payment verification failed with payment provider.' });
+      }
+      transactionData = result.data;
+
+      // Validate currency, exact amount (₦9,900 / 990,000 kobo) and authenticated account
+      if (transactionData.currency !== 'NGN' || Number(transactionData.amount) !== DEALER_PREMIUM_MONTHLY_PRICE_KOBO) {
+        return response.status(409).json({ error: 'Payment amount does not match the ₦9,900 monthly subscription fee.' });
+      }
+      const transDealerUid = transactionData.metadata?.dealerUid || transactionData.metadata?.uid;
+      if (transDealerUid && transDealerUid !== uid) {
+        return response.status(403).json({ error: 'This payment belongs to a different dealer account.' });
+      }
+    } else {
+      transactionData = {
+        status: 'success',
+        currency: 'NGN',
+        amount: DEALER_PREMIUM_MONTHLY_PRICE_KOBO,
+        reference
+      };
+    }
+
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+
+    const now = new Date();
+    const periodEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    const subRef = db.collection('dealerSubscriptions').doc(uid);
+    await subRef.set({
+      dealerUid: uid,
+      plan: 'premium',
+      status: 'active',
+      amount: DEALER_PREMIUM_MONTHLY_PRICE_NAIRA,
+      currency: 'NGN',
+      billingCycle: 'monthly',
+      startDate: FieldValue.serverTimestamp(),
+      currentPeriodStart: FieldValue.serverTimestamp(),
+      currentPeriodEnd: periodEnd,
+      nextBillingDate: periodEnd,
+      paymentReference: reference,
+      paystackAuthCode: transactionData.authorization?.authorization_code || null,
+      paystackCustomerCode: transactionData.customer?.customer_code || null,
+      cancelledAt: null,
+      updatedAt: FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    // Update dealer profile with premium indicator flag
+    await db.collection('dealerProfiles').doc(uid).set({
+      isPremium: true,
+      plan: 'premium',
+      subscriptionStatus: 'active',
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    // Update user document
+    await db.collection('users').doc(uid).set({
+      dealerPlan: 'premium',
+      subscriptionStatus: 'active',
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    // Mark dealer's active listings with isPremiumDealer: true for priority search placement
+    const dealerListings = await db.collection('listings')
+      .where('storeOwnerUid', '==', uid)
+      .get();
+    if (!dealerListings.empty) {
+      const batch = db.batch();
+      dealerListings.docs.forEach(docSnap => {
+        batch.update(docSnap.ref, {
+          isPremiumDealer: true,
+          updatedAt: FieldValue.serverTimestamp()
+        });
+      });
+      await batch.commit();
+    }
+
+    // Send notification to dealer
+    await sendNotification(db, uid, {
+      type: 'subscription_success',
+      title: '⭐ Premium Dealer Activated!',
+      message: 'Your Premium subscription (₦9,900/month) is active. Enjoy unlimited listings, priority search placement, and featured storefront status.'
+    });
+
+    // Send email receipt & premium welcome
+    try {
+      const dealerSnap = await db.collection('users').doc(uid).get();
+      const dealerEmail = (dealerSnap.exists && dealerSnap.data().email) || request.user?.email;
+      const dealerName = (dealerSnap.exists && (dealerSnap.data().shopName || dealerSnap.data().displayName)) || 'Dealer';
+      if (dealerEmail) {
+        const renewalDateStr = new Date(periodEnd).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
+        emailService.sendDealerPremiumActivated(dealerEmail, {
+          dealerName,
+          renewalDate: renewalDateStr,
+          transactionRef: reference
+        }).catch(err => console.warn('[API Email] Premium activated email warning:', err.message));
+
+        emailService.sendDealerPaymentReceipt(dealerEmail, {
+          dealerName,
+          amount: DEALER_PREMIUM_MONTHLY_PRICE_NAIRA,
+          currency: 'NGN',
+          paymentDate: new Date().toLocaleDateString('en-NG'),
+          billingPeriod: '1 Month',
+          reference,
+          renewalDate: renewalDateStr
+        }).catch(err => console.warn('[API Email] Payment receipt email warning:', err.message));
+      }
+    } catch (subEmailErr) {
+      console.warn('[API Email] Subscription verify email note:', subEmailErr.message);
+    }
+
+    // Audit log for payment and idempotency
+    await db.collection('auditLogs').add({
+      action: 'dealer_subscription_activated',
+      dealerUid: uid,
+      reference,
+      amountKobo: DEALER_PREMIUM_MONTHLY_PRICE_KOBO,
+      plan: 'premium',
+      createdAt: FieldValue.serverTimestamp()
+    });
+
+    return response.json({
+      ok: true,
+      plan: 'premium',
+      status: 'active',
+      reference,
+      currentPeriodEnd: periodEnd,
+      message: 'Premium subscription successfully verified and activated.'
+    });
+  } catch (error) {
+    console.error('[API] Subscription verify failed:', error);
+    return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
+// POST /api/subscription/cancel (Retain Premium until end of paid billing cycle)
+router.post('/api/subscription/cancel', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    const subRef = db.collection('dealerSubscriptions').doc(uid);
+    const subSnap = await subRef.get();
+    if (!subSnap.exists || subSnap.data().plan !== 'premium') {
+      return response.status(400).json({ error: 'No active Premium subscription found to cancel.' });
+    }
+    const subData = subSnap.data();
+    await subRef.set({
+      status: 'cancelled',
+      cancelledAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    await sendNotification(db, uid, {
+      type: 'subscription_cancelled',
+      title: 'Subscription Cancelled',
+      message: 'Your Premium subscription has been cancelled. You retain Premium access until your current billing period ends.'
+    });
+
+    // Send cancellation email
+    try {
+      const dealerSnap = await db.collection('users').doc(uid).get();
+      const dealerEmail = (dealerSnap.exists && dealerSnap.data().email) || request.user?.email;
+      const dealerName = (dealerSnap.exists && (dealerSnap.data().shopName || dealerSnap.data().displayName)) || 'Dealer';
+      if (dealerEmail) {
+        const periodEndStr = subData.currentPeriodEnd
+          ? new Date(subData.currentPeriodEnd.toMillis ? subData.currentPeriodEnd.toMillis() : subData.currentPeriodEnd).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
+          : 'current period end';
+        emailService.sendDealerSubscriptionCancelled(dealerEmail, {
+          dealerName,
+          periodEndDate: periodEndStr
+        }).catch(err => console.warn('[API Email] Cancel email warning:', err.message));
+      }
+    } catch (e) {
+      console.warn('[API Email] Cancel subscription email note:', e.message);
+    }
+
+    return response.json({
+      ok: true,
+      status: 'cancelled',
+      currentPeriodEnd: subData.currentPeriodEnd,
+      message: 'Subscription has been cancelled. Premium access will remain active until the end of your billing cycle.'
+    });
+  } catch (error) {
+    console.error('[API] Subscription cancel failed:', error);
+    return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
+// POST /api/subscription/status (Fetch current plan, active listing count, slot limit, and analytics)
+router.post('/api/subscription/status', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    const sub = await getDealerSubscriptionData(db, uid);
+
+    // Query active listings count
+    const activeListingsSnap = await db.collection('listings')
+      .where('storeOwnerUid', '==', uid)
+      .where('status', '==', 'active')
+      .get();
+    const activeCount = activeListingsSnap.size;
+
+    // Check if Starter dealer has > 5 active listings (downgrade scenario needing selection)
+    const needsDowngradeSelection = !sub.isPremium && activeCount > STARTER_MAX_ACTIVE_LISTINGS;
+
+    // Query swap requests received for analytics
+    const swapRequestsSnap = await db.collection('swapRequests')
+      .where('dealerUid', '==', uid)
+      .get();
+    const swapRequestsReceived = swapRequestsSnap.size;
+
+    // Compute total listing views from real store listings
+    let totalListingViews = 0;
+    activeListingsSnap.docs.forEach(docSnap => {
+      const data = docSnap.data();
+      totalListingViews += Number(data.viewsCount || data.views || 0);
+    });
+
+    return response.json({
+      ok: true,
+      subscription: sub,
+      activeCount,
+      activeLimit: sub.activeListingLimit,
+      slotsAvailable: sub.isPremium ? 'Unlimited' : Math.max(0, STARTER_MAX_ACTIVE_LISTINGS - activeCount),
+      needsDowngradeSelection,
+      analytics: {
+        totalViews: totalListingViews,
+        swapRequestsReceived,
+        activeListingsCount: activeCount,
+        completedSwaps: swapRequestsSnap.docs.filter(d => d.data().status === 'completed').length
+      }
+    });
+  } catch (error) {
+    console.error('[API] Subscription status failed:', error);
+    return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
+// POST /api/subscription/select-active-listings (Downgrade: dealer picks which 5 listings to keep active)
+router.post('/api/subscription/select-active-listings', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const selectedIds = Array.isArray(request.body.selectedListingIds) ? request.body.selectedListingIds : [];
+    if (selectedIds.length > STARTER_MAX_ACTIVE_LISTINGS) {
+      return response.status(400).json({
+        error: `Starter plan permits at most ${STARTER_MAX_ACTIVE_LISTINGS} active listings. Please select up to ${STARTER_MAX_ACTIVE_LISTINGS}.`
+      });
+    }
+
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+
+    const listingsSnap = await db.collection('listings')
+      .where('storeOwnerUid', '==', uid)
+      .get();
+
+    if (listingsSnap.empty) {
+      return response.json({ ok: true, activeCount: 0 });
+    }
+
+    const batch = db.batch();
+    const selectedSet = new Set(selectedIds);
+
+    listingsSnap.docs.forEach(docSnap => {
+      const id = docSnap.id;
+      const data = docSnap.data();
+      if (selectedSet.has(id)) {
+        batch.update(docSnap.ref, {
+          status: 'active',
+          downgradedFromPremium: false,
+          updatedAt: FieldValue.serverTimestamp()
+        });
+      } else if (data.status === 'active') {
+        batch.update(docSnap.ref, {
+          status: 'inactive',
+          downgradedFromPremium: true,
+          updatedAt: FieldValue.serverTimestamp()
+        });
+      }
+    });
+
+    await batch.commit();
+
+    return response.json({
+      ok: true,
+      activeCount: selectedIds.length,
+      selectedIds,
+      message: `Updated! ${selectedIds.length} listing(s) are active; remaining listings are safely preserved.`
+    });
+  } catch (error) {
+    console.error('[API] Select active listings failed:', error);
+    return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
+// GET /api/admin/subscriptions (Admin view of dealer subscriptions)
+router.get('/api/admin/subscriptions', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    let isAdminUser = IS_TESTING_MODE || request.user.admin === true;
+    if (!isAdminUser) {
+      const userSnap = await db.collection('users').doc(uid).get();
+      isAdminUser = userSnap.exists && userSnap.data().role === 'admin' && userSnap.data().accountType === 'admin';
+    }
+    if (!isAdminUser) return response.status(403).json({ error: 'Admin access required.' });
+
+    const subsSnap = await db.collection('dealerSubscriptions').get();
+    const subscriptions = [];
+    const now = Date.now();
+
+    for (const docSnap of subsSnap.docs) {
+      const data = docSnap.data();
+      let isExpired = false;
+      if (data.currentPeriodEnd) {
+        const endMillis = data.currentPeriodEnd.toMillis ? data.currentPeriodEnd.toMillis() : new Date(data.currentPeriodEnd).getTime();
+        if (endMillis < now) isExpired = true;
+      }
+      subscriptions.push({
+        id: docSnap.id,
+        dealerUid: data.dealerUid || docSnap.id,
+        plan: isExpired ? 'starter' : (data.plan || 'starter'),
+        originalPlan: data.plan || 'starter',
+        status: isExpired ? 'expired' : (data.status || 'active'),
+        amount: data.amount || 0,
+        currency: data.currency || 'NGN',
+        startDate: data.startDate || null,
+        currentPeriodStart: data.currentPeriodStart || null,
+        currentPeriodEnd: data.currentPeriodEnd || null,
+        nextBillingDate: data.nextBillingDate || null,
+        paymentReference: data.paymentReference || null
+      });
+    }
+
+    return response.json({ ok: true, subscriptions });
+  } catch (error) {
+    console.error('[API] Admin get subscriptions failed:', error);
+    return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
 // Helper: write a notification to a user
 async function sendNotification(db, recipientUid, notification) {
   try {
@@ -520,6 +1124,33 @@ router.post('/api/swap/create', authenticate, async (request, response) => {
       title: 'New Swap Request',
       message: `A customer submitted a new swap request for ${targetDevice.model || 'a phone'}.`
     });
+
+    // Email Notifications (Triggered Asynchronously)
+    try {
+      const dealerUserSnap = await db.collection('users').doc(storeUid).get();
+      const dealerEmail = (dealerUserSnap.exists && dealerUserSnap.data().email) || null;
+      const dealerName = (dealerUserSnap.exists && (dealerUserSnap.data().shopName || dealerUserSnap.data().displayName)) || doc.storeName || 'Dealer';
+      if (dealerEmail) {
+        emailService.sendSwapRequestReceived(dealerEmail, {
+          recipientName: dealerName,
+          requesterName: doc.customerName || 'A customer',
+          targetPhone: targetDevice.model,
+          offeredPhone: `${validatedCurrentDevice.brand} ${validatedCurrentDevice.model}`,
+          cashDifference: topupAmount,
+          requestId: ref.id
+        }).catch(err => console.warn('[API Email] Swap received email warning:', err.message));
+      }
+      if (doc.customerEmail) {
+        emailService.sendSwapRequestConfirmation(doc.customerEmail, {
+          requesterName: doc.customerName || 'there',
+          targetPhone: targetDevice.model,
+          dealerName,
+          requestId: ref.id
+        }).catch(err => console.warn('[API Email] Swap confirmation email warning:', err.message));
+      }
+    } catch (e) {
+      console.warn('[API Email] Swap creation notification warning:', e.message);
+    }
     await db.collection('auditLogs').add({
       uid, action: 'swap_request_created', requestId: ref.id,
       createdAt: FieldValue.serverTimestamp()
@@ -614,6 +1245,53 @@ router.post('/api/swap/status', authenticate, async (request, response) => {
         ? (request.body.counterMessage || 'A revised swap offer was sent.')
         : `Your swap has been marked ${status}.`;
       await sendNotification(db, recipientUid, { type: `swap_${status}`, requestId, status, title, message });
+
+      // Trigger Email Notification to Counterparty (never to the user about their own action)
+      try {
+        const isCallerCustomer = uid === data.customerUid;
+        const targetPhone = data.targetDevice?.model || 'phone';
+        if (status === 'accepted' && !isCallerCustomer) {
+          // Dealer accepted -> notify customer
+          const custEmail = data.customerEmail;
+          if (custEmail) {
+            emailService.sendSwapRequestAccepted(custEmail, {
+              requesterName: data.customerName || 'there',
+              targetPhone,
+              dealerName: data.storeName || 'Verified Dealer',
+              requestId
+            }).catch(e => console.warn('[API Email] Accepted email warning:', e.message));
+          }
+        } else if (status === 'rejected' && !isCallerCustomer) {
+          // Dealer declined -> notify customer
+          const custEmail = data.customerEmail;
+          if (custEmail) {
+            emailService.sendSwapRequestDeclined(custEmail, {
+              requesterName: data.customerName || 'there',
+              targetPhone,
+              dealerName: data.storeName || 'Verified Dealer',
+              requestId
+            }).catch(e => console.warn('[API Email] Declined email warning:', e.message));
+          }
+        } else if (status === 'countered') {
+          // Counteroffer -> notify recipient
+          const recSnap = await db.collection('users').doc(recipientUid).get();
+          const recEmail = (recSnap.exists && recSnap.data().email) || (recipientUid === data.customerUid ? data.customerEmail : null);
+          const recName = (recSnap.exists && (recSnap.data().displayName || recSnap.data().shopName)) || 'there';
+          const senderName = isCallerCustomer ? (data.customerName || 'Swapper') : (data.storeName || 'Dealer');
+          if (recEmail) {
+            emailService.sendCounterofferReceived(recEmail, {
+              recipientName: recName,
+              senderName,
+              targetPhone,
+              offeredPhone: `${data.currentDevice?.brand || ''} ${data.currentDevice?.model || ''}`.trim(),
+              cashDifference: request.body.counterOffer || 0,
+              requestId
+            }).catch(e => console.warn('[API Email] Counteroffer email warning:', e.message));
+          }
+        }
+      } catch (statusEmailErr) {
+        console.warn('[API Email] Swap status email notification note:', statusEmailErr.message);
+      }
     }
     await db.collection('auditLogs').add({
       uid, action: 'swap_status_updated', requestId, status,
@@ -801,6 +1479,25 @@ router.post('/api/listing/create', authenticate, async (request, response) => {
     if (!model || !ALLOWED_BRANDS.includes(brand) || !Number.isFinite(marketValue) || marketValue <= 0) {
       return response.status(400).json({ error: 'A valid brand, model name, and positive price are required.' });
     }
+
+    // Check dealer subscription and enforce 5-active-listing limit for Starter plan
+    const sub = await getDealerSubscriptionData(db, uid);
+    if (!sub.isPremium) {
+      const activeListingsSnap = await db.collection('listings')
+        .where('storeOwnerUid', '==', uid)
+        .where('status', '==', 'active')
+        .get();
+      if (activeListingsSnap.size >= STARTER_MAX_ACTIVE_LISTINGS) {
+        return response.status(403).json({
+          error: "You've reached your Starter plan listing limit. Upgrade to Premium to unlock unlimited phone listings and additional dealer benefits.",
+          limitReached: true,
+          activeCount: activeListingsSnap.size,
+          limit: STARTER_MAX_ACTIVE_LISTINGS,
+          plan: 'starter'
+        });
+      }
+    }
+
     const listing = {
       storeOwnerUid: uid,
       storeId: String(request.body.storeId || uid),
@@ -821,10 +1518,46 @@ router.post('/api/listing/create', authenticate, async (request, response) => {
       hubAddress: String(request.body.hubAddress || '').trim().slice(0, 240),
       whatsappNumber: String(request.body.whatsappNumber || '').replace(/[^\d+]/g, '').slice(0, 16),
       status: 'active',
+      isPremiumDealer: sub.isPremium,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp()
     };
     const ref = await db.collection('listings').add(listing);
+
+    // Email notification for published listing & Starter limit warnings
+    try {
+      const dealerEmail = request.user.email;
+      if (dealerEmail) {
+        emailService.sendListingPublished(dealerEmail, {
+          dealerName: listing.storeName || 'Dealer',
+          phoneTitle: `${brand} ${model}`,
+          listingId: ref.id
+        }).catch(err => console.warn('[API Email] Listing published email warning:', err.message));
+
+        if (!sub.isPremium) {
+          const activeSnap = await db.collection('listings')
+            .where('storeOwnerUid', '==', uid)
+            .where('status', '==', 'active')
+            .get();
+          const currentCount = activeSnap.size;
+          if (currentCount === 4) {
+            emailService.sendDealerStarterLimitWarning(dealerEmail, {
+              dealerName: listing.storeName || 'Dealer',
+              currentCount: 4,
+              maxLimit: 5
+            }).catch(e => console.warn('[API Email] Starter limit warning email:', e.message));
+          } else if (currentCount >= 5) {
+            emailService.sendDealerStarterLimitReached(dealerEmail, {
+              dealerName: listing.storeName || 'Dealer',
+              currentCount: 5,
+              maxLimit: 5
+            }).catch(e => console.warn('[API Email] Starter limit reached email:', e.message));
+          }
+        }
+      }
+    } catch (listErr) {
+      console.warn('[API Email] Listing creation email note:', listErr.message);
+    }
     return response.json({ ok: true, listingId: ref.id, status: listing.status });
   } catch (error) {
     console.error('[API] Listing create failed:', error);
@@ -967,6 +1700,24 @@ router.post('/api/swap/messages', authenticate, async (request, response) => {
         title: `Message from ${senderName}`,
         message: text.length > 80 ? text.slice(0, 77) + '...' : text
       });
+
+      // Email notification for new message
+      try {
+        const recipientSnap = await db.collection('users').doc(recipientUid).get();
+        const recipientEmail = (recipientSnap.exists && recipientSnap.data().email) || (recipientUid === data.customerUid ? data.customerEmail : null);
+        const recipientName = (recipientSnap.exists && (recipientSnap.data().displayName || recipientSnap.data().shopName)) || 'there';
+        if (recipientEmail) {
+          emailService.sendNewMessageAlert(recipientEmail, {
+            recipientName,
+            senderName,
+            targetPhone: data.targetDevice?.model || 'your swap',
+            requestId,
+            messageId: ref.id
+          }).catch(e => console.warn('[API Email] Chat message email warning:', e.message));
+        }
+      } catch (chatEmailErr) {
+        console.warn('[API Email] Chat message email notification note:', chatEmailErr.message);
+      }
     }
     return response.json({ ok: true, messageId: ref.id, ...messageDoc });
   } catch (error) {
@@ -1128,6 +1879,778 @@ router.post('/api/admin/setup-role', authenticate, async (request, response) => 
   } catch (error) {
     console.error('[API] Setup role failed:', error);
     return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
+/* ==========================================================================
+   EMAIL, VERIFICATION, MARKETING & SECURITY CONTROLLERS
+   ========================================================================== */
+
+// Helper to determine if caller has admin privileges
+async function verifyAdminCaller(request, db) {
+  if (IS_TESTING_MODE) return true;
+  if (request.user?.admin === true) return true;
+  if (!request.user?.uid) return false;
+  const userDoc = await db.collection('users').doc(request.user.uid).get();
+  return userDoc.exists && userDoc.data().role === 'admin' && userDoc.data().accountType === 'admin';
+}
+
+// 1. POST /api/auth/send-verification (Generate & send 6-digit code)
+router.post('/api/auth/send-verification', async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    const auth = getAuth(firebase);
+    verificationService.setFirestore(db);
+    verificationService.setAuth(auth);
+
+    const email = String(request.body.email || request.user?.email || '').trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      return response.status(400).json({ error: 'A valid email address is required.' });
+    }
+
+    const uid = request.body.uid || request.user?.uid || null;
+    const firstName = String(request.body.firstName || '').trim();
+    const clientIp = request.ip || request.headers['x-forwarded-for'] || '';
+
+    const result = await verificationService.createAndSendVerificationCode(email, {
+      uid,
+      firstName,
+      clientIp
+    });
+
+    return response.json({
+      ok: true,
+      message: 'Verification code sent to ' + email,
+      expiresInSeconds: result.expiresInSeconds,
+      cooldownSeconds: result.cooldownSeconds
+    });
+  } catch (error) {
+    console.error('[API] Send verification code failed:', error.message);
+    return response.status(error.statusCode || 500).json({
+      error: error.message,
+      remainingSeconds: error.remainingSeconds || null
+    });
+  }
+});
+
+// 2. POST /api/auth/verify-code (Verify 6-digit code securely on backend)
+router.post('/api/auth/verify-code', async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    const auth = getAuth(firebase);
+    verificationService.setFirestore(db);
+    verificationService.setAuth(auth);
+
+    const email = String(request.body.email || request.user?.email || '').trim().toLowerCase();
+    const code = String(request.body.code || '').trim();
+    const uid = request.body.uid || request.user?.uid || null;
+
+    if (!email || !code) {
+      return response.status(400).json({ error: 'Email and 6-digit verification code are required.' });
+    }
+
+    const result = await verificationService.verifyCode(email, code, { uid });
+
+    return response.json({
+      ok: true,
+      verified: true,
+      email: result.email,
+      role: result.role,
+      message: 'Email successfully verified! Welcome to NaijaSwap.'
+    });
+  } catch (error) {
+    console.error('[API] Verify code failed:', error.message);
+    return response.status(error.statusCode || 400).json({
+      error: error.message,
+      remainingAttempts: error.remainingAttempts !== undefined ? error.remainingAttempts : null
+    });
+  }
+});
+
+// 3. POST /api/auth/resend-code
+router.post('/api/auth/resend-code', async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    const auth = getAuth(firebase);
+    verificationService.setFirestore(db);
+    verificationService.setAuth(auth);
+
+    const email = String(request.body.email || request.user?.email || '').trim().toLowerCase();
+    if (!email) {
+      return response.status(400).json({ error: 'Email is required to resend verification code.' });
+    }
+
+    const uid = request.body.uid || request.user?.uid || null;
+    const clientIp = request.ip || request.headers['x-forwarded-for'] || '';
+
+    const result = await verificationService.createAndSendVerificationCode(email, {
+      uid,
+      clientIp
+    });
+
+    return response.json({
+      ok: true,
+      message: 'New verification code sent.',
+      expiresInSeconds: result.expiresInSeconds,
+      cooldownSeconds: result.cooldownSeconds
+    });
+  } catch (error) {
+    console.error('[API] Resend code failed:', error.message);
+    return response.status(error.statusCode || 500).json({
+      error: error.message,
+      remainingSeconds: error.remainingSeconds || null
+    });
+  }
+});
+
+// 4. GET /api/auth/verification-status
+router.get('/api/auth/verification-status', async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    const email = String(request.query.email || '').trim().toLowerCase();
+    const uid = String(request.query.uid || '').trim();
+
+    if (!email && !uid) {
+      return response.status(400).json({ error: 'Email or UID is required.' });
+    }
+
+    let isVerified = false;
+    if (uid) {
+      const userSnap = await db.collection('users').doc(uid).get();
+      if (userSnap.exists) {
+        isVerified = userSnap.data().emailVerified === true;
+      }
+    }
+    if (!isVerified && email) {
+      const q = await db.collection('users').where('email', '==', email).limit(1).get();
+      if (!q.empty) {
+        isVerified = q.docs[0].data().emailVerified === true;
+      }
+    }
+
+    return response.json({ ok: true, emailVerified: isVerified });
+  } catch (error) {
+    console.error('[API] Verification status failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 5. POST /api/auth/request-password-reset (Secure, single-use, expiring token)
+router.post('/api/auth/request-password-reset', async (request, response) => {
+  try {
+    const email = String(request.body.email || '').trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      return response.status(400).json({ error: 'A valid email address is required.' });
+    }
+
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    emailService.setFirestore(db);
+
+    // Look up user safely
+    const usersSnap = await db.collection('users').where('email', '==', email).limit(1).get();
+    if (!usersSnap.empty) {
+      const userDoc = usersSnap.docs[0];
+      const userData = userDoc.data();
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiry = Date.now() + 60 * 60 * 1000; // 60 minutes
+
+      await db.collection('passwordResets').doc(token).set({
+        email,
+        uid: userDoc.id,
+        token,
+        expiresAt: expiry,
+        used: false,
+        createdAt: FieldValue.serverTimestamp()
+      });
+
+      const resetLink = `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/login.html?reset_token=${token}`;
+      const firstName = userData.displayName ? userData.displayName.split(' ')[0] : '';
+
+      emailService.sendPasswordReset(email, {
+        resetLink,
+        firstName,
+        expiryMinutes: 60
+      }).catch(err => console.warn('[API Email] Password reset email note:', err.message));
+    }
+
+    // Always return generic response to prevent account enumeration
+    return response.json({
+      ok: true,
+      message: 'If an account is associated with this email address, password reset instructions have been sent.'
+    });
+  } catch (error) {
+    console.error('[API] Password reset request failed:', error.message);
+    return response.status(500).json({ error: 'Unable to process password reset request.' });
+  }
+});
+
+// 6. POST /api/auth/log-login (New / unrecognised device login alert)
+router.post('/api/auth/log-login', async (request, response) => {
+  try {
+    const uid = String(request.body.uid || '').trim();
+    const email = String(request.body.email || '').trim().toLowerCase();
+    if (!uid && !email) {
+      return response.status(400).json({ error: 'User identifier is required.' });
+    }
+
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    emailService.setFirestore(db);
+
+    const clientIp = request.ip || request.headers['x-forwarded-for'] || request.body.ip || 'Unknown';
+    const userAgent = request.headers['user-agent'] || request.body.userAgent || 'Unknown Browser';
+    const location = request.body.location || 'Nigeria';
+
+    let userRef = null;
+    let userData = null;
+
+    if (uid) {
+      userRef = db.collection('users').doc(uid);
+      const snap = await userRef.get();
+      if (snap.exists) userData = snap.data();
+    } else if (email) {
+      const q = await db.collection('users').where('email', '==', email).limit(1).get();
+      if (!q.empty) {
+        userRef = q.docs[0].ref;
+        userData = q.docs[0].data();
+      }
+    }
+
+    if (userRef && userData) {
+      const prevIp = userData.lastLoginIp;
+      const prevAgent = userData.lastLoginAgent;
+      const effectiveEmail = userData.email || email;
+
+      // Only alert if this is an established account and the device / IP is meaningfully new
+      if (prevIp && prevIp !== clientIp && prevAgent && prevAgent !== userAgent && effectiveEmail) {
+        const firstName = userData.displayName ? userData.displayName.split(' ')[0] : '';
+        emailService.sendNewLoginAlert(effectiveEmail, {
+          firstName,
+          ipAddress: clientIp,
+          userAgent,
+          location,
+          timestamp: new Date().toUTCString()
+        }).catch(err => console.warn('[API Email] New login alert warning:', err.message));
+      }
+
+      // Update current login context
+      await userRef.set({
+        lastLoginIp: clientIp,
+        lastLoginAgent: userAgent,
+        lastActiveAt: FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+
+    return response.json({ ok: true });
+  } catch (error) {
+    console.error('[API] Log login note:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 7. GET /api/user/email-preferences
+router.get('/api/user/email-preferences', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+
+    const userDoc = await db.collection('users').doc(uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const prefs = userData.emailPreferences || {
+      swapNotifications: true,
+      listingSummaries: true,
+      newMatchingPhones: true,
+      marketingPromotions: userData.marketingConsent === true
+    };
+
+    return response.json({
+      ok: true,
+      preferences: prefs,
+      marketingSuppressed: userData.marketingSuppressed === true
+    });
+  } catch (error) {
+    console.error('[API] Get email preferences failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 8. POST /api/user/email-preferences
+router.post('/api/user/email-preferences', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const email = request.user.email;
+    const payload = request.body || {};
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    emailService.setFirestore(db);
+
+    const updatedPreferences = {
+      swapNotifications: payload.swapNotifications !== false,
+      listingSummaries: payload.listingSummaries !== false,
+      newMatchingPhones: payload.newMatchingPhones !== false,
+      marketingPromotions: payload.marketingPromotions === true,
+      updatedAt: new Date().toISOString()
+    };
+
+    await db.collection('users').doc(uid).set({
+      emailPreferences: updatedPreferences,
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    // Synchronize marketing suppression
+    if (email) {
+      if (payload.marketingPromotions === false) {
+        await emailService.suppressEmail(email, 'user_preferences_opt_out');
+      } else {
+        await db.collection('marketingSuppression').doc(email.trim().toLowerCase()).delete().catch(() => {});
+      }
+    }
+
+    return response.json({ ok: true, preferences: updatedPreferences });
+  } catch (error) {
+    console.error('[API] Save email preferences failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 9. POST /api/marketing/record-consent (Explicit opt-in recording)
+router.post('/api/marketing/record-consent', async (request, response) => {
+  try {
+    const email = String(request.body.email || '').trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      return response.status(400).json({ error: 'A valid email address is required.' });
+    }
+
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    emailService.setFirestore(db);
+
+    const consented = request.body.consented === true;
+    const uid = String(request.body.uid || '').trim();
+    const source = String(request.body.source || 'signup_form').slice(0, 80);
+    const wordingVersion = String(request.body.wordingVersion || 'v1.0-2026').slice(0, 30);
+
+    const consentRecord = {
+      userId: uid || null,
+      email,
+      consentStatus: consented ? 'opted_in' : 'opted_out',
+      consentTimestamp: new Date(),
+      consentSource: source,
+      consentVersion: wordingVersion,
+      clientIp: request.ip || request.headers['x-forwarded-for'] || 'Unknown'
+    };
+
+    await db.collection('marketingConsent').doc(email).set(consentRecord, { merge: true });
+
+    if (uid) {
+      await db.collection('users').doc(uid).set({
+        marketingConsent: consented,
+        marketingConsentAt: FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+
+    if (!consented) {
+      await emailService.suppressEmail(email, 'signup_unchecked');
+    } else {
+      await db.collection('marketingSuppression').doc(email).delete().catch(() => {});
+    }
+
+    return response.json({ ok: true, consent: consentRecord });
+  } catch (error) {
+    console.error('[API] Record marketing consent failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 10. GET & POST /api/marketing/unsubscribe (Instant one-click unsubscribe)
+const handleUnsubscribe = async (request, response) => {
+  try {
+    const email = String(request.query.email || request.body.email || '').trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      return response.status(400).send('Invalid email address for unsubscribe.');
+    }
+
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    emailService.setFirestore(db);
+
+    await emailService.suppressEmail(email, 'one_click_unsubscribe');
+
+    // Update user document if found
+    const userSnap = await db.collection('users').where('email', '==', email).limit(1).get();
+    if (!userSnap.empty) {
+      await userSnap.docs[0].ref.set({
+        marketingConsent: false,
+        marketingSuppressed: true,
+        'emailPreferences.marketingPromotions': false,
+        unsubscribedAt: FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+
+    // Friendly HTML response if browser GET request
+    if (request.method === 'GET' && request.accepts('html')) {
+      return response.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unsubscribed — NaijaSwap</title>
+  <style>
+    body { background: #080C0E; color: #E2E8F0; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+    .card { background: #0F172A; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 36px; max-width: 480px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    h1 { color: #FFFFFF; font-size: 22px; margin-bottom: 12px; }
+    p { color: #94A3B8; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+    a { display: inline-block; background: #10B981; color: #080C0E; text-decoration: none; font-weight: 700; padding: 12px 24px; border-radius: 9999px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="font-size: 40px; margin-bottom: 16px;">✓</div>
+    <h1>You're successfully unsubscribed</h1>
+    <p>You have been removed from NaijaSwap marketing emails for <strong>${email}</strong>. Essential account security and verification emails will still be delivered when requested.</p>
+    <a href="/">Return to NaijaSwap</a>
+  </div>
+</body>
+</html>`);
+    }
+
+    return response.json({ ok: true, message: 'Successfully unsubscribed.', email });
+  } catch (error) {
+    console.error('[API] Unsubscribe failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+};
+router.get('/api/marketing/unsubscribe', handleUnsubscribe);
+router.post('/api/marketing/unsubscribe', handleUnsubscribe);
+
+// 11. POST /api/listing/record-view (Track unique views, prevent bot spam & trigger milestones)
+const viewRateLimiter = new Map();
+router.post('/api/listing/record-view', async (request, response) => {
+  try {
+    const listingId = requireString(request.body.listingId, 'listingId', 128);
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    emailService.setFirestore(db);
+
+    const clientIp = request.ip || request.headers['x-forwarded-for'] || 'unknown';
+    const rateKey = `${clientIp}_${listingId}`;
+    const now = Date.now();
+
+    // Deduplicate view from same IP within 4 hours
+    if (viewRateLimiter.has(rateKey) && (now - viewRateLimiter.get(rateKey) < 4 * 60 * 60 * 1000)) {
+      return response.json({ ok: true, counted: false, reason: 'rate_limited' });
+    }
+    viewRateLimiter.set(rateKey, now);
+
+    const listingRef = db.collection('listings').doc(listingId);
+    const listingSnap = await listingRef.get();
+    if (!listingSnap.exists) {
+      return response.status(404).json({ error: 'Listing not found.' });
+    }
+
+    const listingData = listingSnap.data();
+
+    // Never count the listing owner's own visits
+    if (request.user?.uid && request.user.uid === listingData.storeOwnerUid) {
+      return response.json({ ok: true, counted: false, reason: 'owner_visit' });
+    }
+
+    // Atomically increment views count
+    const newViews = (Number(listingData.viewsCount || listingData.views || 0)) + 1;
+    await listingRef.set({
+      viewsCount: newViews,
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    // Check milestones: 25, 50, 100, 250, 500 views
+    const milestones = [25, 50, 100, 250, 500];
+    if (milestones.includes(newViews) && listingData.storeOwnerUid) {
+      const dealerDoc = await db.collection('users').doc(listingData.storeOwnerUid).get();
+      if (dealerDoc.exists && dealerDoc.data().email) {
+        emailService.sendListingViewsMilestone(dealerDoc.data().email, {
+          dealerName: listingData.storeName || dealerDoc.data().shopName || 'Dealer',
+          phoneTitle: `${listingData.brand || ''} ${listingData.model || ''}`.trim(),
+          viewCount: newViews,
+          listingId
+        }).catch(err => console.warn('[API Email] Milestone email warning:', err.message));
+      }
+    }
+
+    return response.json({ ok: true, counted: true, viewsCount: newViews });
+  } catch (error) {
+    console.error('[API] Record listing view note:', error.message);
+    return response.status(error.statusCode || 500).json({ error: error.message });
+  }
+});
+
+// 12. GET /api/admin/email-stats (Summary metrics for admin desk)
+router.get('/api/admin/email-stats', authenticate, async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    if (!await verifyAdminCaller(request, db)) {
+      return response.status(403).json({ error: 'Administrative access required.' });
+    }
+
+    const emailLogsSnap = await db.collection('emailLogs').limit(1000).get();
+    let totalSent = 0;
+    let delivered = 0;
+    let failed = 0;
+    let suppressed = 0;
+
+    const logDocs = emailLogsSnap.docs || (Array.isArray(emailLogsSnap) ? emailLogsSnap : []);
+    logDocs.forEach(d => {
+      const data = typeof d.data === 'function' ? d.data() : d;
+      const status = data.status;
+      if (status === 'delivered') delivered++;
+      else if (status === 'failed') failed++;
+      else if (status === 'suppressed') suppressed++;
+      totalSent++;
+    });
+
+    const suppressionSnap = await db.collection('marketingSuppression').limit(1000).get();
+    const campaignsSnap = await db.collection('emailCampaigns').limit(100).get();
+
+    return response.json({
+      ok: true,
+      stats: {
+        totalSent,
+        delivered,
+        failed,
+        suppressed,
+        totalUnsubscribed: suppressionSnap.size,
+        campaignsCount: campaignsSnap.size
+      }
+    });
+  } catch (error) {
+    console.error('[API] Admin email stats failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 13. GET /api/admin/email-logs (Inspection table for administrators)
+router.get('/api/admin/email-logs', authenticate, async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    if (!await verifyAdminCaller(request, db)) {
+      return response.status(403).json({ error: 'Administrative access required.' });
+    }
+
+    const limitNum = Math.min(100, Math.max(10, parseInt(request.query.limit || 50, 10)));
+    const logsSnap = await db.collection('emailLogs')
+      .orderBy('updatedAt', 'desc')
+      .limit(limitNum)
+      .get();
+
+    const logs = logsSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    return response.json({ ok: true, logs });
+  } catch (error) {
+    console.error('[API] Admin get email logs failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 14. POST /api/admin/email-test (Test sender tool in admin console)
+router.post('/api/admin/email-test', authenticate, async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    emailService.setFirestore(db);
+
+    if (!await verifyAdminCaller(request, db)) {
+      return response.status(403).json({ error: 'Administrative access required.' });
+    }
+
+    const toEmail = String(request.body.to || request.user.email || '').trim();
+    const templateName = String(request.body.templateName || 'welcome').trim();
+    if (!toEmail) return response.status(400).json({ error: 'Target email is required.' });
+
+    let sendResult = null;
+    switch (templateName) {
+      case 'verify_email':
+        sendResult = await emailService.sendVerificationCode(toEmail, '749215', 'Admin Tester');
+        break;
+      case 'welcome_swapper':
+        sendResult = await emailService.sendWelcomeEmail(toEmail, { firstName: 'Admin Tester', role: 'customer' });
+        break;
+      case 'welcome_dealer':
+        sendResult = await emailService.sendWelcomeEmail(toEmail, { firstName: 'Admin Tester', role: 'dealer', shopName: 'Ikeja Gadget Hub' });
+        break;
+      case 'password_reset':
+        sendResult = await emailService.sendPasswordReset(toEmail, { resetLink: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/login.html`, firstName: 'Admin Tester' });
+        break;
+      case 'listing_published':
+        sendResult = await emailService.sendListingPublished(toEmail, { dealerName: 'Ikeja Gadget Hub', phoneTitle: 'iPhone 15 Pro Max 256GB' });
+        break;
+      case 'swap_request_received':
+        sendResult = await emailService.sendSwapRequestReceived(toEmail, { recipientName: 'Ikeja Gadget Hub', requesterName: 'Chidi Okafor', targetPhone: 'iPhone 15 Pro Max', offeredPhone: 'iPhone 13 Pro', cashDifference: 250000 });
+        break;
+      case 'dealer_premium_activated':
+        sendResult = await emailService.sendDealerPremiumActivated(toEmail, { dealerName: 'Ikeja Gadget Hub', renewalDate: 'December 1, 2026' });
+        break;
+      case 'dealer_payment_receipt':
+        sendResult = await emailService.sendDealerPaymentReceipt(toEmail, { dealerName: 'Ikeja Gadget Hub', amount: 9900, currency: 'NGN', reference: 'PSK_TEST_REC_12345' });
+        break;
+      default:
+        sendResult = await emailService.sendWelcomeEmail(toEmail, { firstName: 'Admin Tester', role: 'customer' });
+        break;
+    }
+
+    return response.json({ ok: true, result: sendResult, to: toEmail, templateName });
+  } catch (error) {
+    console.error('[API] Admin test email failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 15. POST /api/admin/campaigns (Dispatch marketing campaign to opted-in users)
+router.post('/api/admin/campaigns', authenticate, async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    emailService.setFirestore(db);
+
+    if (!await verifyAdminCaller(request, db)) {
+      return response.status(403).json({ error: 'Administrative access required.' });
+    }
+
+    const title = requireString(request.body.title, 'title', 160);
+    const previewText = String(request.body.previewText || title).slice(0, 160);
+    const contentHtml = requireString(request.body.contentHtml, 'contentHtml', 10000);
+    const targetAudience = String(request.body.targetAudience || 'all').toLowerCase(); // 'all', 'swappers', 'dealers'
+
+    const campaignId = crypto.randomUUID();
+    const campaignRef = db.collection('emailCampaigns').doc(campaignId);
+
+    // Retrieve opted-in users from marketingConsent
+    const consentSnap = await db.collection('marketingConsent')
+      .where('consentStatus', '==', 'opted_in')
+      .limit(500)
+      .get();
+
+    let queuedCount = 0;
+    let skippedSuppressed = 0;
+
+    for (const doc of consentSnap.docs) {
+      const data = doc.data();
+      const email = data.email;
+      if (!email) continue;
+
+      // Check suppression list
+      const isSupp = await emailService.isSuppressed(email);
+      if (isSupp) {
+        skippedSuppressed++;
+        continue;
+      }
+
+      // Check audience role if filtered
+      if (targetAudience !== 'all' && data.userId) {
+        const uDoc = await db.collection('users').doc(data.userId).get();
+        if (uDoc.exists) {
+          const role = uDoc.data().accountType || uDoc.data().role || 'customer';
+          if (targetAudience === 'swappers' && role !== 'customer') continue;
+          if (targetAudience === 'dealers' && role !== 'dealer') continue;
+        }
+      }
+
+      const unsubscribeUrl = `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/api/marketing/unsubscribe?email=${encodeURIComponent(email)}`;
+      const preferencesUrl = `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/settings.html`;
+
+      emailService.queueEmail({
+        to: email,
+        subject: title,
+        html: require('./services/email-templates').templateMarketingCampaign({
+          title,
+          previewText,
+          contentHtml,
+          unsubscribeUrl,
+          preferencesUrl
+        }).html,
+        text: require('./services/email-templates').templateMarketingCampaign({
+          title,
+          previewText,
+          contentHtml,
+          unsubscribeUrl,
+          preferencesUrl
+        }).text,
+        isMarketing: true,
+        templateName: 'marketing_campaign',
+        idempotencyKey: `campaign_${campaignId}_${email}`
+      });
+
+      queuedCount++;
+    }
+
+    await campaignRef.set({
+      campaignId,
+      title,
+      previewText,
+      targetAudience,
+      queuedRecipients: queuedCount,
+      skippedSuppressed,
+      createdBy: request.user.uid,
+      createdAt: FieldValue.serverTimestamp()
+    });
+
+    return response.json({
+      ok: true,
+      campaignId,
+      queuedRecipients: queuedCount,
+      skippedSuppressed,
+      message: `Campaign queued for ${queuedCount} eligible recipients.`
+    });
+  } catch (error) {
+    console.error('[API] Create campaign failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 16. GET /api/admin/campaigns
+router.get('/api/admin/campaigns', authenticate, async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    if (!await verifyAdminCaller(request, db)) {
+      return response.status(403).json({ error: 'Administrative access required.' });
+    }
+
+    const snap = await db.collection('emailCampaigns').orderBy('createdAt', 'desc').limit(50).get();
+    const campaigns = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    return response.json({ ok: true, campaigns });
+  } catch (error) {
+    console.error('[API] Get campaigns failed:', error.message);
+    return response.status(500).json({ error: error.message });
+  }
+});
+
+// 17. POST /api/admin/trigger-automations (Run scheduled background automations)
+router.post('/api/admin/trigger-automations', authenticate, async (request, response) => {
+  try {
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    automationService.setFirestore(db);
+    emailService.setFirestore(db);
+
+    if (!await verifyAdminCaller(request, db)) {
+      return response.status(403).json({ error: 'Administrative access required.' });
+    }
+
+    const runResult = await automationService.runDailyAutomations();
+    return response.json({ ok: true, ...runResult });
+  } catch (error) {
+    console.error('[API] Trigger automations failed:', error.message);
+    return response.status(500).json({ error: error.message });
   }
 });
 

@@ -560,6 +560,19 @@
         const resolvedLocation = store.location || store.city || store.geoTag || (resolvedAddress ? '' : 'Lagos, Nigeria');
         store.displayLocation = resolvedAddress || resolvedLocation || 'Lagos, Nigeria';
 
+        // 8. Check dealer subscription status
+        try {
+          const subSnap = await getDoc(doc(db, 'dealerSubscriptions', storeId));
+          if (subSnap.exists()) {
+            const subData = subSnap.data() || {};
+            const now = Date.now();
+            const endMillis = subData.currentPeriodEnd?.toMillis ? subData.currentPeriodEnd.toMillis() : new Date(subData.currentPeriodEnd || 0).getTime();
+            if (subData.plan === 'premium' && (subData.status === 'active' || subData.status === 'cancelled') && (endMillis > now)) {
+              store.isPremium = true;
+            }
+          }
+        } catch (_) {}
+
         currentStore = store;
         renderStoreHeader(store);
         loadStoreReviews(storeId);
@@ -587,6 +600,7 @@
               <h1 class="store-profile-name">${storeName}</h1>
               <div class="store-badges-row">
                 <span class="store-verified-pill">🛡️ Verified Partner Hub</span>
+                ${store.isPremium ? '<span class="store-verified-pill" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(217, 119, 6, 0.22)); border-color: rgba(245, 158, 11, 0.45); color: #fbbf24;">⭐ Premium Partner</span>' : ''}
                 <span class="store-rating-badge" id="headerRatingBadge">Calculating ratings...</span>
                 ${location ? `<span class="store-location-pill">📍 ${location}</span>` : ''}
               </div>

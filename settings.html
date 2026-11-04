@@ -51,18 +51,18 @@
     <!-- Temporary Toast Alert -->
     <div id="settingsToast" class="auth-alert" role="alert" style="display: none; margin-bottom: 20px;"></div>
 
-    <!-- SECTION 1: NOTIFICATIONS -->
+    <!-- SECTION 1: NOTIFICATIONS & EMAIL PREFERENCES -->
     <section class="settings-section">
       <div class="settings-section-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
-        <span>Notifications</span>
+        <span>Email & Notification Preferences</span>
       </div>
 
       <div class="settings-group-card">
-        <!-- Row 1: Swap Match Alerts -->
+        <!-- Row 1: Swap Request Notifications -->
         <div class="settings-row">
           <div class="settings-row-left">
             <div class="settings-row-icon tint-emerald">
@@ -72,52 +72,91 @@
               </svg>
             </div>
             <div class="settings-row-texts">
-              <span class="settings-row-title">Swap Match Alerts</span>
-              <span class="settings-row-desc">Instant alerts when swappers offer phones matching your listing</span>
+              <span class="settings-row-title">Swap Request Notifications</span>
+              <span class="settings-row-desc">Emails when someone proposes, accepts, counters, or chats about a swap</span>
             </div>
           </div>
-          <label class="ios-toggle-switch" aria-label="Toggle Swap Match Alerts">
+          <label class="ios-toggle-switch" aria-label="Toggle Swap Notifications">
             <input type="checkbox" id="toggleSwapMatches" checked>
             <span class="ios-toggle-slider"></span>
           </label>
         </div>
 
-        <!-- Row 2: Hub Deals & Discounts -->
+        <!-- Row 2: Listing Activity Summaries -->
         <div class="settings-row">
           <div class="settings-row-left">
             <div class="settings-row-icon tint-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </div>
+            <div class="settings-row-texts">
+              <span class="settings-row-title">Listing Activity &amp; Milestones</span>
+              <span class="settings-row-desc">Periodic performance summaries and milestone view alerts for your inventory</span>
+            </div>
+          </div>
+          <label class="ios-toggle-switch" aria-label="Toggle Listing Summaries">
+            <input type="checkbox" id="toggleListingSummaries" checked>
+            <span class="ios-toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Row 3: New Matching Phones -->
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-icon tint-neutral">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
             </div>
             <div class="settings-row-texts">
-              <span class="settings-row-title">Hub Deals & Price Drops</span>
-              <span class="settings-row-desc">Notifications for verified dealer inventory arrivals and special rates</span>
+              <span class="settings-row-title">New Matching Phones</span>
+              <span class="settings-row-desc">Alerts when new inventory matching your preferred smartphone models is listed</span>
             </div>
           </div>
-          <label class="ios-toggle-switch" aria-label="Toggle Hub Deals">
+          <label class="ios-toggle-switch" aria-label="Toggle Matching Phones">
             <input type="checkbox" id="toggleDeals" checked>
             <span class="ios-toggle-slider"></span>
           </label>
         </div>
 
-        <!-- Row 3: Security Notices via Email -->
+        <!-- Row 4: Marketing & Promotional Announcements -->
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-icon tint-emerald">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+            <div class="settings-row-texts">
+              <span class="settings-row-title">Marketing &amp; Platform Announcements</span>
+              <span class="settings-row-desc">Occasional platform updates, safe swapping tips, and ecosystem news</span>
+            </div>
+          </div>
+          <label class="ios-toggle-switch" aria-label="Toggle Marketing Announcements">
+            <input type="checkbox" id="toggleMarketingPromotions">
+            <span class="ios-toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- Row 5: Essential Security & Verification (Permanently Active) -->
         <div class="settings-row">
           <div class="settings-row-left">
             <div class="settings-row-icon tint-amber">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                <polyline points="22,6 12,13 2,6"></polyline>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               </svg>
             </div>
             <div class="settings-row-texts">
-              <span class="settings-row-title">Security & Account Emails</span>
-              <span class="settings-row-desc">Important email alerts on new logins, triage approvals, and password changes</span>
+              <span class="settings-row-title">Security &amp; Account Verification</span>
+              <span class="settings-row-desc">Verification codes, password resets, and critical new login alerts (Required)</span>
             </div>
           </div>
-          <label class="ios-toggle-switch" aria-label="Toggle Security Emails">
-            <input type="checkbox" id="toggleSecurityEmail" checked>
-            <span class="ios-toggle-slider"></span>
+          <label class="ios-toggle-switch" aria-label="Security Emails Always On">
+            <input type="checkbox" id="toggleSecurityEmail" checked disabled title="Essential security emails cannot be disabled to protect your account.">
+            <span class="ios-toggle-slider" style="opacity: 0.85;"></span>
           </label>
         </div>
       </div>
@@ -243,7 +282,9 @@
 
     // Elements
     const toggleSwapMatches = document.getElementById('toggleSwapMatches');
+    const toggleListingSummaries = document.getElementById('toggleListingSummaries');
     const toggleDeals = document.getElementById('toggleDeals');
+    const toggleMarketingPromotions = document.getElementById('toggleMarketingPromotions');
     const toggleSecurityEmail = document.getElementById('toggleSecurityEmail');
     const toggleHighValueOtp = document.getElementById('toggleHighValueOtp');
     const btnClearCache = document.getElementById('btnClearCache');
@@ -252,76 +293,99 @@
     // Default settings
     const defaultSettings = {
       swapMatches: true,
+      listingSummaries: true,
       hubDeals: true,
+      marketingPromotions: false,
       securityEmail: true,
       highValueOtp: true
     };
 
     let currentUid = null;
+    let currentUser = null;
 
     // Apply settings object to toggle elements
     function applySettings(settings) {
       if (toggleSwapMatches) toggleSwapMatches.checked = !!settings.swapMatches;
+      if (toggleListingSummaries) toggleListingSummaries.checked = !!settings.listingSummaries;
       if (toggleDeals) toggleDeals.checked = !!settings.hubDeals;
-      if (toggleSecurityEmail) toggleSecurityEmail.checked = !!settings.securityEmail;
+      if (toggleMarketingPromotions) toggleMarketingPromotions.checked = !!settings.marketingPromotions;
+      if (toggleSecurityEmail) toggleSecurityEmail.checked = true; // Always on
       if (toggleHighValueOtp) toggleHighValueOtp.checked = !!settings.highValueOtp;
     }
 
     // Load saved settings — Firestore first, fallback to localStorage
-    async function loadSettings(uid) {
-      // Always apply localStorage defaults first for instant render
+    async function loadSettings(user) {
       try {
         const raw = localStorage.getItem(SETTINGS_KEY);
         if (raw) applySettings({ ...defaultSettings, ...JSON.parse(raw) });
         else applySettings(defaultSettings);
       } catch (_) { applySettings(defaultSettings); }
 
-      if (!uid) return;
-      // Then fetch from Firestore and override
+      if (!user) return;
       try {
-        const snap = await getDoc(doc(db, 'users', uid));
-        if (snap.exists() && snap.data().preferences) {
-          const prefs = { ...defaultSettings, ...snap.data().preferences };
+        const token = await user.getIdToken();
+        const res = await fetch('/api/user/email-preferences', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const prefs = {
+            ...defaultSettings,
+            swapMatches: data.preferences.swapNotifications,
+            listingSummaries: data.preferences.listingSummaries,
+            hubDeals: data.preferences.newMatchingPhones,
+            marketingPromotions: data.preferences.marketingPromotions
+          };
           applySettings(prefs);
           localStorage.setItem(SETTINGS_KEY, JSON.stringify(prefs));
         }
       } catch (e) {
-        console.warn('[Settings] Could not load Firestore preferences:', e.message);
+        console.warn('[Settings] Could not load API preferences:', e.message);
       }
     }
 
-    // Save settings — localStorage + Firestore
+    // Save settings — localStorage + API Server
     let toastTimeout = null;
     async function saveSettings() {
       const current = {
         swapMatches: toggleSwapMatches?.checked ?? true,
+        listingSummaries: toggleListingSummaries?.checked ?? true,
         hubDeals: toggleDeals?.checked ?? true,
-        securityEmail: toggleSecurityEmail?.checked ?? true,
+        marketingPromotions: toggleMarketingPromotions?.checked ?? false,
+        securityEmail: true,
         highValueOtp: toggleHighValueOtp?.checked ?? true
       };
 
-      // Always save to localStorage
       try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(current)); } catch (_) {}
 
-      // Save to Firestore if authenticated
-      if (currentUid) {
+      if (currentUser) {
         try {
-          await setDoc(doc(db, 'users', currentUid), {
-            preferences: current,
-            updatedAt: new Date()
-          }, { merge: true });
+          const token = await currentUser.getIdToken();
+          await fetch('/api/user/email-preferences', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              swapNotifications: current.swapMatches,
+              listingSummaries: current.listingSummaries,
+              newMatchingPhones: current.hubDeals,
+              marketingPromotions: current.marketingPromotions
+            })
+          });
         } catch (e) {
-          console.warn('[Settings] Could not save to Firestore:', e.message);
+          console.warn('[Settings] Could not save to API:', e.message);
         }
       }
 
-      showAuthAlert('settingsToast', '✓ Preferences saved', 'success');
+      showAuthAlert('settingsToast', '✓ Email & notification preferences saved', 'success');
       if (toastTimeout) clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => { clearAuthAlert('settingsToast'); }, 2200);
     }
 
     // Event listeners
-    [toggleSwapMatches, toggleDeals, toggleSecurityEmail, toggleHighValueOtp].forEach(el => {
+    [toggleSwapMatches, toggleListingSummaries, toggleDeals, toggleMarketingPromotions, toggleHighValueOtp].forEach(el => {
       el?.addEventListener('change', saveSettings);
     });
 
@@ -338,8 +402,9 @@
     // Initialize — load from localStorage immediately, then from Firestore once auth is ready
     loadSettings(null);
     onAuthStateChanged(auth, (user) => {
+      currentUser = user;
       currentUid = user ? user.uid : null;
-      if (user) loadSettings(user.uid);
+      if (user) loadSettings(user);
     });
   </script>
 

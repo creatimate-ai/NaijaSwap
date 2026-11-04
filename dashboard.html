@@ -415,20 +415,28 @@
         });
       }
 
-      // Sorting
+      // Sorting with Priority Placement for Premium Dealers
       const sortSelect = document.getElementById('sortListingsSelect');
       const sortVal = sortSelect ? sortSelect.value : 'featured';
 
-      if (sortVal === 'price_asc') {
-        listings.sort((a, b) => (a.cashOutrightPrice || a.marketValue || 0) - (b.cashOutrightPrice || b.marketValue || 0));
-      } else if (sortVal === 'price_desc') {
-        listings.sort((a, b) => (b.cashOutrightPrice || b.marketValue || 0) - (a.cashOutrightPrice || a.marketValue || 0));
-      } else if (sortVal === 'battery_desc') {
-        const getBatteryNum = p => parseInt(String(p.battery || p.batteryHealth || '0').replace(/\D/g, ''), 10) || 0;
-        listings.sort((a, b) => getBatteryNum(b) - getBatteryNum(a));
-      } else if (sortVal === 'newest') {
-        listings.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-      }
+      listings.sort((a, b) => {
+        const aPrem = a.isPremiumDealer ? 1 : 0;
+        const bPrem = b.isPremiumDealer ? 1 : 0;
+        if (aPrem !== bPrem) {
+          return bPrem - aPrem; // Premium dealers receive priority placement
+        }
+        if (sortVal === 'price_asc') {
+          return (a.cashOutrightPrice || a.marketValue || 0) - (b.cashOutrightPrice || b.marketValue || 0);
+        } else if (sortVal === 'price_desc') {
+          return (b.cashOutrightPrice || b.marketValue || 0) - (a.cashOutrightPrice || a.marketValue || 0);
+        } else if (sortVal === 'battery_desc') {
+          const getBatteryNum = p => parseInt(String(p.battery || p.batteryHealth || '0').replace(/\D/g, ''), 10) || 0;
+          return getBatteryNum(b) - getBatteryNum(a);
+        } else if (sortVal === 'newest') {
+          return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        }
+        return 0;
+      });
 
       // Live inventory counter update
       const listingsCountText = document.getElementById('listingsCountText');
