@@ -1077,7 +1077,7 @@ export function initRouteProtection() {
     "dealer-subscription"
   );
   const isAccountPage = isCurrentRoute("account");
-  const isCustomerProtectedPage = isCurrentRoute("my-swaps", "alerts");
+  const isCustomerProtectedPage = isCurrentRoute("my-swaps", "alerts", "swap-initiation");
   const isAnyDash = isCustomerDash || isDealerDash || isAccountPage || isCustomerProtectedPage;
 
   logNaijaSwap("info", "Auth", `Route initialized: ${window.location.pathname}`);
@@ -1153,7 +1153,7 @@ export function initRouteProtection() {
         return;
       }
 
-      if (userRole === "dealer" && (isCustomerDash || isCurrentRoute("my-swaps"))) {
+      if (userRole === "dealer" && (isCustomerDash || isCustomerProtectedPage)) {
         logNaijaSwap("info", "Auth", `Dealer account (${user.uid}) redirected to store portal.`);
         window.location.replace("dealer-dashboard.html");
         return;

@@ -69,14 +69,6 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span>Profile</span>
           </a>
-          <a href="dashboard.html" class="dropdown-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
-            <span>Swapper Marketplace</span>
-          </a>
-          <a href="index.html" class="dropdown-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span>Marketplace Home</span>
-          </a>
           <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
             <span>Sign Out</span>
@@ -162,101 +154,75 @@
         <span>⏳ Checking dealer subscription status...</span>
       </div>
 
-      <!-- Starter View -->
+      <!-- Starter View (Compact & Intuitive) -->
       <div id="starterSubscriptionView" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 18px;">
-          <div>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-              <span style="font-size: 1.15rem; font-weight: 800; color: #FFF;">Current Plan: <span style="color: var(--cyan-400);">Starter</span></span>
-              <span style="background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.3); color: var(--cyan-400); font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">Free Forever</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          
+          <!-- Plan Info & Listing Counter -->
+          <div style="flex: 1; min-width: 280px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span style="font-size: 1rem; font-weight: 800; color: #FFF;">Current Plan: <span style="color: var(--cyan-400);">Starter</span></span>
+              <span style="background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.3); color: var(--cyan-400); font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">Free Forever</span>
+              <span style="color: var(--text-dim); margin: 0 4px;">•</span>
+              <span style="font-size: 0.85rem; color: var(--text-muted);" id="starterSlotText">
+                <strong style="color: var(--cyan-400); font-size: 0.95rem;" id="starterActiveCount">0</strong> / 5 active listings used
+              </span>
             </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Permanent free plan for all phone dealers on NaijaSwap. No expiration date or renewal fees.</p>
+
+            <!-- Compact Listing Progress Bar -->
+            <div style="width: 100%; max-width: 440px; height: 6px; background: rgba(255,255,255,0.06); border-radius: 9999px; overflow: hidden; margin-bottom: 6px;">
+              <div id="starterSlotBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan-500), var(--emerald-400)); border-radius: 9999px; transition: width 0.4s ease;"></div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-dim);">
+              <span id="starterAvailableSlotsText">5 available listing slots remaining</span>
+              <span>•</span>
+              <span style="color: #fbbf24;">Upgrade to unlock unlimited listings</span>
+            </div>
           </div>
+
+          <!-- Actions: Direct to subscription page -->
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <a href="subscription.html" class="btn-cancel" style="padding: 10px 16px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            <a href="subscription.html" class="btn-cancel" style="padding: 9px 16px; font-size: 0.84rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
               <span>Full Pricing Details &rarr;</span>
             </a>
-            <button type="button" class="btn-cancel" id="btnRecoverPayment" style="padding: 10px 14px; font-size: 0.82rem; color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); display: inline-flex; align-items: center; gap: 6px;" title="Already paid? Activate with your Paystack reference">
+            <a href="subscription.html" class="btn-primary-action btn-upgrade-sub" id="btnUpgradeStarter" style="padding: 9px 18px; font-size: 0.86rem; font-weight: 700; border-radius: var(--radius-full); background: linear-gradient(135deg, #f59e0b, #d97706); border: none; text-decoration: none; color: #FFF; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+              <span>⭐ Upgrade to Premium</span>
+            </a>
+            <button type="button" class="btn-cancel" id="btnRecoverPayment" style="padding: 8px 12px; font-size: 0.78rem; color: var(--text-dim); border: 1px solid rgba(255, 255, 255, 0.08); background: transparent; cursor: pointer; border-radius: var(--radius-sm);" title="Already paid? Activate with your Paystack reference">
               <span>↻ Activate Past Payment</span>
             </button>
-            <button type="button" class="btn-primary-action btn-upgrade-sub" id="btnUpgradeStarter" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-full); background: linear-gradient(135deg, #f59e0b, #d97706); border: none; box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
-              <span>⭐ Upgrade to Premium — ₦9,900/mo</span>
-            </button>
           </div>
-        </div>
 
-        <!-- Listing Slot Progress Bar -->
-        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 18px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.86rem; margin-bottom: 8px;">
-            <span style="color: #FFF; font-weight: 600;">Active Phone Listings</span>
-            <span style="color: var(--text-muted);" id="starterSlotText"><strong style="color: var(--cyan-400);" id="starterActiveCount">0</strong> / 5 active listings used</span>
-          </div>
-          <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 9999px; overflow: hidden;">
-            <div id="starterSlotBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--cyan-500), var(--emerald-400)); border-radius: 9999px; transition: width 0.4s ease;"></div>
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--text-dim); margin-top: 6px;">
-            <span id="starterAvailableSlotsText">5 available listing slots remaining</span>
-            <span>Upgrade to unlock unlimited listings</span>
-          </div>
-        </div>
-
-        <!-- Premium Benefits Preview Grid -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; font-size: 0.82rem; color: var(--text-muted);">
-          <div style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--amber-400);">★</span> <strong>Unlimited Listings:</strong> No 5-listing cap</div>
-          <div style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--amber-400);">★</span> <strong>Priority Placement:</strong> Top search placement</div>
-          <div style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--amber-400);">★</span> <strong>Storefront Badge:</strong> ⭐ Premium Partner mark</div>
-          <div style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--amber-400);">★</span> <strong>Store Analytics:</strong> Total listing views & stats</div>
         </div>
       </div>
 
-      <!-- Premium View -->
+      <!-- Premium View (Compact) -->
       <div id="premiumSubscriptionView" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
           <div>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-              <span style="font-size: 1.15rem; font-weight: 800; color: #FFF;">Current Plan: <span style="color: #fbbf24;">⭐ Premium</span></span>
-              <span id="premiumStatusBadge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">Active</span>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+              <span style="font-size: 1rem; font-weight: 800; color: #FFF;">Current Plan: <span style="color: #fbbf24;">⭐ Pro Partner</span></span>
+              <span id="premiumStatusBadge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">Active</span>
             </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Monthly subscription at <strong>₦9,900/month</strong>. Unlimited inventory listings & priority discovery active.</p>
+            <div style="display: flex; align-items: center; gap: 14px; font-size: 0.84rem; color: var(--text-muted); flex-wrap: wrap;">
+              <span>Active Listings: <strong style="color: #FFF;"><span id="premiumActiveCount">0</span></strong> <span style="color: #34d399; font-weight: 600;">(Unlimited Slots)</span></span>
+              <span>•</span>
+              <span>Next Renewal: <strong style="color: #FFF;" id="premiumNextBillingText">—</strong></span>
+            </div>
           </div>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="subscription.html" class="btn-cancel" style="padding: 8px 16px; font-size: 0.82rem; text-decoration: none;">
-              View All Plans &rarr;
+
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <a href="subscription.html" class="btn-cancel" style="padding: 9px 16px; font-size: 0.84rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+              <span>View All Plans &rarr;</span>
             </a>
-            <button type="button" class="btn-cancel" id="btnCancelSub" style="padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">
+            <button type="button" class="btn-cancel" id="btnCancelSub" style="padding: 9px 14px; font-size: 0.82rem; color: var(--text-dim); cursor: pointer;">
               Cancel Renewal
             </button>
-            <button type="button" class="btn-primary-action btn-upgrade-sub" id="btnRenewSub" style="display: none; padding: 8px 16px; font-size: 0.82rem; font-weight: 700; background: linear-gradient(135deg, #f59e0b, #d97706); border: none;">
-              Renew Subscription (₦9,900)
-            </button>
+            <a href="subscription.html" class="btn-primary-action btn-upgrade-sub" id="btnRenewSub" style="display: none; padding: 9px 16px; font-size: 0.84rem; font-weight: 700; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; text-decoration: none; color: #FFF;">
+              Renew Subscription
+            </a>
           </div>
-        </div>
-
-        <!-- Premium Details Grid -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 16px;">
-          <div>
-            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Active Phone Listings</div>
-            <div style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin-top: 2px;"><span id="premiumActiveCount">0</span> <span style="font-size: 0.82rem; color: #34d399; font-weight: 700;">(Unlimited Slots)</span></div>
-          </div>
-          <div>
-            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Billing Price</div>
-            <div style="font-size: 1.25rem; font-weight: 800; color: #FFF; margin-top: 2px;">₦9,900 <span style="font-size: 0.82rem; color: var(--text-dim); font-weight: 400;">/ month</span></div>
-          </div>
-          <div>
-            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Next Billing Date</div>
-            <div style="font-size: 0.95rem; font-weight: 700; color: #FFF; margin-top: 4px;" id="premiumNextBillingText">—</div>
-          </div>
-          <div>
-            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Search Visibility</div>
-            <div style="font-size: 0.95rem; font-weight: 700; color: #34d399; margin-top: 4px;">⚡ Priority Placement</div>
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.82rem; color: var(--text-muted);">
-          <span style="color: #34d399;">✓ Unlimited store inventory</span>
-          <span style="color: #34d399;">✓ ⭐ Premium Storefront mark</span>
-          <span style="color: #34d399;">✓ Preferential customer search ranking</span>
-          <span style="color: #34d399;">✓ Real-time store performance analytics</span>
         </div>
       </div>
     </section>
@@ -306,7 +272,7 @@
 
       <div id="analyticsStarterTeaser" style="display: none; margin-top: 14px; background: rgba(245, 158, 11, 0.05); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: var(--radius-md); padding: 12px 16px; font-size: 0.82rem; color: var(--text-muted); align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
         <span>🔒 Starter dealers have access to basic store counters. Upgrade to Premium for full customer view engagement data and priority discovery tracking.</span>
-        <a href="#subscriptionSection" style="color: #fbbf24; font-weight: 700; text-decoration: none;">View Subscription &rarr;</a>
+        <a href="subscription.html" style="color: #fbbf24; font-weight: 700; text-decoration: none;">View Plans &rarr;</a>
       </div>
     </section>
 
@@ -1148,7 +1114,11 @@
     }
 
     const btnUpgradeStarter = document.getElementById('btnUpgradeStarter');
-    if (btnUpgradeStarter) btnUpgradeStarter.addEventListener('click', handleSubscribeFlow);
+    if (btnUpgradeStarter) {
+      btnUpgradeStarter.addEventListener('click', (e) => {
+        window.location.href = 'subscription.html';
+      });
+    }
 
     const btnRecoverPayment = document.getElementById('btnRecoverPayment');
     if (btnRecoverPayment) {
@@ -1173,7 +1143,11 @@
     }
 
     const btnRenewSub = document.getElementById('btnRenewSub');
-    if (btnRenewSub) btnRenewSub.addEventListener('click', handleSubscribeFlow);
+    if (btnRenewSub) {
+      btnRenewSub.addEventListener('click', (e) => {
+        window.location.href = 'subscription.html';
+      });
+    }
 
     const btnCancelSub = document.getElementById('btnCancelSub');
     if (btnCancelSub) {

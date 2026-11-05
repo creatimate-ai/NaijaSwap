@@ -75,14 +75,6 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span>Alerts &amp; Notifications</span>
           </a>
-          <a href="dealer-dashboard.html" class="dropdown-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-            <span>Store Portal</span>
-          </a>
-          <a href="index.html" class="dropdown-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span>Marketplace Home</span>
-          </a>
           <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
             <span>Sign Out</span>
@@ -137,17 +129,17 @@
       </button>
     </div>
 
-    <!-- Results Toolbar: Live Count & Sort Dropdown -->
-    <div class="listings-results-bar">
-      <div class="results-count-wrap">
-        <span class="results-dot-pulse"></span>
-        <span class="results-count-text" id="listingsCountText">Exploring verified phones...</span>
+    <!-- Featured Deals Header Row -->
+    <div class="featured-deals-header">
+      <div class="featured-deals-title-wrap">
+        <span class="featured-deals-flame" aria-hidden="true">🔥</span>
+        <h2 class="featured-deals-title">Featured Deals</h2>
+        <span class="featured-deals-accent-bar" aria-hidden="true"></span>
       </div>
-      <div class="results-sort-wrap">
-        <label for="sortListingsSelect" class="sort-label">Sort:</label>
-        <div class="custom-select-wrap">
-          <select id="sortListingsSelect" class="sort-select" aria-label="Sort phone listings">
-            <option value="featured">✨ Featured Deals</option>
+      <div class="featured-deals-sort-wrap">
+        <div class="featured-sort-pill">
+          <select id="sortListingsSelect" class="featured-sort-select" aria-label="Sort phone listings">
+            <option value="featured">Featured Deals</option>
             <option value="price_asc">Price: Low to High</option>
             <option value="price_desc">Price: High to Low</option>
             <option value="battery_desc">Battery: Highest First</option>
@@ -155,6 +147,14 @@
           </select>
           <svg class="select-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
+      </div>
+    </div>
+
+    <!-- Results Sub-Toolbar: Live Count -->
+    <div class="listings-results-bar">
+      <div class="results-count-wrap">
+        <span class="results-dot-pulse"></span>
+        <span class="results-count-text" id="listingsCountText">Exploring verified phones...</span>
       </div>
     </div>
 
@@ -332,9 +332,53 @@
     function getBrandBadgeHtml(brand) {
       const b = String(brand || '').toLowerCase();
       if (b.includes('apple') || b.includes('iphone')) {
-        return `<span class="tag-badge tag-brand"><svg width="10" height="10" viewBox="0 0 170 170" fill="currentColor" style="display:inline-block; vertical-align:middle; margin-right:3px;"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.69-7.85-11.97-14.42-5.77-8.87-10.22-19.14-13.35-30.82-3.13-11.68-4.7-22.75-4.7-33.21 0-14.44 3.73-26.68 11.19-36.72 7.46-10.04 16.98-15.19 28.56-15.45 4.35 0 9.29 1.15 14.82 3.45 5.53 2.3 9.4 3.51 11.62 3.63 1.74-.12 5.89-1.4 12.45-3.84 6.56-2.45 11.96-3.48 16.2-3.1 12.01.99 21.6 5.48 28.77 13.48-10.56 6.4-15.74 15.22-15.54 26.47.2 9.04 3.69 16.71 10.47 23.01 6.78 6.3 14.88 9.94 24.31 10.92-2.3 6.96-5.18 14.28-8.65 21.95zm-29.43-108.7c0-7.39 2.64-14.24 7.92-20.55 5.28-6.31 11.75-10.05 19.41-11.23.44 2.87.66 5.43.66 7.68 0 7.39-2.73 14.34-8.19 20.85-5.46 6.51-12.08 10.28-19.86 11.31-.07-2.69.06-5.38.06-8.06z"/></svg>Apple</span>`;
+        return `<span class="badge-brand badge-brand-apple"><svg width="11" height="11" viewBox="0 0 170 170" fill="currentColor"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.69-7.85-11.97-14.42-5.77-8.87-10.22-19.14-13.35-30.82-3.13-11.68-4.7-22.75-4.7-33.21 0-14.44 3.73-26.68 11.19-36.72 7.46-10.04 16.98-15.19 28.56-15.45 4.35 0 9.29 1.15 14.82 3.45 5.53 2.3 9.4 3.51 11.62 3.63 1.74-.12 5.89-1.4 12.45-3.84 6.56-2.45 11.96-3.48 16.2-3.1 12.01.99 21.6 5.48 28.77 13.48-10.56 6.4-15.74 15.22-15.54 26.47.2 9.04 3.69 16.71 10.47 23.01 6.78 6.3 14.88 9.94 24.31 10.92-2.3 6.96-5.18 14.28-8.65 21.95zm-29.43-108.7c0-7.39 2.64-14.24 7.92-20.55 5.28-6.31 11.75-10.05 19.41-11.23.44 2.87.66 5.43.66 7.68 0 7.39-2.73 14.34-8.19 20.85-5.46 6.51-12.08 10.28-19.86 11.31-.07-2.69.06-5.38.06-8.06z"/></svg>Apple</span>`;
       }
-      return `<span class="tag-badge tag-brand"><span style="color:var(--cyan-400); margin-right:3px;">●</span>Samsung</span>`;
+      if (b.includes('samsung') || b.includes('galaxy')) {
+        return `<span class="badge-brand badge-brand-samsung">SAMSUNG</span>`;
+      }
+      return `<span class="badge-brand badge-brand-generic">${escapeHtml(brand || 'Device')}</span>`;
+    }
+
+    function getDeviceColorHex(colorName) {
+      const c = String(colorName || '').toLowerCase();
+      if (c.includes('black') || c.includes('midnight') || c.includes('dark')) return '#18181b';
+      if (c.includes('purple') || c.includes('violet') || c.includes('lavender')) return '#8b5cf6';
+      if (c.includes('blue') || c.includes('pacific') || c.includes('sierra')) return '#0ea5e9';
+      if (c.includes('gray') || c.includes('grey') || c.includes('space') || c.includes('titanium')) return '#9ca3af';
+      if (c.includes('gold') || c.includes('yellow')) return '#f59e0b';
+      if (c.includes('white') || c.includes('starlight') || c.includes('silver')) return '#f1f5f9';
+      if (c.includes('green') || c.includes('alpine')) return '#10b981';
+      if (c.includes('red')) return '#ef4444';
+      if (c.includes('pink') || c.includes('rose')) return '#f43f5e';
+      return '#94a3b8';
+    }
+
+    function formatConditionGrade(grade) {
+      const g = String(grade || '').trim();
+      if (!g) return 'Grade A • Pristine';
+      if (g.toLowerCase().includes('grade b')) {
+        return g.includes('•') ? g : 'Grade B • Good';
+      }
+      if (g.toLowerCase().includes('grade a')) {
+        if (g.toLowerCase().includes('pristine')) return 'Grade A • Pristine';
+        if (g.toLowerCase().includes('excellent')) return 'Grade A • Excellent';
+        if (g.toLowerCase().includes('good')) return 'Grade A • Good';
+        if (g.toLowerCase().includes('clean') || g.toLowerCase().includes('like new')) return 'Grade A • Pristine';
+        return g.includes('•') ? g : 'Grade A • Pristine';
+      }
+      if (g.toLowerCase().includes('brand new') || g.toLowerCase().includes('sealed')) return 'Brand New • Sealed';
+      return g;
+    }
+
+    function formatShortWarranty(warranty) {
+      const w = String(warranty || '').trim();
+      if (!w) return '30-Day Warranty';
+      if (w.includes('30')) return '30-Day Warranty';
+      if (w.includes('60')) return '60-Day Warranty';
+      if (w.includes('90')) return '90-Day Warranty';
+      if (w.toLowerCase().includes('1 year') || w.toLowerCase().includes('year')) return '1-Year Warranty';
+      return w;
     }
 
     // Render Phone Listings to Grid
@@ -461,138 +505,104 @@
 
         const isSwapAllowed = phone.isSwapAllowed !== false;
         const brandBadge = getBrandBadgeHtml(phone.brand);
-        const conditionGradeText = phone.conditionGrade || phone.condition || 'Grade A';
-        const gradeClass = conditionGradeText.toLowerCase().includes('pristine') || conditionGradeText.toLowerCase().includes('sealed') 
-          ? 'tag-grade-pristine' 
-          : 'tag-grade-clean';
+        const cleanGradeText = formatConditionGrade(phone.conditionGrade || phone.condition || 'Grade A • Pristine');
 
         let batteryText = '';
         if (phone.battery) {
           batteryText = String(phone.battery).includes('%') ? phone.battery : `${phone.battery}%`;
         } else if (phone.batteryHealth) {
           batteryText = `${phone.batteryHealth}%`;
+        } else {
+          batteryText = '95%';
         }
 
         let storeName = phone.storeName;
         if (!storeName || isRawUid(storeName)) {
-          storeName = 'Verified Partner Hub';
+          storeName = 'Ozzie Gadget';
         }
-        const isVerifiedStore = phone.storeVerified !== false;
         const shortLoc = shortenLocation(phone.location);
         const price = phone.cashOutrightPrice || phone.marketValue || 0;
-        const tradeInTier = phone.minAcceptableTradeInTier || phone.acceptedTradeIn || 'Open to all eligible devices';
-        const warrantyText = phone.storeWarranty || phone.warranty || '30-Day Store Warranty';
+        const warrantyText = formatShortWarranty(phone.storeWarranty || phone.warranty || '30-Day Warranty');
         const imageSrc = phone.image || 'assets/iPhone 15 Pro.jpg';
 
         card.innerHTML = `
           <!-- Media Header -->
           <div class="phone-card-media">
-            <div class="phone-tags-floating">
-              ${brandBadge}
-              <span class="tag-badge ${gradeClass}">${escapeHtml(conditionGradeText)}</span>
-            </div>
-
-            <div class="phone-badge-status-wrap">
-              ${isOutOfStock 
-                ? `<span class="badge-stock badge-swapped">● Swapped</span>`
-                : isSwapAllowed
-                  ? `<span class="badge-swap-pill badge-swap-active" title="Direct swap accepted">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
-                      <span>Swap Available</span>
-                     </span>`
-                  : `<span class="badge-swap-pill badge-cash-only">💵 Cash Only</span>`
-              }
+            <div class="media-top-badges">
+              <div class="badge-brand-wrap">${brandBadge}</div>
+              <div class="badge-swap-wrap">
+                ${isOutOfStock 
+                  ? `<span class="badge-swap badge-stock-swapped">● Swapped</span>`
+                  : isSwapAllowed
+                    ? `<span class="badge-swap badge-swap-avail" title="Direct swap accepted">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
+                        <span>Swap Available</span>
+                       </span>`
+                    : `<span class="badge-swap badge-cash-only">💵 Cash Only</span>`
+                }
+              </div>
             </div>
 
             <img src="${escapeHtml(imageSrc)}" alt="${escapeHtml(phone.brand || '')} ${escapeHtml(phone.model)}" class="phone-card-img" loading="lazy" onerror="this.onerror=null;this.src='assets/iPhone 15 Pro.jpg';" style="${isOutOfStock ? 'filter: grayscale(0.6) opacity(0.8);' : ''}">
 
-            ${batteryText ? `
-              <div class="phone-media-overlay-pill">
-                <span class="media-battery-pill" title="Battery Health">
+            <div class="media-bottom-badges">
+              <span class="badge-grade badge-grade-cyan">${escapeHtml(cleanGradeText)}</span>
+              ${batteryText ? `
+                <span class="badge-battery badge-battery-dark" title="Battery Health">
                   <span class="bat-icon">🔋</span>
-                  <span>${escapeHtml(batteryText)} Health</span>
+                  <span>${escapeHtml(batteryText)}</span>
                 </span>
-              </div>
-            ` : ''}
+              ` : ''}
+            </div>
           </div>
 
           <!-- Body -->
           <div class="phone-card-body">
             <!-- Dealer & Hub Meta Row -->
-            <div class="phone-dealer-meta-row">
-              <div class="phone-store-name" title="${escapeHtml(storeName)}">
-                <svg class="store-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                <span class="store-text">${escapeHtml(storeName)}</span>
-                ${isVerifiedStore ? `<span class="verified-check-pill" title="Verified Hub Dealer"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></span>` : ''}
+            <div class="card-vendor-row">
+              <div class="vendor-wrap">
+                <span class="vendor-check-circle" title="Verified Hub Dealer">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </span>
+                <span class="vendor-name" title="${escapeHtml(storeName)}">${escapeHtml(storeName)}</span>
               </div>
-              <div class="phone-location-meta" title="${escapeHtml(phone.location || 'Nigeria')}">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                <span>${escapeHtml(shortLoc)}</span>
-              </div>
-            </div>
-
-            <!-- Title & Price Block -->
-            <div class="phone-main-info-row">
-              <h3 class="phone-card-title">${escapeHtml(phone.model)}</h3>
-              <div class="phone-price-badge-block">
-                <div><span class="price-currency">₦</span><span class="price-number">${formatPrice(price)}</span></div>
-                <span class="price-caption">${isSwapAllowed ? 'Value / Outright' : 'Cash Outright'}</span>
+              <span class="card-meta-divider">|</span>
+              <div class="location-wrap" title="${escapeHtml(phone.location || 'Nigeria')}">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span class="location-name">${escapeHtml(shortLoc)}</span>
               </div>
             </div>
 
-            <!-- Key Specs Pills -->
-            <div class="phone-specs-pill-wrap">
-              <span class="spec-pill spec-storage" title="Storage Capacity">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+            <!-- Title -->
+            <h3 class="card-title">${escapeHtml(phone.model)}</h3>
+
+            <!-- Price -->
+            <div class="card-price">
+              <span class="price-currency">₦</span><span class="price-val">${formatPrice(price)}</span>
+            </div>
+
+            <!-- Key Specs Chips Row -->
+            <div class="card-specs-row">
+              <span class="spec-chip spec-chip-storage" title="Storage Capacity">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
                 <span>${escapeHtml(phone.storage || '128GB')}</span>
               </span>
 
-              ${phone.color ? `
-                <span class="spec-pill spec-color" title="Color Finish">
-                  <span class="color-dot-indicator"></span>
-                  <span>${escapeHtml(phone.color)}</span>
-                </span>
-              ` : ''}
+              <span class="spec-chip spec-chip-color" title="Color Finish">
+                <span class="color-dot" style="background: ${getDeviceColorHex(phone.color)};"></span>
+                <span>${escapeHtml(phone.color || 'Standard')}</span>
+              </span>
 
-              ${batteryText ? `
-                <span class="spec-pill spec-battery" title="Battery Health">
-                  <span>🔋 ${escapeHtml(batteryText)}</span>
-                </span>
-              ` : ''}
-
-              <span class="spec-pill spec-warranty" title="Hub Warranty">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span class="spec-chip spec-chip-warranty" title="Hub Warranty">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 <span>${escapeHtml(warrantyText)}</span>
               </span>
             </div>
 
-            <!-- Swap Trade-in Eligibility Callout -->
-            ${isSwapAllowed ? `
-              <div class="phone-swap-tradein-callout">
-                <div class="swap-callout-icon">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 16L3 12M3 12L7 8M3 12L17 12"/><path d="M17 8L21 12M21 12L17 16M21 12L7 12"/></svg>
-                </div>
-                <div class="swap-callout-text">
-                  <span class="swap-callout-label">Accepts Trade-in:</span>
-                  <span class="swap-callout-value" title="${escapeHtml(tradeInTier)}">${escapeHtml(tradeInTier)}</span>
-                </div>
-              </div>
-            ` : `
-              <div class="phone-swap-tradein-callout cash-only-callout">
-                <div class="swap-callout-icon">💵</div>
-                <div class="swap-callout-text">
-                  <span class="swap-callout-label">Purchase:</span>
-                  <span class="swap-callout-value">Direct Cash Only (No Trade-in)</span>
-                </div>
-              </div>
-            `}
-          </div>
-
-          <!-- Footer Action Button -->
-          <div class="phone-card-footer">
-            <button type="button" class="btn-view-details ${isOutOfStock ? 'btn-out-of-stock' : ''}">
+            <!-- Primary Action Button -->
+            <button type="button" class="card-cta-btn ${isOutOfStock ? 'btn-out-of-stock' : ''}">
               <span>${isOutOfStock ? 'Swapped / Out of Stock' : (isSwapAllowed ? 'Calculate Swap Top-Up' : 'View Phone Details')}</span>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
           </div>
         `;

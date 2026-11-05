@@ -465,6 +465,27 @@ a {
   gap: 10px;
 }
 
+.mobile-drawer-social {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-drawer-social-label {
+  font-size: 0.85rem;
+  color: var(--text-faint);
+  font-weight: 500;
+}
+
+.mobile-drawer-social-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 /* ==========================================================================
    SECTION COMMON STYLES
    ========================================================================== */
@@ -1843,6 +1864,70 @@ a {
   color: var(--text-faint);
 }
 
+.footer-contact-block {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-email-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  width: fit-content;
+  transition: all var(--transition-fast);
+}
+
+.footer-email-chip svg {
+  color: var(--emerald-400);
+  flex-shrink: 0;
+}
+
+.footer-email-chip:hover {
+  color: #ffffff;
+  background: rgba(0, 210, 106, 0.12);
+  border-color: rgba(0, 210, 106, 0.35);
+  transform: translateY(-1px);
+}
+
+.footer-handles-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.footer-handle-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-handle-link svg {
+  flex-shrink: 0;
+}
+
+.footer-handle-link:hover {
+  color: var(--text-white);
+}
+
+.footer-handle-divider {
+  color: var(--text-faint);
+  font-size: 0.8rem;
+}
+
 .footer-social-row {
   display: flex;
   align-items: center;
@@ -1867,6 +1952,24 @@ a {
   background: rgba(0, 210, 106, 0.1);
   border-color: rgba(0, 210, 106, 0.3);
   transform: translateY(-2px);
+}
+
+.social-link.social-ig:hover {
+  color: #E1306C;
+  background: rgba(225, 48, 108, 0.12);
+  border-color: rgba(225, 48, 108, 0.35);
+}
+
+.social-link.social-tt:hover {
+  color: #25F4EE;
+  background: rgba(37, 244, 238, 0.12);
+  border-color: rgba(37, 244, 238, 0.35);
+}
+
+.social-link.social-mail:hover {
+  color: #EA4335;
+  background: rgba(234, 67, 53, 0.12);
+  border-color: rgba(234, 67, 53, 0.35);
 }
 
 /* ==========================================================================

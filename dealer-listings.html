@@ -200,10 +200,6 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span>Profile</span>
           </a>
-          <a href="index.html" class="dropdown-item">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span>Marketplace Home</span>
-          </a>
           <button type="button" class="dropdown-item dropdown-item-danger btn-dash-logout">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
             <span>Sign Out</span>
@@ -730,7 +726,7 @@
 
       <div style="display: flex; flex-direction: column; gap: 10px;">
         <button type="button" class="btn-primary-action" id="btnUpgradeModalPay" style="justify-content: center; padding: 14px 20px; font-size: 0.98rem; font-weight: 800; border-radius: var(--radius-md); background: linear-gradient(135deg, #f59e0b, #d97706); border: none; box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35); cursor: pointer;">
-          <span>Upgrade to Premium — ₦9,900/mo</span>
+          <span>View Subscription Plans &rarr;</span>
         </button>
         <button type="button" class="btn-cancel" id="closeUpgradeModalBtn" style="justify-content: center; padding: 12px 18px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.02); color: var(--text-muted); font-size: 0.88rem; cursor: pointer;">
           <span>Manage Existing Listings (5 Active)</span>
@@ -1526,39 +1522,9 @@
     if (closeUpgradeModalBtn) closeUpgradeModalBtn.addEventListener('click', () => upgradePlanModal.classList.remove('active'));
 
     if (btnUpgradeModalPay) {
-      btnUpgradeModalPay.addEventListener('click', async () => {
+      btnUpgradeModalPay.addEventListener('click', () => {
         if (upgradePlanModal) upgradePlanModal.classList.remove('active');
-        const activeUser = dealerAuthUser || { email: localStorage.getItem('naijaswap_user_email') || 'dealer@naijaswap.ng' };
-        const email = activeUser.email || 'dealer@naijaswap.ng';
-        try {
-          await payDealerSubscriptionPaystack({
-            email,
-            plan: 'premium',
-            amountInNaira: 9900,
-            billingCycle: 'monthly',
-            dealerUid: dealerAuthUser?.uid || null,
-            onSuccess: async (res) => {
-              try {
-                await verifyDealerSubscriptionBackend(res.reference, {
-                  plan: res.plan || 'premium',
-                  amountInNaira: res.amountInNaira || 9900,
-                  billingCycle: res.billingCycle || 'monthly'
-                });
-                try { localStorage.removeItem('naijaswap_pending_sub_ref'); } catch (_) {}
-                alert('⭐ Congratulations! Your Premium subscription (₦9,900/mo) is now active! You can now publish unlimited phone listings.');
-                await renderStoreListings();
-              } catch (err) {
-                alert('⭐ Congratulations! Your Premium subscription is active!');
-                await renderStoreListings();
-              }
-            },
-            onCancel: () => {
-              console.info('Subscription checkout closed.');
-            }
-          });
-        } catch (err) {
-          alert('Could not start subscription checkout: ' + err.message);
-        }
+        window.location.href = 'subscription.html';
       });
     }
 

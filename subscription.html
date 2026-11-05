@@ -383,16 +383,17 @@
     /* Pricing Cards Grid */
     .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
+      grid-template-columns: repeat(2, minmax(0, 420px));
+      justify-content: center;
+      gap: 24px;
       margin-bottom: 54px;
       align-items: stretch;
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 860px) {
       .pricing-grid {
         grid-template-columns: 1fr;
-        max-width: 540px;
+        max-width: 480px;
         margin-left: auto;
         margin-right: auto;
       }
@@ -1356,54 +1357,6 @@
           </button>
         </div>
 
-        <!-- PLAN 3: MARKET HUB LEADER (ENTERPRISE) -->
-        <div class="pricing-card" id="cardLeader">
-          <div class="card-tier-badge badge-leader">Enterprise Hub</div>
-          <h2 class="card-title">Market Leader</h2>
-          <p class="card-desc">For multi-branch phone shops, major wholesalers, and premier market plaza franchises.</p>
-
-          <div class="card-pricing-block">
-            <span class="price-curr">₦</span><span class="price-num" id="leaderPriceDisplay">24,900</span>
-            <span class="price-period" id="leaderPeriodDisplay">/ month</span>
-            <span class="price-billing-note" id="leaderBillingSubtext">Billed monthly via Paystack</span>
-          </div>
-
-          <ul class="card-features-list">
-            <li class="feature-item">
-              <span class="feature-check check-emerald">✓</span>
-              <span><strong>Everything in Pro Partner, plus:</strong></span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-emerald">✓</span>
-              <span><strong>Multi-Branch Hub Support:</strong> Manage Lagos, Abuja &amp; PH shops under 1 brand</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-emerald">✓</span>
-              <span><strong>Homepage Hero Carousel Spotlight:</strong> Promoted to 50k+ monthly swappers</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-emerald">✓</span>
-              <span><strong>Bulk Inventory Sync:</strong> Upload 500+ phones via CSV or inventory API</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-emerald">✓</span>
-              <span><strong>Custom Trade-In Rate Cards:</strong> Automate your margin formulas</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-emerald">✓</span>
-              <span><strong>State-wide Swapper Broadcasts:</strong> Instant alerts for rare device requests</span>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check check-emerald">✓</span>
-              <span><strong>Dedicated VIP Account Manager</strong> &amp; direct WhatsApp executive desk</span>
-            </li>
-          </ul>
-
-          <button type="button" class="btn-card-action btn-leader-plan" id="btnSubscribeLeader">
-            <span>Subscribe Market Leader</span>
-          </button>
-        </div>
-
       </div>
 
       <!-- Interactive Dealer ROI & Profit Calculator -->
@@ -1475,121 +1428,95 @@
           <table class="comparison-table">
             <thead>
               <tr>
-                <th style="width: 34%;">Plan Feature</th>
-                <th style="width: 22%;">Starter (Free)</th>
-                <th style="width: 22%;" class="col-pro">Pro Partner (₦9,900)</th>
-                <th style="width: 22%;">Market Leader (₦24,900)</th>
+                <th style="width: 44%;">Plan Feature</th>
+                <th style="width: 28%;">Starter (Free)</th>
+                <th style="width: 28%;" class="col-pro">Pro Partner (₦9,900)</th>
               </tr>
             </thead>
             <tbody>
               <!-- Group 1 -->
               <tr class="category-row">
-                <td colspan="4">Device Inventory &amp; Listings</td>
+                <td colspan="3">Device Inventory &amp; Listings</td>
               </tr>
               <tr>
                 <td>Active Phone Listings Limit</td>
                 <td>Up to 5 Phones</td>
                 <td class="col-pro"><strong style="color: #FBBF24;">Unlimited</strong></td>
-                <td><strong style="color: var(--emerald-400);">Unlimited</strong></td>
               </tr>
               <tr>
                 <td>Photos per Phone Listing</td>
                 <td>Up to 4 Photos</td>
                 <td class="col-pro">Up to 8 HD Photos</td>
-                <td>Up to 12 HD Photos</td>
               </tr>
               <tr>
                 <td>Video Condition Clip Upload</td>
                 <td>—</td>
                 <td class="col-pro">✓ 15s Condition Video</td>
-                <td>✓ 30s 4K Video Tour</td>
-              </tr>
-              <tr>
-                <td>Bulk Inventory Import (CSV / API)</td>
-                <td>—</td>
-                <td class="col-pro">—</td>
-                <td>✓ Full Automated Sync</td>
               </tr>
 
               <!-- Group 2 -->
               <tr class="category-row">
-                <td colspan="4">Search Visibility &amp; Placement</td>
+                <td colspan="3">Search Visibility &amp; Placement</td>
               </tr>
               <tr>
                 <td>Search Placement Ranking</td>
                 <td>Standard</td>
                 <td class="col-pro"><strong style="color: #FBBF24;">⚡ 1st-Page Priority Boost</strong></td>
-                <td><strong style="color: #A78BFA;">Top Hero Banner &amp; Priority</strong></td>
               </tr>
               <tr>
                 <td>Verified Trust Storefront Badge</td>
                 <td>Basic Verified</td>
                 <td class="col-pro">⭐ Premium Partner Mark</td>
-                <td>👑 Elite Hub Leader Crest</td>
               </tr>
               <tr>
                 <td>Market Hub Spotlight (Computer Village/Banex)</td>
                 <td>—</td>
                 <td class="col-pro">✓ Hub Directory Spotlight</td>
-                <td>✓ Top Featured Placement</td>
-              </tr>
-              <tr>
-                <td>Homepage Hero Carousel Banner</td>
-                <td>—</td>
-                <td class="col-pro">—</td>
-                <td>✓ Rotating Homepage Spotlight</td>
               </tr>
 
               <!-- Group 3 -->
               <tr class="category-row">
-                <td colspan="4">Lead Generation &amp; Inquiries</td>
+                <td colspan="3">Lead Generation &amp; Inquiries</td>
               </tr>
               <tr>
                 <td>In-App Swap Chat &amp; Counter-Offers</td>
                 <td>✓ Included</td>
                 <td class="col-pro">✓ Included</td>
-                <td>✓ Included</td>
               </tr>
               <tr>
                 <td>WhatsApp Direct 1-Tap Link</td>
                 <td>✓ Included</td>
                 <td class="col-pro">✓ Priority Button</td>
-                <td>✓ Verified Business Link</td>
               </tr>
               <tr>
                 <td>Instant SMS Trade Lead Notifications</td>
                 <td>—</td>
                 <td class="col-pro">✓ Included</td>
-                <td>✓ Instant Priority Routing</td>
               </tr>
               <tr>
                 <td>Escrow-Backed Swap Leads</td>
                 <td>Standard</td>
                 <td class="col-pro">✓ Priority Queue</td>
-                <td>✓ Priority Queue</td>
               </tr>
 
               <!-- Group 4 -->
               <tr class="category-row">
-                <td colspan="4">Analytics, Hubs &amp; Support</td>
+                <td colspan="3">Analytics, Hubs &amp; Support</td>
               </tr>
               <tr>
                 <td>Storefront Traffic Analytics</td>
                 <td>Basic Counters</td>
                 <td class="col-pro">✓ Impressions, Views, CTR</td>
-                <td>✓ Deep Customer Insights &amp; Trends</td>
               </tr>
               <tr>
                 <td>Multi-Branch Physical Hubs</td>
                 <td>1 Single Location</td>
                 <td class="col-pro">1 Single Location</td>
-                <td>✓ Unlimited Hub Branches</td>
               </tr>
               <tr>
                 <td>Support Resolution Desk</td>
                 <td>Standard Email/Chat</td>
                 <td class="col-pro">Priority Partner Queue</td>
-                <td>Dedicated Account Manager</td>
               </tr>
             </tbody>
           </table>
@@ -1668,52 +1595,6 @@
       </section>
 
     </div>
-
-    <!-- Supported Tech Hubs in Nigeria -->
-    <section style="margin-bottom: 50px;">
-      <div style="text-align: center; margin-bottom: 22px;">
-        <span style="font-size: 0.8rem; font-weight: 700; color: var(--cyan-400); text-transform: uppercase; letter-spacing: 0.08em;">Physical Presence Across Nigeria</span>
-        <h4 style="font-size: 1.35rem; font-weight: 800; color: #FFFFFF; margin: 4px 0 0;">Certified Verification &amp; Inspection Tech Hubs</h4>
-      </div>
-
-      <div class="hubs-grid">
-        <div class="hub-pill-card">
-          <span class="hub-loc">📍</span>
-          <div class="hub-info">
-            <strong>Ikeja Computer Village</strong>
-            <span>Otigba &amp; Pepple St, Lagos</span>
-          </div>
-        </div>
-        <div class="hub-pill-card">
-          <span class="hub-loc">📍</span>
-          <div class="hub-info">
-            <strong>Banex &amp; Emab Plaza</strong>
-            <span>Wuse II, Abuja FCT</span>
-          </div>
-        </div>
-        <div class="hub-pill-card">
-          <span class="hub-loc">📍</span>
-          <div class="hub-info">
-            <strong>Garrison &amp; Waterlines</strong>
-            <span>Aba Road, Port Harcourt</span>
-          </div>
-        </div>
-        <div class="hub-pill-card">
-          <span class="hub-loc">📍</span>
-          <div class="hub-info">
-            <strong>Dugbe &amp; Iwo Road</strong>
-            <span>Ibadan, Oyo State</span>
-          </div>
-        </div>
-        <div class="hub-pill-card">
-          <span class="hub-loc">📍</span>
-          <div class="hub-info">
-            <strong>Farm Centre</strong>
-            <span>Kano Central, Kano</span>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- Payment & Security Badges -->
     <section style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 22px 26px; margin-bottom: 54px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
@@ -1966,10 +1847,11 @@
         proPeriodDisplay.textContent = '/ month';
         proBillingSubtext.innerHTML = '<strong style="color: #FBBF24;">₦99,000 billed annually</strong> • You save ₦19,800/yr';
 
-        // Leader: ₦249,000 / year (₦20,750/mo)
-        leaderPriceDisplay.textContent = '20,750';
-        leaderPeriodDisplay.textContent = '/ month';
-        leaderBillingSubtext.innerHTML = '<strong style="color: #A78BFA;">₦249,000 billed annually</strong> • You save ₦49,800/yr';
+        if (leaderPriceDisplay) {
+          leaderPriceDisplay.textContent = '20,750';
+          if (leaderPeriodDisplay) leaderPeriodDisplay.textContent = '/ month';
+          if (leaderBillingSubtext) leaderBillingSubtext.innerHTML = '<strong style="color: #A78BFA;">₦249,000 billed annually</strong> • You save ₦49,800/yr';
+        }
 
         btnSubscribePro.innerHTML = '<span>⭐ Upgrade Pro Annual (₦99,000/yr)</span>';
         btnBottomUpgrade.innerHTML = '<span>⭐ Upgrade Pro Annual (₦99,000/yr)</span>';
@@ -1981,9 +1863,11 @@
         proPeriodDisplay.textContent = '/ month';
         proBillingSubtext.textContent = 'Billed monthly via Paystack';
 
-        leaderPriceDisplay.textContent = '24,900';
-        leaderPeriodDisplay.textContent = '/ month';
-        leaderBillingSubtext.textContent = 'Billed monthly via Paystack';
+        if (leaderPriceDisplay) {
+          leaderPriceDisplay.textContent = '24,900';
+          if (leaderPeriodDisplay) leaderPeriodDisplay.textContent = '/ month';
+          if (leaderBillingSubtext) leaderBillingSubtext.textContent = 'Billed monthly via Paystack';
+        }
 
         btnSubscribePro.innerHTML = '<span>⭐ Upgrade to Pro Partner (₦9,900/mo)</span>';
         btnBottomUpgrade.innerHTML = '<span>⭐ Upgrade to Pro Partner (₦9,900/mo)</span>';
@@ -2087,7 +1971,7 @@
 
     // Attach Action Handlers
     btnSubscribePro.addEventListener('click', () => startSubscriptionCheckout('premium'));
-    btnSubscribeLeader.addEventListener('click', () => startSubscriptionCheckout('leader'));
+    if (btnSubscribeLeader) btnSubscribeLeader.addEventListener('click', () => startSubscriptionCheckout('leader'));
     btnBottomUpgrade.addEventListener('click', () => startSubscriptionCheckout('premium'));
 
     // Auth State Observer & Dynamic User Card
@@ -2096,19 +1980,25 @@
 
       if (user) {
         // User logged in
+        let dashTarget = 'dashboard.html';
+        try {
+          currentRole = await getUserRole(user);
+          dashTarget = currentRole === 'dealer' ? 'dealer-dashboard.html' : 'dashboard.html';
+        } catch (e) {
+          currentRole = 'customer';
+        }
+
         topUserQuickNav.innerHTML = `
-          <a href="dealer-dashboard.html" class="btn-cancel" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none; color: var(--emerald-400); border-color: rgba(0, 210, 106, 0.4);">
-            My Dashboard
+          <a href="${dashTarget}" class="btn-cancel" style="padding: 7px 14px; font-size: 0.8rem; text-decoration: none; color: var(--emerald-400); border-color: rgba(0, 210, 106, 0.4);">
+            ${currentRole === 'dealer' ? 'Store Dashboard' : 'My Swaps Hub'}
           </a>
         `;
 
-        try {
-          currentRole = await getUserRole(user.uid);
-        } catch (e) {
-          currentRole = 'dealer';
+        if (currentRole === 'dealer') {
+          await loadUserSubscription(user.uid);
+        } else {
+          userLiveStatusCard.style.display = 'none';
         }
-
-        await loadUserSubscription(user.uid);
       } else {
         // Guest view
         topUserQuickNav.innerHTML = `
