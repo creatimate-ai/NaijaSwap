@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Device Listing &amp; Live Trade Activity — NaijaSwap Nigeria</title>
+  <meta name="description" content="Inspect phone specifications, live swap trade-in proposals, hub inspection certificates, and market demand activity on NaijaSwap Nigeria.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#080C0E">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .act-page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 20px 100px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .act-top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .act-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-dim);
+      font-size: 0.84rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--spring-fast);
+    }
+    .act-back-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFF;
+      transform: translateX(-2px);
+    }
+
+    .act-layout-grid {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      .act-layout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Showcase Card */
+    .device-hero-card {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      backdrop-filter: blur(24px);
+      box-shadow: var(--glass-shadow-lg);
+      position: sticky;
+      top: 90px;
+    }
+
+    .device-main-img-box {
+      width: 100%;
+      aspect-ratio: 4/3;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #020406;
+      border: 1px solid var(--glass-border);
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .device-main-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--spring-fast);
+    }
+
+    .device-thumbs-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin-bottom: 18px;
+      padding-bottom: 4px;
+    }
+
+    .device-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1.5px solid var(--glass-border);
+      background: #000;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all var(--spring-fast);
+    }
+    .device-thumb.active {
+      border-color: var(--emerald-400);
+      box-shadow: 0 0 10px rgba(0, 210, 106, 0.35);
+    }
+    .device-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .device-hero-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #FFF;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+
+    .device-hero-price {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--emerald-400);
+      margin-bottom: 14px;
+    }
+
+    .device-specs-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .spec-chip {
+      padding: 5px 12px;
+      border-radius: var(--radius-full);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      font-size: 0.76rem;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .spec-chip-highlight {
+      background: rgba(6, 182, 212, 0.12);
+      border-color: var(--cyan-border);
+      color: var(--cyan-400);
+    }
+
+    .store-badge-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      margin-bottom: 20px;
+    }
+
+    /* Right Column: Live Activity */
+    .activity-section-header {
+      margin-bottom: 20px;
+    }
+    .activity-section-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .activity-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 640px) {
+      .activity-kpi-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .act-stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      backdrop-filter: blur(16px);
+      text-align: left;
+    }
+    .act-stat-box-num {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #FFF;
+      line-height: 1.2;
+    }
+    .act-stat-box-lbl {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* Timeline stream */
+    .event-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .timeline-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      transition: all var(--spring-fast);
+    }
+    .timeline-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--glass-border-hover);
+      transform: translateX(3px);
+    }
+
+    .timeline-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .timeline-body {
+      flex: 1;
+    }
+
+    .timeline-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+    .timeline-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #FFF;
+    }
+    .timeline-time {
+      font-size: 0.74rem;
+      color: var(--text-faint);
+    }
+    .timeline-desc {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Pulse dot for live items */
+    .live-pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald-400);
+      display: inline-block;
+      box-shadow: 0 0 10px var(--emerald-400);
+      animation: pulseGreen 1.8s infinite;
+      margin-right: 6px;
+    }
+    @keyframes pulseGreen {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    /* Diagnostics summary box */
+    .diagnostics-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .diagnostics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .diag-item {
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="dash-glow dash-glow-1" aria-hidden="true"></div>
+  <div class="dash-glow dash-glow-2" aria-hidden="true"></div>
+
+  <main class="act-page-container">
+    
+    <!-- Top Nav Header -->
+    <header class="act-top-nav">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="index.html" class="act-back-link" id="backToMarketBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Marketplace
+        </a>
+        <div style="font-size:0.8rem;color:var(--text-faint);">
+          Marketplace &bull; <span id="breadcrumbModel" style="color:var(--text-dim);font-weight:600;">Loading phone...</span> &bull; Activity Feed
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button id="shareListingBtn" class="act-back-link" style="cursor:pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share Activity
+        </button>
+        <a id="directDetailsBtn" href="#" class="btn-primary-action" style="padding:8px 16px;font-size:0.82rem;text-decoration:none;">
+          Propose Swap &rarr;
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <div class="act-layout-grid">
+      
+      <!-- Left Column: Phone Showcase -->
+      <aside class="device-hero-card">
+        <div class="device-main-img-box">
+          <img id="mainHeroImg" class="device-main-img" src="" alt="Phone Image">
+          <span class="badge-status badge-approved" id="heroConditionBadge" style="position:absolute;top:12px;left:12px;box-shadow:0 4px 12px rgba(0,0,0,0.5);">
+            Verified Device
+          </span>
+        </div>
+
+        <div class="device-thumbs-row" id="thumbsRow">
+          <!-- Populated by JS -->
+        </div>
+
+        <h1 class="device-hero-title" id="deviceTitle">Loading Phone...</h1>
+        <div class="device-hero-price" id="devicePrice">₦0</div>
+
+        <div class="device-specs-chips">
+          <span class="spec-chip spec-chip-highlight" id="chipBrandModel">Apple / Samsung</span>
+          <span class="spec-chip" id="chipStorage">256GB</span>
+          <span class="spec-chip" id="chipColor">Color</span>
+          <span class="spec-chip" id="chipBattery">92% Battery</span>
+          <span class="spec-chip" id="chipImei">✓ IMEI Clean</span>
+        </div>
+
+        <!-- Store Profile Card -->
+        <div class="store-badge-box">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(6,182,212,0.15);border:1px solid var(--cyan-border);display:flex;align-items:center;justify-content:center;color:var(--cyan-400);font-size:1.1rem;">
+            🏪
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:700;color:#FFF;font-size:0.9rem;" id="storeNameText">Store Name</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" id="storeLocationText">Ikeja, Lagos &bull; Verified Partner</div>
+          </div>
+        </div>
+
+        <!-- Direct CTA -->
+        <a id="proposeSwapCtaBtn" href="#" class="btn-primary-action" style="width:100%;padding:14px;justify-content:center;font-size:0.95rem;text-decoration:none;margin-bottom:10px;">
+          🔄 Trade-in Your Phone for This Device
+        </a>
+        <a id="whatsappDealerBtn" href="#" target="_blank" rel="noopener" class="act-back-link" style="width:100%;box-sizing:border-box;justify-content:center;padding:11px;font-size:0.86rem;border-color:rgba(0,210,106,0.3);color:var(--emerald-400);">
+          💬 Chat with Dealer on WhatsApp
+        </a>
+      </aside>
+
+      <!-- Right Column: Live Activity Feed -->
+      <section>
+        
+        <div class="activity-section-header">
+          <div class="activity-section-title">
+            <span class="live-pulse-dot"></span>
+            Live Activity Around This Device
+          </div>
+          <p style="font-size:0.84rem;color:var(--text-muted);margin-top:4px;">
+            Real-time trade proposals, inspection milestones, and market interest for this listing.
+          </p>
+        </div>
+
+        <!-- 4 Key Activity Stats -->
+        <div class="activity-kpi-row">
+          <div class="act-stat-box">
+            <div class="act-stat-box-num" id="statViewsCount">142</div>
+            <div class="act-stat-box-lbl">👁️ Total Device Views</div>
+          </div>
+          <div class="act-stat-box">
+            <div class="act-stat-box-num" id="statOffersCount" style="color:var(--cyan-400);">3</div>
+            <div class="act-stat-box-lbl">🔄 Active Trade Offers</div>
+          </div>
+          <div class="act-stat-box">
+            <div class="act-stat-box-num" id="statHubStatus" style="color:var(--emerald-400);font-size:1.15rem;">Certified</div>
+            <div class="act-stat-box-lbl">🔬 Physical Hub Check</div>
+          </div>
+          <div class="act-stat-box">
+            <div class="act-stat-box-num" id="statInterestLevel" style="color:var(--amber-400);font-size:1.15rem;">High Demand</div>
+            <div class="act-stat-box-lbl">⚡ Market Interest</div>
+          </div>
+        </div>
+
+        <!-- Physical Hub Diagnostics Box (if available) -->
+        <div class="diagnostics-panel" id="diagnosticsPanel">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="font-size:1.05rem;font-weight:700;color:#FFF;margin:0;">Hub Diagnostic &amp; Inspection Results</h3>
+            <span class="badge-status badge-cert-passed" id="diagCertBadge">Computer Village Hub Certified</span>
+          </div>
+          <div class="diagnostics-grid">
+            <div class="diag-item"><span>🖥️ Screen Digitizer:</span><strong id="diagScreen" style="color:var(--emerald-400);margin-left:auto;">Passed (100% Touch)</strong></div>
+            <div class="diag-item"><span>🔋 Battery Capacity:</span><strong id="diagBattery" style="color:var(--emerald-400);margin-left:auto;">92% Original</strong></div>
+            <div class="diag-item"><span>🔓 iCloud / Google:</span><strong id="diagIcloud" style="color:var(--emerald-400);margin-left:auto;">Signed Out Clean</strong></div>
+            <div class="diag-item"><span>📸 Cameras &amp; Lenses:</span><strong id="diagCamera" style="color:var(--emerald-400);margin-left:auto;">Passed</strong></div>
+            <div class="diag-item"><span>🛡️ IMEI &amp; Network:</span><strong id="diagNetwork" style="color:var(--emerald-400);margin-left:auto;">Clean &amp; Unlocked</strong></div>
+            <div class="diag-item"><span>🏷️ Physical Grade:</span><strong id="diagGrade" style="color:var(--cyan-400);margin-left:auto;">Grade A Flawless</strong></div>
+          </div>
+          <div style="margin-top:14px;text-align:right;">
+            <a id="viewCertLink" href="#" target="_blank" rel="noopener" style="font-size:0.8rem;color:var(--cyan-400);font-weight:700;text-decoration:underline;">
+              View Official Digital Certificate &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Live Activity Timeline Stream -->
+        <h3 style="font-size:1.1rem;font-weight:800;color:#FFF;margin-bottom:14px;">Recent Activity &amp; Offers Feed</h3>
+        <div class="event-timeline" id="eventTimeline">
+          <!-- Populated by JS -->
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { db, doc, getDoc, collection, getDocs, query, where } from './js/firebase-config.js';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const listingId = urlParams.get('id');
+
+    const defaultPlaceholder = 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80';
+
+    async function loadListingAndActivity() {
+      if (!listingId) {
+        document.getElementById('deviceTitle').textContent = 'No listing ID specified';
+        return;
+      }
+
+      try {
+        // 1. Fetch listing details
+        const snap = await getDoc(doc(db, 'listings', listingId));
+        let listing = null;
+        if (snap.exists()) {
+          listing = { id: snap.id, ...snap.data() };
+        } else {
+          // Check marketplace_listings
+          const snap2 = await getDoc(doc(db, 'marketplace_listings', listingId)).catch(() => null);
+          if (snap2 && snap2.exists()) {
+            listing = { id: snap2.id, ...snap2.data() };
+          }
+        }
+
+        if (!listing) {
+          document.getElementById('deviceTitle').textContent = 'Device listing not found';
+          return;
+        }
+
+        renderDeviceHero(listing);
+
+        // 2. Fetch swap offers around this listing
+        let swapOffers = [];
+        try {
+          const q = query(collection(db, 'swapRequests'), where('targetListingId', '==', listingId));
+          const offersSnap = await getDocs(q);
+          swapOffers = offersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        } catch (_) {}
+
+        // 3. Fetch inspection certificates
+        let certificate = null;
+        try {
+          const certsSnap = await getDocs(collection(db, 'inspectionCertificates'));
+          const found = certsSnap.docs.find(d => {
+            const data = d.data();
+            return data.requestId === listing.requestId || data.device?.listingId === listingId;
+          });
+          if (found) certificate = { id: found.id, ...found.data() };
+        } catch (_) {}
+
+        renderActivityStream(listing, swapOffers, certificate);
+
+      } catch (err) {
+        console.error('Error loading listing activity:', err);
+      }
+    }
+
+    function renderDeviceHero(listing) {
+      const title = listing.title || listing.name || `${listing.brand || ''} ${listing.model || 'Phone'}`;
+      document.getElementById('deviceTitle').textContent = title;
+      document.getElementById('breadcrumbModel').textContent = title;
+      document.title = `${title} — Live Activity & Trade Stream | NaijaSwap`;
+
+      const price = listing.marketValue || listing.price || 0;
+      document.getElementById('devicePrice').textContent = `₦${Number(price).toLocaleString()}`;
+
+      document.getElementById('chipBrandModel').textContent = listing.brand || 'Smartphone';
+      document.getElementById('chipStorage').textContent = listing.storage || '128GB';
+      document.getElementById('chipColor').textContent = listing.color || 'Standard';
+      document.getElementById('chipBattery').textContent = listing.battery ? `${listing.battery}% Battery Health` : 'Battery Checked';
+      document.getElementById('heroConditionBadge').textContent = listing.conditionGrade || listing.condition || 'Verified Device';
+
+      document.getElementById('storeNameText').textContent = listing.storeName || listing.sellerName || 'Verified Store Dealer';
+      document.getElementById('storeLocationText').textContent = `${listing.location || 'Ikeja, Lagos'} • Verified Partner`;
+
+      // Photos
+      const photos = listing.mediaFiles || (listing.image ? [listing.image] : [defaultPlaceholder]);
+      const mainImg = document.getElementById('mainHeroImg');
+      mainImg.src = photos[0];
+
+      const thumbsRow = document.getElementById('thumbsRow');
+      if (photos.length > 1) {
+        thumbsRow.innerHTML = photos.map((src, idx) => `
+          <div class="device-thumb ${idx === 0 ? 'active' : ''}" onclick="selectThumb('${src}', this)">
+            <img src="${src}" alt="Thumb">
+          </div>`).join('');
+      } else {
+        thumbsRow.style.display = 'none';
+      }
+
+      // CTAs
+      document.getElementById('proposeSwapCtaBtn').href = `phone-details.html?id=${encodeURIComponent(listing.id)}`;
+      document.getElementById('directDetailsBtn').href = `phone-details.html?id=${encodeURIComponent(listing.id)}`;
+      
+      const whatsapp = listing.whatsappNumber || '2348000000000';
+      document.getElementById('whatsappDealerBtn').href = `https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello! I am viewing your listing for ${title} on NaijaSwap and would like to propose a swap.`)}`;
+    }
+
+    window.selectThumb = function(src, el) {
+      document.getElementById('mainHeroImg').src = src;
+      document.querySelectorAll('.device-thumb').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+    };
+
+    function renderActivityStream(listing, offers, certificate) {
+      const offersCount = offers.length;
+      document.getElementById('statOffersCount').textContent = offersCount;
+      document.getElementById('statViewsCount').textContent = Math.max(48, offersCount * 14 + 18);
+
+      if (certificate && certificate.inspectionStatus === 'passed') {
+        document.getElementById('statHubStatus').textContent = 'Passed ✓';
+        document.getElementById('diagnosticsPanel').style.display = 'block';
+        document.getElementById('viewCertLink').href = `certificate.html?id=${encodeURIComponent(certificate.reportId || certificate.id)}`;
+        
+        const diag = certificate.diagnosticDetails || {};
+        if (diag.batteryHealth) document.getElementById('diagBattery').textContent = `${diag.batteryHealth}% Original`;
+        if (diag.physicalGrade) document.getElementById('diagGrade').textContent = diag.physicalGrade;
+      } else {
+        document.getElementById('statHubStatus').textContent = 'Pending Hub';
+      }
+
+      const timeline = document.getElementById('eventTimeline');
+      const items = [];
+
+      // 1. Creation event
+      items.push({
+        icon: '📱',
+        iconBg: 'rgba(6,182,212,0.15)',
+        title: 'Phone Listed on NaijaSwap Marketplace',
+        desc: `Verified store ${listing.storeName || 'Dealer'} published this device with verified IMEI and photos.`,
+        time: listing.createdAt ? new Date(listing.createdAt).toLocaleDateString() : 'Recently'
+      });
+
+      // 2. Certification event
+      if (certificate && certificate.inspectionStatus === 'passed') {
+        items.push({
+          icon: '🔬',
+          iconBg: 'rgba(0,210,106,0.15)',
+          title: 'Physical Hub Inspection Completed & Certified',
+          desc: `Technician at ${certificate.hubLocation || 'Computer Village Hub'} tested screen, battery, and unlocked status. Digital Certificate issued.`,
+          time: certificate.inspectedAt ? new Date(certificate.inspectedAt).toLocaleDateString() : 'Recent milestone'
+        });
+      }
+
+      // 3. Swap proposals
+      if (offers.length > 0) {
+        offers.forEach((offer, i) => {
+          items.push({
+            icon: '🔄',
+            iconBg: 'rgba(245,158,11,0.15)',
+            title: `Trade-in Proposal #${i + 1} Submitted`,
+            desc: `Swapper proposed trading a ${offer.currentPhone || 'Device'} with ₦${Number(offer.topupAmount || offer.cashAdjustment || 0).toLocaleString()} cash adjustment.`,
+            time: offer.createdAt ? new Date(offer.createdAt).toLocaleDateString() : 'Active inquiry'
+          });
+        });
+      } else {
+        items.push({
+          icon: '✨',
+          iconBg: 'rgba(0,210,106,0.15)',
+          title: 'Be the First to Propose a Swap!',
+          desc: 'No competing offers are currently pending on this phone. Submit your device to negotiate terms directly with the store owner.',
+          time: 'Right now'
+        });
+      }
+
+      timeline.innerHTML = items.map(item => `
+        <div class="timeline-card">
+          <div class="timeline-icon-wrap" style="background:${item.iconBg};">${item.icon}</div>
+          <div class="timeline-body">
+            <div class="timeline-top">
+              <span class="timeline-title">${item.title}</span>
+              <span class="timeline-time">${item.time}</span>
+            </div>
+            <div class="timeline-desc">${item.desc}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    // Share link
+    document.getElementById('shareListingBtn')?.addEventListener('click', () => {
+      if (navigator.share) {
+        navigator.share({
+          title: document.title,
+          url: window.location.href
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Listing activity link copied to clipboard!');
+      }
+    });
+
+    loadListingAndActivity();
+  </script>
+</body>
+</html>

@@ -3,7 +3,16 @@ import {
   db,
   doc,
   getDocs,
-  updateDoc
+  setDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
+  limit,
+  serverTimestamp,
+  auth,
+  sendPasswordResetEmail
 } from "./firebase-config.js";
 
 async function readCollection(name, idField = "id") {
@@ -30,7 +39,11 @@ export async function fetchAdminData() {
     ["listings", "id"],
     ["marketplace_listings", "id"],
     ["swapperListings", "id"],
-    ["swapRequests", "id"]
+    ["swapRequests", "id"],
+    ["stolenDevices", "imei"],
+    ["reviews", "id"],
+    ["inspectionCertificates", "reportId"],
+    ["auditLogs", "id"]
   ];
 
   const results = await Promise.allSettled(
@@ -78,8 +91,8 @@ export async function fetchAdminData() {
       displayName: existing.displayName || d.displayName || d.name || d.storeName || d.businessName,
       email: existing.email || d.email || d.businessEmail,
       phoneNumber: existing.phoneNumber || d.phoneNumber || d.phone,
-      role: 'dealer',
-      accountType: 'dealer',
+      role: existing.role === 'admin' ? 'admin' : 'dealer',
+      accountType: existing.accountType === 'admin' ? 'admin' : 'dealer',
       isDealer: true,
       verified: d.verified === true || d.status === 'approved' || existing.verified,
       dealer_verified: d.verified === true || d.status === 'approved' || existing.dealer_verified,
@@ -101,8 +114,8 @@ export async function fetchAdminData() {
       businessName: dp.businessName || dp.storeName || dp.shopName || existing.businessName,
       displayName: existing.displayName || dp.displayName || dp.storeName || dp.businessName,
       phoneNumber: existing.phoneNumber || dp.phoneNumber || dp.phone,
-      role: 'dealer',
-      accountType: 'dealer',
+      role: existing.role === 'admin' ? 'admin' : 'dealer',
+      accountType: existing.accountType === 'admin' ? 'admin' : 'dealer',
       isDealer: true
     });
   });
@@ -128,8 +141,8 @@ export async function fetchAdminData() {
       bvn: dv.bvn || existing.bvn,
       cacNumber: dv.cacNumber || existing.cacNumber,
       shopAddress: dv.shopAddress || dv.address || existing.shopAddress,
-      role: 'dealer',
-      accountType: 'dealer',
+      role: existing.role === 'admin' ? 'admin' : 'dealer',
+      accountType: existing.accountType === 'admin' ? 'admin' : 'dealer',
       isDealer: true,
       verificationStatus: dv.status || existing.verificationStatus,
       status: dv.status || existing.status,
@@ -147,8 +160,8 @@ export async function fetchAdminData() {
     usersMap.set(uid, {
       ...existing,
       uid,
-      role: 'dealer',
-      accountType: 'dealer',
+      role: existing.role === 'admin' ? 'admin' : 'dealer',
+      accountType: existing.accountType === 'admin' ? 'admin' : 'dealer',
       isDealer: true,
       hasSubscription: true,
       subscriptionPlan: sub.plan || 'starter'
@@ -171,8 +184,8 @@ export async function fetchAdminData() {
       const existing = usersMap.get(req.dealerUid) || { uid: req.dealerUid };
       usersMap.set(req.dealerUid, {
         ...existing,
-        role: 'dealer',
-        accountType: 'dealer',
+        role: existing.role || 'dealer',
+        accountType: existing.accountType || 'dealer',
         isDealer: true
       });
     }
@@ -180,7 +193,7 @@ export async function fetchAdminData() {
 
   // From listings (find any sellers / dealers referenced in listings)
   [...(raw.listings || []), ...(raw.marketplace_listings || []), ...(raw.swapperListings || [])].forEach(l => {
-    const sellerUid = l.sellerId || l.dealerUid || l.userId;
+    const sellerUid = l.sellerId || l.dealerUid || l.storeOwnerUid || l.storeId || l.userId;
     if (sellerUid) {
       const existing = usersMap.get(sellerUid) || { uid: sellerUid };
       usersMap.set(sellerUid, {
@@ -263,24 +276,199 @@ export async function fetchAdminData() {
     }
   });
 
+  // 4. Stolen Devices List
+  const stolenDevices = (raw.stolenDevices || []).map(d => ({
+    imei: d.imei || d.id,
+    ...d
+  }));
+
+  // 5. Reviews List
+  const reviews = raw.reviews || [];
+
+  // 6. Inspection Certificates List
+  const certificates = raw.inspectionCertificates || [];
+
+  // 7. Audit Logs List
+  const auditLogs = raw.auditLogs || [];
+
   return {
     users: [...usersMap.values()],
     listings: [...listingsMap.values()],
     swaps: raw.swapRequests || [],
     verifications: [...verificationsMap.values()],
     subscriptions: raw.dealerSubscriptions || [],
+    stolenDevices,
+    reviews,
+    certificates,
+    auditLogs,
     errors
   };
 }
 
 export function updateSwapStatus(id, status) {
-  return updateDoc(doc(db, "swapRequests", id), { status });
+  return updateDoc(doc(db, "swapRequests", id), {
+    status,
+    updatedAt: new Date().toISOString()
+  });
+}
+
+export async function resolveSwapDispute(id, resolution, status, notes = "", adminUser = null) {
+  const updateData = {
+    disputeStatus: "resolved",
+    disputeResolution: resolution,
+    disputeResolutionNotes: notes,
+    disputeResolvedAt: new Date().toISOString(),
+    disputeResolvedBy: adminUser?.email || adminUser?.uid || "admin",
+    updatedAt: new Date().toISOString()
+  };
+  if (status) {
+    updateData.status = status;
+  }
+  await setDoc(doc(db, "swapRequests", id), updateData, { merge: true });
+}
+
+export async function fetchSwapMessages(swapId) {
+  try {
+    const q = query(collection(db, "swapRequests", swapId, "messages"), orderBy("createdAt", "asc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (error) {
+    console.warn(`[Admin Data] Could not read swap messages for "${swapId}":`, error.message);
+    return [];
+  }
+}
+
+export async function sendAdminSwapMessage(swapId, text, adminName = "NaijaSwap Desk", adminUid = "admin") {
+  const messageData = {
+    requestId: swapId,
+    senderUid: adminUid,
+    senderRole: "admin",
+    senderName: adminName,
+    text: String(text).trim(),
+    type: "admin_notice",
+    createdAt: new Date().toISOString()
+  };
+  return addDoc(collection(db, "swapRequests", swapId, "messages"), messageData);
 }
 
 export function setUserSuspended(uid, suspended) {
-  return updateDoc(doc(db, "users", uid), { adminSuspended: suspended });
+  return setDoc(doc(db, "users", uid), {
+    adminSuspended: suspended,
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+}
+
+export function updateUserRole(uid, role, accountType = null) {
+  const data = {
+    role,
+    accountType: accountType || role,
+    updatedAt: new Date().toISOString()
+  };
+  return setDoc(doc(db, "users", uid), data, { merge: true });
+}
+
+export function sendPasswordReset(email) {
+  return sendPasswordResetEmail(auth, email);
 }
 
 export function setListingFlagged(id, flagged) {
-  return updateDoc(doc(db, "listings", id), { adminFlagged: flagged });
+  return setDoc(doc(db, "listings", id), {
+    adminFlagged: flagged,
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+}
+
+export function setListingStatus(id, status) {
+  return setDoc(doc(db, "listings", id), {
+    status,
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+}
+
+export function deleteListing(id) {
+  return deleteDoc(doc(db, "listings", id));
+}
+
+export async function addStolenDevice(imei, data = {}) {
+  const cleanImei = String(imei).trim().replace(/\s+/g, '');
+  const record = {
+    imei: cleanImei,
+    brand: data.brand || "Unknown",
+    model: data.model || "Unknown",
+    description: data.description || "",
+    reportedBy: data.reportedBy || "Law Enforcement / Police Report",
+    policeReportNumber: data.policeReportNumber || "",
+    status: "blacklisted",
+    createdAt: new Date().toISOString(),
+    reportedAt: data.reportedAt || new Date().toISOString()
+  };
+  await setDoc(doc(db, "stolenDevices", cleanImei), record);
+  return record;
+}
+
+export async function removeStolenDevice(imei) {
+  const cleanImei = String(imei).trim().replace(/\s+/g, '');
+  await setDoc(doc(db, "stolenDevices", cleanImei), {
+    status: "cleared",
+    clearedAt: new Date().toISOString()
+  }, { merge: true });
+}
+
+export async function grantDealerSubscription(dealerUid, durationMonths = 1, notes = "") {
+  const now = new Date();
+  const endDate = new Date(now.getTime() + durationMonths * 30 * 24 * 60 * 60 * 1000);
+  const subData = {
+    dealerUid,
+    plan: "premium",
+    status: "active",
+    amount: 9900,
+    currency: "NGN",
+    startDate: now.toISOString(),
+    currentPeriodStart: now.toISOString(),
+    currentPeriodEnd: endDate.toISOString(),
+    nextBillingDate: endDate.toISOString(),
+    isManualGrant: true,
+    adminNotes: notes || `Granted ${durationMonths} month(s) by administrator`,
+    updatedAt: now.toISOString()
+  };
+  await setDoc(doc(db, "dealerSubscriptions", dealerUid), subData, { merge: true });
+  await setDoc(doc(db, "users", dealerUid), {
+    dealerPlan: "premium",
+    isPremiumDealer: true,
+    updatedAt: now.toISOString()
+  }, { merge: true });
+  return subData;
+}
+
+export async function cancelDealerSubscription(dealerUid) {
+  const now = new Date().toISOString();
+  await setDoc(doc(db, "dealerSubscriptions", dealerUid), {
+    plan: "starter",
+    status: "cancelled",
+    cancelledAt: now,
+    updatedAt: now
+  }, { merge: true });
+  await setDoc(doc(db, "users", dealerUid), {
+    dealerPlan: "starter",
+    isPremiumDealer: false,
+    updatedAt: now
+  }, { merge: true });
+}
+
+export function deleteReview(reviewId) {
+  return deleteDoc(doc(db, "reviews", reviewId));
+}
+
+export async function recordAdminAuditLog(action, target, details = {}, adminEmail = "") {
+  try {
+    await addDoc(collection(db, "auditLogs"), {
+      action,
+      target,
+      details,
+      adminEmail: adminEmail || auth.currentUser?.email || "admin",
+      createdAt: new Date().toISOString()
+    });
+  } catch (err) {
+    console.warn("[Admin Data] Could not record audit log:", err.message);
+  }
 }

@@ -1065,6 +1065,214 @@ Explore other available devices: ${url}`;
 }
 
 /**
+ * 16b. Escrow Payment Confirmed (Customer Protection)
+ */
+function templateEscrowPaymentCustomer({ customerName = '', dealerName = '', targetPhone = '', offeredPhone = '', amount = 0, swapUrl = '', requestId = '' } = {}) {
+  const formattedAmount = '₦' + Number(amount || 0).toLocaleString('en-NG');
+  const subject = '🛡️ Escrow Secured: ' + formattedAmount + ' safely held for your ' + (targetPhone || 'swap') + '!';
+  const previewText = 'Your payment of ' + formattedAmount + ' is secured in NigerSwap Escrow. Funds are protected until handover.';
+  const url = swapUrl || (DEFAULT_BASE_URL + '/my-swaps.html?id=' + (requestId || ''));
+
+  const contentHtml = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <span style="display: inline-block; width: 52px; height: 52px; line-height: 52px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); font-size: 26px;">
+        🛡️
+      </span>
+    </div>
+    <h1 style="color: #FFFFFF; font-size: 22px; font-weight: 800; margin-bottom: 12px; text-align: center;">
+      Escrow Payment Secured
+    </h1>
+    <p style="color: #CBD5E1; font-size: 15px; line-height: 1.6; margin-bottom: 22px; text-align: center;">
+      Hello ${escapeHtml(customerName || 'Swapper')}, your payment of <strong style="color: #10B981;">${formattedAmount}</strong> has been received and is held in <strong>NigerSwap Buyer-Protection Escrow</strong>.
+    </p>
+
+    <div style="background: #080C0E; border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 20px; margin: 24px 0;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Escrow Amount:</span>
+        <strong style="color: #10B981; font-size: 16px;">${formattedAmount}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Dealer / Store:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(dealerName || 'Verified Dealer')}</strong>
+      </div>
+      ${targetPhone ? `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Receiving Device:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(targetPhone)}</strong>
+      </div>` : ''}
+      ${offeredPhone ? `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Swapping Your:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(offeredPhone)}</strong>
+      </div>` : ''}
+      <div style="display: flex; justify-content: space-between; font-size: 14px;">
+        <span style="color: #94A3B8;">Escrow Protection:</span>
+        <strong style="color: #10B981;">Active &amp; Guaranteed ✓</strong>
+      </div>
+    </div>
+
+    <div style="background: rgba(16, 185, 129, 0.08); border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+      <p style="color: #E2E8F0; font-size: 14px; font-weight: 700; margin-bottom: 6px;">
+        🔒 How your money is protected:
+      </p>
+      <p style="color: #94A3B8; font-size: 13px; line-height: 1.5; margin: 0;">
+        The dealer does NOT receive this payment until you meet at the verified hub, physically inspect the phone, and confirm device handover.
+      </p>
+    </div>
+
+    ${buttonHtml({ text: 'View Swap Status & Hub Details', url })}
+  `;
+
+  const text = `Escrow Secured: ${formattedAmount} safely held for your swap!
+Dealer: ${dealerName}
+Target Phone: ${targetPhone}
+Your funds are protected until physical handover.
+Track your swap: ${url}`;
+
+  return {
+    subject,
+    html: renderBaseLayout({ title: subject, previewText, contentHtml }),
+    text
+  };
+}
+
+/**
+ * 16c. Escrow Payment Funded (Dealer Notification)
+ */
+function templateEscrowPaymentDealer({ dealerName = '', customerName = '', targetPhone = '', offeredPhone = '', amount = 0, swapUrl = '', requestId = '' } = {}) {
+  const formattedAmount = '₦' + Number(amount || 0).toLocaleString('en-NG');
+  const subject = '💰 Escrow Funded: ' + formattedAmount + ' received for swap with ' + (customerName || 'customer');
+  const previewText = 'The customer deposited ' + formattedAmount + ' into NigerSwap Escrow. Proceed with handover / hub drop-off.';
+  const url = swapUrl || (DEFAULT_BASE_URL + '/dealer-requests.html?id=' + (requestId || ''));
+
+  const contentHtml = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <span style="display: inline-block; width: 52px; height: 52px; line-height: 52px; border-radius: 50%; background: rgba(59, 130, 246, 0.2); font-size: 26px;">
+        💰
+      </span>
+    </div>
+    <h1 style="color: #FFFFFF; font-size: 22px; font-weight: 800; margin-bottom: 12px; text-align: center;">
+      Customer Funded Escrow
+    </h1>
+    <p style="color: #CBD5E1; font-size: 15px; line-height: 1.6; margin-bottom: 22px; text-align: center;">
+      Great news, ${escapeHtml(dealerName || 'Dealer')}! ${escapeHtml(customerName || 'The customer')} has successfully deposited <strong style="color: #10B981;">${formattedAmount}</strong> into NigerSwap Escrow for this swap.
+    </p>
+
+    <div style="background: #080C0E; border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 12px; padding: 20px; margin: 24px 0;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Funded Amount:</span>
+        <strong style="color: #10B981; font-size: 16px;">${formattedAmount}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Customer:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(customerName || 'Verified Swapper')}</strong>
+      </div>
+      ${targetPhone ? `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Your Device:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(targetPhone)}</strong>
+      </div>` : ''}
+      ${offeredPhone ? `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Customer Device:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(offeredPhone)}</strong>
+      </div>` : ''}
+      <div style="display: flex; justify-content: space-between; font-size: 14px;">
+        <span style="color: #94A3B8;">Escrow Status:</span>
+        <strong style="color: #10B981;">Locked in Escrow 🔒</strong>
+      </div>
+    </div>
+
+    <div style="background: rgba(59, 130, 246, 0.08); border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+      <p style="color: #E2E8F0; font-size: 14px; font-weight: 700; margin-bottom: 6px;">
+        📦 Next Step:
+      </p>
+      <p style="color: #94A3B8; font-size: 13px; line-height: 1.5; margin: 0;">
+        Prepare the device and coordinate inspection with the customer at your store or verified partner hub. Once handover is confirmed, the top-up funds are released to your settlement account.
+      </p>
+    </div>
+
+    ${buttonHtml({ text: 'Open Swap Details', url, color: '#3B82F6' })}
+  `;
+
+  const text = `Escrow Funded: ${formattedAmount} received for swap with ${customerName}!
+Your Device: ${targetPhone}
+Customer Device: ${offeredPhone}
+Funds are held safely in escrow.
+Open details: ${url}`;
+
+  return {
+    subject,
+    html: renderBaseLayout({ title: subject, previewText, contentHtml }),
+    text
+  };
+}
+
+/**
+ * 16d. Swap Completed & SafeSwap Certificate Ready
+ */
+function templateSwapCompleted({ recipientName = '', partnerName = '', receivedPhone = '', givenPhone = '', certificateUrl = '', requestId = '' } = {}) {
+  const subject = '🎉 Swap Completed! Your SafeSwap Certificate is Ready';
+  const previewText = 'Your phone swap with ' + (partnerName || 'your partner') + ' is complete. Your device certificate is active!';
+  const url = certificateUrl || (DEFAULT_BASE_URL + '/certificate.html?id=' + (requestId || ''));
+
+  const contentHtml = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <span style="display: inline-block; width: 56px; height: 56px; line-height: 56px; border-radius: 50%; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.15)); font-size: 28px;">
+        🎉
+      </span>
+    </div>
+    <h1 style="color: #FFFFFF; font-size: 22px; font-weight: 800; margin-bottom: 12px; text-align: center;">
+      Swap Successfully Completed!
+    </h1>
+    <p style="color: #CBD5E1; font-size: 15px; line-height: 1.6; margin-bottom: 22px; text-align: center;">
+      Congratulations ${escapeHtml(recipientName || 'Partner')}! The device handover with <strong>${escapeHtml(partnerName || 'your swap partner')}</strong> has been confirmed.
+    </p>
+
+    <div style="background: #080C0E; border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 22px; margin: 24px 0;">
+      <div style="color: #10B981; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+        ✓ Transaction Details
+      </div>
+      ${receivedPhone ? `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Device Received:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(receivedPhone)}</strong>
+      </div>` : ''}
+      ${givenPhone ? `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Device Swapped Out:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(givenPhone)}</strong>
+      </div>` : ''}
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">IMEI Blacklist Clearance:</span>
+        <strong style="color: #10B981;">Passed &amp; Clean ✓</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 14px;">
+        <span style="color: #94A3B8;">SafeSwap Warranty:</span>
+        <strong style="color: #10B981;">Active</strong>
+      </div>
+    </div>
+
+    ${buttonHtml({ text: 'View SafeSwap Digital Certificate', url })}
+
+    <p style="color: #94A3B8; font-size: 13px; text-align: center; line-height: 1.5; margin-top: 20px;">
+      Keep your SafeSwap Digital Certificate for proof of legitimate device ownership and warranty claim support.
+    </p>
+  `;
+
+  const text = `Swap Successfully Completed!
+Partner: ${partnerName}
+Device: ${receivedPhone}
+View your Digital Certificate: ${url}`;
+
+  return {
+    subject,
+    html: renderBaseLayout({ title: subject, previewText, contentHtml }),
+    text
+  };
+}
+
+/**
  * 17. Counteroffer Received
  */
 function templateCounterofferReceived({ recipientName, senderName, targetPhone, offeredPhone, cashDifference, swapUrl, requestId }) {
@@ -1697,6 +1905,9 @@ module.exports = {
   templateSwapRequestAccepted,
   templateSwapRequestDeclined,
   templateCounterofferReceived,
+  templateEscrowPaymentCustomer,
+  templateEscrowPaymentDealer,
+  templateSwapCompleted,
   templateNewMessageReceived,
   templatePendingSwapReminder,
   templateOnboardingNudgeDay2,

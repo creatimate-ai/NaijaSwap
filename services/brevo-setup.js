@@ -172,6 +172,115 @@ async function setupBrevo() {
         dealerName: '{{params.DEALER_NAME}}',
         swapUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/my-swaps.html`
       }).html
+    },
+    {
+      templateName: 'NigerSwap - Dealer Counter-Offer Received',
+      subject: "You've received a new swap counter-offer!",
+      htmlContent: templates.templateCounterofferReceived({
+        recipientName: '{{params.RECIPIENT_NAME}}',
+        senderName: '{{params.SENDER_NAME}}',
+        targetPhone: '{{params.TARGET_PHONE}}',
+        offeredPhone: '{{params.OFFERED_PHONE}}',
+        cashDifference: '{{params.CASH_DIFFERENCE}}',
+        swapUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/my-swaps.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Swap Request Declined',
+      subject: 'Update on your NaijaSwap request',
+      htmlContent: templates.templateSwapRequestDeclined({
+        requesterName: '{{params.REQUESTER_NAME}}',
+        targetPhone: '{{params.TARGET_PHONE}}',
+        dealerName: '{{params.DEALER_NAME}}',
+        browseUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/index.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Escrow Payment Confirmed (Buyer)',
+      subject: '🛡️ Escrow Secured: {{params.AMOUNT_FORMATTED}} safely held for your swap!',
+      htmlContent: templates.templateEscrowPaymentCustomer({
+        customerName: '{{params.CUSTOMER_NAME}}',
+        dealerName: '{{params.DEALER_NAME}}',
+        targetPhone: '{{params.TARGET_PHONE}}',
+        offeredPhone: '{{params.OFFERED_PHONE}}',
+        amount: '{{params.AMOUNT}}',
+        swapUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/my-swaps.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Escrow Funded (Dealer)',
+      subject: '💰 Escrow Funded: {{params.AMOUNT_FORMATTED}} received for swap with {{params.CUSTOMER_NAME}}',
+      htmlContent: templates.templateEscrowPaymentDealer({
+        dealerName: '{{params.DEALER_NAME}}',
+        customerName: '{{params.CUSTOMER_NAME}}',
+        targetPhone: '{{params.TARGET_PHONE}}',
+        offeredPhone: '{{params.OFFERED_PHONE}}',
+        amount: '{{params.AMOUNT}}',
+        swapUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/dealer-requests.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Swap Completed & Certificate Ready',
+      subject: '🎉 Swap Completed! Your SafeSwap Certificate is Ready',
+      htmlContent: templates.templateSwapCompleted({
+        recipientName: '{{params.RECIPIENT_NAME}}',
+        partnerName: '{{params.PARTNER_NAME}}',
+        receivedPhone: '{{params.RECEIVED_PHONE}}',
+        givenPhone: '{{params.GIVEN_PHONE}}',
+        certificateUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/certificate.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - New Chat Message Received',
+      subject: 'You have a new message on NaijaSwap',
+      htmlContent: templates.templateNewMessageReceived({
+        recipientName: '{{params.RECIPIENT_NAME}}',
+        senderName: '{{params.SENDER_NAME}}',
+        targetPhone: '{{params.TARGET_PHONE}}',
+        chatUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/chat.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Dealer Starter Listing Limit Reached',
+      subject: "You've reached your 5 active listings limit on Starter",
+      htmlContent: templates.templateDealerStarterLimitReached({
+        dealerName: '{{params.DEALER_NAME}}',
+        currentCount: 5,
+        maxLimit: 5,
+        upgradeUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/dealer-dashboard.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Dealer Premium Payment Receipt',
+      subject: 'Your NaijaSwap Premium payment was successful',
+      htmlContent: templates.templateDealerPaymentReceipt({
+        dealerName: '{{params.DEALER_NAME}}',
+        amount: 9900,
+        currency: 'NGN',
+        paymentDate: '{{params.PAYMENT_DATE}}',
+        billingPeriod: 'Monthly Plan',
+        reference: '{{params.REFERENCE}}',
+        renewalDate: '{{params.RENEWAL_DATE}}'
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Password Reset Link',
+      subject: 'Reset your NaijaSwap password',
+      htmlContent: templates.templatePasswordReset({
+        resetLink: '{{params.RESET_LINK}}',
+        firstName: '{{params.FIRSTNAME}}',
+        expiryMinutes: 60
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Password Changed Security Alert',
+      subject: 'Your NaijaSwap password was changed',
+      htmlContent: templates.templatePasswordChanged({
+        firstName: '{{params.FIRSTNAME}}',
+        timestamp: '{{params.TIMESTAMP}}',
+        ipAddress: '{{params.IP_ADDRESS}}',
+        userAgent: '{{params.USER_AGENT}}'
+      }).html
     }
   ];
 

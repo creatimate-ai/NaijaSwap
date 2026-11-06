@@ -20,7 +20,7 @@ import { db, doc, getDoc, setDoc } from './firebase-config.js';
 import { resolveMedia } from './media-storage.js';
 import { renderAvatarElement, getEffectiveUserPhoto } from './profile.js';
 import { dispatchVerificationEmail } from './email-dispatcher.js';
-import { sendLoginAlertEmail, syncContactToBrevo } from './brevo-client.js';
+import { sendLoginAlertEmail, syncContactToBrevo, sendPasswordResetBrevo } from './brevo-client.js';
 
 export { auth };
 
@@ -659,6 +659,9 @@ export function initLoginForm() {
       try {
         setButtonLoading(submitBtn, true, "Sending reset email...");
         await sendPasswordResetEmail(auth, email);
+        try {
+          sendPasswordResetBrevo({ email });
+        } catch (_) {}
         setButtonLoading(submitBtn, false);
         showAuthAlert("forgotPasswordAlert", "Password reset email sent! Check your inbox and spam folder.", "success");
         setTimeout(() => {

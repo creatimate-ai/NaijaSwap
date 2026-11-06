@@ -581,6 +581,45 @@ class EmailService {
     });
   }
 
+  async sendEscrowPaymentCustomer(to, { customerName = '', dealerName = '', targetPhone = '', offeredPhone = '', amount = 0, swapUrl = '', requestId = '' }) {
+    const tpl = templates.templateEscrowPaymentCustomer({ customerName, dealerName, targetPhone, offeredPhone, amount, swapUrl, requestId });
+    return this.sendMailDirect({
+      to,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+      templateName: 'escrow_payment_customer',
+      idempotencyKey: `escrow_cust_${requestId}_${Date.now()}`,
+      isMarketing: false
+    });
+  }
+
+  async sendEscrowPaymentDealer(to, { dealerName = '', customerName = '', targetPhone = '', offeredPhone = '', amount = 0, swapUrl = '', requestId = '' }) {
+    const tpl = templates.templateEscrowPaymentDealer({ dealerName, customerName, targetPhone, offeredPhone, amount, swapUrl, requestId });
+    return this.sendMailDirect({
+      to,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+      templateName: 'escrow_payment_dealer',
+      idempotencyKey: `escrow_dlr_${requestId}_${Date.now()}`,
+      isMarketing: false
+    });
+  }
+
+  async sendSwapCompleted(to, { recipientName = '', partnerName = '', receivedPhone = '', givenPhone = '', certificateUrl = '', requestId = '' }) {
+    const tpl = templates.templateSwapCompleted({ recipientName, partnerName, receivedPhone, givenPhone, certificateUrl, requestId });
+    return this.sendMailDirect({
+      to,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+      templateName: 'swap_completed',
+      idempotencyKey: `swap_comp_${requestId}`,
+      isMarketing: false
+    });
+  }
+
   async sendCounterofferReceived(to, { recipientName = '', senderName = '', targetPhone = '', offeredPhone = '', cashDifference = 0, swapUrl = '', requestId = '', counterCount = 1 }) {
     const tpl = templates.templateCounterofferReceived({ recipientName, senderName, targetPhone, offeredPhone, cashDifference, swapUrl, requestId });
     return this.sendMailDirect({

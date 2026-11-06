@@ -59,6 +59,9 @@ app.get('/dashboard', (req, res) => res.sendFile(path.join(publicRoot, 'dashboar
 app.get('/dealer-dashboard', (req, res) => res.sendFile(path.join(publicRoot, 'dealer-dashboard.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(publicRoot, 'login.html')));
 app.get('/signup', (req, res) => res.sendFile(path.join(publicRoot, 'signup.html')));
+app.get('/listing-activity', (req, res) => res.sendFile(path.join(publicRoot, 'listing-activity.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(publicRoot, 'admin-portal', 'index.html')));
+app.get('/admin-portal', (req, res) => res.sendFile(path.join(publicRoot, 'admin-portal', 'index.html')));
 
 app.get(/.*/, (request, response) => {
   response.sendFile(path.join(publicRoot, 'index.html'));

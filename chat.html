@@ -774,6 +774,7 @@
     import { auth, db, doc, getDoc, getDocs, collection, addDoc, query, where, limit, orderBy, onSnapshot, serverTimestamp } from './js/firebase-config.js';
     import { NaijaSwapData } from './js/dashboard-data.js';
     import { playMessageChime } from './js/app-enhancements.js';
+    import { sendNewMessageReceivedBrevo } from './js/brevo-client.js';
 
     // State
     let currentUserId = 'user_guest';
@@ -1303,6 +1304,43 @@
           type: 'text',
           createdAt: serverTimestamp()
         });
+
+        // Send offline email notification via Brevo
+        try {
+          if (currentSwapData) {
+            const isCustomer = auth.currentUser.uid === currentSwapData.customerUid;
+            let recipientEmail = '';
+            let recipientName = '';
+
+            if (isCustomer) {
+              recipientName = currentSwapData.storeName || 'Dealer';
+              if (currentSwapData.dealerUid) {
+                const dDoc = await getDoc(doc(db, 'users', currentSwapData.dealerUid));
+                if (dDoc.exists()) recipientEmail = dDoc.data().email || '';
+              }
+            } else {
+              recipientName = currentSwapData.customerName || 'Customer';
+              recipientEmail = currentSwapData.customerEmail || '';
+              if (!recipientEmail && currentSwapData.customerUid) {
+                const cDoc = await getDoc(doc(db, 'users', currentSwapData.customerUid));
+                if (cDoc.exists()) recipientEmail = cDoc.data().email || '';
+              }
+            }
+
+            if (recipientEmail) {
+              const phoneTitle = `${currentSwapData.targetDevice?.brand || ''} ${currentSwapData.targetDevice?.model || ''}`.trim();
+              sendNewMessageReceivedBrevo({
+                email: recipientEmail,
+                recipientName,
+                senderName: currentUserName,
+                targetPhone: phoneTitle,
+                requestId: activeRequestId
+              });
+            }
+          }
+        } catch (chatMailErr) {
+          console.warn('[Chat] Could not dispatch email notification:', chatMailErr);
+        }
       } catch (err) {
         console.error(err);
         alert('Could not send message: ' + (err.message || 'Permission denied'));

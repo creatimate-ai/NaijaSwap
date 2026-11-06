@@ -8,7 +8,14 @@ import {
 } from './firebase-config.js';
 import {
   sendSwapRequestReceivedBrevo,
-  sendSwapRequestAcceptedBrevo
+  sendSwapRequestAcceptedBrevo,
+  sendCounterofferReceivedBrevo,
+  sendSwapRequestDeclinedBrevo,
+  sendEscrowPaymentCustomerBrevo,
+  sendEscrowPaymentDealerBrevo,
+  sendSwapCompletedBrevo,
+  sendDealerStarterLimitReachedBrevo,
+  sendDealerPaymentReceiptBrevo
 } from './brevo-client.js';
 
 function requireUser() {
@@ -119,6 +126,16 @@ export async function createListingBackend(payload = {}) {
     );
     const activeListingsSnap = await getDocs(activeListingsQuery);
     if (activeListingsSnap.size >= 5) {
+      try {
+        if (user.email) {
+          sendDealerStarterLimitReachedBrevo({
+            email: user.email,
+            dealerName: cleanString(payload.storeName, 120) || 'Dealer',
+            currentCount: activeListingsSnap.size,
+            maxLimit: 5
+          });
+        }
+      } catch (_) {}
       const error = new Error("You've reached your Starter plan listing limit. Upgrade to Premium to unlock unlimited phone listings and additional dealer benefits.");
       error.limitReached = true;
       error.activeCount = activeListingsSnap.size;
@@ -336,6 +353,37 @@ export async function updateSwapRequestStatusBackend(payload = {}) {
     } catch (mailErr) {
       console.warn('[BackendAPI] Could not send swap accepted email notification:', mailErr);
     }
+  } else if (status === 'countered') {
+    try {
+      const customerEmail = data.customerEmail;
+      if (customerEmail) {
+        sendCounterofferReceivedBrevo({
+          email: customerEmail,
+          recipientName: data.customerName || 'Swapper',
+          senderName: data.storeName || 'Dealer',
+          targetPhone: `${data.targetDevice?.brand || ''} ${data.targetDevice?.model || ''}`.trim(),
+          offeredPhone: `${data.currentDevice?.brand || ''} ${data.currentDevice?.model || ''}`.trim(),
+          cashDifference: payload.counterOffer ?? data.topupAmount ?? 0,
+          requestId: payload.requestId
+        });
+      }
+    } catch (mailErr) {
+      console.warn('[BackendAPI] Could not send counter-offer email notification:', mailErr);
+    }
+  } else if (status === 'rejected' || status === 'declined') {
+    try {
+      const customerEmail = data.customerEmail;
+      if (customerEmail) {
+        sendSwapRequestDeclinedBrevo({
+          email: customerEmail,
+          requesterName: data.customerName || 'Swapper',
+          targetPhone: `${data.targetDevice?.brand || ''} ${data.targetDevice?.model || ''}`.trim(),
+          dealerName: data.storeName || 'The dealer'
+        });
+      }
+    } catch (mailErr) {
+      console.warn('[BackendAPI] Could not send swap declined email notification:', mailErr);
+    }
   }
 
   return { ok: true, requestId: payload.requestId, status };
@@ -403,6 +451,42 @@ export async function recordSwapPaymentBackend(payload = {}) {
     console.warn('[AuditLog] Notice:', auditErr.message);
   }
 
+  // Dispatch Escrow Payment Notifications via Brevo
+  try {
+    const customerEmail = data.customerEmail || (user.uid === data.customerUid ? user.email : '');
+    const dealerDoc = await getDoc(doc(db, 'users', data.dealerUid));
+    const dealerEmail = dealerDoc.exists() ? dealerDoc.data().email : '';
+
+    const targetTitle = `${data.targetDevice?.brand || ''} ${data.targetDevice?.model || ''}`.trim();
+    const offeredTitle = `${data.currentDevice?.brand || ''} ${data.currentDevice?.model || ''}`.trim();
+
+    if (customerEmail) {
+      sendEscrowPaymentCustomerBrevo({
+        email: customerEmail,
+        customerName: data.customerName || 'Swapper',
+        dealerName: data.storeName || 'Dealer',
+        targetPhone: targetTitle,
+        offeredPhone: offeredTitle,
+        amount: paymentAmount,
+        requestId: id
+      });
+    }
+
+    if (dealerEmail) {
+      sendEscrowPaymentDealerBrevo({
+        email: dealerEmail,
+        dealerName: data.storeName || 'Dealer',
+        customerName: data.customerName || 'Customer',
+        targetPhone: targetTitle,
+        offeredPhone: offeredTitle,
+        amount: paymentAmount,
+        requestId: id
+      });
+    }
+  } catch (escrowMailErr) {
+    console.warn('[BackendAPI] Could not send escrow payment email:', escrowMailErr);
+  }
+
   return {
     ok: true,
     requestId: id,
@@ -420,8 +504,53 @@ export async function confirmSwapHandoverBackend(payload = {}) {
     throw new Error('You are not a participant in this swap.');
   }
   const field = user.uid === data.customerUid ? 'customerConfirmed' : 'dealerConfirmed';
-  await updateDoc(ref, { [field]: true, updatedAt: serverTimestamp() });
-  return { ok: true, requestId: id };
+  const otherField = user.uid === data.customerUid ? 'dealerConfirmed' : 'customerConfirmed';
+  const isBothConfirmed = !!data[otherField];
+
+  const update = { [field]: true, updatedAt: serverTimestamp() };
+  if (isBothConfirmed) {
+    update.status = 'completed';
+    update.completedAt = serverTimestamp();
+  }
+
+  await updateDoc(ref, update);
+
+  if (isBothConfirmed) {
+    try {
+      const customerEmail = data.customerEmail;
+      const dealerDoc = await getDoc(doc(db, 'users', data.dealerUid));
+      const dealerEmail = dealerDoc.exists() ? dealerDoc.data().email : '';
+
+      const targetTitle = `${data.targetDevice?.brand || ''} ${data.targetDevice?.model || ''}`.trim();
+      const offeredTitle = `${data.currentDevice?.brand || ''} ${data.currentDevice?.model || ''}`.trim();
+
+      if (customerEmail) {
+        sendSwapCompletedBrevo({
+          email: customerEmail,
+          recipientName: data.customerName || 'Customer',
+          partnerName: data.storeName || 'Dealer',
+          receivedPhone: targetTitle,
+          givenPhone: offeredTitle,
+          requestId: id
+        });
+      }
+
+      if (dealerEmail) {
+        sendSwapCompletedBrevo({
+          email: dealerEmail,
+          recipientName: data.storeName || 'Dealer',
+          partnerName: data.customerName || 'Customer',
+          receivedPhone: offeredTitle,
+          givenPhone: targetTitle,
+          requestId: id
+        });
+      }
+    } catch (completeErr) {
+      console.warn('[BackendAPI] Could not send swap completed email:', completeErr);
+    }
+  }
+
+  return { ok: true, requestId: id, isBothConfirmed };
 }
 
 export async function openSwapDisputeBackend(payload = {}) {
@@ -995,6 +1124,21 @@ export async function verifyDealerSubscriptionBackend(reference, details = {}) {
 
   // Update local storage cache
   updateLocalSubscriptionCache(user.uid, plan, billingCycle, refStr);
+
+  // Dispatch Dealer Premium Payment Receipt via Brevo
+  try {
+    if (user.email) {
+      sendDealerPaymentReceiptBrevo({
+        email: user.email,
+        dealerName: user.displayName || 'Dealer',
+        amount: amountInNaira,
+        reference: refStr,
+        renewalDate: periodEnd.toLocaleDateString('en-NG')
+      });
+    }
+  } catch (receiptErr) {
+    console.warn('[BackendAPI] Could not send subscription receipt email:', receiptErr);
+  }
 
   return {
     ok: true,

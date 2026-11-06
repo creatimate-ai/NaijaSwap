@@ -625,6 +625,7 @@
       saveUserRole,
       getUserRole
     } from './js/auth.js';
+    import { sendPasswordResetBrevo } from './js/brevo-client.js';
 
     import {
       getStoredProfile,
@@ -1455,6 +1456,9 @@
       setButtonLoading(sendBtn, true, 'Sending link...');
       try {
         await sendPasswordResetEmail(auth, currentUser.email);
+        try {
+          sendPasswordResetBrevo({ email: currentUser.email, firstName: currentUser.displayName || '' });
+        } catch (_) {}
         setButtonLoading(sendBtn, false);
         showAuthAlert('changePasswordAlert', `Password reset link sent to ${currentUser.email}.`, 'success');
         setTimeout(() => closeModal(changePasswordModal), 3000);
