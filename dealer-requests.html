@@ -1354,7 +1354,12 @@
         const relativeTime = NaijaSwapData.formatRelativeTime(req.createdAt);
 
         const topupNum = typeof req.topupAmount === 'number' ? req.topupAmount : (parseFloat(String(req.topupOffered || '').replace(/[^0-9.]/g, '')) || 0);
-        const isEscrowSecured = req.paymentStatus === 'escrow_secured' || Boolean(req.paymentReference);
+        const isEscrowSecured = req.paymentStatus === 'escrow_secured' 
+          || req.paymentStatus === 'paid' 
+          || req.escrowStatus === 'held_in_escrow' 
+          || req.escrowStatus === 'disbursement_pending' 
+          || req.escrowStatus === 'disbursed'
+          || Boolean(req.paymentReference);
 
         card.innerHTML = `
           <div class="dealer-req-card-header">

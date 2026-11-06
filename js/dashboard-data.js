@@ -1781,6 +1781,25 @@ export const NaijaSwapData = {
     const model = deviceData.model || 'Smartphone';
     const storageCapacity = deviceData.storageCapacity || deviceData.storage || '128GB';
     const imei = deviceData.imeiNumber || '';
+    const devId = 'dev_' + Date.now();
+
+    // Sanitize media to prevent localStorage QuotaExceededError
+    let cleanMedia = (Array.isArray(deviceData.deviceMedia) ? deviceData.deviceMedia : []).slice(0, 5).map((m, idx) => {
+      if (m?.dataUrl && m.dataUrl.startsWith('data:')) {
+        const idbKey = `dev_${devId}_m_${idx}`;
+        if (typeof window !== 'undefined' && window.indexedDB) {
+          try {
+            const req = indexedDB.open('naijaswap_media_db', 1);
+            req.onsuccess = (e) => {
+              const tx = e.target.result.transaction('media_store', 'readwrite');
+              tx.objectStore('media_store').put(m.dataUrl, idbKey);
+            };
+          } catch (_) {}
+        }
+        return { ...m, dataUrl: `idb:${idbKey}` };
+      }
+      return m;
+    });
 
     // Check if duplicate already exists for this user
     const existing = devices.find(d => 
@@ -1799,15 +1818,15 @@ export const NaijaSwapData = {
       existing.repairHistory = deviceData.repairHistory || existing.repairHistory;
       existing.inclusions = deviceData.inclusions || existing.inclusions;
       existing.accountCleanCheck = deviceData.accountCleanCheck !== undefined ? deviceData.accountCleanCheck : existing.accountCleanCheck;
-      if (deviceData.deviceMedia && deviceData.deviceMedia.length > 0) {
-        existing.deviceMedia = deviceData.deviceMedia.slice(0, 5);
+      if (cleanMedia && cleanMedia.length > 0) {
+        existing.deviceMedia = cleanMedia;
       }
-      localStorage.setItem(STORAGE_KEYS.USER_DEVICES, JSON.stringify(devices));
+      safeSetItem(STORAGE_KEYS.USER_DEVICES, devices);
       return existing;
     }
 
     const newDevice = {
-      id: 'dev_' + Date.now(),
+      id: devId,
       userId: userId || 'user_guest',
       brand: deviceData.brand || 'Apple',
       model,
@@ -1822,13 +1841,13 @@ export const NaijaSwapData = {
       accountCleanCheck: deviceData.accountCleanCheck !== undefined ? deviceData.accountCleanCheck : true,
       imeiNumber: imei,
       conditionTriage: deviceData.conditionTriage || null,
-      deviceMedia: (Array.isArray(deviceData.deviceMedia) ? deviceData.deviceMedia : []).slice(0, 5),
+      deviceMedia: cleanMedia,
       contactPhone: deviceData.contactPhone || '',
       createdAt: new Date().toISOString()
     };
 
     devices.unshift(newDevice);
-    localStorage.setItem(STORAGE_KEYS.USER_DEVICES, JSON.stringify(devices));
+    safeSetItem(STORAGE_KEYS.USER_DEVICES, devices);
     return newDevice;
   },
 
@@ -2174,6 +2193,9 @@ export const NaijaSwapData = {
   }
 };
 
+NaijaSwapData.DEFAULT_LISTINGS = DEFAULT_LISTINGS;
+export { DEFAULT_LISTINGS };
+
 if (typeof module !== 'undefined') {
-  module.exports = { NaijaSwapData };
+  module.exports = { NaijaSwapData, DEFAULT_LISTINGS };
 }

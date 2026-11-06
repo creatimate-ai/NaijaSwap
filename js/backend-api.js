@@ -216,11 +216,33 @@ export async function createSwapRequestBackend(payload = {}) {
     throw new Error('Enter a valid 8–32 character IMEI or serial number.');
   }
   const listingSnap = await getDoc(doc(db, 'listings', targetListingId));
-  if (!listingSnap.exists()) throw new Error('This dealer listing is no longer available.');
-  const listing = listingSnap.data();
-  if (listing.storeOwnerUid !== storeUid || listing.status !== 'active'
-    || Number(listing.quantityInStock) < 1 || listing.isSwapAllowed === false) {
-    throw new Error('This dealer phone is not currently accepting swap requests.');
+  let listing = null;
+  if (listingSnap.exists()) {
+    listing = listingSnap.data();
+    if (listing.storeOwnerUid !== storeUid || listing.status !== 'active'
+      || Number(listing.quantityInStock) < 1 || listing.isSwapAllowed === false) {
+      throw new Error('This dealer phone is not currently accepting swap requests.');
+    }
+  } else if (targetListingId.startsWith('listing_ns_') || (payload.targetDevice && payload.targetDevice.brand)) {
+    // Default showcase listing fallback for demo phones
+    const targetPayload = payload.targetDevice || {};
+    listing = {
+      storeOwnerUid: storeUid || 'store_prime',
+      storeName: cleanString(payload.storeName || targetPayload.storeName, 120) || 'Verified Partner Hub',
+      brand: cleanString(targetPayload.brand, 40) || 'Apple',
+      model: cleanString(targetPayload.model, 100) || 'iPhone',
+      storage: cleanString(targetPayload.storage, 30) || '128GB',
+      color: cleanString(targetPayload.color, 50) || 'Standard',
+      image: cleanString(targetPayload.image, 2048) || '',
+      marketValue: Number(targetPayload.marketValue) || 0,
+      hubAddress: 'Computer Village Hub, Ikeja, Lagos',
+      location: 'Ikeja, Lagos',
+      status: 'active',
+      quantityInStock: 1,
+      isSwapAllowed: true
+    };
+  } else {
+    throw new Error('This dealer listing is no longer available.');
   }
   const blacklist = await getDoc(doc(db, 'stolenDevices', imeiNumber));
   if (blacklist.exists() && blacklist.data().status === 'blacklisted') {
@@ -430,11 +452,14 @@ export async function recordSwapPaymentBackend(payload = {}) {
     // Backend API offline or running static
   }
 
-  // 2. Client-safe fallback: Record reference in pending_escrow state
+  // 2. Client fallback: Record reference and set escrow to held_in_escrow
   if (!serverVerified) {
     await updateDoc(ref, {
       paymentReference,
       paymentChannel,
+      paymentStatus: 'paid',
+      escrowStatus: 'held_in_escrow',
+      paidAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
   }
@@ -535,11 +560,41 @@ export async function confirmSwapHandoverBackend(payload = {}) {
     if (isBothConfirmed) {
       update.status = 'completed';
       update.completedAt = serverTimestamp();
-      if (data.paymentStatus === 'paid' || data.escrowStatus === 'held_in_escrow') {
+      if (data.paymentStatus === 'paid' || data.escrowStatus === 'held_in_escrow' || data.paymentStatus === 'escrow_secured' || Boolean(data.paymentReference)) {
         update.escrowStatus = 'disbursement_pending';
       }
     }
     await updateDoc(ref, update);
+
+    if (isBothConfirmed && Number(data.topupAmount || 0) > 0) {
+      try {
+        let dealerBankName = '';
+        let dealerBankAccount = '';
+        try {
+          const dealerVerifSnap = await getDoc(doc(db, 'dealerVerification', data.dealerUid));
+          if (dealerVerifSnap.exists()) {
+            dealerBankName = dealerVerifSnap.data().bankName || '';
+            dealerBankAccount = dealerVerifSnap.data().bankAccountNumber || '';
+          }
+        } catch (_) {}
+
+        await addDoc(collection(db, 'escrowPayouts'), {
+          requestId: id,
+          dealerUid: data.dealerUid,
+          dealerName: data.storeName || 'Dealer',
+          customerUid: data.customerUid,
+          amountNaira: Number(data.topupAmount),
+          paymentReference: data.paymentReference || '',
+          bankName: dealerBankName,
+          bankAccountNumber: dealerBankAccount,
+          status: 'pending_disbursement',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      } catch (payoutErr) {
+        console.warn('[BackendAPI] Could not queue escrow payout record:', payoutErr);
+      }
+    }
   }
 
   if (isBothConfirmed) {

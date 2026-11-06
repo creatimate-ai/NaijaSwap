@@ -1422,7 +1422,12 @@
 
         const rawTopupVal = typeof req.topupAmount === 'number' ? req.topupAmount : (parseFloat(String(req.topupOffered || '').replace(/[^0-9.]/g, '')) || 0);
         const hasTopup = rawTopupVal > 0;
-        const isEscrowSecured = req.paymentStatus === 'escrow_secured' || Boolean(req.paymentReference);
+        const isEscrowSecured = req.paymentStatus === 'escrow_secured' 
+          || req.paymentStatus === 'paid' 
+          || req.escrowStatus === 'held_in_escrow' 
+          || req.escrowStatus === 'disbursement_pending' 
+          || req.escrowStatus === 'disbursed'
+          || Boolean(req.paymentReference);
 
         // Visual Stepper HTML calculation
         const progressWidth = stage === 5 ? '100%' : stage === 4 ? '75%' : stage === 3 ? '50%' : stage === 2 ? '25%' : '0%';

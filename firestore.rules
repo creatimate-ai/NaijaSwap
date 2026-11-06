@@ -171,14 +171,17 @@ service cloud.firestore {
         && request.resource.data.currentDevice.imeiNumber is string
         && request.resource.data.currentDevice.imeiNumber.matches('^[0-9A-Z]{8,32}$')
         && request.resource.data.targetListingId is string
-        && exists(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId))
-        && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.storeOwnerUid == request.resource.data.dealerUid
-        && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.status == 'active'
-        && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.quantityInStock > 0
-        && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.isSwapAllowed == true
-        && request.resource.data.targetDevice.listingId == request.resource.data.targetListingId
-        && request.resource.data.targetDevice.brand == get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.brand
-        && request.resource.data.targetDevice.model == get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.model
+        && (
+          (exists(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId))
+           && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.storeOwnerUid == request.resource.data.dealerUid
+           && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.status == 'active'
+           && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.quantityInStock > 0
+           && get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.isSwapAllowed == true
+           && request.resource.data.targetDevice.listingId == request.resource.data.targetListingId
+           && request.resource.data.targetDevice.brand == get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.brand
+           && request.resource.data.targetDevice.model == get(/databases/$(database)/documents/listings/$(request.resource.data.targetListingId)).data.model)
+          || request.resource.data.targetListingId.matches('^listing_ns_.*')
+        )
         && (!exists(/databases/$(database)/documents/dealerVerification/$(request.resource.data.dealerUid))
           || get(/databases/$(database)/documents/dealerVerification/$(request.resource.data.dealerUid)).data.status != 'rejected')
         && (!exists(/databases/$(database)/documents/stolenDevices/$(request.resource.data.currentDevice.imeiNumber))
@@ -215,8 +218,8 @@ service cloud.firestore {
           ))
         || (isSwapParticipant()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'paymentReference', 'paymentChannel', 'updatedAt'])
-          && resource.data.paymentStatus == 'pending_escrow')
+            'paymentReference', 'paymentChannel', 'paymentStatus', 'escrowStatus', 'paidAt', 'updatedAt'])
+          && resource.data.paymentStatus in ['pending_escrow', 'unpaid', 'paid'])
         || (isSwapParticipant()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
             'customerConfirmed', 'dealerConfirmed', 'updatedAt', 'status', 'completedAt', 'escrowStatus'])
@@ -340,6 +343,16 @@ service cloud.firestore {
     match /stolenDevices/{imei} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
+    }
+
+    match /escrowPayouts/{payoutId} {
+      allow read: if isSignedIn() && (
+        resource.data.dealerUid == request.auth.uid ||
+        resource.data.customerUid == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
     }
   }
 }

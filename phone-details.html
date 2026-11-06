@@ -1562,7 +1562,18 @@
         return;
       }
 
-      setButtonLoading(submitBtn, true, 'Sending Proposal...');
+      let imei = (device.imeiNumber || '').trim();
+      if (!imei) {
+        const enteredImei = prompt('Please enter your phone IMEI or Serial Number (*#06#) to verify trade-in authenticity:');
+        if (!enteredImei || !enteredImei.trim()) {
+          alert('A valid IMEI or Serial Number is required for swap security and hub verification.');
+          return;
+        }
+        imei = enteredImei.trim();
+        device.imeiNumber = imei;
+      }
+
+      setButtonLoading(submitBtn, true, 'Uploading Photos & Submitting...');
 
       try {
         const cachedUser = (() => {
@@ -1573,6 +1584,19 @@
         const storageCapacity = device.storageCapacity || device.storage || '128GB';
         const condition = device.condition || 'Excellent';
         const message = `Swap request for ${targetPhone.model} (${targetPhone.storage}) with my ${model} (${storageCapacity}, ${condition}).`;
+
+        // Ensure all device media are uploaded to Cloudinary so Firestore does not exceed 1MB document limit
+        let sanitizedMedia = [];
+        if (Array.isArray(device.deviceMedia) && device.deviceMedia.length > 0) {
+          try {
+            sanitizedMedia = await uploadSwapRequestMedia(device.deviceMedia);
+          } catch (uploadErr) {
+            console.warn('[PhoneDetails] Cloudinary upload notice:', uploadErr);
+            sanitizedMedia = device.deviceMedia
+              .filter(m => typeof m?.dataUrl === 'string' && m.dataUrl.startsWith('https://'))
+              .slice(0, 5);
+          }
+        }
 
         const backendResult = await createSwapRequestBackend({
           storeUid,
@@ -1592,14 +1616,14 @@
             batteryHealth: device.batteryHealth || '90%',
             carrierLock: device.carrierLock || 'Factory Unlocked',
             conditionTriage: device.conditionTriage || {},
-            imeiNumber: device.imeiNumber || ''
+            imeiNumber: imei
           },
           offeredPrice: calc?.userTradeInCredit || 0,
           topupAmount: calc?.estTopUp || 0,
           customerName: currentUserName,
           customerEmail: currentUserEmail,
           customerPhone: contactPhone,
-          deviceMedia: device.deviceMedia || [],
+          deviceMedia: sanitizedMedia,
           message
         });
 
@@ -1625,9 +1649,9 @@
           model,
           storageCapacity,
           ram: device.ram || '',
-          imeiNumber: device.imeiNumber || '',
+          imeiNumber: imei,
           conditionTriage: device.conditionTriage || {},
-          deviceMedia: device.deviceMedia || [],
+          deviceMedia: sanitizedMedia,
           swapperBattery: device.batteryHealth || '90%',
           topupOffered: calc?.estTopUpFormatted || '₦0',
           tradeInCredit: calc?.userTradeInCreditFormatted || '₦0',
@@ -2451,21 +2475,36 @@
     }
 
     async function uploadSwapRequestMedia(files) {
-      return Promise.all((Array.isArray(files) ? files : []).slice(0, 5).map(async (file) => {
-        const existingUrl = typeof file.dataUrl === 'string' ? file.dataUrl : '';
-        const url = existingUrl.startsWith('https://res.cloudinary.com/')
-          ? existingUrl
-          : await uploadToCloudinary(existingUrl, `naijaswap/${currentUserId}/swap-requests`);
-        if (!url.startsWith('https://res.cloudinary.com/')) {
-          throw new Error(`The upload for ${file.name || 'phone media'} did not return a public URL.`);
+      const results = [];
+      const list = (Array.isArray(files) ? files : []).slice(0, 5);
+      for (const file of list) {
+        if (!file) continue;
+        const existingUrl = typeof file.dataUrl === 'string' ? file.dataUrl : (typeof file === 'string' ? file : '');
+        if (!existingUrl) continue;
+        if (existingUrl.startsWith('https://res.cloudinary.com/') || existingUrl.startsWith('https://')) {
+          results.push({
+            name: String(file.name || 'Phone media'),
+            type: String(file.type || 'image/jpeg'),
+            isVideo: file.isVideo === true,
+            dataUrl: existingUrl
+          });
+          continue;
         }
-        return {
-          name: String(file.name || 'Phone media'),
-          type: String(file.type || ''),
-          isVideo: file.isVideo === true,
-          dataUrl: url
-        };
-      }));
+        try {
+          const url = await uploadToCloudinary(file.rawFile || existingUrl, `naijaswap/${currentUserId}/swap-requests`);
+          if (url && typeof url === 'string' && url.startsWith('https://')) {
+            results.push({
+              name: String(file.name || 'Phone media'),
+              type: String(file.type || 'image/jpeg'),
+              isVideo: file.isVideo === true,
+              dataUrl: url
+            });
+          }
+        } catch (uploadErr) {
+          console.warn('[PhoneDetails] Single media upload error:', uploadErr);
+        }
+      }
+      return results;
     }
 
     // Boot
