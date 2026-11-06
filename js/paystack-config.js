@@ -72,10 +72,10 @@ export async function payWithPaystack({ email, amountInNaira, reference, metadat
           variable_name: "platform",
           value: "NaijaSwap Escrow"
         },
-        ...(metadata.swapRequestId ? [{
+        ...((metadata.requestId || metadata.swapRequestId) ? [{
           display_name: "Swap Request ID",
           variable_name: "swap_request_id",
-          value: metadata.swapRequestId
+          value: metadata.requestId || metadata.swapRequestId
         }] : []),
         ...(metadata.targetDevice ? [{
           display_name: "Target Device",

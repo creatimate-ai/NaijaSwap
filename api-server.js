@@ -12,7 +12,7 @@ const { brevoService } = require('./services/brevo-service');
 const router = express.Router();
 const MAX_SWAP_AMOUNT_NAIRA = 5000000;
 const FIREBASE_PROJECT_ID = process.env.FIREBASE_PROJECT_ID || 'naijaswap1';
-const IS_TESTING_MODE = true;
+const IS_TESTING_MODE = process.env.ENABLE_TESTING_MODE === 'true';
 const DEALER_PREMIUM_MONTHLY_PRICE_NAIRA = 9900;
 const DEALER_PREMIUM_MONTHLY_PRICE_KOBO = 990000;
 const DEALER_PREMIUM_ANNUAL_PRICE_NAIRA = 99000;
@@ -168,9 +168,10 @@ function validateAmount(value) {
 }
 
 function validateCloudinaryAsset(value, uid) {
-  return typeof value === 'string'
-    && value.startsWith(`naijaswap/${uid}/`)
-    && value.length < 300;
+  if (typeof value !== 'string' || value.length > 500) return false;
+  return value.startsWith(`naijaswap/${uid}/`)
+    || (value.startsWith('https://res.cloudinary.com/') && value.includes(`/naijaswap/${uid}/`))
+    || value.startsWith('https://res.cloudinary.com/');
 }
 
 function verifyLuhnChecksum(imeiStr) {
@@ -286,7 +287,7 @@ router.post('/api/payments/webhook', async (request, response) => {
     if (event === 'charge.success') {
       const reference = data.reference;
       const metadata = data.metadata || {};
-      const requestId = metadata.requestId;
+      const requestId = metadata.requestId || metadata.swapRequestId;
 
       if (requestId) {
         const firebase = getFirebaseAdmin();
@@ -560,7 +561,11 @@ router.post('/api/payments/verify', authenticate, async (request, response) => {
     if (!paystackResponse.ok || !result.status || transaction?.status !== 'success') {
       return response.status(409).json({ error: 'Payment has not been verified.' });
     }
-    const requestId = requireString(transaction.metadata?.requestId, 'requestId', 128);
+    const requestId = requireString(
+      transaction.metadata?.requestId || transaction.metadata?.swapRequestId || request.body.requestId,
+      'requestId',
+      128
+    );
     const firebase = getFirebaseAdmin();
     const db = getFirestore(firebase);
     const swapRef = db.collection('swapRequests').doc(requestId);
@@ -654,52 +659,39 @@ router.post('/api/subscription/verify', authenticate, async (request, response) 
     const reference = requireString(request.body.reference, 'reference', 200);
     const paystackSecret = process.env.PAYSTACK_SECRET_KEY;
 
-    let transactionData = null;
-    if (paystackSecret && !reference.startsWith('mock_')) {
-      const paystackResponse = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
-        headers: { Authorization: `Bearer ${paystackSecret}` }
-      });
-      const result = await paystackResponse.json();
-      if (!paystackResponse.ok || !result.status || result.data?.status !== 'success') {
-        return response.status(409).json({ error: 'Subscription payment verification failed with payment provider.' });
-      }
-      transactionData = result.data;
+    if (!paystackSecret) {
+      return response.status(503).json({ error: 'Subscription payment service is not configured with payment provider credentials.' });
+    }
 
-      const validAmounts = [
-        DEALER_PREMIUM_MONTHLY_PRICE_KOBO,
-        DEALER_PREMIUM_ANNUAL_PRICE_KOBO,
-        DEALER_LEADER_MONTHLY_PRICE_KOBO,
-        DEALER_LEADER_ANNUAL_PRICE_KOBO
-      ];
+    const paystackResponse = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
+      headers: { Authorization: `Bearer ${paystackSecret}` }
+    });
+    const result = await paystackResponse.json();
+    if (!paystackResponse.ok || !result.status || result.data?.status !== 'success') {
+      return response.status(409).json({ error: 'Subscription payment verification failed with payment provider.' });
+    }
+    const transactionData = result.data;
 
-      // Validate currency, exact amount and authenticated account
-      const transAmount = Number(transactionData.amount);
-      if (transactionData.currency !== 'NGN' || !validAmounts.includes(transAmount)) {
-        return response.status(409).json({ error: 'Payment amount does not match an active dealer subscription tier.' });
-      }
-      const transDealerUid = transactionData.metadata?.dealerUid || transactionData.metadata?.uid;
-      if (transDealerUid && transDealerUid !== uid) {
-        return response.status(403).json({ error: 'This payment belongs to a different dealer account.' });
-      }
-    } else {
-      const requestedPlan = request.body.plan === 'leader' ? 'leader' : 'premium';
-      const isReqAnnual = request.body.billingCycle === 'annual' || Number(request.body.amountInNaira) >= 90000;
-      let mockAmount = requestedPlan === 'leader'
-        ? (isReqAnnual ? DEALER_LEADER_ANNUAL_PRICE_KOBO : DEALER_LEADER_MONTHLY_PRICE_KOBO)
-        : (isReqAnnual ? DEALER_PREMIUM_ANNUAL_PRICE_KOBO : DEALER_PREMIUM_MONTHLY_PRICE_KOBO);
+    const validAmounts = [
+      DEALER_PREMIUM_MONTHLY_PRICE_KOBO,
+      DEALER_PREMIUM_ANNUAL_PRICE_KOBO,
+      DEALER_LEADER_MONTHLY_PRICE_KOBO,
+      DEALER_LEADER_ANNUAL_PRICE_KOBO
+    ];
 
-      transactionData = {
-        status: 'success',
-        currency: 'NGN',
-        amount: mockAmount,
-        reference
-      };
+    // Validate currency, exact amount and authenticated account
+    const transAmount = Number(transactionData.amount);
+    if (transactionData.currency !== 'NGN' || !validAmounts.includes(transAmount)) {
+      return response.status(409).json({ error: 'Payment amount does not match an active dealer subscription tier.' });
+    }
+    const transDealerUid = transactionData.metadata?.dealerUid || transactionData.metadata?.uid;
+    if (transDealerUid && transDealerUid !== uid) {
+      return response.status(403).json({ error: 'This payment belongs to a different dealer account.' });
     }
 
     const firebase = getFirebaseAdmin();
     const db = getFirestore(firebase);
 
-    const transAmount = Number(transactionData.amount);
     const isAnnual = transAmount === DEALER_PREMIUM_ANNUAL_PRICE_KOBO || transAmount === DEALER_LEADER_ANNUAL_PRICE_KOBO;
     const isLeader = transAmount === DEALER_LEADER_MONTHLY_PRICE_KOBO || transAmount === DEALER_LEADER_ANNUAL_PRICE_KOBO;
     const plan = isLeader ? 'leader' : 'premium';
@@ -1354,6 +1346,43 @@ router.post('/api/swap/confirm-handover', authenticate, async (request, response
       ? { customerConfirmed: true }
       : { dealerConfirmed: true };
     update.updatedAt = FieldValue.serverTimestamp();
+
+    const isNowBothConfirmed = (uid === data.customerUid && data.dealerConfirmed === true)
+      || (uid === data.dealerUid && data.customerConfirmed === true);
+    if (isNowBothConfirmed) {
+      update.status = 'completed';
+      update.completedAt = FieldValue.serverTimestamp();
+
+      // Queue escrow payout if top-up payment was secured in escrow
+      const topup = Number(data.topupAmount || 0);
+      if (topup > 0 && (data.paymentStatus === 'paid' || data.escrowStatus === 'held_in_escrow')) {
+        update.escrowStatus = 'disbursement_pending';
+        let dealerBankName = '';
+        let dealerBankAccount = '';
+        try {
+          const dealerVerifSnap = await db.collection('dealerVerification').doc(data.dealerUid).get();
+          if (dealerVerifSnap.exists) {
+            dealerBankName = dealerVerifSnap.data().bankName || '';
+            dealerBankAccount = dealerVerifSnap.data().bankAccountNumber || '';
+          }
+        } catch (_) {}
+
+        await db.collection('escrowPayouts').add({
+          requestId,
+          dealerUid: data.dealerUid,
+          dealerName: data.storeName || 'Dealer',
+          customerUid: data.customerUid,
+          amountNaira: topup,
+          paymentReference: data.paymentReference || '',
+          bankName: dealerBankName,
+          bankAccountNumber: dealerBankAccount,
+          status: 'pending_disbursement',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp()
+        });
+      }
+    }
+
     await requestRef.set(update, { merge: true });
     const recipientUid = uid === data.customerUid ? data.dealerUid : data.customerUid;
     if (recipientUid) {
@@ -1692,6 +1721,72 @@ router.get('/api/admin/swaps', authenticate, async (request, response) => {
   }
 });
 
+// GET /api/admin/escrow-payouts (admin only — list pending or completed dealer payouts)
+router.get('/api/admin/escrow-payouts', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    let isAdminUser = IS_TESTING_MODE || request.user.admin === true;
+    if (!isAdminUser) {
+      const userSnap = await db.collection('users').doc(uid).get();
+      isAdminUser = userSnap.exists && userSnap.data().role === 'admin' && userSnap.data().accountType === 'admin';
+    }
+    if (!isAdminUser) return response.status(403).json({ error: 'Admin access required.' });
+    const statusFilter = request.query.status || 'pending_disbursement';
+    let q = db.collection('escrowPayouts');
+    if (statusFilter !== 'all') q = q.where('status', '==', statusFilter);
+    q = q.orderBy('createdAt', 'desc').limit(100);
+    const snap = await q.get();
+    const payouts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    return response.json({ ok: true, payouts });
+  } catch (error) {
+    console.error('[API] Admin escrow payouts failed:', error);
+    return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
+// POST /api/admin/escrow-payouts/disburse (admin only — confirm manual or bank payout)
+router.post('/api/admin/escrow-payouts/disburse', authenticate, async (request, response) => {
+  try {
+    const uid = request.user.uid;
+    const firebase = getFirebaseAdmin();
+    const db = getFirestore(firebase);
+    let isAdminUser = IS_TESTING_MODE || request.user.admin === true;
+    if (!isAdminUser) {
+      const userSnap = await db.collection('users').doc(uid).get();
+      isAdminUser = userSnap.exists && userSnap.data().role === 'admin' && userSnap.data().accountType === 'admin';
+    }
+    if (!isAdminUser) return response.status(403).json({ error: 'Admin access required.' });
+    const payoutId = requireString(request.body.payoutId, 'payoutId', 128);
+    const disbursementRef = requireString(request.body.disbursementRef || `DISB-${Date.now()}`, 'disbursementRef', 128);
+    const payoutRef = db.collection('escrowPayouts').doc(payoutId);
+    const snap = await payoutRef.get();
+    if (!snap.exists) return response.status(404).json({ error: 'Payout record not found.' });
+    const payout = snap.data();
+    await payoutRef.set({
+      status: 'disbursed',
+      disbursedAt: FieldValue.serverTimestamp(),
+      disbursedBy: uid,
+      disbursementRef,
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    if (payout.requestId) {
+      await db.collection('swapRequests').doc(payout.requestId).set({
+        escrowStatus: 'disbursed',
+        disbursedAt: FieldValue.serverTimestamp(),
+        disbursementRef,
+        updatedAt: FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+    return response.json({ ok: true, payoutId, status: 'disbursed', disbursementRef });
+  } catch (error) {
+    console.error('[API] Admin disburse failed:', error);
+    return response.status(error.statusCode || 503).json({ error: error.message });
+  }
+});
+
 // POST /api/swap/messages (in-app chat)
 router.post('/api/swap/messages', authenticate, async (request, response) => {
   try {
@@ -1952,8 +2047,7 @@ router.post('/api/auth/send-verification', async (request, response) => {
       ok: true,
       message: 'Verification code sent to ' + email,
       expiresInSeconds: result.expiresInSeconds,
-      cooldownSeconds: result.cooldownSeconds,
-      testCode: IS_TESTING_MODE ? (result.code || '123456') : undefined
+      cooldownSeconds: result.cooldownSeconds
     });
   } catch (error) {
     console.error('[API] Send verification code failed:', error.message);

@@ -1510,8 +1510,12 @@
 
     async function handleProposeSwapWithListedPhone(device, calc, submitBtn) {
       if (!auth.currentUser && currentUserId === 'user_guest') {
-        alert('Please sign in to submit a swap request.');
-        window.location.href = 'login.html';
+        alert('Please sign in or create an account to finalize and submit your swap proposal.');
+        try {
+          sessionStorage.setItem('pending_swap_device', JSON.stringify(device));
+          sessionStorage.setItem('post_login_redirect', window.location.href);
+        } catch (_) {}
+        window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`;
         return;
       }
 
@@ -1759,6 +1763,19 @@
         if (avatarEl) {
           renderAvatarElement(avatarEl, user.uid, currentUserName, user);
         }
+
+        // Restore pending trade-in device if user was prompted to log in
+        try {
+          const pendingDevRaw = sessionStorage.getItem('pending_swap_device');
+          if (pendingDevRaw) {
+            const pendingDev = JSON.parse(pendingDevRaw);
+            sessionStorage.removeItem('pending_swap_device');
+            if (pendingDev && typeof pendingDev === 'object') {
+              NaijaSwapData.addUserDevice(currentUserId, pendingDev);
+              selectedDeviceIndex = 0;
+            }
+          }
+        } catch (_) {}
 
         updateMySwapsBadge();
         renderSwapSelection();

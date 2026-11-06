@@ -14,6 +14,7 @@ import {
   serverTimestamp,
   sendEmailVerification
 } from './firebase-config.js';
+import { API_BASE_URL } from './backend-api.js';
 import { sendWelcomeEmailBrevo, syncContactToBrevo } from './brevo-client.js';
 
 export const CODE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
@@ -33,7 +34,28 @@ export async function dispatchVerificationEmail(user, { firstName = '', role = '
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   const expiresAt = Date.now() + CODE_EXPIRY_MS;
 
-  // 2. Dispatch official Google Firebase verification email
+  // 2. Dispatch 6-digit verification code email via backend/Brevo service
+  let backendDispatched = false;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/auth/send-verification`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        uid: currentUser ? currentUser.uid : null,
+        firstName,
+        role
+      })
+    });
+    if (res.ok) {
+      backendDispatched = true;
+      console.log('✓ [EmailDispatcher] 6-digit verification email dispatched via backend to', email);
+    }
+  } catch (backendErr) {
+    console.warn('[EmailDispatcher] Backend verification dispatch note:', backendErr.message);
+  }
+
+  // 3. Fallback/supplemental: Dispatch official Google Firebase verification email
   let firebaseMailSent = false;
   if (currentUser) {
     try {
@@ -45,7 +67,7 @@ export async function dispatchVerificationEmail(user, { firstName = '', role = '
     }
   }
 
-  // 3. Persist 6-digit code and expiry in Firestore emailVerifications
+  // 4. Persist 6-digit code and expiry in Firestore emailVerifications
   try {
     await setDoc(doc(db, 'emailVerifications', email), {
       email,
@@ -61,29 +83,16 @@ export async function dispatchVerificationEmail(user, { firstName = '', role = '
     console.warn('[EmailDispatcher] Firestore verification record save warning:', fsErr.message);
   }
 
-  // 4. Cache in session storage for fast local validation / UX
+  // 5. Cache in session storage for fast local validation / UX
   sessionStorage.setItem('naijaswap_active_code', code);
   sessionStorage.setItem('naijaswap_code_expires', expiresAt.toString());
-
-  // 5. Also try local backend endpoint if available (e.g. during local full-stack dev)
-  try {
-    fetch('/api/auth/send-verification', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        uid: currentUser ? currentUser.uid : null,
-        firstName,
-        role
-      })
-    }).catch(() => {});
-  } catch (_) {}
 
   return {
     ok: true,
     email,
     code,
     firebaseMailSent,
+    backendDispatched,
     expiresInSeconds: Math.floor(CODE_EXPIRY_MS / 1000)
   };
 }
@@ -99,17 +108,6 @@ export async function validateOtpCode(email, enteredCode, user) {
 
   if (!cleanCode || cleanCode.length !== 6) {
     throw new Error('Please enter the complete 6-digit verification code.');
-  }
-
-  // Master Test Code for automated checks and sandbox accounts
-  if (cleanCode === '123456') {
-    if (uid) {
-      await setDoc(doc(db, 'users', uid), {
-        emailVerified: true,
-        emailVerifiedAt: new Date()
-      }, { merge: true });
-    }
-    return { ok: true, verified: true, isTestCode: true };
   }
 
   // 1. Check against Firestore record

@@ -9,6 +9,9 @@ const allowedOrigins = new Set([
   'https://naijaswap.web.app',
   'https://naijaswap1.web.app',
   'https://naijaswap.firebaseapp.com',
+  'https://naijaswap-admin.web.app',
+  'https://naijaswap-admin.firebaseapp.com',
+  'https://nigerswap-admin.web.app',
   'http://localhost:10000',
   'http://127.0.0.1:10000',
   'http://localhost:5500',
@@ -44,6 +47,39 @@ app.use(express.json({
   }
 }));
 app.use(apiRouter);
+
+// Protect server-side source code, configuration and sensitive files from public access
+const BLOCKED_EXTENSIONS = /\.(json|env|rules|yaml|yml|log|lock|md|test\.js)$/i;
+const BLOCKED_PATHS = new Set([
+  '/server.js',
+  '/api-server.js',
+  '/test-brevo.js',
+  '/package.json',
+  '/package-lock.json',
+  '/firestore.rules',
+  '/storage.rules',
+  '/firestore.indexes.json',
+  '/render.yaml',
+  '/.env',
+  '/.env.example',
+  '/.firebaserc',
+  '/.gitignore'
+]);
+
+app.use((req, res, next) => {
+  const reqPath = req.path.toLowerCase();
+  if (
+    BLOCKED_PATHS.has(reqPath) ||
+    reqPath.startsWith('/functions') ||
+    reqPath.startsWith('/tests') ||
+    reqPath.startsWith('/services') ||
+    BLOCKED_EXTENSIONS.test(reqPath)
+  ) {
+    return res.status(404).send('Not Found');
+  }
+  next();
+});
+
 app.use(express.static(publicRoot, {
   index: 'index.html',
   extensions: ['html'],
@@ -60,8 +96,8 @@ app.get('/dealer-dashboard', (req, res) => res.sendFile(path.join(publicRoot, 'd
 app.get('/login', (req, res) => res.sendFile(path.join(publicRoot, 'login.html')));
 app.get('/signup', (req, res) => res.sendFile(path.join(publicRoot, 'signup.html')));
 app.get('/listing-activity', (req, res) => res.sendFile(path.join(publicRoot, 'listing-activity.html')));
-app.get('/admin', (req, res) => res.sendFile(path.join(publicRoot, 'admin-portal', 'index.html')));
-app.get('/admin-portal', (req, res) => res.sendFile(path.join(publicRoot, 'admin-portal', 'index.html')));
+app.get('/admin', (req, res) => res.redirect('https://naijaswap-admin.web.app'));
+app.get('/admin-portal', (req, res) => res.redirect('https://naijaswap-admin.web.app'));
 
 app.get(/.*/, (request, response) => {
   response.sendFile(path.join(publicRoot, 'index.html'));

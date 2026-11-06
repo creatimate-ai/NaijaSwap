@@ -1160,20 +1160,16 @@
         const preparedMedia = await Promise.all(filesToAdd.map(async (file) => {
           const isVideo = file.type && file.type.startsWith('video/');
           const dataUrl = isVideo
-            ? await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
-            reader.readAsDataURL(file);
-          })
+            ? ''
             : await compressImageFile(file, 800, 800, 0.72);
 
-          if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) {
+          if (!isVideo && (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:'))) {
             throw new Error(`Could not prepare ${file.name} for upload.`);
           }
 
           return {
             name: file.name,
+            rawFile: file,
             size: isVideo ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' : '~100 KB (Optimized)',
             type: file.type,
             isVideo,
@@ -1301,7 +1297,7 @@
             let url = item.uploadedUrl;
             if (!url) {
               url = await uploadToCloudinary(
-                item.dataUrl,
+                item.rawFile || item.dataUrl,
                 `naijaswap/${currentStoreId}/listings`,
                 (loaded, total) => updateDealerUploadProgress(index + 1, dealerUploadedMedia.length, item.name, loaded, total)
               );

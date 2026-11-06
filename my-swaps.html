@@ -1729,6 +1729,7 @@
               email: currentUserEmail || request?.customerEmail || 'customer@naijaswap.ng',
               amountInNaira: amount,
               metadata: {
+                requestId: request?.firestoreId || reqId,
                 swapRequestId: request?.firestoreId || reqId,
                 targetDevice: model
               },

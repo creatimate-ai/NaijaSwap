@@ -18,6 +18,16 @@ import {
   sendDealerPaymentReceiptBrevo
 } from './brevo-client.js';
 
+export const API_BASE_URL = (() => {
+  if (typeof window === 'undefined') return '';
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return '';
+  }
+  return window.NAIJASWAP_API_URL || (window.location.hostname.endsWith('.web.app') || window.location.hostname.endsWith('.firebaseapp.com')
+    ? 'https://naijaswap.onrender.com'
+    : '');
+})();
+
 function requireUser() {
   if (!auth.currentUser) throw new Error('Please sign in and try again.');
   return auth.currentUser;
@@ -68,13 +78,8 @@ async function getRequest(requestId) {
   return { ref, data: snap.data(), id };
 }
 
-const IS_TESTING_MODE = true;
-
 async function requireAdmin() {
   const user = requireUser();
-  if (IS_TESTING_MODE) {
-    return user;
-  }
   const userSnap = await getDoc(doc(db, 'users', user.uid));
   const userData = userSnap.exists() ? userSnap.data() : {};
   if (userData.role !== 'admin' || userData.accountType !== 'admin') {
@@ -245,7 +250,7 @@ export async function createSwapRequestBackend(payload = {}) {
       storage: cleanString(currentDevice.storage || currentDevice.storageCapacity, 30),
       ram: cleanString(currentDevice.ram, 30),
       condition: cleanString(currentDevice.condition, 60),
-      batteryHealth: Number(currentDevice.batteryHealth) || 0,
+      batteryHealth: parseInt(String(currentDevice.batteryHealth || '').replace(/\D/g, ''), 10) || 0,
       carrierLock: cleanString(currentDevice.carrierLock, 40),
       color: cleanString(currentDevice.color, 50),
       conditionTriage: currentDevice.conditionTriage && typeof currentDevice.conditionTriage === 'object'
@@ -407,7 +412,7 @@ export async function recordSwapPaymentBackend(payload = {}) {
   let serverVerified = false;
   try {
     const idToken = await user.getIdToken();
-    const apiRes = await fetch('/api/payments/verify', {
+    const apiRes = await fetch(`${API_BASE_URL}/api/payments/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -503,17 +508,39 @@ export async function confirmSwapHandoverBackend(payload = {}) {
   if (user.uid !== data.customerUid && user.uid !== data.dealerUid) {
     throw new Error('You are not a participant in this swap.');
   }
+
+  // 1. Try secure backend handover confirmation & escrow payout trigger
+  let serverHandled = false;
+  try {
+    const idToken = await user.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/api/swap/confirm-handover`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
+      body: JSON.stringify({ requestId: id, confirmed: true })
+    });
+    if (res.ok) {
+      serverHandled = true;
+    }
+  } catch (_) {}
+
   const field = user.uid === data.customerUid ? 'customerConfirmed' : 'dealerConfirmed';
   const otherField = user.uid === data.customerUid ? 'dealerConfirmed' : 'customerConfirmed';
   const isBothConfirmed = !!data[otherField];
 
-  const update = { [field]: true, updatedAt: serverTimestamp() };
-  if (isBothConfirmed) {
-    update.status = 'completed';
-    update.completedAt = serverTimestamp();
+  if (!serverHandled) {
+    const update = { [field]: true, updatedAt: serverTimestamp() };
+    if (isBothConfirmed) {
+      update.status = 'completed';
+      update.completedAt = serverTimestamp();
+      if (data.paymentStatus === 'paid' || data.escrowStatus === 'held_in_escrow') {
+        update.escrowStatus = 'disbursement_pending';
+      }
+    }
+    await updateDoc(ref, update);
   }
-
-  await updateDoc(ref, update);
 
   if (isBothConfirmed) {
     try {
@@ -641,7 +668,7 @@ export async function recordSwapInspectionBackend(payload = {}) {
   } catch (err) {
     try {
       const token = await user.getIdToken();
-      const apiRes = await fetch('/api/swap/inspection', {
+      const apiRes = await fetch(`${API_BASE_URL}/api/swap/inspection`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -656,9 +683,6 @@ export async function recordSwapInspectionBackend(payload = {}) {
 
 async function requireAdminOrTechnician() {
   const user = requireUser();
-  if (IS_TESTING_MODE) {
-    return user;
-  }
   const snap = await getDoc(doc(db, 'users', user.uid));
   const profile = snap.exists() ? snap.data() : {};
   if (!((profile.role === 'admin' && profile.accountType === 'admin')
@@ -679,11 +703,11 @@ export async function adminGetVerifications(status = 'pending') {
     const snapshot = await getDocs(query(collection(db, 'dealerVerification'), ...constraints));
     return { ok: true, verifications: snapshot.docs.map(item => ({ id: item.id, ...item.data() })) };
   } catch (err) {
-    // In testing mode or when direct Firestore query is restricted, fallback to backend API
+    // Fallback to backend API
     try {
       const user = auth.currentUser;
       const token = user ? await user.getIdToken() : '';
-      const apiRes = await fetch('/api/admin/verifications', {
+      const apiRes = await fetch(`${API_BASE_URL}/api/admin/verifications`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       if (apiRes.ok) {
@@ -707,7 +731,7 @@ export async function adminGetSwaps(status = 'all') {
     try {
       const user = auth.currentUser;
       const token = user ? await user.getIdToken() : '';
-      const apiRes = await fetch('/api/admin/swaps', {
+      const apiRes = await fetch(`${API_BASE_URL}/api/admin/swaps`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       if (apiRes.ok) {
@@ -747,7 +771,7 @@ export async function adminUpdateVerificationStatus(payload = {}) {
   } catch (err) {
     try {
       const token = await admin.getIdToken();
-      const apiRes = await fetch('/api/admin/verification-status', {
+      const apiRes = await fetch(`${API_BASE_URL}/api/admin/verification-status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload)
@@ -886,7 +910,7 @@ export async function getDealerSubscriptionStatusBackend(dealerUid = null) {
   const uid = dealerUid || user.uid;
   try {
     const token = await user.getIdToken();
-    const res = await fetch('/api/subscription/status', {
+    const res = await fetch(`${API_BASE_URL}/api/subscription/status`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -994,7 +1018,7 @@ export async function initializeDealerSubscriptionBackend(email) {
   const user = requireUser();
   try {
     const token = await user.getIdToken();
-    const res = await fetch('/api/subscription/initialize', {
+    const res = await fetch(`${API_BASE_URL}/api/subscription/initialize`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1025,7 +1049,7 @@ export async function verifyDealerSubscriptionBackend(reference, details = {}) {
   // 1. Try secure backend server verification first (if API server is running)
   try {
     const token = await user.getIdToken();
-    const res = await fetch('/api/subscription/verify', {
+    const res = await fetch(`${API_BASE_URL}/api/subscription/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1156,7 +1180,7 @@ export async function cancelDealerSubscriptionBackend() {
   const user = requireUser();
   try {
     const token = await user.getIdToken();
-    const res = await fetch('/api/subscription/cancel', {
+    const res = await fetch(`${API_BASE_URL}/api/subscription/cancel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1197,7 +1221,7 @@ export async function selectDowngradeActiveListingsBackend(selectedListingIds) {
   const ids = Array.isArray(selectedListingIds) ? selectedListingIds : [];
   try {
     const token = await user.getIdToken();
-    const res = await fetch('/api/subscription/select-active-listings', {
+    const res = await fetch(`${API_BASE_URL}/api/subscription/select-active-listings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1237,7 +1261,7 @@ export async function adminGetSubscriptionsBackend() {
   const user = await requireAdmin();
   const token = await user.getIdToken();
   try {
-    const res = await fetch('/api/admin/subscriptions', {
+    const res = await fetch(`${API_BASE_URL}/api/admin/subscriptions`, {
       headers: {
         Authorization: `Bearer ${token}`
       }

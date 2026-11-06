@@ -219,7 +219,7 @@ service cloud.firestore {
           && resource.data.paymentStatus == 'pending_escrow')
         || (isSwapParticipant()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'customerConfirmed', 'dealerConfirmed', 'updatedAt'])
+            'customerConfirmed', 'dealerConfirmed', 'updatedAt', 'status', 'completedAt', 'escrowStatus'])
           && (
             (request.auth.uid == resource.data.customerUid
               && request.resource.data.customerConfirmed == true
@@ -229,6 +229,12 @@ service cloud.firestore {
               && request.resource.data.dealerConfirmed == true
               && (!('customerConfirmed' in resource.data)
                 || request.resource.data.customerConfirmed == resource.data.customerConfirmed))
+          )
+          && (
+            !('status' in request.resource.data.diff(resource.data).affectedKeys())
+            || (request.resource.data.status == 'completed'
+              && request.resource.data.customerConfirmed == true
+              && request.resource.data.dealerConfirmed == true)
           ))
         || (isSwapParticipant()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
