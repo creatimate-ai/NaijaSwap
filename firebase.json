@@ -125,33 +125,6 @@
           "destination": "/index.html"
         }
       ]
-    },
-    {
-      "site": "naijaswap-admin",
-      "public": "admin-portal",
-      "cleanUrls": true,
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "headers": [
-        {
-          "source": "**/*.@(html|js|css)",
-          "headers": [
-            {
-              "key": "Cache-Control",
-              "value": "no-cache, no-store, must-revalidate"
-            }
-          ]
-        }
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ]
     }
   ]
 }

@@ -5,9 +5,13 @@ User-agent: *
 Allow: /
 Allow: /sitemap.xml
 Allow: /robots.txt
+Allow: /iphone-swap.html
+Allow: /iphone-swap
+Allow: /phone-details.html
 Allow: /about.html
 Allow: /faq.html
 Allow: /store.html
+Allow: /subscription.html
 Allow: /support.html
 Allow: /terms.html
 Allow: /privacy-policy.html
