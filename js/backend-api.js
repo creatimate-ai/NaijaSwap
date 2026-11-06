@@ -6,6 +6,10 @@ import {
   auth, db, collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc,
   writeBatch, query, where, orderBy, limit, serverTimestamp
 } from './firebase-config.js';
+import {
+  sendSwapRequestReceivedBrevo,
+  sendSwapRequestAcceptedBrevo
+} from './brevo-client.js';
 
 function requireUser() {
   if (!auth.currentUser) throw new Error('Please sign in and try again.');
@@ -246,6 +250,26 @@ export async function createSwapRequestBackend(payload = {}) {
     updatedAt: serverTimestamp()
   };
   const reference = await addDoc(collection(db, 'swapRequests'), request);
+
+  // Notify dealer of incoming swap request via Brevo
+  try {
+    const dealerDoc = await getDoc(doc(db, 'users', storeUid));
+    const dealerEmail = dealerDoc.exists() ? dealerDoc.data().email : null;
+    if (dealerEmail) {
+      sendSwapRequestReceivedBrevo({
+        email: dealerEmail,
+        recipientName: listing.storeName || 'Partner',
+        requesterName: request.customerName || 'Swapper',
+        targetPhone: `${targetDevice.brand} ${targetDevice.model}`.trim(),
+        offeredPhone: `${currentDevice.brand} ${currentDevice.model}`.trim(),
+        cashDifference: topupAmount,
+        requestId: reference.id
+      });
+    }
+  } catch (err) {
+    console.warn('[BackendAPI] Could not send swap request email notification:', err);
+  }
+
   return { ok: true, requestId: reference.id, status: request.status, safeSwapCode: request.safeSwapCode };
 }
 
@@ -296,6 +320,24 @@ export async function updateSwapRequestStatusBackend(payload = {}) {
   if (payload.certificateId !== undefined) update.certificateId = cleanString(payload.certificateId, 50);
 
   await updateDoc(ref, update);
+
+  if (status === 'accepted') {
+    try {
+      const customerEmail = data.customerEmail;
+      if (customerEmail) {
+        sendSwapRequestAcceptedBrevo({
+          email: customerEmail,
+          requesterName: data.customerName || 'Customer',
+          targetPhone: `${data.targetDevice?.brand || ''} ${data.targetDevice?.model || ''}`.trim(),
+          dealerName: data.storeName || 'The dealer',
+          requestId: payload.requestId
+        });
+      }
+    } catch (mailErr) {
+      console.warn('[BackendAPI] Could not send swap accepted email notification:', mailErr);
+    }
+  }
+
   return { ok: true, requestId: payload.requestId, status };
 }
 

@@ -21,6 +21,11 @@ import {
   setUserSuspended,
   updateSwapStatus
 } from "./admin-data.js";
+import { 
+  sendDealerVerificationApprovedBrevo, 
+  sendDealerVerificationRejectedBrevo,
+  syncContactToBrevo
+} from "../../js/brevo-client.js";
 
 function notificationRef(uid, id) {
   return doc(db, 'users', uid, 'notifications', id);
@@ -947,6 +952,27 @@ async function approveDealer(uid) {
       message: 'Your store is verified. Next: open your dealer dashboard, complete your store profile, and publish your first listing.',
       link: 'dealer-dashboard.html'
     });
+
+    // Send Brevo notification & update contact to verified dealer
+    try {
+      const dealerEmail = item.businessEmail || item.email || '';
+      if (dealerEmail) {
+        sendDealerVerificationApprovedBrevo({
+          email: dealerEmail,
+          dealerName: item.businessName || 'Partner',
+          storeName: item.businessName || 'your store'
+        });
+        syncContactToBrevo({
+          email: dealerEmail,
+          firstName: item.businessName || '',
+          role: 'dealer',
+          storeName: item.businessName || '',
+          isVerified: true
+        });
+      }
+    } catch (mailErr) {
+      console.warn('[Admin] Could not send dealer approval email:', mailErr);
+    }
   } catch (err) {
     console.error(`[Admin] Firestore approve sync failed at ${approvalStep}:`, err);
     showAlert(`Approval could not be saved (${approvalStep}). Publish the updated Firestore rules and try again.`, 'error');
@@ -1013,6 +1039,21 @@ confirmRejectBtn.addEventListener('click', async () => {
       link: 'dealer-verification.html?edit=true',
       rejectionReason: finalReason
     });
+
+    // Send Brevo notification for dealer rejection / correction
+    try {
+      const dealerEmail = currentSelectedDossier.businessEmail || currentSelectedDossier.email || '';
+      if (dealerEmail) {
+        sendDealerVerificationRejectedBrevo({
+          email: dealerEmail,
+          dealerName: currentSelectedDossier.businessName || 'Dealer',
+          storeName: currentSelectedDossier.businessName || 'your store',
+          reason: finalReason
+        });
+      }
+    } catch (mailErr) {
+      console.warn('[Admin] Could not send dealer rejection email:', mailErr);
+    }
   } catch (err) {
     console.warn('[Admin] Firestore reject sync:', err.message);
     showAlert('Rejection could not be saved. Check Firestore permissions and try again.', 'error');

@@ -529,6 +529,172 @@ Secure your account: ${actionUrl || `${DEFAULT_BASE_URL}/settings.html`}`;
   };
 }
 
+
+/**
+ * 8b. Dealer Verification Submitted (Application in Review)
+ */
+function templateDealerVerificationSubmitted({ dealerName = '', storeName = '', cacNumber = '' } = {}) {
+  const subject = `Application Received: We're verifying ${storeName || 'your store'} on NaijaSwap!`;
+  const previewText = `Your dealer business verification documents have been received and are under review.`;
+  const dashboardUrl = `${DEFAULT_BASE_URL}/dealer-dashboard.html`;
+
+  const contentHtml = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <span style="display: inline-block; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; background: rgba(59, 130, 246, 0.15); font-size: 24px;">
+        📋
+      </span>
+    </div>
+    <h1 style="color: #FFFFFF; font-size: 22px; font-weight: 800; margin-bottom: 12px; text-align: center;">
+      Verification Application Received
+    </h1>
+    <p style="color: #CBD5E1; font-size: 15px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
+      Hello ${escapeHtml(dealerName || 'Dealer')}, thank you for submitting your business verification for <strong>${escapeHtml(storeName || 'your store')}</strong>.
+    </p>
+
+    <div style="background: #080C0E; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; margin: 24px 0;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Store Name:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(storeName || 'Registered Dealer')}</strong>
+      </div>
+      ${cacNumber ? `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">CAC Reg Number:</span>
+        <strong style="color: #FFFFFF;">${escapeHtml(cacNumber)}</strong>
+      </div>` : ''}
+      <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px;">
+        <span style="color: #94A3B8;">Review Status:</span>
+        <strong style="color: #F59E0B;">In Review ⏱️</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 14px;">
+        <span style="color: #94A3B8;">Estimated Turnaround:</span>
+        <strong style="color: #10B981;">2 – 4 Business Hours</strong>
+      </div>
+    </div>
+
+    <div style="background: rgba(16, 185, 129, 0.08); border-radius: 10px; padding: 16px; margin-bottom: 24px;">
+      <p style="color: #E2E8F0; font-size: 14px; font-weight: 700; margin-bottom: 6px;">
+        What happens next?
+      </p>
+      <p style="color: #94A3B8; font-size: 13px; line-height: 1.5; margin: 0;">
+        Our compliance team will review your identity and business credentials. Once approved, you will receive an approval email and immediate access to publish phone listings on the marketplace.
+      </p>
+    </div>
+
+    ${buttonHtml({ text: 'Go to Dealer Dashboard', url: dashboardUrl })}
+  `;
+
+  const text = `Application Received: We're verifying ${storeName || 'your store'} on NaijaSwap!
+Status: In Review
+Estimated Turnaround: 2-4 Business Hours
+Visit your dashboard: ${dashboardUrl}`;
+
+  return {
+    subject,
+    html: renderBaseLayout({ title: subject, previewText, contentHtml }),
+    text
+  };
+}
+
+/**
+ * 8c. Dealer Verification Approved
+ */
+function templateDealerVerificationApproved({ dealerName = '', storeName = '', dashboardUrl = '' } = {}) {
+  const subject = `🎉 Congratulations! Your store is officially verified on NaijaSwap`;
+  const previewText = `Your store verification is approved. Start listing phones and receiving swap offers today!`;
+  const url = dashboardUrl || `${DEFAULT_BASE_URL}/dealer-dashboard.html`;
+  const listingUrl = `${DEFAULT_BASE_URL}/dealer-listing.html`;
+
+  const contentHtml = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <span style="display: inline-block; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); font-size: 26px;">
+        🛡️
+      </span>
+    </div>
+    <h1 style="color: #FFFFFF; font-size: 22px; font-weight: 800; margin-bottom: 12px; text-align: center;">
+      You're an Official Verified Dealer!
+    </h1>
+    <p style="color: #CBD5E1; font-size: 15px; line-height: 1.6; margin-bottom: 22px; text-align: center;">
+      Congratulations, ${escapeHtml(dealerName || 'Partner')}! Your store <strong>${escapeHtml(storeName || 'your store')}</strong> has met our trust & safety standards and is now verified on NaijaSwap.
+    </p>
+
+    <div style="background: #080C0E; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 22px; margin: 24px 0;">
+      <p style="color: #10B981; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+        ✓ Privileges Unlocked
+      </p>
+      <div style="color: #CBD5E1; font-size: 14px; line-height: 1.8;">
+        <div>✅ <strong>Official Verified Badge:</strong> Displayed on all your store's listings.</div>
+        <div>✅ <strong>Post Phone Listings:</strong> List iPhones, Samsung, and Android devices.</div>
+        <div>✅ <strong>Receive Swap Inquiries:</strong> Get direct swap requests and top-up cash offers.</div>
+        <div>✅ <strong>Direct In-App Chat:</strong> Negotiate safely with verified swappers.</div>
+      </div>
+    </div>
+
+    ${buttonHtml({ text: 'Publish Your First Listing', url: listingUrl })}
+
+    <p style="color: #94A3B8; font-size: 13px; text-align: center; line-height: 1.5; margin-top: 20px;">
+      Or visit your <a href="${url}" style="color: #10B981; text-decoration: underline;">Dealer Dashboard</a> to manage your store profile.
+    </p>
+  `;
+
+  const text = `Congratulations! Your store ${storeName} is officially verified on NaijaSwap!
+You can now publish phone listings and receive swap offers.
+Create your first listing: ${listingUrl}`;
+
+  return {
+    subject,
+    html: renderBaseLayout({ title: subject, previewText, contentHtml }),
+    text
+  };
+}
+
+/**
+ * 8d. Dealer Verification Rejected / Needs Attention
+ */
+function templateDealerVerificationRejected({ dealerName = '', storeName = '', reason = '', reapplyUrl = '' } = {}) {
+  const subject = `Action Required: Update your verification documents for ${storeName || 'NaijaSwap'}`;
+  const previewText = `We reviewed your verification submission and need a quick update before approving.`;
+  const url = reapplyUrl || `${DEFAULT_BASE_URL}/dealer-verification.html`;
+
+  const contentHtml = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <span style="display: inline-block; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; background: rgba(244, 63, 94, 0.15); font-size: 24px;">
+        ⚠️
+      </span>
+    </div>
+    <h1 style="color: #FFFFFF; font-size: 22px; font-weight: 800; margin-bottom: 12px; text-align: center;">
+      Verification Needs Correction
+    </h1>
+    <p style="color: #CBD5E1; font-size: 15px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
+      Hello ${escapeHtml(dealerName || 'Dealer')}, our compliance team reviewed your submission for <strong>${escapeHtml(storeName || 'your store')}</strong> and noticed details that require your attention.
+    </p>
+
+    <div style="background: rgba(244, 63, 94, 0.08); border-left: 3px solid #F43F5E; border-radius: 8px; padding: 18px; margin: 24px 0;">
+      <p style="color: #FDA4AF; font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">
+        Reason for Correction:
+      </p>
+      <p style="color: #FFFFFF; font-size: 14px; line-height: 1.6; margin: 0;">
+        ${escapeHtml(reason || 'Uploaded documents were blurry or CAC information could not be verified. Please re-upload clear copies.')}
+      </p>
+    </div>
+
+    ${buttonHtml({ text: 'Update & Re-submit Documents', url, color: '#F43F5E' })}
+
+    <p style="color: #94A3B8; font-size: 13px; text-align: center; line-height: 1.5; margin-top: 20px;">
+      Questions? Reach out to us directly through WhatsApp or contact our support team.
+    </p>
+  `;
+
+  const text = `Action Required on your NaijaSwap dealer verification:
+Reason: ${reason || 'Documents could not be verified.'}
+Update your documents: ${url}`;
+
+  return {
+    subject,
+    html: renderBaseLayout({ title: subject, previewText, contentHtml }),
+    text
+  };
+}
+
 /**
  * 9. Listing Published Successfully
  */
@@ -1544,6 +1710,9 @@ module.exports = {
   templateDealerSubscriptionExpired,
   templateDealerStarterLimitWarning,
   templateDealerStarterLimitReached,
+  templateDealerVerificationSubmitted,
+  templateDealerVerificationApproved,
+  templateDealerVerificationRejected,
   templateNewInventoryAlert,
   templateMarketingCampaign
 };

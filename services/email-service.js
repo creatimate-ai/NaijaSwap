@@ -721,6 +721,45 @@ class EmailService {
     });
   }
 
+  async sendDealerVerificationSubmitted(to, { dealerName = '', storeName = '', cacNumber = '' } = {}) {
+    const tpl = templates.templateDealerVerificationSubmitted({ dealerName, storeName, cacNumber });
+    return this.sendMailDirect({
+      to,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+      templateName: 'dealer_verification_submitted',
+      idempotencyKey: `dealer_verif_sub_${to}_${Date.now()}`,
+      isMarketing: false
+    });
+  }
+
+  async sendDealerVerificationApproved(to, { dealerName = '', storeName = '', dashboardUrl = '' } = {}) {
+    const tpl = templates.templateDealerVerificationApproved({ dealerName, storeName, dashboardUrl });
+    return this.sendMailDirect({
+      to,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+      templateName: 'dealer_verification_approved',
+      idempotencyKey: `dealer_verif_app_${to}`,
+      isMarketing: false
+    });
+  }
+
+  async sendDealerVerificationRejected(to, { dealerName = '', storeName = '', reason = '', reapplyUrl = '' } = {}) {
+    const tpl = templates.templateDealerVerificationRejected({ dealerName, storeName, reason, reapplyUrl });
+    return this.sendMailDirect({
+      to,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+      templateName: 'dealer_verification_rejected',
+      idempotencyKey: `dealer_verif_rej_${to}_${Date.now()}`,
+      isMarketing: false
+    });
+  }
+
   async sendNewInventoryAlert(to, { recipientName = '', phoneTitle = '', dealerName = '', price = null, swapValue = null, listingUrl = '', listingId = '' }) {
     const tpl = templates.templateNewInventoryAlert({ recipientName, phoneTitle, dealerName, price, swapValue, listingUrl });
     return this.sendMailDirect({

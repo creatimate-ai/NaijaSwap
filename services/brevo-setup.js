@@ -112,6 +112,66 @@ async function setupBrevo() {
         listingId: '{{params.LISTING_ID}}',
         listingUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/store.html`
       }).html
+    },
+    {
+      templateName: 'NigerSwap - Dealer Verification Received',
+      subject: "Application Received: We're verifying {{params.STORE_NAME}} on NaijaSwap!",
+      htmlContent: templates.templateDealerVerificationSubmitted({
+        dealerName: '{{params.DEALER_NAME}}',
+        storeName: '{{params.STORE_NAME}}',
+        cacNumber: '{{params.CAC_NUMBER}}'
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Dealer Verification Approved',
+      subject: '🎉 Congratulations! Your store is officially verified on NaijaSwap',
+      htmlContent: templates.templateDealerVerificationApproved({
+        dealerName: '{{params.DEALER_NAME}}',
+        storeName: '{{params.STORE_NAME}}',
+        dashboardUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/dealer-dashboard.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Dealer Verification Needs Attention',
+      subject: 'Action Required: Update your verification documents for {{params.STORE_NAME}}',
+      htmlContent: templates.templateDealerVerificationRejected({
+        dealerName: '{{params.DEALER_NAME}}',
+        storeName: '{{params.STORE_NAME}}',
+        reason: '{{params.REASON}}',
+        reapplyUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/dealer-verification.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Listing Published Successfully',
+      subject: 'Your phone listing {{params.PHONE_TITLE}} is now LIVE on NaijaSwap!',
+      htmlContent: templates.templateListingPublished({
+        dealerName: '{{params.DEALER_NAME}}',
+        phoneTitle: '{{params.PHONE_TITLE}}',
+        listingId: '{{params.LISTING_ID}}',
+        listingUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/store.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Swap Request Received',
+      subject: "You've received a new swap request!",
+      htmlContent: templates.templateSwapRequestReceived({
+        recipientName: '{{params.RECIPIENT_NAME}}',
+        requesterName: '{{params.REQUESTER_NAME}}',
+        targetPhone: '{{params.TARGET_PHONE}}',
+        offeredPhone: '{{params.OFFERED_PHONE}}',
+        cashDifference: '{{params.CASH_DIFFERENCE}}',
+        swapUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/dealer-requests.html`
+      }).html
+    },
+    {
+      templateName: 'NigerSwap - Swap Request Accepted',
+      subject: 'Great news! Your swap request was accepted.',
+      htmlContent: templates.templateSwapRequestAccepted({
+        requesterName: '{{params.REQUESTER_NAME}}',
+        targetPhone: '{{params.TARGET_PHONE}}',
+        dealerName: '{{params.DEALER_NAME}}',
+        swapUrl: `${process.env.APP_BASE_URL || 'https://naijaswap.web.app'}/my-swaps.html`
+      }).html
     }
   ];
 

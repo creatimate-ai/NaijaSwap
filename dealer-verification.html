@@ -372,6 +372,7 @@
     import { getStoredProfile, saveStoredProfile, compressImageFile, getStoredRole } from './js/profile.js';
     import { showAuthAlert, clearAuthAlert, setButtonLoading } from './js/auth.js';
     import { uploadPrivateKycDocument } from './js/private-storage.js?v=direct-cloudinary-2';
+    import { sendDealerVerificationSubmittedBrevo, syncContactToBrevo } from './js/brevo-client.js';
 
     let currentUser = null, currentStep = 1, isEditMode = false;
     const TOTAL_STEPS = 6;
@@ -673,6 +674,27 @@
           } catch (_) {}
         } catch (syncErr) {
           throw new Error(syncErr.message || 'Verification could not be submitted. Please try again.');
+        }
+
+        // Trigger Brevo verification submitted confirmation & sync contact
+        try {
+          const dealerEmail = data.businessEmail || currentUser?.email || '';
+          if (dealerEmail) {
+            sendDealerVerificationSubmittedBrevo({
+              email: dealerEmail,
+              dealerName: currentUser?.displayName || data.businessName || 'Dealer',
+              storeName: data.businessName || 'Your Store',
+              cacNumber: data.cacNumber || ''
+            });
+            syncContactToBrevo({
+              email: dealerEmail,
+              firstName: currentUser?.displayName || data.businessName || '',
+              role: 'dealer',
+              storeName: data.businessName || ''
+            });
+          }
+        } catch (mailErr) {
+          console.warn('[DealerVerification] Could not send confirmation email:', mailErr);
         }
 
         setButtonLoading(submitBtn, false, 'Submit Verification');

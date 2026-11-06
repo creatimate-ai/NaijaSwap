@@ -556,26 +556,11 @@
               <span class="form-section-num">3</span>
               <div>
                 <h3>Swap & Trade-In Rules</h3>
-                <p>Choose whether customers can trade in their old phones and set the minimum acceptable model</p>
+                <p>Set the minimum acceptable phone model you are willing to accept for swap trade-ins</p>
               </div>
             </div>
 
-            <div class="form-group">
-              <div class="triage-row">
-                <div class="triage-info">
-                  <span class="triage-q-title">Accept Trade-Ins / Swaps for this phone?</span>
-                  <span class="triage-q-desc">Allow customers to propose their old phone plus a top-up cash difference.</span>
-                </div>
-                <div class="toggle-switch-wrapper">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="dealerIsSwapAllowed" checked>
-                    <span class="toggle-slider"></span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group" id="minSwapTierGroup" style="margin-top: 12px;">
+            <div class="form-group" id="minSwapTierGroup">
               <label class="form-label" for="dealerMinTradeInTier">Lowest Phone Model You Accept for Swap</label>
               <select id="dealerMinTradeInTier" class="form-select">
                 <option value="iPhone 11 and above" selected>iPhone 11 and above</option>
@@ -787,6 +772,7 @@
     import { db, doc, getDoc, auth } from './js/firebase-config.js';
     import { setButtonLoading } from './js/auth.js';
     import { getDealerPhone, getDealerShopAddress, getUserLocation } from './js/user-autofill.js';
+    import { sendListingPublishedBrevo } from './js/brevo-client.js';
 
     let currentStoreId = '';
     let currentStoreName = '';
@@ -1018,7 +1004,6 @@
     const dealerBatteryHealth = document.getElementById('dealerBatteryHealth');
     const batteryHealthHint = document.getElementById('batteryHealthHint');
     const dealerConditionGrade = document.getElementById('dealerConditionGrade');
-    const dealerIsSwapAllowed = document.getElementById('dealerIsSwapAllowed');
     const minSwapTierGroup = document.getElementById('minSwapTierGroup');
     const dealerMinTradeInTier = document.getElementById('dealerMinTradeInTier');
     const dealerCustomTradeInTierGroup = document.getElementById('dealerCustomTradeInTierGroup');
@@ -1122,12 +1107,6 @@
         });
       }
 
-      // Allow Swap Toggle
-      if (dealerIsSwapAllowed && minSwapTierGroup) {
-        dealerIsSwapAllowed.addEventListener('change', () => {
-          minSwapTierGroup.style.display = dealerIsSwapAllowed.checked ? 'block' : 'none';
-        });
-      }
 
       if (dealerMinTradeInTier && dealerCustomTradeInTierGroup && dealerCustomTradeInTier) {
         dealerMinTradeInTier.addEventListener('change', () => {
@@ -1298,12 +1277,12 @@
         const description = document.getElementById('dealerDescription')?.value.trim() || '';
         const batteryHealth = parseInt(document.getElementById('dealerBatteryHealth')?.value, 10) || 100;
         const warranty = document.getElementById('dealerStoreWarranty')?.value || '30 Days Full Hub Guarantee';
-        const isSwapAllowed = dealerIsSwapAllowed ? dealerIsSwapAllowed.checked : true;
+        const isSwapAllowed = true;
         const selectedTradeInTier = dealerMinTradeInTier?.value || 'iPhone 11 and above';
         const minTradeInTier = selectedTradeInTier === 'custom'
           ? dealerCustomTradeInTier?.value.trim()
           : selectedTradeInTier;
-        if (isSwapAllowed && !minTradeInTier) {
+        if (!minTradeInTier) {
           alert('Please describe the minimum trade-in phone you will accept.');
           return;
         }
@@ -1415,6 +1394,22 @@
           }
           newListing.firestoreId = backendResult.listingId;
           NaijaSwapData.attachFirestoreListingId(newListing.id, backendResult.listingId);
+
+          // Dispatch listing published confirmation email via Brevo
+          try {
+            const dealerEmail = dealerAuthUser?.email || '';
+            if (dealerEmail) {
+              const phoneTitle = `${newListing.brand} ${newListing.model} ${newListing.storage || ''}`.trim();
+              sendListingPublishedBrevo({
+                email: dealerEmail,
+                dealerName: currentStoreName || 'Dealer',
+                phoneTitle,
+                listingId: backendResult.listingId
+              });
+            }
+          } catch (mailErr) {
+            console.warn('[DealerListings] Could not send listing published email:', mailErr);
+          }
         } catch (error) {
           if (newListing) NaijaSwapData.deleteListing(newListing.id, currentStoreId);
           console.error('[NaijaSwap] Dealer listing publish failed:', error);
@@ -1440,6 +1435,7 @@
         if (dealerCustomBrandGroup) dealerCustomBrandGroup.style.display = 'none';
         if (dealerCustomModelGroup) dealerCustomModelGroup.style.display = 'none';
         if (dealerCustomStorageGroup) dealerCustomStorageGroup.style.display = 'none';
+        if (dealerCustomTradeInTierGroup) dealerCustomTradeInTierGroup.style.display = 'none';
         updateDealerMediaCounter();
         addPhoneModal.classList.remove('active');
         renderStoreListings();
