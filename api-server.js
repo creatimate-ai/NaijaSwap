@@ -2156,8 +2156,8 @@ router.post('/api/auth/log-login', async (request, response) => {
       const prevAgent = userData.lastLoginAgent;
       const effectiveEmail = userData.email || email;
 
-      // Only alert if this is an established account and the device / IP is meaningfully new
-      if (prevIp && prevIp !== clientIp && prevAgent && prevAgent !== userAgent && effectiveEmail) {
+      // Send security alert email on login
+      if (effectiveEmail) {
         const firstName = userData.displayName ? userData.displayName.split(' ')[0] : '';
         emailService.sendNewLoginAlert(effectiveEmail, {
           firstName,

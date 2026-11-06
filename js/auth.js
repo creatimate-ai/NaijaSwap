@@ -550,6 +550,14 @@ export function initLoginForm() {
         setButtonLoading(submitBtn, true, "Signing in...");
         const userCred = await signInWithEmailAndPassword(auth, email, password);
         sessionStorage.removeItem("naijaswap_first_signup");
+
+        // Trigger login security alert notification
+        fetch('/api/auth/log-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: userCred.user?.uid, email: userCred.user?.email || email })
+        }).catch(() => {});
+
         await redirectUserAfterAuth(userCred.user);
       } catch (err) {
         setButtonLoading(submitBtn, false);
@@ -574,6 +582,14 @@ export function initLoginForm() {
         const result = await signInWithPopup(auth, googleProvider);
         console.log("[NaijaSwap Auth] Google sign-in success, UID:", result.user?.uid);
         sessionStorage.removeItem("naijaswap_first_signup");
+
+        // Trigger login security alert notification
+        fetch('/api/auth/log-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: result.user?.uid, email: result.user?.email || '' })
+        }).catch(() => {});
+
         await redirectUserAfterAuth(result.user);
       } catch (err) {
         console.error("[NaijaSwap Auth] Google sign-in failed:", err.code, err.message);
