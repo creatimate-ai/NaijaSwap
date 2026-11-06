@@ -56,20 +56,9 @@ function renderBaseLayout({ title, previewText, contentHtml, footerHtml, isMarke
           <!-- BRAND HEADER -->
           <tr>
             <td align="center" style="padding: 16px 0 24px 0;">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td align="center">
-                    <a href="${DEFAULT_BASE_URL}" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                      <span style="display: inline-block; width: 36px; height: 36px; line-height: 36px; border-radius: 10px; background: linear-gradient(135deg, #00D26A, #06B6D4); text-align: center; color: #080C0E; font-size: 20px; font-weight: 800; vertical-align: middle;">
-                        🔄
-                      </span>
-                      <span style="font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF; vertical-align: middle; margin-left: 8px;">
-                        Naija<span style="color: #10B981;">Swap</span>
-                      </span>
-                    </a>
-                  </td>
-                </tr>
-              </table>
+              <a href="${DEFAULT_BASE_URL}" style="text-decoration: none; display: inline-block;">
+                <img src="${DEFAULT_BASE_URL}/assets/naijaswap-logo.png" alt="NaijaSwap" width="180" style="display: block; width: 180px; max-width: 100%; height: auto; border: 0; outline: none; text-decoration: none; margin: 0 auto;" />
+              </a>
             </td>
           </tr>
 
@@ -90,10 +79,7 @@ function renderBaseLayout({ title, previewText, contentHtml, footerHtml, isMarke
           <tr>
             <td style="padding: 28px 16px 12px 16px; text-align: center; font-size: 12px; color: #64748B; line-height: 1.8;">
               <p style="margin-bottom: 8px;">
-                NaijaSwap — Nigeria's Premier Phone Swapping & Verified Dealer Marketplace.
-              </p>
-              <p style="margin-bottom: 12px;">
-                Computer Village, Ikeja, Lagos, Nigeria &bull; <a href="mailto:${SUPPORT_EMAIL}" style="color: #94A3B8;">${SUPPORT_EMAIL}</a>
+                NaijaSwap — Nigeria's Premier Phone Swapping & Verified Dealer Marketplace
               </p>
               ${footerHtml || ''}
               ${isMarketing && unsubscribeUrl ? `
