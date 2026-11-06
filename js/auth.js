@@ -728,7 +728,8 @@ export function initSignupForm() {
   // Pre-select role from URL query param (?role=dealer or ?role=customer)
   if (roleBtnCustomer || roleBtnDealer) {
     const urlParams = new URLSearchParams(window.location.search);
-    const initialRole = urlParams.get("role") === "dealer" ? "dealer" : "customer";
+    const rawRole = (urlParams.get("role") || "").toLowerCase().trim();
+    const initialRole = (rawRole === "dealer" || rawRole === "store" || rawRole === "seller" || rawRole === "shop") ? "dealer" : "customer";
     setSignupRole(initialRole);
 
     if (roleBtnCustomer) {
