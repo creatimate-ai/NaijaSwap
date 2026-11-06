@@ -9,6 +9,7 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const templates = require('./email-templates');
+const { brevoService } = require('./brevo-service');
 
 // Auto-load .env if present
 try {
@@ -67,6 +68,37 @@ class EmailService {
           envelope: { from: mailOptions.from, to: mailOptions.to }
         })
       };
+      return;
+    }
+
+    if (process.env.BREVO_API_KEY && (!process.env.SMTP_HOST || process.env.EMAIL_PROVIDER === 'brevo')) {
+      // Direct Brevo REST API v3 transport (zero SMTP port blocking)
+      this.transporter = {
+        sendMail: async (mailOptions) => {
+          let sender = undefined;
+          if (mailOptions.from) {
+            const match = mailOptions.from.match(/(.*)<([^>]+)>/);
+            if (match) {
+              sender = { name: match[1].trim(), email: match[2].trim() };
+            } else if (mailOptions.from.includes('@')) {
+              sender = { name: 'NigerSwap', email: mailOptions.from.trim() };
+            }
+          }
+          const res = await brevoService.sendEmail({
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            htmlContent: mailOptions.html,
+            textContent: mailOptions.text,
+            sender
+          });
+          return {
+            messageId: res.messageId,
+            response: '250 OK: Sent via Brevo REST API v3',
+            envelope: { from: mailOptions.from, to: mailOptions.to }
+          };
+        }
+      };
+      console.log('[EmailService] Initialized Brevo REST API v3 transporter');
       return;
     }
 
@@ -686,6 +718,19 @@ class EmailService {
       templateName: 'dealer_starter_limit_reached',
       idempotencyKey: `dealer_limit_reach_${to}_5`,
       isMarketing: false
+    });
+  }
+
+  async sendNewInventoryAlert(to, { recipientName = '', phoneTitle = '', dealerName = '', price = null, swapValue = null, listingUrl = '', listingId = '' }) {
+    const tpl = templates.templateNewInventoryAlert({ recipientName, phoneTitle, dealerName, price, swapValue, listingUrl });
+    return this.sendMailDirect({
+      to,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+      templateName: 'new_inventory_alert',
+      idempotencyKey: listingId ? `inv_${listingId}_${to}` : null,
+      isMarketing: true
     });
   }
 

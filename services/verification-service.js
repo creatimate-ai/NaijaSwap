@@ -6,6 +6,7 @@
 
 const crypto = require('crypto');
 const { emailService } = require('./email-service');
+const { brevoService } = require('./brevo-service');
 
 const CODE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
 const RESEND_COOLDOWN_MS = 60 * 1000;   // 60 seconds
@@ -111,8 +112,19 @@ class VerificationService {
       updatedAt: new Date()
     });
 
-    // Send code via email
-    await emailService.sendVerificationCode(normalizedEmail, code, firstName);
+    console.log(`\n======================================================`);
+    console.log(`🔑 [AUTHENTICATION CODE GENERATED]`);
+    console.log(`📧 Recipient: ${normalizedEmail}`);
+    console.log(`🔢 Code:      ${code}`);
+    console.log(`⏳ Expires:   10 minutes`);
+    console.log(`======================================================\n`);
+
+    // Send code via email (safely handle network/Brevo IP blocks in dev)
+    try {
+      await emailService.sendVerificationCode(normalizedEmail, code, firstName);
+    } catch (mailErr) {
+      console.warn(`[VerificationService] Email delivery notice: ${mailErr.message}`);
+    }
 
     return {
       ok: true,
@@ -257,9 +269,9 @@ class VerificationService {
     // Invalidate the verification record
     await verifDocRef.delete();
 
-    // 5. Send Personalized Welcome Email Immediately
+    // 5. Send Personalized Welcome Email & Sync Contact to Brevo
+    const firstName = userDisplayName ? userDisplayName.split(' ')[0] : '';
     try {
-      const firstName = userDisplayName ? userDisplayName.split(' ')[0] : '';
       await emailService.sendWelcomeEmail(normalizedEmail, {
         firstName,
         role: userRole,
@@ -267,6 +279,21 @@ class VerificationService {
       });
     } catch (welcomeErr) {
       console.warn('[VerificationService] Note sending welcome email:', welcomeErr.message);
+    }
+
+    // Sync verified user to Brevo Marketing Audience (if Brevo is configured)
+    if (brevoService.isConfigured()) {
+      const targetListIds = userRole === 'dealer' ? [4] : [3, 5];
+      brevoService.syncContact({
+        email: normalizedEmail,
+        firstName,
+        role: userRole,
+        listIds: targetListIds,
+        customAttributes: {
+          STORE_NAME: userShop || undefined,
+          EMAIL_VERIFIED: true
+        }
+      }).catch(bErr => console.warn('[VerificationService] Note syncing to Brevo:', bErr.message));
     }
 
     return {

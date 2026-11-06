@@ -1457,6 +1457,60 @@ Upgrade to Premium for ₦9,900/month to upload unlimited inventory: ${url}`;
 /**
  * 31. Marketing Campaign Template
  */
+/**
+ * Customer & Subscriber Alert: New Verified Inventory Dropped
+ */
+function templateNewInventoryAlert({ recipientName = '', phoneTitle, dealerName = 'A verified dealer', price = null, swapValue = null, listingUrl, imageUrl = '' }) {
+  const subject = `🔥 New Arrival: ${phoneTitle} just listed on NigerSwap!`;
+  const previewText = `A verified ${phoneTitle} has just been added by ${dealerName}. Check it out now!`;
+  const url = listingUrl || `${DEFAULT_BASE_URL}/store.html`;
+
+  const priceBadge = price ? `<span style="background: rgba(16, 185, 129, 0.15); color: #10B981; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 14px; margin-right: 8px;">₦${Number(price).toLocaleString()}</span>` : '';
+  const swapBadge = swapValue ? `<span style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 14px;">Swap Value: ₦${Number(swapValue).toLocaleString()}</span>` : '';
+
+  const contentHtml = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <span style="display: inline-block; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); font-size: 24px;">
+        🔥
+      </span>
+    </div>
+    <h1 style="color: #FFFFFF; font-size: 22px; font-weight: 800; margin-bottom: 12px; text-align: center;">
+      New Verified Phone Just Dropped!
+    </h1>
+    <p style="color: #CBD5E1; font-size: 15px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
+      Hello ${escapeHtml(recipientName || 'Swapper')}, a new high-demand phone was just listed and verified by <strong>${escapeHtml(dealerName)}</strong> on NigerSwap.
+    </p>
+
+    <div style="background: #080C0E; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 22px; text-align: center; margin: 24px 0;">
+      <p style="color: #94A3B8; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Newly Available Device</p>
+      <h2 style="color: #10B981; font-size: 22px; font-weight: 800; margin: 0 0 12px 0;">
+        ${escapeHtml(phoneTitle)}
+      </h2>
+      <div style="margin-top: 10px;">
+        ${priceBadge}
+        ${swapBadge}
+      </div>
+    </div>
+
+    ${buttonHtml({ text: 'Inspect & Propose Swap', url })}
+
+    <p style="color: #94A3B8; font-size: 13px; text-align: center; line-height: 1.5; margin-top: 20px;">
+      ⚡ High-demand listings get swap offers quickly. View the phone specs and start a swap inquiry before it is taken!
+    </p>
+  `;
+
+  const text = `New Verified Phone Alert on NigerSwap!
+Device: ${phoneTitle}
+Dealer: ${dealerName}
+${price ? `Price: ₦${Number(price).toLocaleString()}\n` : ''}Check out the listing and propose a swap: ${url}`;
+
+  return {
+    subject,
+    html: renderBaseLayout({ title: subject, previewText, contentHtml, isMarketing: true }),
+    text
+  };
+}
+
 function templateMarketingCampaign({ title, previewText, contentHtml, unsubscribeUrl, preferencesUrl }) {
   const subject = title || 'NaijaSwap Announcement';
 
@@ -1504,5 +1558,6 @@ module.exports = {
   templateDealerSubscriptionExpired,
   templateDealerStarterLimitWarning,
   templateDealerStarterLimitReached,
+  templateNewInventoryAlert,
   templateMarketingCampaign
 };

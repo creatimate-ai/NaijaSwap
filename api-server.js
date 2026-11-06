@@ -7,6 +7,7 @@ const { FieldValue, getFirestore } = require('firebase-admin/firestore');
 const { emailService } = require('./services/email-service');
 const { verificationService } = require('./services/verification-service');
 const { automationService } = require('./services/automation-service');
+const { brevoService } = require('./services/brevo-service');
 
 const router = express.Router();
 const MAX_SWAP_AMOUNT_NAIRA = 5000000;
@@ -2173,6 +2174,17 @@ router.post('/api/auth/log-login', async (request, response) => {
         lastLoginAgent: userAgent,
         lastActiveAt: FieldValue.serverTimestamp()
       }, { merge: true });
+
+      // Sync user login timestamp into Brevo
+      if (brevoService.isConfigured() && effectiveEmail) {
+        brevoService.syncContact({
+          email: effectiveEmail,
+          firstName: userData.displayName ? userData.displayName.split(' ')[0] : undefined,
+          customAttributes: {
+            LAST_LOGIN: new Date().toISOString()
+          }
+        }).catch(err => console.warn('[API Email] Brevo login sync note:', err.message));
+      }
     }
 
     return response.json({ ok: true });
