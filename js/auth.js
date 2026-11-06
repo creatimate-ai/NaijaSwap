@@ -20,6 +20,7 @@ import { db, doc, getDoc, setDoc } from './firebase-config.js';
 import { resolveMedia } from './media-storage.js';
 import { renderAvatarElement, getEffectiveUserPhoto } from './profile.js';
 import { dispatchVerificationEmail } from './email-dispatcher.js';
+import { sendLoginAlertEmail, syncContactToBrevo } from './brevo-client.js';
 
 export { auth };
 
@@ -551,11 +552,18 @@ export function initLoginForm() {
         const userCred = await signInWithEmailAndPassword(auth, email, password);
         sessionStorage.removeItem("naijaswap_first_signup");
 
-        // Trigger login security alert notification
+        const targetEmail = userCred.user?.email || email;
+        const firstName = userCred.user?.displayName ? userCred.user.displayName.split(' ')[0] : '';
+
+        // Dispatch login security alert via Brevo & Sync contact to Brevo audience
+        sendLoginAlertEmail({ email: targetEmail, firstName }).catch(() => {});
+        syncContactToBrevo({ email: targetEmail, firstName }).catch(() => {});
+
+        // Also trigger backend endpoint if available
         fetch('/api/auth/log-login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid: userCred.user?.uid, email: userCred.user?.email || email })
+          body: JSON.stringify({ uid: userCred.user?.uid, email: targetEmail })
         }).catch(() => {});
 
         await redirectUserAfterAuth(userCred.user);
@@ -583,11 +591,20 @@ export function initLoginForm() {
         console.log("[NaijaSwap Auth] Google sign-in success, UID:", result.user?.uid);
         sessionStorage.removeItem("naijaswap_first_signup");
 
-        // Trigger login security alert notification
+        const targetEmail = result.user?.email || '';
+        const firstName = result.user?.displayName ? result.user.displayName.split(' ')[0] : '';
+
+        // Dispatch login security alert via Brevo & Sync contact to Brevo audience
+        if (targetEmail) {
+          sendLoginAlertEmail({ email: targetEmail, firstName }).catch(() => {});
+          syncContactToBrevo({ email: targetEmail, firstName }).catch(() => {});
+        }
+
+        // Also trigger backend endpoint if available
         fetch('/api/auth/log-login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid: result.user?.uid, email: result.user?.email || '' })
+          body: JSON.stringify({ uid: result.user?.uid, email: targetEmail })
         }).catch(() => {});
 
         await redirectUserAfterAuth(result.user);

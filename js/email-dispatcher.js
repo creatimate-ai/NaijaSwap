@@ -14,6 +14,7 @@ import {
   serverTimestamp,
   sendEmailVerification
 } from './firebase-config.js';
+import { sendWelcomeEmailBrevo, syncContactToBrevo } from './brevo-client.js';
 
 export const CODE_EXPIRY_MS = 10 * 60 * 1000; // 10 minutes
 
@@ -145,6 +146,10 @@ export async function validateOtpCode(email, enteredCode, user) {
           verifiedAt: serverTimestamp()
         });
       } catch (_) {}
+
+      // Dispatch Welcome Email & Sync user to Brevo audience
+      sendWelcomeEmailBrevo({ email: normalizedEmail, firstName: data.firstName || '', role: data.role || 'customer' }).catch(() => {});
+      syncContactToBrevo({ email: normalizedEmail, firstName: data.firstName || '', role: data.role || 'customer' }).catch(() => {});
 
       return { ok: true, verified: true };
     } else {
