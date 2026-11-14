@@ -13,6 +13,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/dashboard.css">
   <style>
+    :root {
+      --red-400: #F43F5E;
+      --red-subtle: rgba(244, 63, 94, 0.12);
+      --red-border: rgba(244, 63, 94, 0.35);
+    }
+    .btn-dispute {
+      background: rgba(244, 63, 94, 0.12) !important;
+      color: #F43F5E !important;
+      border: 1px solid rgba(244, 63, 94, 0.35) !important;
+    }
+    .btn-dispute:hover {
+      background: rgba(244, 63, 94, 0.25) !important;
+      color: #FFFFFF !important;
+      border-color: #F43F5E !important;
+    }
     /* Specific styles for the dedicated Swap Requests page */
     .requests-stats-grid {
       display: grid;
@@ -890,7 +905,7 @@
         <button type="button" class="btn-action-sm" id="inspectConfirmHandoverBtn" style="display: none; background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: var(--emerald-400);">
           <span>Confirm Handover</span>
         </button>
-        <button type="button" class="btn-action-sm" id="inspectDisputeBtn" style="display: none; border-color: var(--red-400); color: var(--red-400);">
+        <button type="button" class="btn-action-sm btn-dispute" id="inspectDisputeBtn" style="display: none; background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.35); color: #F43F5E;">
           <span>Open Dispute</span>
         </button>
       </div>
@@ -1372,8 +1387,8 @@
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
               ${topupNum > 0 ? `
-                <span class="status-badge" style="font-size: 0.72rem; ${isEscrowSecured ? 'background: rgba(0,210,106,0.15); color: var(--emerald-400); border: 1px solid var(--emerald-border);' : 'background: rgba(245,158,11,0.15); color: var(--amber-400); border: 1px solid rgba(245,158,11,0.3);'}">
-                  ${isEscrowSecured ? '🔒 Escrow Secured' : '⏳ Escrow Pending'}
+                <span class="status-badge" style="font-size: 0.72rem; background: rgba(0,210,106,0.15); color: var(--emerald-400); border: 1px solid var(--emerald-border);">
+                  🤝 Hub Direct Top-Up
                 </span>
               ` : ''}
               <span class="status-badge ${badgeClass}">${req.status}</span>
@@ -1411,8 +1426,8 @@
               <span style="color: #FFF; font-size: 0.95rem; font-weight: 700;">${escapeHtml(tradeInCredit)}</span>
             </div>
             <div style="text-align: right;">
-              <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Top-Up Balance (${isEscrowSecured ? '🔒 Escrow Funded' : '⏳ Deposit Pending'}):</span>
-              <div class="req-topup-highlight" style="${isEscrowSecured ? 'color: var(--emerald-400);' : ''}">${escapeHtml(topupOffered)}</div>
+              <span style="font-size: 0.72rem; color: var(--text-faint); display: block;">Top-Up Balance (Direct Hub Settlement):</span>
+              <div class="req-topup-highlight">${escapeHtml(topupOffered)}</div>
             </div>
           </div>
 
@@ -1445,7 +1460,7 @@
                 <button type="button" class="btn-action-sm btn-confirm-handover" data-id="${req.id}" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: var(--emerald-400);">Confirm Handover</button>
               ` : ''}
               ${!['cancelled', 'rejected', 'completed'].includes(req.status) ? `
-                <button type="button" class="btn-action-sm btn-dispute" data-id="${req.id}" style="border-color: var(--red-400); color: var(--red-400);">Open Dispute</button>
+                <button type="button" class="btn-action-sm btn-dispute" data-id="${req.id}" style="background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.35); color: #F43F5E;">Open Dispute</button>
               ` : ''}
             </div>
           </div>
@@ -1526,16 +1541,21 @@
     }
 
     async function handleDispute(reqId, triggerBtn = null) {
-      const req = NaijaSwapData.getStoreSwapRequests(currentStoreId).find(item => item.id === reqId);
-      if (!req?.firestoreId) return;
+      const allReqs = NaijaSwapData.getStoreSwapRequests(currentStoreId);
+      const req = allReqs.find(item => item.id === reqId || item.firestoreId === reqId);
+      const targetId = req?.firestoreId || req?.id || reqId;
+      if (!targetId) {
+        alert('Could not locate the swap request to dispute.');
+        return;
+      }
       const reason = prompt('Please enter a reason for the dispute:');
       if (!reason) return;
       
       if (triggerBtn) setButtonLoading(triggerBtn, true, 'Filing Dispute...');
       try {
-        await openSwapDisputeBackend({ requestId: req.firestoreId, reason });
+        await openSwapDisputeBackend({ requestId: targetId, reason });
         alert('Dispute opened successfully. Admin will review it shortly.');
-        req.disputeStatus = 'open';
+        if (req) req.disputeStatus = 'open';
         renderRequests();
         requestInspectionModal?.classList.remove('active');
       } catch (err) {
@@ -1817,11 +1837,15 @@
 
       // Call button
       const callBtn = document.getElementById('inspectCallBtn');
-      if (cleanPhone) {
-        callBtn.style.display = 'inline-flex';
-        callBtn.href = `tel:+${cleanPhone}`;
-      } else {
-        callBtn.style.display = 'none';
+      const rawPhone = req.customerPhone || req.contactPhone || req.phone || '';
+      const cleanPhone = String(rawPhone).replace(/[^\d+]/g, '');
+      if (callBtn) {
+        if (cleanPhone) {
+          callBtn.style.display = 'inline-flex';
+          callBtn.href = `tel:${cleanPhone.startsWith('+') ? cleanPhone : '+' + cleanPhone}`;
+        } else {
+          callBtn.style.display = 'none';
+        }
       }
 
       // Device titles
@@ -2209,7 +2233,7 @@
     if (paramId) {
       setTimeout(() => {
         const all = NaijaSwapData.getStoreSwapRequests(currentStoreId);
-        const match = all.find(r => r.id === paramId);
+        const match = all.find(r => r.id === paramId || r.firestoreId === paramId);
         if (match) {
           openInspectionModal(match);
         }

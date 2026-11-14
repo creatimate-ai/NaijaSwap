@@ -32,6 +32,10 @@
   --rose-subtle: rgba(244, 63, 94, 0.12);
   --rose-border: rgba(244, 63, 94, 0.3);
 
+  --red-400: #F43F5E;
+  --red-subtle: rgba(244, 63, 94, 0.12);
+  --red-border: rgba(244, 63, 94, 0.35);
+
   --text-white: #FFFFFF;
   --text-dim: #E2E8F0;
   --text-muted: #94A3B8;
@@ -2167,7 +2171,9 @@ body {
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.05);
+  color: #FFF;
   transition: all var(--spring-fast);
 }
 
@@ -2188,6 +2194,13 @@ body {
   border: 1px solid var(--rose-border);
 }
 .btn-decline:hover { background: rgba(244, 63, 94, 0.25); color: #FFF; transform: translateY(-1px); }
+
+.btn-dispute {
+  background: rgba(244, 63, 94, 0.12);
+  color: var(--rose-400, #F43F5E);
+  border: 1px solid var(--rose-border, rgba(244, 63, 94, 0.35));
+}
+.btn-dispute:hover { background: rgba(244, 63, 94, 0.25); color: #FFF; border-color: var(--rose-400, #F43F5E); transform: translateY(-1px); }
 
 .btn-view-req {
   background: rgba(255, 255, 255, 0.06);
